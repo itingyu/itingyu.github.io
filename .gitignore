@@ -1,0 +1,17 @@
+.DS_Store
+tmp/
+*.log
+.idea/
+.nyc_output/
+coverage/
+.tmp*
+.vscode
+
+.deploy_git
+.git/
+node_modules/
+public/
+db.json
+source/_posts
+package-lock.json
+yarn.lock
