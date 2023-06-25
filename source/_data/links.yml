@@ -1,0 +1,18 @@
+mylinks:
+ - nickname: 必应站长管理
+   avatar: https://www.bing.com/sa/simg/favicon-2x.ico
+   site: https://hexo-next.readthedocs.io/zh_CN/latest/next/
+   info: 管理站点
+ - nickname: hexo 中文参考
+   avatar: https://hexo-next.readthedocs.io/zh_CN/latest/assets/images/favicon.png
+   site: https://hexo-next.readthedocs.io/zh_CN/latest/next/
+   info: 可以学习搭建使用hexo next
+ - nickname: 百度统计
+   avatar: https://tongji.baidu.com/favicon.ico
+   site: https://tongji.baidu.com/main/homepage/10000561023/homepage/index
+   info: 统计网站数据
+eg:
+ - nickname: 
+   avatar: 
+   site:
+   info:

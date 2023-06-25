@@ -118,6 +118,7 @@ deploy:
 search:
   path: search.xml
   field: post
+  content: true
   format: html
   limit: 10
 symbols_count_time:
@@ -132,6 +133,20 @@ symbols_count_time:
 
 sitemap:
   path: sitemap.xml
+
+feed:
+  enable: true
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content:
+  content_limit: 140
+  content_limit_delim: ' '
+  order_by: -date
+  icon: icon.png
+  autodiscovery: true
+  template:
 
 hexo_submit_urls_to_search_engine:
   # 提交最新的 n 个链接

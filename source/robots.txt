@@ -7,4 +7,4 @@ Allow: /about/
 Disallow: /vendors/
 Disallow: /fonts/
 Disallow: /fancybox/
-Sitemap: https://mikolaje.github.io/sitemap.xml
+Sitemap: https://itingyu.github.io/sitemap.xml
