@@ -1,14 +1,15 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 public class App {
     private String srcDir;
     private String destBaseDir;
     private boolean copyOther;
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss sss");
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss");
     public App(String src, String dest,boolean copyOther) {
         this.srcDir=src;
         this.destBaseDir=dest;
@@ -29,12 +30,23 @@ public class App {
         }
     }
     public void addFrontMatter(File src,File des,String path) {
-        String date = simpleDateFormat.format(new Date());
+        BasicFileAttributes attributes = null;
+        try {
+            attributes = Files.readAttributes(src.toPath(), BasicFileAttributes.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String createTime = simpleDateFormat.format(Date.from(attributes.creationTime().toInstant()));
+        System.out.println(createTime);
+        String updatedTime = simpleDateFormat.format(Date.from(attributes.lastModifiedTime().toInstant()));
+        System.out.println(updatedTime);
         String[] categories = path.split("/");
         StringBuilder frontMatter = new StringBuilder();
         frontMatter.append("---\n")
                 .append("title: ").append(src.getName().replace(".md","")).append("\n")
-                .append("date: ").append(date).append("\n");
+                .append("date: ").append(createTime).append("\n")
+                .append("updated: ").append(updatedTime).append("\n");
         frontMatter.append("categories:\n");
         for (int i = 0; i < categories.length; i++) {
             if(categories[i].length()>0)

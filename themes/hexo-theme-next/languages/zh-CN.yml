@@ -6,6 +6,7 @@ title:
   tag: 标签
   schedule: 日程表
   guestbook: 留言板
+  links: 链接
 menu:
   home: 首页
   archives: 归档
@@ -16,6 +17,7 @@ menu:
   schedule: 日程表
   sitemap: 站点地图
   guestbook: 留言板
+  links: 链接
   commonweal: 公益 404
 sidebar:
   overview: 站点概览

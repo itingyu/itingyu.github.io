@@ -104,6 +104,7 @@ menu:
   #schedule: /schedule/ || fa fa-calendar
   #sitemap: /sitemap.xml || fa fa-sitemap
   #about: /about/ || fa fa-user
+  links: /links/ || fa fa-link
   guestbook: /guestbook/ || fa fa-comment
   #commonweal: /404/ || fa fa-heartbeat
 # Enable / Disable menu icons / item badges.
@@ -250,9 +251,9 @@ read_more_btn: true
 # Post meta display settings
 post_meta:
   item_text: false
-  created_at: false
+  created_at: true
   updated_at:
-    enable: true
+    enable: false
     another_day: true
   categories: true
 
@@ -732,7 +733,7 @@ gitalk:
   # When the official proxy is not available, you can change it to your own proxy address
 # This is official proxy address
   proxy: https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token
-             https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token
+  #proxy: https://gitalk.itingyu.workers.dev/https://github.com/login/oauth/access_token
   # Gitalk's display language depends on user's browser or system environment
   # If you want everyone visiting your site to see a uniform language, you can set a force language value
   # Available values: en | es-ES | fr | ru | zh-CN | zh-TW
