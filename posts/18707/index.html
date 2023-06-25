@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="分库分表背景及解决方案背景及问题 用户增多单库承受不住使用主从架构分担请求，业务复杂，写入请求增多，提高程序性能，分库分表读写分离。 解决方案 垂直拆分：分为垂直分库和垂直分表 1）垂直分库：比如一个库中保存用户和订单，由于量都非常大，可以分成两个库分别来保存用户和订单信息。 2）垂直分表：比如一张表保存了用户信息，其中还有用户介绍，可以把用户介绍这种大文本单独设计一张表，进行关联，需要的时候进行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分库分表">
+<meta property="og:url" content="https://itingyu.github.io/posts/18707/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="分库分表背景及解决方案背景及问题 用户增多单库承受不住使用主从架构分担请求，业务复杂，写入请求增多，提高程序性能，分库分表读写分离。 解决方案 垂直拆分：分为垂直分库和垂直分表 1）垂直分库：比如一个库中保存用户和订单，由于量都非常大，可以分成两个库分别来保存用户和订单信息。 2）垂直分表：比如一张表保存了用户信息，其中还有用户介绍，可以把用户介绍这种大文本单独设计一张表，进行关联，需要的时候进行">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/1da5127b26533f6c5edfa51f46cb1e5c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/38a47287c4f8df70c71ec02d8aab2338.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-85e6dc040ae2e7cd03c0496b2123aae1_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/1908b05ac9694014d2e5aead43cb22dc.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-66649837f5f00d3651792bdfbb73e5c3_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-970525f81dcee0eb53abe2a8c6fbf44b_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-bc0b721e0719a1089594b92fed97c0a6_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/5008b8352d711136af6b2c72d25f6b18.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/3f6e77e7910e69624d773f575bb6b280.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/70512a8c6564c421ee37993b78df04e3.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-5652a6faac34d6c8e90b4b99b5e10d23_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-ae1491e1e88ab8c63cd6644e53fe0f59_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-95ef39ead87ec9430908a06c5b3ba09d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/b13354cfcb0a7e5fda7fb68844bdb413.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-92d88f53b7a320a293599a3e8f4a719b_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/71d6f92281887a760d4315815785c90d.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/0a5385d5d250c819e0fecdf8bc3e65e6.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/8b41bdfff12e7250a2047c091bb07fae.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/18707/assets/a971a98d4aa5946d3347765dbbf84f7b.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-3b4894ab94f32cd419dd4518b6e6223d_720w.webp">
+<meta property="article:published_time" content="2023-06-17T11:30:44.000Z">
+<meta property="article:modified_time" content="2023-06-17T11:32:10.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/18707/assets/1da5127b26533f6c5edfa51f46cb1e5c.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/18707/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/18707/","path":"posts/18707/","title":"分库分表"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>分库分表 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E8%83%8C%E6%99%AF%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">1.</span> <span class="nav-text">分库分表背景及解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ShardingSphere"><span class="nav-number">2.</span> <span class="nav-text">ShardingSphere</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-JDBC"><span class="nav-number">3.</span> <span class="nav-text">Sharding-JDBC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">4.</span> <span class="nav-text">数据分片核心概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87%E6%B5%81%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">数据分片流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87SQL%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83"><span class="nav-number">6.</span> <span class="nav-text">数据分片SQL使用规范</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87Inline%E8%A1%8C%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">7.</span> <span class="nav-text">数据分片Inline行表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E5%8F%8A%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88"><span class="nav-number">8.</span> <span class="nav-text">读写分离及架构设计方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%BA%E5%88%B6%E8%B7%AF%E7%94%B1Hint"><span class="nav-number">9.</span> <span class="nav-text">强制路由Hint</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%84%B1%E6%95%8F"><span class="nav-number">10.</span> <span class="nav-text">数据脱敏</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E7%90%86%E8%AE%BACAP%E5%92%8CBASE"><span class="nav-number">11.</span> <span class="nav-text">分布式事务理论CAP和BASE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%A8%A1%E5%BC%8F2PC%E5%92%8C3PC"><span class="nav-number">12.</span> <span class="nav-text">分布式事务模式2PC和3PC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-JDBC%E6%95%B4%E5%90%88XA%E5%8E%9F%E7%90%86"><span class="nav-number">13.</span> <span class="nav-text">Sharding-JDBC整合XA原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-JDBC%E6%95%B4%E5%90%88Saga%E5%8E%9F%E7%90%86"><span class="nav-number">14.</span> <span class="nav-text">Sharding-JDBC整合Saga原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-JDBC%E6%95%B4%E5%90%88Seata%E5%8E%9F%E7%90%86"><span class="nav-number">15.</span> <span class="nav-text">Sharding-JDBC整合Seata原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ShardingSphere-SPI-%E5%8A%A0%E8%BD%BD"><span class="nav-number">16.</span> <span class="nav-text">ShardingSphere SPI 加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ShardingSphere-%E7%BC%96%E6%8E%92%E6%B2%BB%E7%90%86"><span class="nav-number">17.</span> <span class="nav-text">ShardingSphere 编排治理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Sharding-Proxy"><span class="nav-number">18.</span> <span class="nav-text">Sharding-Proxy</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/18707/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="分库分表 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          分库分表
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 19:30:44" itemprop="dateCreated datePublished" datetime="2023-06-17T19:30:44+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>9.4k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="分库分表背景及解决方案"><a href="#分库分表背景及解决方案" class="headerlink" title="分库分表背景及解决方案"></a><strong>分库分表背景及解决方案</strong></h3><p><strong>背景及问题</strong></p>
+<p>用户增多单库承受不住使用主从架构分担请求，业务复杂，写入请求增多，提高程序性能，分库分表读写分离。</p>
+<p><strong>解决方案</strong></p>
+<p>垂直拆分：分为垂直分库和垂直分表</p>
+<p>1）垂直分库：比如一个库中保存用户和订单，由于量都非常大，可以分成两个库分别来保存用户和订单信息。</p>
+<p>2）垂直分表：比如一张表保存了用户信息，其中还有用户介绍，可以把用户介绍这种大文本单独设计一张表，进行关联，需要的时候进行关联查询。</p>
+<p>水平拆分：分为水平分库和水平分表</p>
+<p>1）水平分库：单张表的数据切分到多个服务器上去，每个服务器具有相应的库与表，只是表中数据集合不同。</p>
+<p>2）水平分表：针对数据量巨大的单张表（比如订单表），按照规则把一张表的数据切分到多张表里面去。</p>
+<p>水平分表规则：</p>
+<p>1） RANGE（时间、地域、大小）</p>
+<p>2） HASH（ID取模）</p>
+<p>3） 站内信（维度，即自己只能看见自己，单请求在一个库）</p>
+<p>4） 用户表（范围、ID HASH均匀分布）</p>
+<p>5） 流水表（时间维度）</p>
+<p>主键规则：</p>
+<p>1） UUID</p>
+<p>2） 雪花算法</p>
+<p>数据一致性：</p>
+<p>1）强一致性：XA协议</p>
+<p>2）最终一致性：TCC、saga、Seata</p>
+<p>数据库扩容：</p>
+<p>1）成倍增加数据节点，实现平滑扩容</p>
+<p>2）成倍扩容以后，表中的部分数据请求已被路由到其他节点上面，可以清理掉</p>
+<p>业务层改造：</p>
+<p>1）基于代理层方式：Mycat、Sharding-Proxy、MySQL Proxy</p>
+<p>2）基于应用层方式：Sharding-jdbc</p>
+<p>分库后面临的问题：</p>
+<p>1） 事务问题</p>
+<p>2） 跨库跨表的join问题</p>
+<p>3） 数据库扩容、维护成本变高</p>
+<h3 id="ShardingSphere"><a href="#ShardingSphere" class="headerlink" title="ShardingSphere"></a><strong>ShardingSphere</strong></h3><p>Apache ShardingSphere是一款开源的分布式数据库中间件组成的生态圈，它由Sharding-JDBC、Sharding-Proxy和Sharding-Sidecar（规划中）这3款相互独立的产品组成。ShardingSphere定位为关系型数据库中间件，旨在充分合理地在分布式的场景下利用关系型数据库的 计算和存储能力，而并非实现一个全新的关系型数据库。</p>
+<p><img src="/posts/18707/assets/1da5127b26533f6c5edfa51f46cb1e5c.webp" alt="img"></p>
+<p>1） Sharding-JDBC：被定位为轻量级Java框架，在Java的JDBC层提供的额外服务，以jar包形式使用。</p>
+<p>2） Sharding-Proxy：被定位为透明化的数据库代理端，提供封装了数据库二进制协议的服务端版 本，用于完成对异构语言的支持。</p>
+<p>3） Sharding-Sidecar：被定位为Kubernetes或Mesos的云原生数据库代理，以DaemonSet的形式代 理所有对数据库的访问。</p>
+<p><img src="/posts/18707/assets/38a47287c4f8df70c71ec02d8aab2338.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-85e6dc040ae2e7cd03c0496b2123aae1_720w.webp" alt="img"></p>
+<h3 id="Sharding-JDBC"><a href="#Sharding-JDBC" class="headerlink" title="Sharding-JDBC"></a><strong>Sharding-JDBC</strong></h3><p>Sharding-JDBC定位为轻量级Java框架，在Java的JDBC层提供的额外服务。可理解为增强版的JDBC驱动，完全兼容JDBC和各种ORM 框架的使用。</p>
+<p>1） 适用于任何基于Java的ORM框架，如：JPA, Hibernate, Mybatis, Spring JDBC Template或直接使 用JDBC。</p>
+<p>2） 基于任何第三方的数据库连接池，如：DBCP, C3P0, BoneCP, Druid, HikariCP等。</p>
+<p>3） 支持任意实现JDBC规范的数据库。目前支持MySQL，Oracle，SQLServer和PostgreSQL。</p>
+<p><strong>Sharding-JDBC主要功能</strong></p>
+<p>1） 数据分片：分库分表、读写分离、分片策略、分布式主键</p>
+<p>2） 分布式事务：标准化事务接口、XA强一致性事务、柔性事务</p>
+<p>3） 数据库治理：配置动态、服务治理、数据脱敏、链路追踪</p>
+<p><strong>Sharding-JDBC 内部结构</strong></p>
+<p><img src="/posts/18707/assets/1908b05ac9694014d2e5aead43cb22dc.webp" alt="img"></p>
+<p>1） 黄色部分表示的是Sharding-JDBC的入口API，采用工厂方法的形式提供。</p>
+<p>2） 蓝色部分表示的是Sharding-JDBC的配置对象，提供灵活多变的配置方式。</p>
+<p>3） 红色部分表示的是内部对象，由Sharding-JDBC内部使用，应用开发者无需关注。</p>
+<p><strong>Sharding-JDBC初始化流程</strong></p>
+<p>1） 根据配置的信息生成Configuration对象</p>
+<p>2） 通过Factory会将Configuration对象转化为Rule对象</p>
+<p>3） 通过Factory会将Rule对象与DataSource对象封装</p>
+<p>4） Sharding-JDBC使用DataSource进行分库分表和读写分离操作</p>
+<p><strong>Sharding-JDBC 使用过程</strong></p>
+<p>1） 引入maven依赖</p>
+<p>2） 规则配置，Java，YAML，Spring命名空间和Spring Boot Starter四种方式配置</p>
+<p>3） 通过ShardingDataSourceFactory工厂和规则配置对象获取ShardingDataSource，创建DataSource。</p>
+<h3 id="数据分片核心概念"><a href="#数据分片核心概念" class="headerlink" title="数据分片核心概念"></a><strong>数据分片核心概念</strong></h3><p><strong>表概念</strong></p>
+<p>1） 真实表 数据库中真实存在的物理表。例如b_order0、b_order1</p>
+<p>2） 逻辑表 在分片之后，同一类表结构的名称（总成）。例如b_order。</p>
+<p>3） 数据节点 在分片之后，由数据源和数据表组成。例如ds0.b_order1 绑定表</p>
+<p>4） 绑定表 指的是分片规则一致的关系表（主表、子表），例如b_order和b_order_item，均按照 order_id分片，则此两个表互为绑定表关系。绑定表之间的多表关联查询不会出现笛卡尔积 关联，可以提升关联查询效率。</p>
+<p>5） 广播表 广播表会在不同的数据节点上进行存储，存储 的表结构和数据完全相同，比如省份，字典表信息</p>
+<p><strong>分片算法</strong></p>
+<p>1） 精确分片算法PreciseShardingAlgorithm</p>
+<p>2） 范围分片算法RangeShardingAlgorithm</p>
+<p>3） 复合分片算法ComplexKeysShardingAlgorithm</p>
+<p>4） Hint分片算法HintShardingAlgorithm</p>
+<p><strong>分片策略</strong></p>
+<p>1） 标准分片策略StandardShardingStrateg</p>
+<p>2） 复合分片策略ComplexShardingStrategy</p>
+<p>3） 行表达式分片策略InlineShardingStrateg</p>
+<p>4） Hint分片策略HintShardingStrategy</p>
+<p>5） 不分片策略NoneShardingStrategy</p>
+<p><strong>分片策略配置</strong></p>
+<p>1） 数据源分片策略</p>
+<p>2） 表分片策略</p>
+<h3 id="数据分片流程"><a href="#数据分片流程" class="headerlink" title="数据分片流程"></a><strong>数据分片流程</strong></h3><p><img src="https://pic4.zhimg.com/80/v2-66649837f5f00d3651792bdfbb73e5c3_720w.webp" alt="img"></p>
+<p>1） SQL解析：SQL解析分为词法解析和语法解析。先通过词法解析器将SQL拆分为一个个不可再分的单词。再使 用语法解析器对SQL进行理解，并最终提炼出解析上下文。</p>
+<p>2） 查询优化：负责合并和优化分片条件，如OR等。</p>
+<p>3） SQL路由：根据解析上下文匹配用户配置的分片策略，并生成路由路径。</p>
+<p>4） SQL改写：将SQL改写为在真实数据库中可以正确执行的语句。</p>
+<p>5） SQL执行：通过多线程执行器异步执行SQL。</p>
+<p>6） 结果归并：将多个执行结果集归并以便于通过统一的JDBC接口输出。</p>
+<h3 id="数据分片SQL使用规范"><a href="#数据分片SQL使用规范" class="headerlink" title="数据分片SQL使用规范"></a><strong>数据分片SQL使用规范</strong></h3><p><strong>SQL使用规范</strong></p>
+<p>1） 支持路由至单数据节点时，目前MySQL数据库100%全兼容，路由至多数据节点时，全面支持DQL、DML、DDL、DCL、TCL。</p>
+<p>2） 路由至多数据节点不支持CASE WHEN、HAVING、UNION (ALL)。</p>
+<p>3） 支持分页子查询，但其他子查询有限支持，无论嵌套多少层，只能解析第一层。</p>
+<p>4） 由于归并的限制，子查询中包含聚合函数目前无法支持。</p>
+<p>5） 不支持包含schema的SQL。</p>
+<p>6） 当分片键处于运算表达式或函数中的SQL时，将采用全路由的形式获取结果。</p>
+<p><strong>不支持的SQL示例</strong></p>
+<p>INSERT INTO tbl_name (col1, col2, …) VALUES(1+2, ?, …) &#x2F;&#x2F;VALUES语句不支持运算表达式</p>
+<p>INSERT INTO tbl_name (col1, col2, …) SELECT col1, col2, … FROM tbl_name WHERE col3 &#x3D; ? &#x2F;&#x2F;INSERT .. SELECT</p>
+<p>SELECT COUNT(col1) as count_alias FROM tbl_name GROUP BY col1 HAVING count_alias &gt; ? &#x2F;&#x2F;HAVING</p>
+<p>SELECT * FROM tbl_name1 UNION SELECT * FROM tbl_name2 &#x2F;&#x2F;UNION</p>
+<p>SELECT * FROM tbl_name1 UNION ALL SELECT * FROM tbl_name2 &#x2F;&#x2F;UNION ALL</p>
+<p>SELECT * FROM ds.tbl_name1 &#x2F;&#x2F;包含schema</p>
+<p>SELECT SUM(DISTINCT col1), SUM(col1) FROM tbl_name &#x2F;&#x2F;同时使用普通聚合函数和DISTINCT</p>
+<p>SELECT * FROM tbl_name WHERE to_date(create_time, ‘yyyy-mm-dd’) &#x3D; ? &#x2F;&#x2F;会导致全路由<strong>分页查询</strong></p>
+<p>完全支持MySQL和Oracle的分页查询，SQLServer由于分页查询较为复杂，仅部分支持</p>
+<h3 id="数据分片Inline行表达式"><a href="#数据分片Inline行表达式" class="headerlink" title="数据分片Inline行表达式"></a><strong>数据分片Inline行表达式</strong></h3><p>前面分片策略说到了行表达式分片策略InlineShardingStrateg，他就是采用Inline行表达式进行分片的配置，简化数据节点和分片算法配置信息。完成配置简化、配置一体化。</p>
+<p><strong>语法格式</strong></p>
+<p>使用${ expression }或$-&gt;{ expression }标识行表达式</p>
+<p>${begin..end} 表示范围区间</p>
+<p>${[unit1, unit2, unit_x]} 表示枚举值</p>
+<p>行表达式中如果出现多个${}或$-&gt;{}表达式，整个表达式结果会将每个子表达式结果进行笛卡尔 (积)组合</p>
+<p>${[‘online’, ‘offline’]}_table${1..3}</p>
+<p>$-&gt;{[‘online’, ‘offline’]}_table$-&gt;{1..3}</p>
+<p>上面语句解析结果-&gt;</p>
+<p>online_table1, online_table2, online_table3,</p>
+<p>offline_table1, offline_table2, offline_table3</p>
+<p>均匀分布的数据节点</p>
+<p><img src="https://pic4.zhimg.com/80/v2-970525f81dcee0eb53abe2a8c6fbf44b_720w.webp" alt="img"></p>
+<p>用行表达式：</p>
+<p>db${0..1}.b_order${1..2} 或者 db$-&gt;{0..1}.b_order$-&gt;{1..2}</p>
+<p>自定义的数据节点</p>
+<p><img src="https://pic3.zhimg.com/80/v2-bc0b721e0719a1089594b92fed97c0a6_720w.webp" alt="img"></p>
+<p>用行表达式：</p>
+<p>db0.b_order${0..1},db1.b_order${2..4}</p>
+<p>分片算法配置，根据分片键进行计算的方式，返回相应的真实数据源或真实表名称。</p>
+<p>ds${id % 10} 或者 ds$-&gt;{id % 10} -&gt;结果为：ds0、ds1、ds2… ds9</p>
+<p>分布式主键</p>
+<p>内置的分布式主键生成器，例如UUID、SNOWFLAKE，还抽离出分布式主键生成器的接口，方便用户自行实现自定义的自增主键生成器。</p>
+<p><img src="/posts/18707/assets/5008b8352d711136af6b2c72d25f6b18.webp" alt="img"></p>
+<h3 id="读写分离及架构设计方案"><a href="#读写分离及架构设计方案" class="headerlink" title="读写分离及架构设计方案"></a><strong>读写分离及架构设计方案</strong></h3><p>读写分离是通过主从的配置方式，将查询请求均匀的分散到多个数据副本，进一步的提升系统的处理能力。</p>
+<p><img src="/posts/18707/assets/3f6e77e7910e69624d773f575bb6b280.webp" alt="img"></p>
+<p>主从架构：读写分离，目的是高可用、读写扩展。主从库内容相同，根据SQL语义进行路由。</p>
+<p>分库分表架构：数据分片，目的读写扩展、存储扩容。库和表内容不同，根据分片配置进行路由。</p>
+<p>读写分离虽然可以提升系统的吞吐量和可用性，但同时也带来了数据不一致的问题，包括多个主库之间的数据一致性，以及主库与从库之间的数据一致性的问题。</p>
+<p><strong>架构设计方案</strong></p>
+<p>方案一（第一阶段-&gt;一主两从）：数据量不是很多的情况下，我们可以将数据库进行读写分离，以应对高并发的需求，通过水平扩展从库，来缓解查询的压力。</p>
+<p><img src="/posts/18707/assets/70512a8c6564c421ee37993b78df04e3.webp" alt="img"></p>
+<p>方案二（第二阶段-&gt;主从加分表）：数据量达到500万的时候，数据量预估千万级别，将数据进行分表存储。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-5652a6faac34d6c8e90b4b99b5e10d23_720w.webp" alt="img"></p>
+<p>方案三（最终阶段-&gt;分库分表加读写分离）：如果方案二不满足需求，数据量继续扩大，这时考虑分库分表，将数据存储在不同数据库的不同表中。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-ae1491e1e88ab8c63cd6644e53fe0f59_720w.webp" alt="img"></p>
+<p>ShardingSphere读写分离模块的主要设计目标是让使用方尽量像使用一个数据库一样使用主从数据库集群，即规则让关联数据在同一个库中，避免跨库调用。</p>
+<p>ShardingSphere核心功能</p>
+<p>1） 提供一主多从的读写分离配置。仅支持单主库，可以支持独立使用，也可以配合分库分表使用</p>
+<p>2） 独立使用读写分离，支持SQL透传。不需要SQL改写流程</p>
+<p>3） 同一线程且同一数据库连接内，能保证数据一致性。如果有写入操作，后续的读操作均从主库读取。</p>
+<p>4） 基于Hint的强制主库路由。可以强制路由走主库查询实时数据，避免主从同步数据延迟。</p>
+<p>ShardingSphere不支持项</p>
+<p>1） 主库和从库的数据同步</p>
+<p>2） 主库和从库的数据同步延迟</p>
+<p>3） 主库双写或多写</p>
+<p>4） 跨主库和从库之间的事务的数据不一致。建议在主从架构中，事务中的读写均用主库操作，使用Hint强制路由。</p>
+<h3 id="强制路由Hint"><a href="#强制路由Hint" class="headerlink" title="强制路由Hint"></a><strong>强制路由Hint</strong></h3><p>分片条件并不存在于SQL，而存在于外部业务逻辑，使用Hint指定了强制分片路由，那么SQL将会无视原有的分片逻辑，直接路由至指定的数据节点操作，比如事务操作，要求读写都在主库。</p>
+<p>使用步骤：</p>
+<p>1） 编写分库或分表路由策略，实现HintShardingAlgorithm接口</p>
+<p>2） 在配置文件指定分库或分表策略</p>
+<p>3） 在代码执行查询前使用HintManager指定执行策略值</p>
+<h3 id="数据脱敏"><a href="#数据脱敏" class="headerlink" title="数据脱敏"></a><strong>数据脱敏</strong></h3><p>数据脱敏是指对某些敏感信息通过脱敏规则进行数据的变形，实现敏感隐私数据的可靠保护，其实就是加密。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-95ef39ead87ec9430908a06c5b3ba09d_720w.webp" alt="img"></p>
+<p>脱敏配置四部分：数据源配置，加密器配置，脱敏表配置以及查询属性配置</p>
+<p><img src="/posts/18707/assets/b13354cfcb0a7e5fda7fb68844bdb413.webp" alt="img"></p>
+<p>数据源配置：指DataSource的配置信息</p>
+<p>加密器配置：指使用什么加密策略进行加解密。目前ShardingSphere内置了两种加解密策略： AES&#x2F;MD5</p>
+<p>脱敏表配置：指定哪个列用于存储密文数据（cipherColumn）、哪个列用于存储明文数据 （plainColumn）以及用户想使用哪个列进行SQL编写（logicColumn）</p>
+<p>查询属性的配置：当底层数据库表里同时存储了明文数据、密文数据后，该属性开关用于决定是直 接查询数据库表里的明文数据进行返回，还是查询密文数据通过Encrypt-JDBC解密后返回。</p>
+<p><strong>加密策略解析</strong></p>
+<p>ShardingSphere提供了两种加密策略用于数据脱敏，该两种策略分别对应ShardingSphere的两种加解 密的接口，即Encryptor和QueryAssistedEncryptor。</p>
+<p>Encryptor：提供encrypt(), decrypt()两种方法对需要脱敏的数据进行加解密。</p>
+<p>QueryAssistedEncryptor：即使是相同的数据，如两个用户的密码相同，它们在数据库里存储的脱敏数据也应当是不一样的。</p>
+<h3 id="分布式事务理论CAP和BASE"><a href="#分布式事务理论CAP和BASE" class="headerlink" title="分布式事务理论CAP和BASE"></a><strong>分布式事务理论CAP和BASE</strong></h3><p><strong>CAP（强一致性）</strong></p>
+<p>布鲁尔定理。对于共享数据系统，最多只能同时拥有CAP其中的两个</p>
+<p><img src="https://pic4.zhimg.com/80/v2-92d88f53b7a320a293599a3e8f4a719b_720w.webp" alt="img"></p>
+<p><strong>BASE（最终一致性）</strong></p>
+<p>基本可用（Basically Available）、软状态（ Soft State）、最终一致性（ Eventual Consistency）。它的核心思想是即使无法做到强一致性（CAP 就是强一致性），但应用可以采用适合的方式达到最终一致性。</p>
+<p>BA指的是基本业务可用性，支持分区失败；</p>
+<p>S表示柔性状态，也就是允许短时间内不同步；</p>
+<p>E表示最终一致性，数据最终是一致的，但是实时是不一致的。</p>
+<h3 id="分布式事务模式2PC和3PC"><a href="#分布式事务模式2PC和3PC" class="headerlink" title="分布式事务模式2PC和3PC"></a><strong>分布式事务模式2PC和3PC</strong></h3><p><strong>2PC模式（强一致性）</strong></p>
+<p>两阶段提交，就是将事务的提交过程分为两个阶段来进行处理。事务的发起者称协调者，事务的执行者称参与者。</p>
+<p>1） 阶段 1：准备阶段 协调者向所有参与者发送事务内容，询问是否可以提交事务，并等待所有参与者答复。 各参与者执行事务操作，但不提交事务，将 undo 和 redo 信息记入事务日志中。 如参与者执行成功，给协调者反馈 yes；如执行失败，给协调者反馈 no。</p>
+<p>2） 阶段 2：提交阶段 如果协调者收到了参与者的失败消息或者超时，直接给每个参与者发送回滚(rollback)消息； 否则，发送提交(commit)消息。</p>
+<p>2PC 方案存在的问题</p>
+<p>1） 性能问题：所有参与者在事务提交阶段处于同步阻塞状态，占用系统资源，容易导致性能瓶颈。</p>
+<p>2） 可靠性问题：如果协调者存在单点故障问题，如果协调者出现故障，参与者将一直处于锁定状态。</p>
+<p>3） 数据一致性问题：在阶段 2 中，如果发生局部网络问题，一部分事务参与者收到了提交消息，另一部分事务参与者没收到提交消息，那么就导致了节点之间数据的不一致。</p>
+<p><strong>3PC模式（强一致性）</strong></p>
+<p>两阶段提交的改进版本，引入超时机制，将两阶段的准备阶段拆分为 2 个阶段，插入了一个 preCommit 阶段。</p>
+<p>1） 阶段1：canCommit 协调者向参与者发送 commit 请求，参与者如果可以提交就返回 yes 响应，否则返回 no 响应。</p>
+<p>2） 阶段2：preCommit 协调者根据阶段 1 canCommit 参与者的反应情况执行预提交事务或中断事务操作。 参与者均反馈 yes：协调者向所有参与者发出 preCommit 请求，参与者收到 preCommit 请求后，执行事务操作，但不提交；将 undo 和 redo 信息记入事务日志 中；各参与者向协调者反馈 ack 响应或 no 响应，并等待最终指令。 任何一个参与者反馈 no或等待超时：协调者向所有参与者发出 abort 请求，无论收到协调者发出的 abort 请求，或者在等待协调者请求过程中出现超时，参与者均会中断事务。</p>
+<p>3） 阶段3：do Commit 该阶段进行真正的事务提交，根据阶段 2 preCommit反馈的结果完成事务提交或中断操作。</p>
+<h3 id="Sharding-JDBC整合XA原理"><a href="#Sharding-JDBC整合XA原理" class="headerlink" title="Sharding-JDBC整合XA原理"></a><strong>Sharding-JDBC整合XA原理</strong></h3><p>ShardingSphere整合XA事务时，分离了XA事务管理和连接池管理，这样接入XA时，可以做到对业务的零侵入，而且ShardingSphere集成后，可保证分片后跨库事务强一致性，XA本身也是强一致性的。</p>
+<p><img src="/posts/18707/assets/71d6f92281887a760d4315815785c90d.webp" alt="img"></p>
+<p>执行步骤：</p>
+<p>1） Begin（开启XA全局事务）：调用具体的XA事务管理器开启XA的全局事务。</p>
+<p>2） 执行物理SQL：将所有SQL操作，标记为XA事务。</p>
+<p>3） Commit&#x2F;rollback（提交XA事务）：收集所有投票，全部收到提交，否则回滚。</p>
+<h3 id="Sharding-JDBC整合Saga原理"><a href="#Sharding-JDBC整合Saga原理" class="headerlink" title="Sharding-JDBC整合Saga原理"></a><strong>Sharding-JDBC整合Saga原理</strong></h3><p>ShardingSphere是基于反向SQL技术实现的反向补偿操作，它将对数据库进行更新操作的SQL自动生成反向SQL，并交由Saga-actuator引擎执行。</p>
+<p><img src="/posts/18707/assets/0a5385d5d250c819e0fecdf8bc3e65e6.webp" alt="img"></p>
+<p>执行步骤：</p>
+<p>1） Init（Saga引擎初始化）</p>
+<p>2） Begin（开启Saga全局事务）：记录了所有子事务的正向SQL和逆向SQL</p>
+<p>3） 执行物理SQL</p>
+<p>4） Commit&#x2F;rollback（提交Saga事务）：生成Saga执行引擎所需的调用链路图，然后进行提交或回滚</p>
+<h3 id="Sharding-JDBC整合Seata原理"><a href="#Sharding-JDBC整合Seata原理" class="headerlink" title="Sharding-JDBC整合Seata原理"></a><strong>Sharding-JDBC整合Seata原理</strong></h3><p>分布式事务的实现目前主要分为两阶段的XA强事务和BASE柔性事务。</p>
+<p><img src="/posts/18707/assets/8b41bdfff12e7250a2047c091bb07fae.webp" alt="img"></p>
+<p>整合Seata AT事务时，需要把TM，RM，TC的模型融入到ShardingSphere 分布式事务的SPI的生态中。在数据库资源上，Seata通过对接DataSource接口，让JDBC操作可以同TC进行RPC通信。</p>
+<p><img src="/posts/18707/assets/a971a98d4aa5946d3347765dbbf84f7b.webp" alt="img"></p>
+<p>执行步骤：</p>
+<p>1） Init（Seata引擎初始化）：包含Seata柔性事务的应用启动时，用户配置的数据源会按seata.conf的配置，适配成Seata事务所 需的DataSourceProxy，并且注册到RM中。</p>
+<p>2） Begin（开启Seata全局事务）：TM控制全局事务的边界，TM通过向TC发送Begin指令，获取全局事务ID，所有分支事务通过此全 局事务ID，参与到全局事务中；全局事务ID的上下文存放在当前线程变量中。</p>
+<p>3） 执行分片物理SQL ：处于Seata全局事务中的分片SQL通过RM生成undo快照，并且发送participate指令到TC，加入到全局事务中。ShardingSphere的分片物理SQL是按多线程方式执行，因此整合Seata AT事务时， 需要在主线程和子线程间进行全局事务ID的上下文传递，这同服务间的上下文传递思路完全相同。</p>
+<p>4） Commit&#x2F;rollback（提交Seata事务）：提交Seata事务时，TM会向TC发送全局事务的commit和rollback指令，TC根据全局事务ID协调所有分支事务进行commit和rollback。</p>
+<h3 id="ShardingSphere-SPI-加载"><a href="#ShardingSphere-SPI-加载" class="headerlink" title="ShardingSphere SPI 加载"></a><strong>ShardingSphere SPI 加载</strong></h3><p>Apache ShardingSphere所有通过SPI方式载入的功能模块：</p>
+<p>1） SQL解析接口：用于规定用于解析SQL的ANTLR语法文件</p>
+<p>2） 数据库协议接口：用于Sharding-Proxy解析与适配访问数据库的协议</p>
+<p>3） 数据脱敏接口：用于规定加解密器的加密、解密、类型获取、属性设置等方式</p>
+<p>4） 分布式主键接口：用于规定如何生成全局性的自增、类型获取、属性设置等。</p>
+<p>5） 分布式事务接口：用于规定如何将分布式事务适配为本地事务接口。</p>
+<p>6） XA事务管理器接口：用于规定如何将XA事务的实现者适配为统一的XA事务接口。</p>
+<p>7） 注册中心接口：用于规定注册中心初始化、存取数据、更新数据、监控等行为。</p>
+<h3 id="ShardingSphere-编排治理"><a href="#ShardingSphere-编排治理" class="headerlink" title="ShardingSphere 编排治理"></a><strong>ShardingSphere 编排治理</strong></h3><p>提供配置中心&#x2F;注册中心（以及规划中的元数据中心）、配置动态化、数据库熔断禁用、 调用链路等治理能力。</p>
+<p>1） 配置中心：将配置集中于配置中心，可以更加有效进行管理，并且支持数据源、表与分片及读写分离策略的动态切换。</p>
+<p>2） 注册中心：存放运行时的动态&#x2F;临时状态数据，比如可用的proxy的实例，需要禁用或熔断的datasource实例。可以提供熔断数据库访问程序对数据库的访问和禁用从库的访问的编排治理能力。</p>
+<p>3） 支持外部配置中心和注册中心扩展，基于SPI机制，比如Zookeeper、Nocas等等。</p>
+<p>4） 应用性能监控：对分布式系统的性能诊断，包含调用链展示，应用拓扑分析等。</p>
+<h3 id="Sharding-Proxy"><a href="#Sharding-Proxy" class="headerlink" title="Sharding-Proxy"></a><strong>Sharding-Proxy</strong></h3><p>Sharding-Proxy是ShardingSphere的第二个产品，定位为透明化的数据库代理端，提供封装了数据库二进制协议的服务端版本，用于完成对异构语言的支持，也就是一个代理组件，可以对其他语言使用，不只是JAVA，便于扩展，不过Sharding-Proxy 默认不支持hint。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-3b4894ab94f32cd419dd4518b6e6223d_720w.webp" alt="img"></p>
+<p>Sharding-Proxy使用过程：</p>
+<p>1） 下载Sharding-Proxy的最新发行版；</p>
+<p>2） 解压缩后修改conf&#x2F;server.yaml和以config-前缀开头的文件，进行分片规则、读写分离规则配置 编辑%SHARDING_PROXY_HOME%\conf\config-xxx.yaml 编辑%SHARDING_PROXY_HOME%\conf\server.yaml</p>
+<p>3） 引入依赖jar 如果后端连接MySQL数据库，需要下载MySQL驱动， 解压缩后将mysql-connector-java5.1.48.jar拷贝到${sharding-proxy}\lib目录。 如果后端连接PostgreSQL数据库，不需要引入额外依赖。</p>
+<p>4） Linux操作系统请运行bin&#x2F;start.sh，Windows操作系统请运行bin&#x2F;start.bat启动Sharding-Proxy。 使用默认配置启动：${sharding-proxy}\bin\start.sh 配置端口启动：${sharding-proxy}\bin\start.sh ${port}</p>
+<p>5） 使用客户端工具连接。如: mysql -h 127.0.0.1 -P 3307 -u root -p root</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/38076/" rel="prev" title="mysql集群架构">
+                  <i class="fa fa-chevron-left"></i> mysql集群架构
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/51937/" rel="next" title="MongoDB">
+                  MongoDB <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"ec59bf6bd1206a26f1f3d9a57c52cd95"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

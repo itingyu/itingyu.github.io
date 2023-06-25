@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Spring框架基础知识Spring的优势1.方便解耦，简化开发：通过spring的ioc容器，将对象间的依赖关系交由Spring进⾏控制，避免硬编码所造成的 过度程序耦合，⽤户也不必再为单例模式类、属性⽂件解析等这些很底层的需求编写代码，可以更专注于上层的应⽤。 \2. AOP编程的⽀持: 通过Spring的AOP功能，⽅便进⾏⾯向切⾯的编程，许多不容易⽤传统OOP实现的功能可以通过 AOP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring框架知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/30508/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Spring框架基础知识Spring的优势1.方便解耦，简化开发：通过spring的ioc容器，将对象间的依赖关系交由Spring进⾏控制，避免硬编码所造成的 过度程序耦合，⽤户也不必再为单例模式类、属性⽂件解析等这些很底层的需求编写代码，可以更专注于上层的应⽤。 \2. AOP编程的⽀持: 通过Spring的AOP功能，⽅便进⾏⾯向切⾯的编程，许多不容易⽤传统OOP实现的功能可以通过 AOP">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/e86bfe42b3f23c0aa6e16c24672d9974.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/cb0ea436c63f33a7cffbb247de1d23f3.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-347891102c2b849b836bc29beeb105a9_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-5caff188edd0eb02691e1c33dcc9bd2b_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-8a75eae85aa6c41707a736787a5bd5d9_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-34af364be070e7404d78d7606fc4c94b_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/f119b8035f1d0febd31fb7c2257d84a0.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/18e29a541faeafc13b096b40c7ca769c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/5b48b1fb42a64944da7f08e53dc23960.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/ea4b40c7345ae9750593c69702ae3046.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/3d440ecfccdecff600b95dd9d84036de.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/fe3babef6fbf87853c0728565b4d7a18.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-73787be0333fab7170b8f3b44e45fcdb_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/6af925ea3d76b4313b4ea6f1c83174be.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/f795315b99edea3e3a3d46246ad2d78a.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-b48f5505e4bbb942eb6c14d09e895b6b_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/03f1e780d010166c249d1f74c0e73233.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-caf8910996e40bc35600ce4c66656e8d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/f7e9a38090f9e4b6bfb6ead6681a8e66.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-e9785ce1ab838745aad8c44a6a8bb41b_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-b82f780bca78701463144ab90899fda5_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-86452f1eee065528d68813c4ec817a1e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/a8e305dead7c1b78d199560db8672131.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/e87d0db249790bb713e22c0d408d554c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/5b1bf1db866910e1396f8d0ee6ff3830.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/1317d377c17756e62abad7c9d4e0a87f.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/e013b049ae9106e8800c689d800ff4ea.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/08af0cbf2d668e555235849ad87d106e.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-280b883e45189283290a89589b01851a_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/8da59b420308009853a583e496af039d.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-1afdae51c4a50019abbc6d8061955876_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-4268b52f69a1fbd74490da809d366c47_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-1afb0842d379fdaa943f56cf038f43ff_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/16faaae6ba150945f3260a74d4c554dc.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/9ac4d65a1143c33dfc57b1e58c09b21b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/7b965b974fc59b05b3ffd0834a865f0d.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/2242024c762ce2e8f4cfbb0cf37640b8.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/6cd3c1627f5d3d2f2361d00b7c2df1f4.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/dc4567d93c95d1e9a779dfe3ebed37a5.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-8831f62cbf80b606d143ccb1c38c1b9e_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-84ff749a8a6cd48787f33daf7107cd33_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/9fff477c6774ad11b183958d080857d9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/824eb01f9f152464f23eaf5fb1345467.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-419d93c4669e1c9e9378c56212d335bf_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-e0f45c33a8a4778200c1fb8c0a9e504e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/0d6cd198a8421472a826a608a901bfb9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/b3ea8c10c813434c6c69877a3ac20e21.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30508/assets/74f321f1dd063a1600ab22b253f1575e.webp">
+<meta property="article:published_time" content="2023-06-17T10:47:00.000Z">
+<meta property="article:modified_time" content="2023-06-17T10:48:04.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/30508/assets/e86bfe42b3f23c0aa6e16c24672d9974.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/30508/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/30508/","path":"posts/30508/","title":"spring框架知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>spring框架知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Spring%E6%A1%86%E6%9E%B6%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">一、Spring框架基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.1.</span> <span class="nav-text">Spring的优势</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E7%9A%84%E6%A0%B8%E5%BF%83%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">Spring的核心结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFIOC"><span class="nav-number">1.3.</span> <span class="nav-text">什么是IOC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOC%E5%92%8CDI%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.4.</span> <span class="nav-text">IOC和DI的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFAOP"><span class="nav-number">1.5.</span> <span class="nav-text">什么是AOP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AB%E6%A8%AA%E5%90%91%E7%95%8C%E9%9D%A2%E7%BC%96%E7%A8%8B"><span class="nav-number">1.6.</span> <span class="nav-text">为什么叫横向界面编程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%8B%E5%86%99IOC%E5%92%8CAOP%E9%93%B6%E8%A1%8C%E8%BD%AC%E8%B4%A6%E9%A1%B9%E7%9B%AE%E7%90%86%E8%A7%A3"><span class="nav-number">1.7.</span> <span class="nav-text">手写IOC和AOP银行转账项目理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81IOC%E5%AE%B9%E5%99%A8%E8%AE%BE%E8%AE%A1%E5%AE%9E%E7%8E%B0%E5%8F%8ASpring%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">1.8.</span> <span class="nav-text">二、IOC容器设计实现及Spring源码分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E6%A1%86%E6%9E%B6%E7%9A%84IOC%E5%AE%9E%E7%8E%B0%E4%B8%89%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">1.9.</span> <span class="nav-text">Spring框架的IOC实现三种方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanFactory%E4%B8%8EApplicationCentext%E5%8C%BA%E5%88%AB"><span class="nav-number">1.10.</span> <span class="nav-text">BeanFactory与ApplicationCentext区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-IoC%E7%BA%AFXML%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.11.</span> <span class="nav-text">Spring IoC纯XML方式实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bean%E7%9A%84%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F%E5%8F%8A%E5%B1%9E%E6%80%A7%E6%A0%87%E7%AD%BE"><span class="nav-number">1.12.</span> <span class="nav-text">Bean的创建方式及属性标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-DI%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E9%85%8D%E7%BD%AE"><span class="nav-number">1.13.</span> <span class="nav-text">Spring DI依赖注入配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-IoC%E5%8D%8AXML%E5%8D%8A%E6%B3%A8%E8%A7%A3%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.14.</span> <span class="nav-text">Spring IoC半XML半注解方式实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%AF%E6%B3%A8%E8%A7%A3%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.15.</span> <span class="nav-text">纯注解模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lazy-Init-%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD"><span class="nav-number">1.16.</span> <span class="nav-text">lazy-Init 延迟加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FactoryBean-%E5%92%8C-BeanFactory"><span class="nav-number">1.17.</span> <span class="nav-text">FactoryBean 和 BeanFactory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8E%E7%BD%AE%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-number">1.18.</span> <span class="nav-text">后置处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81SpringIOC%E6%BA%90%E7%A0%81%E7%90%86%E8%A7%A3"><span class="nav-number">1.19.</span> <span class="nav-text">三、SpringIOC源码理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringIOC%E5%AE%B9%E5%99%A8%E4%BD%93%E7%B3%BB"><span class="nav-number">1.20.</span> <span class="nav-text">SpringIOC容器体系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bean%E2%BD%A3%E5%91%BD%E5%91%A8%E6%9C%9F%E5%85%B3%E9%94%AE%E6%97%B6%E6%9C%BA%E7%82%B9"><span class="nav-number">1.21.</span> <span class="nav-text">Bean⽣命周期关键时机点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BeanFactory%E8%8E%B7%E5%8F%96%E5%AD%90%E6%B5%81%E7%A8%8B%E4%B8%8EBeanDefinition%E5%8A%A0%E8%BD%BD%E6%B3%A8%E5%86%8C%E8%A7%A3%E6%9E%90"><span class="nav-number">1.22.</span> <span class="nav-text">BeanFactory获取子流程与BeanDefinition加载注册解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bean%E5%88%9B%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">1.23.</span> <span class="nav-text">Bean创建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lazy-init-%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6%E5%8E%9F%E7%90%86"><span class="nav-number">1.24.</span> <span class="nav-text">lazy-init 延迟加载机制原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.25.</span> <span class="nav-text">循环依赖问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81SpringAOP%E5%BA%94%E7%94%A8"><span class="nav-number">1.26.</span> <span class="nav-text">四、SpringAOP应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOP%E7%9B%B8%E5%85%B3%E6%9C%AF%E8%AF%AD"><span class="nav-number">1.27.</span> <span class="nav-text">AOP相关术语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E6%94%AF%E6%8C%81"><span class="nav-number">1.28.</span> <span class="nav-text">Spring声明式事务支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E5%A3%B0%E6%98%8E%E5%BC%8F%E4%BA%8B%E5%8A%A1%E9%85%8D%E7%BD%AE"><span class="nav-number">1.29.</span> <span class="nav-text">Spring声明式事务配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringAOP%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90"><span class="nav-number">1.30.</span> <span class="nav-text">SpringAOP源码剖析</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/30508/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="spring框架知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          spring框架知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:47:00" itemprop="dateCreated datePublished" datetime="2023-06-17T18:47:00+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring/" itemprop="url" rel="index"><span itemprop="name">spring</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>11k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Spring框架基础知识"><a href="#一、Spring框架基础知识" class="headerlink" title="一、Spring框架基础知识"></a>一、Spring框架基础知识</h2><h3 id="Spring的优势"><a href="#Spring的优势" class="headerlink" title="Spring的优势"></a>Spring的优势</h3><p>1.方便解耦，简化开发：通过spring的ioc容器，将对象间的依赖关系交由Spring进⾏控制，避免硬编码所造成的</p>
+<p>过度程序耦合，⽤户也不必再为单例模式类、属性⽂件解析等这些很底层的需求编写代码，可以更专注于上层的应⽤。</p>
+<p>\2. AOP编程的⽀持: 通过Spring的AOP功能，⽅便进⾏⾯向切⾯的编程，许多不容易⽤传统OOP实现的功能可以通过</p>
+<p>AOP轻松应付。</p>
+<p>3.声明式事务的支持：@Transactional 可以将我们从单调烦闷的事务管理代码中解脱出来，通过声明式⽅式灵活的进⾏事务的管理，提⾼开发效率和质量。</p>
+<p>4.方便程序的测试</p>
+<p>5.方便集成各种框架</p>
+<p>6.降低Javaee api的使用难度</p>
+<h3 id="Spring的核心结构"><a href="#Spring的核心结构" class="headerlink" title="Spring的核心结构"></a>Spring的核心结构</h3><p>数据处理模块、web模块、aop模块、core container模块、test模块</p>
+<p>\1. Spring核⼼容器（Core Container） 容器是Spring框架最核⼼的部分，它管理着Spring应⽤中</p>
+<p>bean的创建、配置和管理。在该模块中，包括了Spring bean⼯⼚，它为Spring提供了DI的功能。</p>
+<p>基于bean⼯⼚，我们还会发现有多种Spring应⽤上下⽂的实现。所有的Spring模块都构建于核⼼容器之上。</p>
+<p>\2. ⾯向切⾯编程（AOP）&#x2F;Aspects Spring对⾯向切⾯编程提供了丰富的⽀持。这个模块是Spring应⽤系统中开发切⾯的基础，与DI⼀样，AOP可以帮助应⽤对象解耦。</p>
+<p>\3. 数据访问与集成（Data Access&#x2F;Integration）</p>
+<p>Spring的JDBC和DAO模块封装了⼤量样板代码，这样可以使得数据库代码变得简洁，也可以更专注于我们的业务，还可以避免数据库资源释放失败⽽引起的问题。 另外，Spring AOP为数据访问提供了事务管理服务，同时Spring还对ORM进⾏了集成，如Hibernate、MyBatis等。该模块由JDBC、Transactions、ORM、OXM 和 JMS 等模块组成。</p>
+<p>\4. Web 该模块提供了SpringMVC框架给Web应⽤，还提供了多种构建和其它应⽤交互的远程调⽤⽅案。 SpringMVC框架在Web层提升了应⽤的松耦合⽔平。</p>
+<p>\5. Test 为了使得开发者能够很⽅便的进⾏测试，Spring提供了测试模块以致⼒于Spring应⽤的测试。 通过该模块，Spring为使⽤Servlet、JNDI等编写单元测试提供了⼀系列的mock对象实现。</p>
+<h3 id="什么是IOC"><a href="#什么是IOC" class="headerlink" title="什么是IOC"></a>什么是IOC</h3><p>控制反转&#x2F;反转控制：控制指的是对象的创建、管理、实例化权利，反转指的是控制权交给了外部容器Spring框架。Ioc容器</p>
+<p>具体实现：我们不⽤⾃⼰去new对象了，⽽是由IoC容器（Spring框架）去帮助我们实例化对象并且管理它，我们需要使⽤哪个对象，去问IoC容器要即可，而传统开发需要通过new对象来获取，依赖性强，通过IOC解决了对象之前的耦合问题。</p>
+<h3 id="IOC和DI的区别"><a href="#IOC和DI的区别" class="headerlink" title="IOC和DI的区别"></a>IOC和DI的区别</h3><p>DI其实就是依赖注入，和IOC描述的都是对象实例化和依赖关系维护这件事情，但是角度不同，IOC站在对象的角度，对象实例化及其管理的权利交给了（反转）容器，ID是站在容器的角度，容器会把对象依赖的其他对象注入，比如A对象在实例化过程中声明了一个B类型的属性，就要容器把B对象注入A。</p>
+<h3 id="什么是AOP"><a href="#什么是AOP" class="headerlink" title="什么是AOP"></a>什么是AOP</h3><p>Aop是oop的延续，传统oop三大特性封装、继承、多态，成一种垂直继承体系，存在顶级分类代码重复无法优化问题，无法解决横向切面逻辑代码问题，所以就产生了aop，通过横向抽取机制，将横切逻辑代码和业务逻辑代码分析。在不改变原有业务逻辑情况下，增强横切逻辑代码，根本上解耦合，避免横切逻辑代码重复</p>
+<h3 id="为什么叫横向界面编程"><a href="#为什么叫横向界面编程" class="headerlink" title="为什么叫横向界面编程"></a>为什么叫横向界面编程</h3><p>「切」：指的是横切逻辑，原有业务逻辑代码我们不能动，只能操作横切逻辑代码，所以⾯向横切逻辑</p>
+<p>「⾯」：横切逻辑代码往往要影响的是很多个⽅法，每⼀个⽅法都如同⼀个点，多个点构成⾯，有⼀个⾯的概念在⾥⾯</p>
+<h3 id="手写IOC和AOP银行转账项目理解"><a href="#手写IOC和AOP银行转账项目理解" class="headerlink" title="手写IOC和AOP银行转账项目理解"></a>手写IOC和AOP银行转账项目理解</h3><p>问题：</p>
+<p>1.service层和dao层具体实现类的调用时，都需要通过new来创建对象，获取对象类的属性和方法，使service层和dao层耦合在了一起。</p>
+<p>2.Service层没有事务控制，如果出现异常，将会使数据库数据错乱。</p>
+<p>解决：</p>
+<p>首先我们在bean.xml里面创建了我们需要使用的各个类以及他的唯一id,在标签内增加property标签来标明他需要调用的接口实现类是哪个。</p>
+<p><img src="/posts/30508/assets/e86bfe42b3f23c0aa6e16c24672d9974.webp" alt="img"></p>
+<p>接着进入具体处理类，通过xml解析获取文件流，通过dom4j把文件流解析成我们需要的Document对象，通过获取所有指定标签元素集合，我们就可以通过遍历这个集合，获取里面的id属性和class属性，有了class属性，就可以通过反射的方式转化成class对象，再把id和对象存入我们事先定义的map集合中待用。接着我们再遍历所有的property标签，element自带element.getParent()方法可以获取他的父级节点是谁，这样就直接从map集合中根据key和value关系获取到对应父级class对象，接着获取父对象所有方法与id拼接字符串进行判断；如果相同就直接根据ref的属性从map中获取他的实例化bean对象，再调用method.invoke把方法参数化建立依赖关系，重新放入map集合中。</p>
+<p><img src="/posts/30508/assets/cb0ea436c63f33a7cffbb247de1d23f3.webp" alt="img"></p>
+<p>接着在创建一个线程工具类，此线程用于存储数据库连接，把线程和连接绑定在一起，然后再创建一个事务管理类，获取线程工具类里面的数据库连接，进行事务统一管控，这样就可以让多次更新操作在一个线程管控的连接下面，实现事务管理。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-347891102c2b849b836bc29beeb105a9_720w.webp" alt="img"></p>
+<p><img src="https://pic4.zhimg.com/80/v2-5caff188edd0eb02691e1c33dcc9bd2b_720w.webp" alt="img"></p>
+<p>为了将横切逻辑代码与业务逻辑代码进行分离，我们又创造了一个ProxyFactory代理工厂类，它主要的作用就是通过jdk动态代理重写invoke方法，在执行原方法之前和之后操作事务，异常里回滚事务，实现增强横切代码逻辑，也可以通过cglib方式，通过重写intercept方法对所有父类方法调用进行拦截，然后在method.invoke原方法执行之前和之后进行事务处理。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-8a75eae85aa6c41707a736787a5bd5d9_720w.webp" alt="img"></p>
+<p><img src="https://pic4.zhimg.com/80/v2-34af364be070e7404d78d7606fc4c94b_720w.webp" alt="img"></p>
+<p>最后在实际使用通过声明对应接口类，然后直接通过set注入方式就可以从map里面获取想要的实例化bean进行具体业务的操作。</p>
+<p><img src="/posts/30508/assets/f119b8035f1d0febd31fb7c2257d84a0.webp" alt="img"></p>
+<h3 id="二、IOC容器设计实现及Spring源码分析"><a href="#二、IOC容器设计实现及Spring源码分析" class="headerlink" title="二、IOC容器设计实现及Spring源码分析"></a>二、IOC容器设计实现及Spring源码分析</h3><h3 id="Spring框架的IOC实现三种方式"><a href="#Spring框架的IOC实现三种方式" class="headerlink" title="Spring框架的IOC实现三种方式"></a>Spring框架的IOC实现三种方式</h3><p>\1. 纯xml方式</p>
+<p>\2. Xml加注解方式</p>
+<p>上面两种方式加载相同：JavaEE应用通过new ClassPathXmlApplicationContext(“beas.xml”)或者new FileSystemXmlApplicationContext(“c:beans.xml”)加载；JavaWeb应用通过ContextLoaderListener(监听器去加载xml)</p>
+<p>\3. 纯注解方式</p>
+<p>加载方式：JavaEE应用通过new AnnotationConfigApplicationContext(SpringConfig.class); JavaWeb应用通过ContextLoaderListener(监听器去加载注解配置类)</p>
+<h3 id="BeanFactory与ApplicationCentext区别"><a href="#BeanFactory与ApplicationCentext区别" class="headerlink" title="BeanFactory与ApplicationCentext区别"></a>BeanFactory与ApplicationCentext区别</h3><p>BeanFactory是Spring框架IOC容器顶层接口，定义了基础功能和规范，而ApplicationContect是他的子接口，不仅具备了他的所有功能，并且还对他进行扩展，支持了更多的功能，实现面向接口开发原则。</p>
+<h3 id="Spring-IoC纯XML方式实现"><a href="#Spring-IoC纯XML方式实现" class="headerlink" title="Spring IoC纯XML方式实现"></a>Spring IoC纯XML方式实现</h3><p>Xml文件头</p>
+<p><img src="/posts/30508/assets/18e29a541faeafc13b096b40c7ca769c.webp" alt="img"></p>
+<p><strong>理解</strong>：通过引入Spring IoC容器功能，实现不需要再创建一个专门的BeanFactory来解析xml文件并返回，直接通过WebApplicationContextUtils.getWebApplicationContext就能获取到Spring工具类，再通过getBean方法获取到对应解析的全限定名转化成需要的类对象。</p>
+<p><img src="/posts/30508/assets/5b48b1fb42a64944da7f08e53dc23960.webp" alt="img"></p>
+<h3 id="Bean的创建方式及属性标签"><a href="#Bean的创建方式及属性标签" class="headerlink" title="Bean的创建方式及属性标签"></a>Bean的创建方式及属性标签</h3><p>实例化Bean的三种方式</p>
+<p>\1. 使用无参构造 推荐</p>
+<p><bean id="connectionUtils" class="com.lagou.edu.utils.ConnectionUtils"></bean></p>
+<p>\2. 使用静态方法创建 需要自己去new</p>
+<bean id="connectionUtils" class="com.lagou.edu.factory.CreateBeanFactory" factory-method="getInstanceStatic"/>
+
+<p>\3. 使用实例化方法创建 需要自己去new</p>
+<p><bean id="createBeanFactory" class="com.lagou.edu.factory.CreateBeanFactory"></bean></p>
+<bean id="connectionUtils" factory-bean="createBeanFactory" factory-method="getInstance"/>
+
+<p>Scope：定义bean的作用范围</p>
+<p>\1. singleton：单例，IOC容器中只有一个该类对象，默认为singleton，单例模式的bean对象⽣命周期与容器相同。</p>
+<p>\2. prototype：原型(多例)，每次使用该类的对象（getBean），都返回给你一个新的对象，Spring只创建对象，不管理对象</p>
+<p>id属性： ⽤于给bean提供⼀个唯⼀标识。在⼀个标签内部，标识必须唯⼀。</p>
+<p>class属性：⽤于指定创建Bean对象的全限定类名。</p>
+<p>name属性：⽤于给bean提供⼀个或多个名称。多个名称⽤空格分隔。</p>
+<p>factory-bean属性：⽤于指定创建当前bean对象的⼯⼚bean的唯⼀标识。当指定了此属性之后，class属性失效。</p>
+<p>factory-method属性：⽤于指定创建当前bean对象的⼯⼚⽅法，如配合factory-bean属性使⽤，则class属性失效。如配合class属性使⽤，则⽅法必须是static的。</p>
+<p>scope属性：⽤于指定bean对象的作⽤范围。通常情况下就是singleton。当要⽤到多例模式时，可以配置为prototype。</p>
+<p>init-method属性：⽤于指定bean对象的初始化⽅法，此⽅法会在bean对象装配后调⽤。必须是⼀个⽆参⽅法。</p>
+<p>destory-method属性：⽤于指定bean对象的销毁⽅法，此⽅法会在bean对象销毁前执⾏。它只能为scope是singleton时起作⽤。</p>
+<h3 id="Spring-DI依赖注入配置"><a href="#Spring-DI依赖注入配置" class="headerlink" title="Spring DI依赖注入配置"></a>Spring DI依赖注入配置</h3><p>依赖注入分类：构造函数注入和set方法注入</p>
+<p>注入类型：基本类型和String、其他Bean类型、复杂类型（map,list等等）</p>
+<p>构造函数注入：constructor-arg标签</p>
+<p>依靠构造函数对类成员进行赋值，而且构造函数参数要与配置参数个数相同、类型相同</p>
+<p>name：⽤于给构造函数中指定名称的参数赋值。</p>
+<p>index：⽤于给构造函数中指定索引位置的参数赋值。</p>
+<p>value：⽤于指定基本类型或者String类型的数据。</p>
+<p>ref：⽤于指定其他Bean类型的数据。写的是其他bean的唯⼀标识。</p>
+<p><img src="/posts/30508/assets/ea4b40c7345ae9750593c69702ae3046.webp" alt="img"></p>
+<p>set⽅法注⼊：property标签</p>
+<p>name：指定注⼊时调⽤的set⽅法名称。（注：不包含set这三个字⺟,druid连接池指定属性名称）</p>
+<p>value：指定注⼊的数据。它⽀持基本类型和String类型。</p>
+<p>ref：指定注⼊的数据。它⽀持其他bean类型。写的是其他bean的唯⼀标识。</p>
+<p><img src="/posts/30508/assets/3d440ecfccdecff600b95dd9d84036de.webp" alt="img"></p>
+<h3 id="Spring-IoC半XML半注解方式实现"><a href="#Spring-IoC半XML半注解方式实现" class="headerlink" title="Spring IoC半XML半注解方式实现"></a>Spring IoC半XML半注解方式实现</h3><p>\1. 实际企业开发中，纯xml开发方式很少用。</p>
+<p>\2. 引入注解功能，不需要再引入额外的jar包</p>
+<p>\3. Xml+注解结合模式，xml仍然存在，所以springIOC容器仍然从Xml开始加载</p>
+<p>\4. 第三方jar的bean定义xml如druid数据库连接池，自己开发的bean定义使用注解</p>
+<p><img src="/posts/30508/assets/fe3babef6fbf87853c0728565b4d7a18.webp" alt="img"></p>
+<p>DI 依赖注⼊的注解实现⽅式</p>
+<p>@Autowired: 按照类型注⼊,如果按照类型无法唯一锁定对象，结合@Qualifier告诉Spring具体去装配哪一个对象</p>
+<p><img src="https://pic4.zhimg.com/80/v2-73787be0333fab7170b8f3b44e45fcdb_720w.webp" alt="img"></p>
+<p>@Resource按照 ByName ⾃动注⼊，不过在JDK11以后已经被移除，需要单独引入jar包</p>
+<p><img src="/posts/30508/assets/6af925ea3d76b4313b4ea6f1c83174be.webp" alt="img"></p>
+<h3 id="纯注解模式"><a href="#纯注解模式" class="headerlink" title="纯注解模式"></a>纯注解模式</h3><p>@Configuration 注解，表名当前类是⼀个配置类</p>
+<p>@ComponentScan 注解，替代 context:component-scan</p>
+<p>@PropertySource，引⼊外部属性配置⽂件</p>
+<p>@Import 引⼊其他配置类</p>
+<p>@Value 对变量赋值，可以直接赋值，也可以使⽤ ${} 读取资源配置⽂件中的信息</p>
+<p>@Bean 将⽅法返回对象加⼊ SpringIOC 容器</p>
+<p>注意，开启纯注解模式，需要web.xml里面配置全注解IOC启动方式，并把配置文件引用改成配置类全限定类名引用</p>
+<p><img src="/posts/30508/assets/f795315b99edea3e3a3d46246ad2d78a.webp" alt="img"></p>
+<h3 id="lazy-Init-延迟加载"><a href="#lazy-Init-延迟加载" class="headerlink" title="lazy-Init 延迟加载"></a>lazy-Init 延迟加载</h3><p>Spring在启动时，默认是将所有的singleton bean提前实例化，如果设置了lazy-init&#x3D;”ture”的话，就可以设置这个bean在ApplicationContext启动服务器时不被实例化，在调用他的getBean索取bean时进行实例化，实现延迟加载，注意scope&#x3D;”pototype”时，此设置无效，会采用默认值false立即加载。这么设置的目的是对不常用的bean设置延迟加载，避免一开始启动服务器占用资源</p>
+<p><img src="https://pic4.zhimg.com/80/v2-b48f5505e4bbb942eb6c14d09e895b6b_720w.webp" alt="img"></p>
+<h3 id="FactoryBean-和-BeanFactory"><a href="#FactoryBean-和-BeanFactory" class="headerlink" title="FactoryBean 和 BeanFactory"></a>FactoryBean 和 BeanFactory</h3><p>BeanFactory接口是容器的顶级接口，定义了容器的一些基础行为和规范，而FactoryBean与前面说的ApplicationContext一样都是他的子接口，但是FactoryBean主要的作用是用它来自定义bean的创建。比如bean传了一个带分隔符号的字符串过来，需要我们进行解析，并装入一个实体类对象，我们就可以在具体工厂类里面实现FactoryBean接口，重写他的getObject,getObjectType,isSingleton方法，对复杂字符串进行处理，然后装入对应实体类中完成解析。</p>
+<p><img src="/posts/30508/assets/03f1e780d010166c249d1f74c0e73233.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-caf8910996e40bc35600ce4c66656e8d_720w.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/f7e9a38090f9e4b6bfb6ead6681a8e66.webp" alt="img"></p>
+<h3 id="后置处理器"><a href="#后置处理器" class="headerlink" title="后置处理器"></a>后置处理器</h3><p>Bean的生命周期</p>
+<p><img src="https://pic4.zhimg.com/80/v2-e9785ce1ab838745aad8c44a6a8bb41b_720w.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-b82f780bca78701463144ab90899fda5_720w.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-86452f1eee065528d68813c4ec817a1e_720w.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/a8e305dead7c1b78d199560db8672131.webp" alt="img"></p>
+<p><strong>生命周期：</strong></p>
+<p>1、Spring 容器根据配置中的 bean 定义中实例化 bean。</p>
+<p>2、Spring 使用依赖注入填充所有属性，如 bean 中所定义的配置。</p>
+<p>3、如果 bean 实现BeanNameAware 接口，则工厂通过传递 bean 的 ID 来调用setBeanName()。</p>
+<p>4、如果 bean 实现 BeanFactoryAware 接口，工厂通过传递自身的实例来调用 setBeanFactory()。</p>
+<p>5、如果存在与 bean 关联的任何BeanPostProcessors，则调用 preProcessBeforeInitialization() 方 法。</p>
+<p>6、如果为 bean 指定了 init 方法（ 的 init-method 属性），那么将调用它。</p>
+<p>7、最后，如果存在与 bean 关联的任何 BeanPostProcessors，则将调用 postProcessAfterInitialization() 方法。</p>
+<p>8、如果 bean 实现DisposableBean 接口，当 spring 容器关闭 时，会调用 destory()。</p>
+<p>9、如果为bean 指定了 destroy 方法（ 的 destroy-method 属性），那么将调用它。</p>
+<p><strong>理解</strong>：Spring将Bean标签按照生命周期方式按顺序加载，最后类名、scope、属性、构造函数参数列表、依赖的bean、是否是单例类、是否是懒加载等等一系列属性解析封装到BeanDefinition对象中，封装完成后通过getBeanDefinition获取属性，后面对bean操作其实就是对BeanDefinition进行，通过拿到类名、构造函数后就可以反射完成对象的创建</p>
+<h3 id="三、SpringIOC源码理解"><a href="#三、SpringIOC源码理解" class="headerlink" title="三、SpringIOC源码理解"></a>三、SpringIOC源码理解</h3><h3 id="SpringIOC容器体系"><a href="#SpringIOC容器体系" class="headerlink" title="SpringIOC容器体系"></a>SpringIOC容器体系</h3><p>ApplicationContext是容器的高级接口，BeanFactory是顶级接口，规范和定义了容器的基础行为,Spring应用的上下文，官方称之为IOC容器，map是容器的一个成员叫做单例池，SingletonObjects。容器是一组组件和过程的集合，包括BeanFactory、单例池、BeanPostProcessor等以及之间的协作流程。比如BeanFactory常用的getBean方法，遵循多态原则，定义了多个但参数不同的同名方法。如果需要获取整个bean需要加前缀&amp;，通过内部FACTORY_BEAN_PREFIX来判定。</p>
+<p><img src="/posts/30508/assets/e87d0db249790bb713e22c0d408d554c.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/5b1bf1db866910e1396f8d0ee6ff3830.webp" alt="img"></p>
+<p>ApplicationContext继承的接口：</p>
+<p>ListableBeanFactory接口：列出工厂可以生产的所有实例。但没有直接提供返回所有实例的方法。它可以返回指定类型的所有的实例。你可以通过getBeanDefinitionNames()得到工厂所有bean的名字，然后根据这些名字得到所有的Bean。这个工厂接口扩展了BeanFactory的功能，作为上文指出的BeanFactory二级接口，有9个独有的方法，扩展了跟BeanDefinition的功能，提供了BeanDefinition、BeanName、注解有关的各种操作。</p>
+<p>MessageSource接口：以用于支持信息的国际化和包含参数的信息的替换。</p>
+<p>HierarchicalBeanFactory接口：实现了Bean工厂的分层。继承自BeanFacotory，是一个二级接口，相对于父接口，它只扩展了一个重要的功能——工厂分层。</p>
+<p>AutowireCapableBeanFactory接口：继承自BeanFacotory，它扩展了自动装配的功能，根据类定义BeanDefinition装配Bean、执行前、后处理器等。</p>
+<p>ConfigurableBeanFactory接口：继承自HierarchicalBeanFactory 和 SingletonBeanRegistry 这两个接口，并额外独有37个方法，这37个方法包含了工厂创建、注册一个Bean的众多细节。</p>
+<p>ResourceLoader接口：加载资源的接口，读取xml文件。</p>
+<p>以上接口继承关系得出结论：Spring IoC 容器继承体系⾮常聪明，需要使⽤哪个层次⽤哪个层次即可，不必使⽤功能⼤⽽全的。</p>
+<h3 id="Bean⽣命周期关键时机点"><a href="#Bean⽣命周期关键时机点" class="headerlink" title="Bean⽣命周期关键时机点"></a>Bean⽣命周期关键时机点</h3><p>Bean对象创建的几个关键点都在调用AbstractApplicationContext 类 的 refresh ⽅法</p>
+<p><img src="/posts/30508/assets/1317d377c17756e62abad7c9d4e0a87f.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/e013b049ae9106e8800c689d800ff4ea.webp" alt="img"></p>
+<p>解析refresh ⽅法：</p>
+<p><img src="/posts/30508/assets/08af0cbf2d668e555235849ad87d106e.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-280b883e45189283290a89589b01851a_720w.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/8da59b420308009853a583e496af039d.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-1afdae51c4a50019abbc6d8061955876_720w.webp" alt="img"></p>
+<p><img src="https://pic4.zhimg.com/80/v2-4268b52f69a1fbd74490da809d366c47_720w.webp" alt="img"></p>
+<p><strong>理解</strong>：在通过ClassPathXmlApplicationContext加载对应bean.xml文件时，首先进入到调用的构造器内，执行子类调用父类初始化方法，然后处理传入的配置文件路径，然后refresh判断，进入spring容器初始化方法内。创建工厂，把xml中的信息加载BeanDefition 并注册到 BeanDefitionRegistry（内部map结构，把BeanDefition作为value，id作为key，类似于之前自定义持久层框架中数据库javabean类中configuration类关联mappedstatement类的关系），接着初始化并执行工厂后置处理器，再注册bean的后置处理器，最后初始化bean,调用初始化方法，调用bean的后置处理器，完成容器初始化，产生bean对象。</p>
+<h3 id="BeanFactory获取子流程与BeanDefinition加载注册解析"><a href="#BeanFactory获取子流程与BeanDefinition加载注册解析" class="headerlink" title="BeanFactory获取子流程与BeanDefinition加载注册解析"></a>BeanFactory获取子流程与BeanDefinition加载注册解析</h3><p><strong>BeanFactory:</strong></p>
+<p><img src="https://pic4.zhimg.com/80/v2-1afb0842d379fdaa943f56cf038f43ff_720w.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/16faaae6ba150945f3260a74d4c554dc.webp" alt="img"></p>
+<p><strong>理解</strong>：通过调取AbstractApplicationContext类的obtainFreshBeanFactory方法，执行调取AbstractRefreshableApplicationContext类的refreshBeanFactory方法，在这个方法内再调用自己内部的createBeanFactory方法进行实列化，并返回DefaultListableBeanFactory，而AbstractApplicationContext类再通过getBeanFactory方法把工厂对象拿回来。</p>
+<p><strong>BeanDefinition:</strong></p>
+<p><img src="/posts/30508/assets/9ac4d65a1143c33dfc57b1e58c09b21b.webp" alt="img"></p>
+<p><strong>理解</strong>：通过AbstractBeanDefinitionReader类调取XmlBeanDefinitionReader内的loadBeanDefinitions方法发送消息，接着调取自己类的doLoadBeanDefinitions方法，完成xml读取为document对象，接着又调取内部的registerBeanDefinitions方法完成注册。接着在这方法内又调取DefaultBeanDefinitionDocumentReader类的registerBeanDefinitions方法，再在内部按吮吸调用doRegisterBeanDefinitions-&gt;parseBeanDefinitions-&gt;processBeanDefinition-&gt;调取BeanDefinitionParserDelegate类的parseBeanDefinitionElement方法再调内部-&gt;parseBeanDefinitionElement方法完成加载注册并返回BeanDefinition对象。</p>
+<h3 id="Bean创建流程"><a href="#Bean创建流程" class="headerlink" title="Bean创建流程"></a>Bean创建流程</h3><p><img src="/posts/30508/assets/7b965b974fc59b05b3ffd0834a865f0d.webp" alt="img"></p>
+<p><strong>理解</strong>：根据入口方法调用自己类的finishBeanFactoryInitialization方法，判断Bean的属性，接着进⼊DefaultListableBeanFactory类的preInstantiateSingletons⽅法，实例化所有立即加载的单例bean，接着声明一个list集合用于存放所有bean的id，然后循环集合，针对数据进行处理，非抽象、单列、非延迟加载的数据进入下一环节，接着判断是否工厂bean,因为工厂bean的前缀有一个&amp;符号规范。如果不是就直接实例化Bean。接着进⼊到了AbstractBeanFactory类的doGetBean⽅法，对上面的BeanName进行解析，接着判断是否是多例bean,即prototype,如果是无法处理，抛出异常。如果不是，先检查父工厂是否存在此对象，没有就创建单例bean,调用构造函数实例化bean,再进行属性填充，最后调用初始化方法，应用BeanPostProcessor后置处理器。</p>
+<h3 id="lazy-init-延迟加载机制原理"><a href="#lazy-init-延迟加载机制原理" class="headerlink" title="lazy-init 延迟加载机制原理"></a>lazy-init 延迟加载机制原理</h3><p><img src="/posts/30508/assets/2242024c762ce2e8f4cfbb0cf37640b8.webp" alt="img"></p>
+<p><strong>理解</strong>：在上面bean创建过程中就已经说到了中间环节有一个非抽象，非单例，非延迟加载的判断。如果是延迟加载就直接不处理，就不会完成该bean的创建。</p>
+<h3 id="循环依赖问题"><a href="#循环依赖问题" class="headerlink" title="循环依赖问题"></a>循环依赖问题</h3><p>循环依赖其实就是循环引⽤，也就是两个或者两个以上的 Bean 互相持有对⽅，最终形成闭环。⽐如A依赖于B，B依赖于C，C⼜依赖于A。注意，这⾥不是函数的循环调⽤，是对象的相互依赖关系。</p>
+<p>场景：</p>
+<p>构造器的循环依赖（构造器注⼊）</p>
+<p>Field 属性的循环依赖（set注⼊）</p>
+<p>其中，构造器的循环依赖问题⽆法解决，因为构造函数里面必须要有东西，但是根本没法完成A的实例化放入缓存中，只能拋出 BeanCurrentlyInCreationException 异常。在解决属性循环依赖时，spring采⽤的是提前暴露对象的⽅法。</p>
+<p><img src="/posts/30508/assets/6cd3c1627f5d3d2f2361d00b7c2df1f4.webp" alt="img"></p>
+<p><strong>理解</strong>：Bean A在实例化后放入三级缓存中，接着A发现B依赖他，于是对B进行实例化，把B也放入三级缓存中，接着B又发现他依赖A，这个时候三级缓存中已经有了A对象，因此使用Bean工厂创建代理对象A放入二级缓存中，然后删除三级缓存中的A对象，B对象拿到了A的代理对象，就可以完成装配，把B放入一级缓存中，并删除三级缓存中的B对象，B实例化完之后就会返回给A，A有了B对象，就可以把二级缓存中的A对象同步到一级缓存中，并删除二级缓存中的A对象，这样就解决了循环依赖问题。</p>
+<h3 id="四、SpringAOP应用"><a href="#四、SpringAOP应用" class="headerlink" title="四、SpringAOP应用"></a>四、SpringAOP应用</h3><h3 id="AOP相关术语"><a href="#AOP相关术语" class="headerlink" title="AOP相关术语"></a>AOP相关术语</h3><p>AOP本质：在不改变原有业务逻辑代码的情况下运用动态代理技术（当代理对象不实现接口的情况下采用CGLIB,实现了接口采用官方JDK代理），在运行期间对需要使用的业务逻辑增强横切逻辑，横切逻辑代码往往是权限效验代码、日志代码、事务控制代码、性能监控代码。</p>
+<p><img src="/posts/30508/assets/dc4567d93c95d1e9a779dfe3ebed37a5.webp" alt="img"></p>
+<p>连接点：⽅法开始时、结束时、正常运⾏完毕时、⽅法异常时等这些特殊的时机点，我们称之为连接点，项⽬中每个⽅法都有连接点，连接点是⼀种候选点。</p>
+<p>切⼊点：指定AOP思想想要影响的具体⽅法是哪些，描述感兴趣的⽅法。</p>
+<p>Advice增强：第⼀个层次：指的是横切逻辑；第⼆个层次：⽅位点（在某⼀些连接点上加⼊横切逻辑，那么这些连接点就叫做⽅位点，描述的是具体的特殊时机）。</p>
+<p>Aspect切⾯：切⾯概念是对上述概念的⼀个综合。</p>
+<p>Aspect切⾯&#x3D; 切⼊点+增强&#x3D; 切⼊点（锁定⽅法） + ⽅位点（锁定⽅法中的特殊时机）+ 横切逻辑。</p>
+<p>组合以上最终的目的就是为了锁定需要在什么地方插入横切逻辑代码。</p>
+<p>配置方式：与IOC一样，支持xml、xml+注解、全注解方式。</p>
+<p>五种通知类型：前置通知；最终通知；正常执行通知；异常通知；环绕通知。</p>
+<p>XML模式</p>
+<p><img src="https://pic3.zhimg.com/80/v2-8831f62cbf80b606d143ccb1c38c1b9e_720w.webp" alt="img"></p>
+<p>注解模式</p>
+<p><img src="https://pic4.zhimg.com/80/v2-84ff749a8a6cd48787f33daf7107cd33_720w.webp" alt="img"></p>
+<h3 id="Spring声明式事务支持"><a href="#Spring声明式事务支持" class="headerlink" title="Spring声明式事务支持"></a>Spring声明式事务支持</h3><p>编程式事务：在业务代码中添加事务控制代码，这样的事务控制机制就叫做编程式事务。</p>
+<p>声明式事务：通过xml或者注解配置的⽅式达到事务控制的⽬的，叫做声明式事务。</p>
+<p>概念：逻辑上的一组操作，操作各个单元，进行控制，要么全部成功，要么全部失败，保证数据的准确和安全。</p>
+<p>四大特性之原子性：事务操作要么都发生要么都不发生。</p>
+<p>四大特性之隔离性：事务之间互不干扰，并发事务互相隔离</p>
+<p>四大特性之一致性：数据库从一个一致性状态到另一个一致性状态，比如A转账给B100块，完成后他们俩钱总和不能变。</p>
+<p>四大特性之持久性：事务一旦提交，数据库的数据改变就是永久有效的，不受任何不可控因素影响结果。</p>
+<p>事务问题：</p>
+<p>脏读：一个线程的事务读取到了另一个线程还未提交的数据。</p>
+<p>不可重复读：一个线程的事务读取到另一个线程已经提交update的数据（前后内容不一致）</p>
+<p>虚读（幻读）：⼀个线程的事务读到了另外⼀个线程中已经提交的insert或者delete的数据（前后条数不一致）</p>
+<p>四种隔离级别：Mysql默认可重复读</p>
+<p>Serializable（串⾏化）：可避免脏读、不可重复读、虚读情况的发⽣。（串⾏化） 最⾼效率</p>
+<p>Repeatable read（可重复读）：可避免脏读、不可重复读情况的发⽣。(幻读有可能发⽣) 第⼆</p>
+<p>该机制下会对要update的⾏进⾏加锁</p>
+<p>Read committed（读已提交）：可避免脏读情况发⽣。不可重复读和幻读⼀定会发⽣。 第三</p>
+<p>Read uncommitted（读未提交）：最低级别，以上情况均⽆法保证。(读未提交) 最低</p>
+<p>事务的传播行为：两个事务控制的service层存在关系调用，进行事务的协商。</p>
+<p><img src="/posts/30508/assets/9fff477c6774ad11b183958d080857d9.webp" alt="img"></p>
+<h3 id="Spring声明式事务配置"><a href="#Spring声明式事务配置" class="headerlink" title="Spring声明式事务配置"></a>Spring声明式事务配置</h3><p>导入jar包</p>
+<p><img src="/posts/30508/assets/824eb01f9f152464f23eaf5fb1345467.webp" alt="img"></p>
+<p>Xml配置</p>
+<p><img src="https://pic4.zhimg.com/80/v2-419d93c4669e1c9e9378c56212d335bf_720w.webp" alt="img"></p>
+<p>接口、类、方法添加@Transactional注解</p>
+<p><img src="https://pic3.zhimg.com/80/v2-e0f45c33a8a4778200c1fb8c0a9e504e_720w.webp" alt="img"></p>
+<h3 id="SpringAOP源码剖析"><a href="#SpringAOP源码剖析" class="headerlink" title="SpringAOP源码剖析"></a>SpringAOP源码剖析</h3><p>AOP代理对象创建过程</p>
+<p><img src="/posts/30508/assets/0d6cd198a8421472a826a608a901bfb9.webp" alt="img"></p>
+<p><img src="/posts/30508/assets/b3ea8c10c813434c6c69877a3ac20e21.webp" alt="img"></p>
+<p>在finishBeanFactoryInitialization方法中实例化原始对象并创建代理对象，进入方法内先创建Bean实例，调用构造方法，处理循环依赖，填充属性，完成后就开始调用初始化方法，创建BeanPostProcessor后置处理器来创建代理对象。具体源码走向：</p>
+<p>在AbstractAutowireCapableBeanFactory类的 initializeBean方法调用自己内部applyBeanPostProcessorsAfterInitialization方法，在方法内进入AbstractAutoProxyCreator类的postProcessAfterInitialization方法(后置处理器完成bean对象创建)，在调用自己内部的wrapIfNecessary方法包装代理对象，查找出和当前bean匹配的advisor,再进入createProxy方法调用栈，通过ProxyFactory创建代理对象，再把通用拦截器和增强对象合并，适配advisor,传给统一创建代理对象的工厂，进入createAopProxy方法判断是cglib代理还是jdk动态代理，最后通过Enhancer完成cglib代理对象的创建。</p>
+<p>声明式事务源码分析</p>
+<p><img src="/posts/30508/assets/74f321f1dd063a1600ab22b253f1575e.webp" alt="img"></p>
+<p>@EnableTransactionManagement 注解使⽤ @Import 标签引⼊了TransactionManagementConfigurationSelector类，这个类⼜向容器中导⼊了两个重要的组件AutoProxyRegistrar 组件和ProxyTransactionManagementConfiguration 组件分别完成后置处理器类和事务增强器类的执行。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/spring/" rel="tag"><i class="fa fa-tag"></i> spring</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/62590/" rel="prev" title="mybatis">
+                  <i class="fa fa-chevron-left"></i> mybatis
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/3559/" rel="next" title="springmvc知识">
+                  springmvc知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"fc5a2fb92e898b36689696c5248acd5c"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

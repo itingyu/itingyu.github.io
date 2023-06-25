@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Dubbo架构和实战架构演变过程单体架构 单体架构所有模块和功能都集中在一个项目中 ，部署时也是将项目所有功能整体部署到服务器中。 垂直架构 根据业务把项目垂直切割成多个项目。 分布式架构（SOA） 在垂直划分的基础上,将每个项目拆分出多个具备松耦合的服务,一个服务通常以独立的形式存在于操作系统进程中。 Dubbo三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="dubbo框架知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/2661b4f7/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Dubbo架构和实战架构演变过程单体架构 单体架构所有模块和功能都集中在一个项目中 ，部署时也是将项目所有功能整体部署到服务器中。 垂直架构 根据业务把项目垂直切割成多个项目。 分布式架构（SOA） 在垂直划分的基础上,将每个项目拆分出多个具备松耦合的服务,一个服务通常以独立的形式存在于操作系统进程中。 Dubbo三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/77a6e374003d0f20358ccbbacd1f732b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/7c2fa66ab6aeb68279ee2fc07ba9de35.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/fdef3523e35dbabb28a2060e5c526a3a.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-1acff69e625ede63ce08ef174fefec65_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-3dc3de900d5b2e0d6ea12f46b45f3caa_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-7e6ad2826337df99bfc91a38212d7536_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/bc2cb48585c1d2a2d9831048f04f7dc6.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/62ef2e899499c84e03d9054e980a52dc.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-83806ef061b1d2930e45612f0e1300f6_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-4a8a66ba39d42150125f8998f1950e69_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/7aae2bd0a0466e411a1cc4eef60e05fe.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/bd49f180b2f90f0152100405b396a5a1.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/f45011d46fc7a2ad56698e36c4aa46ef.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/3f1f8209307394fdaec90abf277561b8.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2661b4f7/assets/64a44eaed767d33cb4fb979da5d99943.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-9916b50dd80c1fe5226288ad2da843f6_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-9d8219c67027330bc038ac2dd92e1bfa_720w.webp">
+<meta property="article:published_time" content="2023-06-17T10:59:26.000Z">
+<meta property="article:modified_time" content="2023-06-17T11:00:40.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="dubbo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/2661b4f7/assets/77a6e374003d0f20358ccbbacd1f732b.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/2661b4f7/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/2661b4f7/","path":"posts/2661b4f7/","title":"dubbo框架知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>dubbo框架知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Dubbo%E6%9E%B6%E6%9E%84%E5%92%8C%E5%AE%9E%E6%88%98"><span class="nav-number">1.</span> <span class="nav-text">一、Dubbo架构和实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%B6%E6%9E%84%E6%BC%94%E5%8F%98%E8%BF%87%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">架构演变过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dubbo%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.2.</span> <span class="nav-text">Dubbo基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dubbo%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">Dubbo配置方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-application%E9%85%8D%E7%BD%AE"><span class="nav-number">1.4.</span> <span class="nav-text">dubbo:application配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-registry%E9%85%8D%E7%BD%AE"><span class="nav-number">1.5.</span> <span class="nav-text">dubbo:registry配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-protocol%E9%85%8D%E7%BD%AE"><span class="nav-number">1.6.</span> <span class="nav-text">dubbo:protocol配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-service%E9%85%8D%E7%BD%AE"><span class="nav-number">1.7.</span> <span class="nav-text">dubbo:service配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-reference%E9%85%8D%E7%BD%AE"><span class="nav-number">1.8.</span> <span class="nav-text">dubbo:reference配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-consumer%E8%AE%BE%E7%BD%AE"><span class="nav-number">1.9.</span> <span class="nav-text">dubbo:consumer设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-method%E9%85%8D%E7%BD%AE"><span class="nav-number">1.10.</span> <span class="nav-text">dubbo:method配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Dubbo%E9%AB%98%E7%BA%A7%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、Dubbo高级应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI"><span class="nav-number">2.1.</span> <span class="nav-text">SPI</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AD%96%E7%95%A5"><span class="nav-number">2.2.</span> <span class="nav-text">负载均衡策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8"><span class="nav-number">2.3.</span> <span class="nav-text">异步调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="nav-number">2.4.</span> <span class="nav-text">线程池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%AF%E7%94%B1%E8%A7%84%E5%88%99"><span class="nav-number">2.5.</span> <span class="nav-text">路由规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E9%99%8D%E7%BA%A7"><span class="nav-number">2.6.</span> <span class="nav-text">服务降级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Dubbo%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90"><span class="nav-number">2.7.</span> <span class="nav-text">三、Dubbo源码剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dubbo%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">2.8.</span> <span class="nav-text">Dubbo调用过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E8%B0%83%E7%94%A8%E9%93%BE%E8%B7%AF"><span class="nav-number">2.9.</span> <span class="nav-text">整体调用链路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#URL%E8%A7%84%E5%88%99%E5%92%8C%E6%9C%8D%E5%8A%A1%E6%9C%AC%E5%9C%B0%E7%BC%93%E5%AD%98"><span class="nav-number">2.10.</span> <span class="nav-text">URL规则和服务本地缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dubbo%E6%9C%8D%E5%8A%A1%E6%B6%88%E8%B4%B9%E8%BF%87%E7%A8%8B"><span class="nav-number">2.11.</span> <span class="nav-text">Dubbo服务消费过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Adaptive%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.12.</span> <span class="nav-text">Adaptive功能实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E5%AE%B9%E9%94%99%E5%88%86%E6%9E%90"><span class="nav-number">2.13.</span> <span class="nav-text">集群容错分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%A1%E6%81%AF%E7%BC%93%E5%AD%98%E6%8E%A5%E5%8F%A3Directory"><span class="nav-number">2.14.</span> <span class="nav-text">信息缓存接口Directory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.15.</span> <span class="nav-text">负载均衡实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E7%BB%9C%E9%80%9A%E4%BF%A1%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90"><span class="nav-number">2.16.</span> <span class="nav-text">网络通信原理剖析</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/2661b4f7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="dubbo框架知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          dubbo框架知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:59:26" itemprop="dateCreated datePublished" datetime="2023-06-17T18:59:26+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/dubbo/" itemprop="url" rel="index"><span itemprop="name">dubbo</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.1k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Dubbo架构和实战"><a href="#一、Dubbo架构和实战" class="headerlink" title="一、Dubbo架构和实战"></a>一、Dubbo架构和实战</h2><h3 id="架构演变过程"><a href="#架构演变过程" class="headerlink" title="架构演变过程"></a>架构演变过程</h3><p><strong>单体架构</strong></p>
+<p>单体架构所有模块和功能都集中在一个项目中 ，部署时也是将项目所有功能整体部署到服务器中。</p>
+<p><strong>垂直架构</strong></p>
+<p>根据业务把项目垂直切割成多个项目。</p>
+<p><strong>分布式架构（SOA）</strong></p>
+<p>在垂直划分的基础上,将每个项目拆分出多个具备松耦合的服务,一个服务通常以独立的形式存在于操作系统进程中。</p>
+<p>Dubbo三大核心能力：面向接口的远程方法调用，智能容错和负载均衡，以及服务自动注册和发现。</p>
+<p>基于垂直结构进行分层：</p>
+<p>应用层: 距离用户最近的一层也称之为接入层，使用tomcat作为web容器接收用户请求使用下游的dubbo提供的接口来返回数据并且该层禁止访问数据库。</p>
+<p>业务服务层：根据具体的业务场景 演变而来的模块 比如 简历投递 职位搜索 职位推荐等。</p>
+<p>基础业务层：招聘业务的核心 账号 简历 公司 职位。</p>
+<p>基础服务层：这一层是与业务无关的模块是一些通用的服务，比如发短信，发邮件等等，这类服务请求量大但是逻辑简单。</p>
+<p>存储层:不同的存储类型Mysql、Mongodb。</p>
+<p>分级：二八定律，80%的流量在核心功能上，优先保证核心服务的稳定。</p>
+<p>隔离：不同性质、不同重要业务要进行隔离，比如各种中间件。</p>
+<p>优点：服务以接口为粒度，屏蔽远程调用底层细节，只关心结果，而且采用此业务分层架构清晰，模块职责单一，扩展性强，保证系统稳定且安全。</p>
+<p>缺点：粒度控制复杂，模块越多可能引发超时，分布式事务问题，可能引发接口爆炸，版本升级兼容困难，调用链路长。</p>
+<p><strong>微服务架构</strong></p>
+<p>将单个应用程序作为一套小型服务开发的方法，每种应用程序都在其自己的进程中独立运行，并使用轻量级机制(通常是HTTP资源的API)进行通信。这些服务的集中化管理非常少，它们可以用不同的编程语言编写，并使用不同的数据存储技术。微服务是在SOA上做的升华 , 粒度更加细致，微服务架构强调的一个重点是业务需要彻底的组件化和服务化。</p>
+<h3 id="Dubbo基础知识"><a href="#Dubbo基础知识" class="headerlink" title="Dubbo基础知识"></a>Dubbo基础知识</h3><p>Apache Dubbo是一款高性能的Java RPC框架。</p>
+<p><img src="/posts/2661b4f7/assets/77a6e374003d0f20358ccbbacd1f732b.webp" alt="img"></p>
+<p>面向接口的远程方法调用：提供高性能的基于代理的远程调用能力，服务以接口为粒度，为开发者屏蔽远程调用底层细节。</p>
+<p>智能容错和负载均衡：内置多种负载均衡策略，智能感知下游节点健康状况，显著减少调用延迟，提高系统吞吐量。</p>
+<p>服务自动注册和发现：支持多种注册中心服务，服务实例上下线实时感知。</p>
+<p>Dubbo服务治理：，企业为了确保项目顺利完成而实施的过程，包括最佳实践、架构原则、治理规程、规律以及其他决定性的因素。</p>
+<p><strong>Dubbo处理流程</strong></p>
+<p><img src="/posts/2661b4f7/assets/7c2fa66ab6aeb68279ee2fc07ba9de35.webp" alt="img"></p>
+<p><img src="/posts/2661b4f7/assets/fdef3523e35dbabb28a2060e5c526a3a.webp" alt="img"></p>
+<p>调用过程：</p>
+<p>\1. 服务提供者在服务容器启动时向注册中心注册自己提供的服务。</p>
+<p>\2. 服务消费者在启动时向注册中心订阅自己所需的服务。</p>
+<p>\3. 注册中心返回服务提供者地址列表给消费者，如果有变更，注册中心会基于长连接推送数据给消费者。</p>
+<p>\4. 服务消费者从提供者地址列表中，基于软负载均衡算法选一台提供者进行调用，如果调用失败，重新选择。</p>
+<p>\5. 服务提供者和服务消费者在内存中的调用次数和时间，定时每分钟发送给监控中心。</p>
+<h3 id="Dubbo配置方式"><a href="#Dubbo配置方式" class="headerlink" title="Dubbo配置方式"></a>Dubbo配置方式</h3><p>1.注解: 基于注解可以快速的将程序配置，无需多余的配置信息，包含提供者和消费者。弊端是根据配置信息无法快速定位。</p>
+<p>\2. XML:和Spring做结合，相关的Service和Reference均使用Spring集成后的。通过这样的方式可以很方便的通过几个文件进行管理整个集群配置。可以快速定位也可以快速更改。</p>
+<p>3.基于代码方式: 基于代码方式的对上述配置进行配置。</p>
+<h3 id="dubbo-application配置"><a href="#dubbo-application配置" class="headerlink" title="dubbo:application配置"></a>dubbo:application配置</h3><p>代表当前应用的信息</p>
+<p>\1. name: 当前应用程序的名称，在dubbo-admin中我们也可以看到，这个代表这个应用名称。我们在真正时是时也会根据这个参数来进行聚合应用请求。</p>
+<p>\2. owner: 当前应用程序的负责人，可以通过这个负责人找到其相关的应用列表，用于快速定位到责任人。</p>
+<p>\3. qosEnable : 是否启动QoS 默认true</p>
+<p>\4. qosPort : 启动QoS绑定的端口 默认22222</p>
+<p>\5. qosAcceptForeignIp: 是否允许远程访问 默认是false</p>
+<p>注解方式</p>
+<p><img src="https://pic2.zhimg.com/80/v2-1acff69e625ede63ce08ef174fefec65_720w.webp" alt="img"></p>
+<p>XML方式</p>
+<p><img src="https://pic3.zhimg.com/80/v2-3dc3de900d5b2e0d6ea12f46b45f3caa_720w.webp" alt="img"></p>
+<h3 id="dubbo-registry配置"><a href="#dubbo-registry配置" class="headerlink" title="dubbo:registry配置"></a>dubbo:registry配置</h3><p>代表该模块所使用的注册中心</p>
+<p>\1. id : 当前服务中provider或者consumer中存在多个注册中心时，则使用需要增加该配置。在一 些公司，会通过业务线的不同选择不同的注册中心，所以一般都会配置该值。</p>
+<p>\2. address : 当前注册中心的访问地址。</p>
+<p>\3. protocol : 当前注册中心所使用的协议是什么。也可以直接在 address 中写入，比如使用 zookeeper，就可以写成 zookeeper:&#x2F;&#x2F;xx.xx.xx.xx:2181</p>
+<p>\4. timeout : 当与注册中心不再同一个机房时，大多会把该参数延长。</p>
+<h3 id="dubbo-protocol配置"><a href="#dubbo-protocol配置" class="headerlink" title="dubbo:protocol配置"></a>dubbo:protocol配置</h3><p>指定服务在进行数据传输所使用的协议</p>
+<p>\1. id : 在大公司，可能因为各个部门技术栈不同，所以可能会选择使用不同的协议进行交互。这里 在多个协议使用时，需要指定。</p>
+<p>\2. name : 指定协议名称。默认使用 dubbo 。</p>
+<h3 id="dubbo-service配置"><a href="#dubbo-service配置" class="headerlink" title="dubbo:service配置"></a>dubbo:service配置</h3><p>指定当前需要对外暴露的服务信息</p>
+<p>\1. interface : 指定当前需要进行对外暴露的接口是什么。</p>
+<p>\2. ref : 具体实现对象的引用，一般我们在生产级别都是使用Spring去进行Bean托管的，所以这里面 一般也指的是Spring中的BeanId。</p>
+<p>\3. version : 对外暴露的版本号。不同的版本号，消费者在消费的时候只会根据固定的版本号进行消 费。</p>
+<h3 id="dubbo-reference配置"><a href="#dubbo-reference配置" class="headerlink" title="dubbo:reference配置"></a>dubbo:reference配置</h3><p>消费者的配置</p>
+<p>\1. id : 指定该Bean在注册到Spring中的id。</p>
+<p>\2. interface: 服务接口名</p>
+<p>\3. version : 指定当前服务版本，与服务提供者的版本一致。</p>
+<p>\4. registry : 指定所具体使用的注册中心地址。这里面也就是使用上面在dubbo:registry中所声明的id。</p>
+<h3 id="dubbo-consumer设置"><a href="#dubbo-consumer设置" class="headerlink" title="dubbo:consumer设置"></a>dubbo:consumer设置</h3><p>\1. mock: 用于在方法调用出现错误时，当做服务降级来统一对外返回结果，后面我们也会对这个方 法做更多的介绍。</p>
+<p>\2. timeout: 用于指定当前方法或者接口中所有方法的超时时间。我们一般都会根据提供者的时长来 具体规定。比如我们在进行第三方服务依赖时可能会对接口的时长做放宽，防止第三方服务不稳定 导致服务受损。</p>
+<p>\3. check: 用于在启动时，检查生产者是否有该服务。我们一般都会将这个值设置为false，不让其进 行检查。因为如果出现模块之间循环引用的话，那么则可能会出现相互依赖，都进行check的话， 那么这两个服务永远也启动不起来。</p>
+<p>\4. retries: 用于指定当前服务在执行时出现错误或者超时时的重试机制，重试次数。</p>
+<p>\1. 注意提供者是否有幂等，否则可能出现数据一致性问题</p>
+<p>\2. 注意提供者是否有类似缓存机制，如出现大面积错误时，可能因为不停重试导致雪崩</p>
+<p>\5. executes: 用于在提供者做配置，来确保最大的并行度，熔断处理。</p>
+<p>\1. 可能导致集群功能无法充分利用或者堵塞</p>
+<p>\2. 但是也可以启动部分对应用的保护功能</p>
+<p>\3. 可以不做配置，结合后面的熔断限流使用</p>
+<h3 id="dubbo-method配置"><a href="#dubbo-method配置" class="headerlink" title="dubbo:method配置"></a>dubbo:method配置</h3><p>XML中独有，指定具体方法级别在进行RPC操作时候的配置。</p>
+<p>\1. name : 指定方法名称，用于对这个方法名称的RPC调用进行特殊配置。</p>
+<p>\2. async: 是否异步 默认false</p>
+<h2 id="二、Dubbo高级应用"><a href="#二、Dubbo高级应用" class="headerlink" title="二、Dubbo高级应用"></a>二、Dubbo高级应用</h2><h3 id="SPI"><a href="#SPI" class="headerlink" title="SPI"></a>SPI</h3><p>JDK内置的一种服务提供发现机制，使用SPI机制的优势是实现解耦， 使得第三方服务模块的装配控制逻辑与调用者的业务代码分离。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-7e6ad2826337df99bfc91a38212d7536_720w.webp" alt="img"></p>
+<p><strong>SPI约定</strong></p>
+<p>1） 当服务提供者提供了接口的一种具体实现后，在META-INF&#x2F;services目录下创建一个以“接口全 限定名”为命名的文件，内容为实现类的全限定名。</p>
+<p>2） 接口实现类所在的jar包放在主程序的classpath中。</p>
+<p>3） 主程序通过java.util.ServiceLoader动态装载实现模块，它通过扫描META-INF&#x2F;services目录下 的配置文件找到实现类的全限定名，把类加载到JVM。</p>
+<p>4） SPI的实现类必须携带一个无参构造方法。</p>
+<p><strong>Dubbo中的SPI</strong></p>
+<p>dubbo中大量的使用了SPI来作为扩展点，通过实现同一接口的前提下，可以进行定制自己的实现类。 比如比较常见的协议，负载均衡，都可以通过SPI的方式进行定制化，自己扩展。</p>
+<p>优点：</p>
+<p>\1. JDK 标准的 SPI 会一次性实例化扩展点所有实现，如果有扩展实现初始化很耗时，但如果没用上也加载，会很浪费资源。</p>
+<p>\2. 如果有扩展点加载失败，则所有扩展点无法使用。</p>
+<p>\3. 提供了对扩展点包装的功能(Adaptive)，并且还支持通过set的方式对其他的扩展点进行注入。</p>
+<p><strong>Adaptive功能</strong></p>
+<p>Dubbo中的Adaptive功能，主要解决的问题是如何动态的选择具体的扩展点。通过 getAdaptiveExtension 统一对指定接口对应的所有扩展点进行封装，通过URL的方式对扩展点来进行 动态选择。</p>
+<p><img src="/posts/2661b4f7/assets/bc2cb48585c1d2a2d9831048f04f7dc6.webp" alt="img"></p>
+<p><strong>Dubbo过滤器</strong></p>
+<p>Dubbo的Filter机制，是专门为服务提供方和服务消费方调用过程进行拦截设计的，每次远程方法执行，该拦截都会被执行。这样就为开发者提供了非常方便的扩展性，比如为dubbo接口实现ip白名单功 能、监控功能 、日志记录等。</p>
+<p><img src="/posts/2661b4f7/assets/62ef2e899499c84e03d9054e980a52dc.webp" alt="img"></p>
+<h3 id="负载均衡策略"><a href="#负载均衡策略" class="headerlink" title="负载均衡策略"></a>负载均衡策略</h3><p>负载均衡（Load Balance）, 其实就是将请求分摊到多个操作单元上进行执行，从而共同完成工作任务。负载均衡策略主要用于客户端存在多个提供者时进行选择某个提供者。在集群负载均衡时，Dubbo 提供了多种均衡策略（包括随机、轮询、最少活跃调用数、一致性 Hash），dubbo默认为随机调用。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-83806ef061b1d2930e45612f0e1300f6_720w.webp" alt="img"></p>
+<p><strong>自定义负载均衡器开发</strong></p>
+<p>1） 自定义负载均衡器</p>
+<p>2） 配置负载均衡器 META-INF&#x2F;dubbo</p>
+<p>3） 在服务提供者工程实现类中编写用于测试负载均衡效果的方法，启动不同端口时，方法返回的信息不同。</p>
+<p>4） 启动多个服务 要求他们使用同一个接口注册到同一个注册中心 但是他们的dubbo通信端口不同</p>
+<p>5） 在服务消费方指定自定义负载均衡器</p>
+<h3 id="异步调用"><a href="#异步调用" class="headerlink" title="异步调用"></a>异步调用</h3><p>Dubbo不只提供了堵塞式的的同步调用，同时提供了异步调用的方式。这种方式主要应用于提供者接口</p>
+<p>响应耗时明显，消费者端可以利用调用接口的时间去做一些其他的接口调用,利用 Future 模式来异步等待和获取结果即可。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-4a8a66ba39d42150125f8998f1950e69_720w.webp" alt="img"></p>
+<h3 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h3><p>Dubbo两种线程池</p>
+<p>1） fix: 表示创建固定大小的线程池。Dubbo默认的使用方式，默认创建的执行线程数为200，并且是没有任何等待队列的。大量操作同步执行可能阻塞。</p>
+<p>2） cache: 创建非固定大小的线程池，当线程不足时，会自动创建新的线程。高TPS（每秒请求数）请求下，对系统CPU和负载压力大。</p>
+<p>自定义线程池</p>
+<p>真实的使用过程中可能会因为使用fix模式的线程池，导致具体某些业务场景因为线程池中的线程数量不足而产生错误，而很多业务研发是对这些无感知的，只有当出现错误的时候才会去查看告警或者通过客户反馈出现严重的问题才去查看，结果发现是线程池满了。所以可以在创建线程池的时，通过某些手段对这个线程池进行监控，这样就可以进行及时的扩缩容机器或者告警。</p>
+<p><img src="/posts/2661b4f7/assets/7aae2bd0a0466e411a1cc4eef60e05fe.webp" alt="img"></p>
+<p><img src="/posts/2661b4f7/assets/bd49f180b2f90f0152100405b396a5a1.webp" alt="img"></p>
+<h3 id="路由规则"><a href="#路由规则" class="headerlink" title="路由规则"></a>路由规则</h3><p>路由是决定一次请求中需要发往目标机器的重要判断，通过对其控制可以决定请求的目标机器。我们可以通过创建这样的规则来决定一个请求会交给哪些服务器去处理。</p>
+<p><img src="/posts/2661b4f7/assets/f45011d46fc7a2ad56698e36c4aa46ef.webp" alt="img"></p>
+<p>规则详解：</p>
+<p>route:&#x2F;&#x2F; 表示路由规则的类型，支持条件路由规则和脚本路由规则，可扩展，必填。</p>
+<p>0.0.0.0 表示对所有 IP 地址生效，如果只想对某个 IP 的生效，请填入具体 IP，必填。</p>
+<p>com.lagou.service.HelloService 表示只对指定服务生效，必填。</p>
+<p>category&#x3D;routers 表示该数据为动态配置类型，必填。</p>
+<p>dynamic : 是否为持久数据，当指定服务重启时是否继续生效。必填。</p>
+<p>runtime : 是否在设置规则时自动缓存规则，如果设置为true则会影响部分性能。</p>
+<p>… &#x3D;&gt; … 在这里 &#x3D;&gt; 前面的就是表示消费者方的匹配规则，可以不填(代表全部)。 &#x3D;&gt; 后方则必 须填写，表示当请求过来时，如果选择提供者的配置。</p>
+<h3 id="服务降级"><a href="#服务降级" class="headerlink" title="服务降级"></a>服务降级</h3><p>服务降级，当服务器压力剧增的情况下，根据当前业务情况及流量对一些服务有策略的降低服务级别， 以释放服务器资源，保证核心任务的正常运行。使用服务降级，这是防止分布式服务发生雪崩效应，当一个请求发生超时，一直等待着服务响应，那么在高并发情况下，很多请求都是因为这样一直等着响应，直到服务资源耗尽产生宕机，而宕机之后会导致分布式其他服务调用该宕机的服务也会出现资源耗尽宕机， 这样下去将导致整个分布式服务都瘫痪，这就是雪崩。</p>
+<p>降级方式：</p>
+<p>1） 在 dubbo 管理控制台配置服务降级，屏蔽和容错。</p>
+<p>2） 指定返回简单值或者null</p>
+<p>3） 使用java代码 动态写入配置中心</p>
+<p>4） 整合hystrix</p>
+<h3 id="三、Dubbo源码剖析"><a href="#三、Dubbo源码剖析" class="headerlink" title="三、Dubbo源码剖析"></a>三、Dubbo源码剖析</h3><h3 id="Dubbo调用过程"><a href="#Dubbo调用过程" class="headerlink" title="Dubbo调用过程"></a>Dubbo调用过程</h3><p><img src="/posts/2661b4f7/assets/3f1f8209307394fdaec90abf277561b8.webp" alt="img"></p>
+<p>调用四部分</p>
+<p>1）Provider: 暴露服务的服务提供方</p>
+<p>Protocol 负责提供者和消费者之间协议交互数据</p>
+<p>Service 真实的业务服务信息 可以理解成接口 和 实现</p>
+<p>Container Dubbo的运行环境</p>
+<p>2）Consumer: 调用远程服务的服务消费方</p>
+<p>Protocol 负责提供者和消费者之间协议交互数据</p>
+<p>Cluster 感知提供者端的列表信息</p>
+<p>Proxy 可以理解成 提供者的服务调用代理类 由它接管 Consumer中的接口调用逻辑</p>
+<p>3）Registry: 注册中心，用于作为服务发现和路由配置等工作，提供者和消费者都会在这里进行注册</p>
+<p>4）Monitor: 用于提供者和消费者中的数据统计，比如调用频次，成功失败次数等信息。</p>
+<p>启动和执行流程</p>
+<p>1）提供者端启动 容器负责把Service信息加载 并通过Protocol 注册到注册中心</p>
+<p>2）消费者端启动 通过监听提供者列表来感知提供者信息 并在提供者发生改变时 通过注册中心及时通知消费端</p>
+<p>3）消费方发起 请求 通过Proxy模块</p>
+<p>4）利用Cluster模块 来选择真实的要发送给的提供者信息</p>
+<p>5）交由Consumer中的Protocol 把信息发送给提供者</p>
+<p>6）提供者同样需要通过 Protocol 模块来处理消费者的信息</p>
+<p>7）最后由真正的服务提供者 Service 来进行处理</p>
+<h3 id="整体调用链路"><a href="#整体调用链路" class="headerlink" title="整体调用链路"></a>整体调用链路</h3><p><img src="/posts/2661b4f7/assets/64a44eaed767d33cb4fb979da5d99943.webp" alt="img"></p>
+<p>1）消费者通过Interface进行方法调用 统一交由消费者端的 Proxy 通过ProxyFactory 来进行代理 对象的创建 使用到了 jdk javassist技术</p>
+<p>2）交给Filter 这个模块 做一个统一的过滤请求 在SPI案例中涉及过</p>
+<p>3）接下来会进入最主要的Invoker调用逻辑</p>
+<p>通过Directory 去配置中新读取信息 最终通过list方法获取所有的Invoker</p>
+<p>通过Cluster模块 根据选择的具体路由规则 来选取Invoker列表</p>
+<p>通过LoadBalance模块 根据负载均衡策略 选择一个具体的Invoker 来处理我们的请求</p>
+<p>如果执行中出现错误 并且Consumer阶段配置了重试机制 则会重新尝试执行</p>
+<p>4） 继续经过Filter进行执行功能的前后封装 Invoker 选择具体的执行协议 、</p>
+<p>5） 客户端 进行编码和序列化然后发送数据</p>
+<p>6） 到达Consumer中的Server在这里进行反编码和反序列化的接收数据</p>
+<p>7） 使用Exporter选择执行器</p>
+<p>8） 交给Filter 进行一个提供者端的过滤到达 Invoker 执行器</p>
+<p>9） 通过Invoker 调用接口的具体实现然后返回</p>
+<h3 id="URL规则和服务本地缓存"><a href="#URL规则和服务本地缓存" class="headerlink" title="URL规则和服务本地缓存"></a>URL规则和服务本地缓存</h3><p>Dubbo中的URL与java中的URL差异</p>
+<p>1） 这里提供了针对于参数的 parameter 的增加和减少(支持动态更改)</p>
+<p>2） 提供缓存功能，对一些基础的数据做缓存</p>
+<p>服务本地缓存</p>
+<p>频繁往从ZK获取信息，肯定会存在单点故障问题，所以dubbo提供了将提供者信息缓存在本地的方法，主要实现就是创建一个properties文件，通过构造方法从远程一拿到配置信息就存储到本地进行缓存。</p>
+<h3 id="Dubbo服务消费过程"><a href="#Dubbo服务消费过程" class="headerlink" title="Dubbo服务消费过程"></a>Dubbo服务消费过程</h3><p><img src="https://pic3.zhimg.com/80/v2-9916b50dd80c1fe5226288ad2da843f6_720w.webp" alt="img"></p>
+<p>1）通过ReferenceConfig 类的Protocol 调用 refer 方法让远程对象生成 Invoker 实例。</p>
+<p>2）接着通过ProxyFactory的getProxy方法生成ref代理对象对远程服务进行处理。</p>
+<h3 id="Adaptive功能实现原理"><a href="#Adaptive功能实现原理" class="headerlink" title="Adaptive功能实现原理"></a>Adaptive功能实现原理</h3><p>Adaptive的主要功能是对所有的扩展点进行封装为一个类，通过URL传入参数的时动态选择需要使用的扩展点。其底层的实现原理就是动态代理。</p>
+<h3 id="集群容错分析"><a href="#集群容错分析" class="headerlink" title="集群容错分析"></a>集群容错分析</h3><p><img src="https://pic3.zhimg.com/80/v2-9d8219c67027330bc038ac2dd92e1bfa_720w.webp" alt="img"></p>
+<p>Dubbo 主要提供了这样几种容错方式</p>
+<p>Failover Cluster - 失败自动切换 失败时会重试其它服务器</p>
+<p>Failfast Cluster - 快速失败请求失败后快速返回异常结果不重试</p>
+<p>Failsafe Cluster - 失败安全出现异常 直接忽略 会对请求做负载均衡</p>
+<p>Failback Cluster - 失败自动恢复请求失败后 会自动记录请求到失败队列中</p>
+<p>Forking Cluster - 并行调用多个服务提供者 其中有一个返回则立即返回结果</p>
+<h3 id="信息缓存接口Directory"><a href="#信息缓存接口Directory" class="headerlink" title="信息缓存接口Directory"></a>信息缓存接口Directory</h3><p>Directory是Dubbo中的一个接口，主要用于缓存当前可以被调用的提供者列表信息。我们在消费者进 行调用时都会通过这个接口来获取所有的提供者列表，再进行后续处理。</p>
+<h3 id="负载均衡实现原理"><a href="#负载均衡实现原理" class="headerlink" title="负载均衡实现原理"></a>负载均衡实现原理</h3><p>通过LoadBalance 接口进行定义，默认使用的是随机算法，这随机算法的负载，其内部的实现其实就是一个权重概念，通过不同权重来选取不同机器。权重相同直接随机，权重不同通过总工权重来随机分配。</p>
+<h3 id="网络通信原理剖析"><a href="#网络通信原理剖析" class="headerlink" title="网络通信原理剖析"></a>网络通信原理剖析</h3><p>dubbo协议采用固定长度的消息头和不定长度的消息体来进行数据传输。请求、响应的 header 一致。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/dubbo/" rel="tag"><i class="fa fa-tag"></i> dubbo</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/26268/" rel="prev" title="zookeeper相关知识">
+                  <i class="fa fa-chevron-left"></i> zookeeper相关知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/30414/" rel="next" title="springcloud组件知识">
+                  springcloud组件知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"f4e6245914827c24fa333d8c0f365f1d"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

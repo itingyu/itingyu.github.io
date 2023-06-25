@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="JVM概念与操作系统关系JVM就是Java虚拟机，是一种用于计算设备的规范。       HostSport是Java使用的虚拟机，在JDK8，Oracle公司将JRockit融合了进来。性能进一步提升。 Java 是一门抽象程度特别高的语言，提供了自动内存管理等一系列的特性。这些特性直接在操作系统上实现是不太 可能的，所以就需要 JVM进行转换。     通过JVM实现Java语言的跨平台，比如">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm基础">
+<meta property="og:url" content="https://itingyu.github.io/posts/23682/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="JVM概念与操作系统关系JVM就是Java虚拟机，是一种用于计算设备的规范。       HostSport是Java使用的虚拟机，在JDK8，Oracle公司将JRockit融合了进来。性能进一步提升。 Java 是一门抽象程度特别高的语言，提供了自动内存管理等一系列的特性。这些特性直接在操作系统上实现是不太 可能的，所以就需要 JVM进行转换。     通过JVM实现Java语言的跨平台，比如">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/2e8537dc5272d8ee8eebf6383919eb52.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-65a490534b0a548b61de8e7d603236a8_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-920b2efdb39f3388ae0c45e5966740b1_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-b940bc8619fb2ed01152435f46e6c9ff_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/b1aad8ae29f38a4d45cd90c8b178b380.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/b53fc58a5704b7cf2fc23e3e75ff515a.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/795d75b6e9585c6872316a96915050d1.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/2d234d5fb55a82785ea6d93d444bb7de.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-1a986ec46435877f400ab3a464c04dc3_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/54840160886cb047d7d9dcfcac4741a9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/80c0027e0c2d4055bec607f40e55666e.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-f6181cd1f5323b01bc27896788582dfd_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/f98baca05db0b3425e56d12c5e6fefbc.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/3b63f6076bc398ef53e01a4f56622dad.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/2197e9f3868cf3075bbc5238ef9a4358.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/4ddac7e4012038d1a8763cbd568562c3.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/4ce9ed06c100851f934ffce3e3477d40.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/fc0839d166071ca589fe435fea63341c.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d145d86babb8f1e6f31846c890dea97d_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-f1b8d32d3886e3dbe26a7c3d723ad10b_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-c12ebdc2706858888b2e5498c753de89_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/8f1f7fa2ee295924dbfca7300dd74a65.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-e2ce0b71054465043aff928c296d8f5a_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e8e6f9317d54014475f8fddd033ce5ad_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/5be667c633fb1c0557e1af863edf24e7.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-cae07c8febd9d7e40727ed0af7fb13be_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/73d6e8257772ac3b164183720f813bae.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-c935e0a301202e13aa4b9697c11c565b_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/02a9efd16467ea978fedd88087d92d37.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-0be9453a775f1a7d6acd4e555b9cc01e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/0648aa952065409e595fe07ec4f12afc.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/fe8fddcf2651adb6da966185c05a3b04.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/e9a718bf2af2c04847fec7a5a02cc73e.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/bf206ff54e6694b1c8bf635b805b5a11.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/b7a54ea3bb4d7d88de7dec2a4f17cb39.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d428119b36867d6949ef3d5ce7d77891_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/4274d031aa503d1a5f72ab6e2884c538.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-b2b6853ced31a335e5d73e431a5d88a5_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/1192d83cd3a2f3b9127436d3ffa70943.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/6f61495f2b359d186ac7bb62ca8ff179.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/78b559932eb688b9ec4c8736e23a3b76.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/18ad637cdc7621435ba69612890e33b9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/cab989bfe11d5d2f7f19fd3cf548bf16.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/c3cd9bb7df5a974a1ef818eeae2ef1db.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-73073f4ea2ffcc74af489c18b96ff9a8_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-1a02ec0c527109000c5e65556f2c74f9_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/83871659b7ec98939d93348c0dbeaaf0.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/47096b4988b8a7e5780e8854277f23a0.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/50c69a4fa5d830369734b691f176738b.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-622ab5936534be2372cda1ca0188edd6_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-7013edcf33f8588f31c81856af3ef06f_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/59ac2c95de6573f05e1524ffaf51d1f7.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-3b0202ea35bf7b57ffaabe9d987e40c5_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/b5eac9c46d4680c1462e87395b8f01a5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/2a05d9aeff899b2dd82c731e0352e485.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-89aaae5893844890dad6aae5f6d0b637_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/1918bc6fe83a1fdff0d3f1562b3dfa6b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/23682/assets/f93568279b2b2011498442c2dd71ab86.webp">
+<meta property="article:published_time" content="2023-06-15T04:53:23.000Z">
+<meta property="article:modified_time" content="2023-06-15T14:09:43.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/23682/assets/2e8537dc5272d8ee8eebf6383919eb52.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/23682/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/23682/","path":"posts/23682/","title":"jvm基础"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>jvm基础 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%85%B3%E7%B3%BB"><span class="nav-number">1.</span> <span class="nav-text">JVM概念与操作系统关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JRE%E3%80%81JDK%E3%80%81JVM%E5%85%B3%E7%B3%BB"><span class="nav-number">2.</span> <span class="nav-text">JRE、JDK、JVM关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%A7%84%E8%8C%83%E5%92%8CJava%E8%AF%AD%E8%A8%80%E8%A7%84%E8%8C%83%E5%85%B3%E7%B3%BB"><span class="nav-number">3.</span> <span class="nav-text">Java虚拟机规范和Java语言规范关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Java%E8%99%9A%E6%8B%9F%E6%9C%BA%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">二、Java虚拟机的内存管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E6%95%B4%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">5.</span> <span class="nav-text">JVM整体架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E8%BF%90%E8%A1%8C%E6%97%B6%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">JVM运行时内存管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">7.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="nav-number">8.</span> <span class="nav-text">虚拟机栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%88%E9%92%88%E7%BB%93%E6%9E%84"><span class="nav-number">9.</span> <span class="nav-text">栈针结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="nav-number">10.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E7%A9%BA%E9%97%B4"><span class="nav-number">11.</span> <span class="nav-text">堆空间</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%E7%AE%80%E4%BB%8B"><span class="nav-number">12.</span> <span class="nav-text">方法区简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%E7%BB%93%E6%9E%84"><span class="nav-number">13.</span> <span class="nav-text">方法区结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%E8%AE%BE%E7%BD%AE"><span class="nav-number">14.</span> <span class="nav-text">方法区设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="nav-number">15.</span> <span class="nav-text">运行时常量池</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98-%E5%A0%86%E5%A4%96%E5%86%85%E5%AD%98"><span class="nav-number">16.</span> <span class="nav-text">直接内存(堆外内存)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E5%A0%86%E6%BA%A2%E5%87%BA"><span class="nav-number">17.</span> <span class="nav-text">Java堆溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88%E5%92%8C%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88%E6%BA%A2%E5%87%BA"><span class="nav-number">18.</span> <span class="nav-text">虚拟机栈和本地方法栈溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">19.</span> <span class="nav-text">运行时常量池内存溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">20.</span> <span class="nav-text">方法区内存溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="nav-number">21.</span> <span class="nav-text">直接内存溢出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81JVM%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">22.</span> <span class="nav-text">三、JVM加载机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%AE%80%E4%BB%8B"><span class="nav-number">23.</span> <span class="nav-text">类加载子系统简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">24.</span> <span class="nav-text">类加载的执行过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cinit%E6%96%B9%E6%B3%95%E4%B8%8Einit%E6%96%B9%E6%B3%95"><span class="nav-number">25.</span> <span class="nav-text">cinit方法与init方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">26.</span> <span class="nav-text">类加载器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%A8%A1%E5%9E%8B"><span class="nav-number">27.</span> <span class="nav-text">双亲委派模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%B1%BB%E5%8A%A0%E8%BD%BD%E5%99%A8"><span class="nav-number">28.</span> <span class="nav-text">自定义类加载器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClassLoader%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90"><span class="nav-number">29.</span> <span class="nav-text">ClassLoader源码剖析</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/23682/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="jvm基础 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jvm基础
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-15 12:53:23" itemprop="dateCreated datePublished" datetime="2023-06-15T12:53:23+08:00">2023-06-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>13k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="JVM概念与操作系统关系"><a href="#JVM概念与操作系统关系" class="headerlink" title="JVM概念与操作系统关系"></a>JVM概念与操作系统关系</h3><p>JVM就是Java虚拟机，是一种用于计算设备的规范。</p>
+<p> <img src="/posts/23682/assets/2e8537dc5272d8ee8eebf6383919eb52.webp" alt="img"> </p>
+<p> <img src="https://pic1.zhimg.com/80/v2-65a490534b0a548b61de8e7d603236a8_720w.webp" alt="img"> </p>
+<p>HostSport是Java使用的虚拟机，在JDK8，Oracle公司将JRockit融合了进来。性能进一步提升。</p>
+<p>Java 是一门抽象程度特别高的语言，提供了自动内存管理等一系列的特性。这些特性直接在操作系统上实现是不太</p>
+<p>可能的，所以就需要 JVM进行转换。</p>
+<p> <img src="https://pic2.zhimg.com/80/v2-920b2efdb39f3388ae0c45e5966740b1_720w.webp" alt="img"> </p>
+<p> 通过JVM实现Java语言的跨平台，比如Maven仓库的jar包，不需要在平台再编译一次，并且实现自动管理内存，JVM有一块初始内存，当程序需要更多内存时，JVM就会向服务器申请内存，拿到服务器分配的内存后再向程序进行分配。 </p>
+<h3 id="JRE、JDK、JVM关系"><a href="#JRE、JDK、JVM关系" class="headerlink" title="JRE、JDK、JVM关系"></a>JRE、JDK、JVM关系</h3><p>JVM是Java程序能够运行的核心，只需要给他提供class文件即可，而实际运行需要一个基本的类库，JVM 标准加上实现的一大堆基础类库，就组成Java 的运行时环境，即JRE。而JDK包括了JRE和JVM。</p>
+<h3 id="Java虚拟机规范和Java语言规范关系"><a href="#Java虚拟机规范和Java语言规范关系" class="headerlink" title="Java虚拟机规范和Java语言规范关系"></a>Java虚拟机规范和Java语言规范关系</h3><p>Java 虚拟机规范，其实就是为输入和执行字节码提供一个运行环境，Java 语法规范，比如 switch、for、泛型、lambda 等相关的程序，最终都会编译成字节码，通过Java编译的字节码class文件连接在一起。</p>
+<p> <img src="https://pic4.zhimg.com/80/v2-b940bc8619fb2ed01152435f46e6c9ff_720w.webp" alt="img"> </p>
+<p> 执行过程：先编译成class文件，然后通过类加载器进行加载到JVM的内存空间里，再通过执行引擎来执行对应class文件翻译成二进制文件，接着调用操作系统接口进行解释执行，还有一种是JIT方式，根据条件即时执行。Java 虚拟机是基于栈的架构，指令由操作码和操作数组成，这些字节码指令 ，称为opcode。JVM靠他完成程序的执行。 </p>
+<p> <img src="/posts/23682/assets/b1aad8ae29f38a4d45cd90c8b178b380.webp" alt="img"> </p>
+<h3 id="二、Java虚拟机的内存管理"><a href="#二、Java虚拟机的内存管理" class="headerlink" title="二、Java虚拟机的内存管理"></a>二、Java虚拟机的内存管理</h3><h3 id="JVM整体架构"><a href="#JVM整体架构" class="headerlink" title="JVM整体架构"></a>JVM整体架构</h3><p>根据 JVM 规范，JVM 内存共分为虚拟机栈、堆、方法区、程序计数器、本地方法栈五个部分。</p>
+<p> <img src="/posts/23682/assets/b53fc58a5704b7cf2fc23e3e75ff515a.webp" alt="img"> </p>
+<p> <img src="/posts/23682/assets/795d75b6e9585c6872316a96915050d1.webp" alt="img"> </p>
+<p> JVM分为五大模块： 类装载器子系统 、 运行时数据区 、 执行引擎 、 本地方法接口 和 垃圾收集模块 。 </p>
+<p> <img src="/posts/23682/assets/2d234d5fb55a82785ea6d93d444bb7de.webp" alt="img"> </p>
+<h3 id="JVM运行时内存管理"><a href="#JVM运行时内存管理" class="headerlink" title="JVM运行时内存管理"></a>JVM运行时内存管理</h3><p>Java 虚拟机有自动内存管理机制，可以通过他排查错误，比如内存溢出等等。</p>
+<p> <img src="https://pic4.zhimg.com/80/v2-1a986ec46435877f400ab3a464c04dc3_720w.webp" alt="img"> </p>
+<p> 运行时数据区就是方法区、栈区、堆区、PC寄存器（程序计数器）、本地方法栈存在的区域。 </p>
+<p><strong>Java7和Java8内存结构的不同</strong></p>
+<p>前面说了Java的虚拟机融合JRockit，所以导致与8之前的版本出现了差异，而他们最大的区别就是方法区的实现，Java7中的方法区在Java8中被移除运行时数据区了，到了直接内存中，被称为元空间，但是Java8也是有方法区的，元空间就是方法区，只是实现方式变了。元空间不再与堆连续，而且是存在于本地内存（Native memory）。方法区也被称为永久代。</p>
+<p> <img src="/posts/23682/assets/54840160886cb047d7d9dcfcac4741a9.webp" alt="img"> </p>
+<p>Java8为什么要将永久代替换成元空间</p>
+<p>1） 字符串存在永久代中，容易出现性能问题和内存溢出。</p>
+<p>2） 类及方法的信息等比较难确定其大小，因此对于永久代的大小指定比较困难，太小容易出现永久代溢出，太大则容易导致老年代溢出。</p>
+<p>3） 永久代会为 GC 带来不必要的复杂度，并且回收效率偏低。</p>
+<p>4） Oracle 将HotSpot与JRockit合二为一，JRockit没有所谓的永久代。</p>
+<p> <img src="/posts/23682/assets/80c0027e0c2d4055bec607f40e55666e.webp" alt="img"> </p>
+<h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>程序计数器也被称为PC寄存器，是一块较小的内存空间，它可以看做是当前线程所执行的字节码的行号指示器，因为JVM是多线程运行的，为了满足高效运行就要实现并发运行，而并发运行就涉及到线程之前的切换，这个程序计数器就是为了实现在线程之前切换找到原来需要继续运行的线程，不仅如此，分支、循环、跳转、异常处理等等基础功能都需要依赖这个计数器来完成。</p>
+<p><strong>程序计数器的特点</strong></p>
+<p>1） 计算机硬件的PC寄存器用于存放伪指令或地址，而虚拟机的PC寄存器用于存放将要执行指令的地址。</p>
+<p>2） 当虚拟机正在执行的方法是一个本地（native）方法的时候，Jvm的pc寄存器存储的值是undefined。</p>
+<p>3） 程序计数器是线程私有的，它的生命周期与线程相同，每个线程都有一个。</p>
+<p>4） 程序计数器所占据内存区域是唯一一个在Java虚拟机规范中没有规定任何OutOfMemoryError情况的区域。</p>
+<p> <img src="https://pic2.zhimg.com/80/v2-f6181cd1f5323b01bc27896788582dfd_720w.webp" alt="img"> </p>
+<p> Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间的方式来实现的，在任何一个确定的时刻，一个处  理器只会执行一条线程中的指令。因此，为了线程切换后能恢复到正确的执行位置，每条线程都需要有一个独立的程序计数器，各条线程之间的计数器互不影响，独立存储，我们称这类内存区域为“线程私有”的内存。 </p>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><p>Java虚拟机栈(Java Virtual Machine Stacks)也是线程私有的，即生命周期和线程相同。Java虚拟机栈和线程同时创建，用于存储栈帧。每个方法在执行时都会创建一个栈帧(Stack Frame)，用于存储局部变量表、操作数栈、动态链接、方法出口等信息。每一个方法从调用直到执行完成的过程就对应着一个栈帧在虚拟机栈中从入栈到出栈的过程。</p>
+<p> <img src="/posts/23682/assets/f98baca05db0b3425e56d12c5e6fefbc.webp" alt="img"> </p>
+<p><strong>栈针的含义</strong></p>
+<p>栈帧(Stack Frame)是用于支持虚拟机进行方法调用和方法执行的数据结构。栈帧存储了方法的局部变量表、操作数栈、动态连接和方法返回地址等信息。每一个方法从调用至执行完成的过程，都对应着一个栈帧在虚拟机栈里从入栈到出栈的过程。</p>
+<p> <img src="/posts/23682/assets/3b63f6076bc398ef53e01a4f56622dad.webp" alt="img"> </p>
+<p><strong>设置虚拟机栈的大小</strong></p>
+<p>-Xss 为jvm启动的每个线程分配的内存大小，默认JDK1.4中是256K，JDK1.5+中是1M，通过-Xss设置大小</p>
+<h3 id="栈针结构"><a href="#栈针结构" class="headerlink" title="栈针结构"></a>栈针结构</h3><p>栈帧存储了方法的局部变量、操作数栈、动态连接和方法返回地址等信息。</p>
+<p> <img src="/posts/23682/assets/2197e9f3868cf3075bbc5238ef9a4358.webp" alt="img"> </p>
+<p><strong>局部变量</strong></p>
+<p>局部变量表(Local Variable Table)是一组变量值存储空间，用于存放方法参数和方法内定义的局部变量。包括8种基</p>
+<p> 本数据类型、对象引用（reference类型）和returnAddress类型（指向一条字节码指令的地址）。其中64位长度的long和double类型的数据会占用2个局部变量空间（Slot），其余的数据类型只占用1个。 </p>
+<p> <img src="/posts/23682/assets/4ddac7e4012038d1a8763cbd568562c3.webp" alt="img"> </p>
+<p> <img src="/posts/23682/assets/4ce9ed06c100851f934ffce3e3477d40.webp" alt="img"> </p>
+<p><strong>操作数栈</strong></p>
+<p>操作数栈(Operand Stack)也称作操作栈，是一个后入先出栈(LIFO)。随着方法执行和字节码指令的执行，会从局部</p>
+<p>变量表或对象实例的字段中复制常量或变量写入到操作数栈，再随着计算的进行将栈中元素出栈到局部变量表或者</p>
+<p>返回给方法调用者，也就是出栈&#x2F;入栈操作。</p>
+<p><strong>动态链接</strong></p>
+<p>把符号引用转换为直接引用，Java虚拟机栈中，每个栈帧都包含一个指向运行时常量池中该栈所属方法的符号引用，持有这个引用的目的是为了支持方法调用过程中的动态链接(Dynamic Linking)。</p>
+<p> <img src="/posts/23682/assets/fc0839d166071ca589fe435fea63341c.webp" alt="img"> </p>
+<p><strong>方法返回地址</strong></p>
+<p>方法返回地址存放调用该方法的PC寄存器的值，其实就是程序计数器保存了多个方法的调用地址，比如两个方法之间的切换，要通过程序计数器来实现切换或者调转，而方法返回地址就是通过程序计数器存储的方法之间调转的地址。无论方法是否正常完成，即无论是否抛出异常，都需要返回到方法被调用的位置，程序才能继续进行。</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈（Native Method Stacks） 与虚拟机栈所发挥的作用是非常相似的，其区别是虚拟机栈为虚拟机执行</p>
+<p>Java方法（也就是字节码）服务，而本地方法栈则是为虚拟机使用到的本地（Native） 方法服务。</p>
+<p>1）本地方法栈加载native的方法, native类方法存在的意义当然是填补java代码不方便实现的缺陷而提出的，比如驱动程序，用C来写执行会更快。</p>
+<p>2）虚拟机栈为虚拟机执行Java方法服务，而本地方法栈则是为虚拟机使用到的Native方法服务。</p>
+<p>3）都线程私有的，它的生命周期与线程相同，每个线程都有一个。</p>
+<p>两种异常：StackOverFlowError :线程请求的栈深度&gt;所允许的深度；OutOfMemoryError：本地方法栈扩展时无法申请到足够的内存。</p>
+<h3 id="堆空间"><a href="#堆空间" class="headerlink" title="堆空间"></a>堆空间</h3><p><strong>Java 堆概念</strong></p>
+<p>对于Java应用程序来说， Java堆（Java Heap） 是虚拟机所管理的内存中最大的一块。 Java堆是被所有线程共享</p>
+<p>的一块内存区域， 在虚拟机启动时创建，存储除特殊外所有对象的地方。</p>
+<p> <img src="https://pic2.zhimg.com/80/v2-d145d86babb8f1e6f31846c890dea97d_720w.webp" alt="img"> </p>
+<p><strong>堆的特点</strong></p>
+<p>1） Java虚拟机所管理的内存中最大的一块。</p>
+<p>2） 堆是jvm所有线程共享的(也包含私有的线程缓冲区)。</p>
+<p>3） 在虚拟机启动的时候创建。</p>
+<p>4） 作用是存放对象实例，几乎所有的对象实例以及数组都要在这里分配内存。</p>
+<p>5） 是垃圾收集器管理的主要区域，所以也被称为GC堆，并且对堆空间进行了分代划分。</p>
+<p>6） 堆的大小可调节，通过-Xms和-Xmx控制。</p>
+<p>7） 方法结束后,堆中对象不会马上移出仅仅在垃圾回收的时候时候才移除。</p>
+<p>8） 如果在堆中没有内存完成实例的分配，并且堆也无法再扩展时，将会抛出OutOfMemoryError异常。</p>
+<p>设置堆空间大小：如示例: -Xmx20m -Xms5m表示Java应用最大可用内存为20M， 最小内存为5M。</p>
+<p>设置了最大内存和最小内存，分配给程序的内存并不是按最大值来，也就是贪婪算法，而是一个一个尽可能低的层面，更贴近于最小值，通过JVM动态按需分配添加，超出最大内存报内存溢出错误。</p>
+<p><strong>堆的分类</strong></p>
+<p>Java7 Hotspot虚拟机中Java堆内存划分</p>
+<p> <img src="https://pic4.zhimg.com/80/v2-f1b8d32d3886e3dbe26a7c3d723ad10b_720w.webp" alt="img"> </p>
+<p> Java8 Hotspot虚拟机中Java堆内存划分 </p>
+<p> <img src="https://pic2.zhimg.com/80/v2-c12ebdc2706858888b2e5498c753de89_720w.webp" alt="img"> </p>
+<p> 通过设置VM参数-XX:+PrintGCDetails可以在控制台打印堆空间各代分配内存信息 </p>
+<p> <img src="/posts/23682/assets/8f1f7fa2ee295924dbfca7300dd74a65.webp" alt="img"> </p>
+<p><strong>年轻代和老年代</strong></p>
+<p>年轻代(Young Gen)：年轻代主要存放新创建的对象，内存大小相对会比较小，垃圾回收会比较频繁。年轻代分</p>
+<p>成1个Eden Space和2个SurvivorSpace（from 和to）。</p>
+<p>年老代(Tenured Gen)：年老代主要存放JVM认为生命周期比较长的对象（经过几次的Young Gen的垃圾回收后仍然存在），内存大小相对会比较大，垃圾回收也相对没有那么频繁。</p>
+<p> 年老代(Tenured Gen)：年老代主要存放JVM认为生命周期比较长的对象（经过几次的Young Gen的垃圾回收后仍然存在），内存大小相对会比较大，垃圾回收也相对没有那么频繁。 </p>
+<p> <img src="https://pic3.zhimg.com/80/v2-e2ce0b71054465043aff928c296d8f5a_720w.webp" alt="img"> </p>
+<p> 默认 -XX:NewRatio&#x3D;2 , 即新生代占1 , 老年代占2 ,新生代占整个堆的1&#x2F;3。Eden空间和另外两个Survivor空间占比分别为8:1:1，通过-XX:SurvivorRatio&#x3D;8调整。 </p>
+<p> <img src="https://pic2.zhimg.com/80/v2-e8e6f9317d54014475f8fddd033ce5ad_720w.webp" alt="img"> </p>
+<p> 堆大小 &#x3D; 新生代 + 老年代。堆的大小可以通过参数 –Xms、-Xmx 来指定。 </p>
+<p> <strong>通过JDK自带jvisualvm工具查看堆空间</strong> </p>
+<p>安装Visual VM，把默认地址改为<a href="https://link.zhihu.com/?target=https://visualvm.github.io/pluginscenters.html">https://visualvm.github.io/pluginscenters.html</a>，再安装。</p>
+<p>Idea中配置VM参数 –Xmx300m -Xms300m -XX:NewRatio&#x3D;4 -XX:SurvivorRatio&#x3D;8 即最大最小堆空间300m，年轻代年老代1:4，年轻代eden区和from，to区8:1:1。</p>
+<p> <img src="/posts/23682/assets/5be667c633fb1c0557e1af863edf24e7.webp" alt="img"> </p>
+<p><strong>对象分配过程</strong></p>
+<p>1） new的对象先放在Eden区。该区域有大小限制。</p>
+<p>2） 当Eden区填满时，程序有需要创建对象，JVM的垃圾回收器对Eden区执行垃圾回收(Minor GC),把不再被其他对象引用的对象销毁，执行完将存活的对象转移到Eden区的Survivor 0区。</p>
+<p>3） 当再次触发垃圾回收，也就是Eden区再次填满，Survivor 0区内上次存活的对象中还活着的对象以及这次垃圾回收新存活的对象就会被移动到Survivor 1区。</p>
+<p>4） 如果再次经历垃圾回收，此时会重新返回Survivor 0区，接着再去Survivor 1区。</p>
+<p>5） 如果累计次数到达默认的15次，这会进入Old Gen区。可以通过设置参数，调整阈值 -XX:MaxTenuringThreshold&#x3D;N。如果Survivor区大于等于某个年领的对象超过了Survivor空间的一半，大于等于某个年龄的对象直接进入年老代；大对象（需要大量连续内存空间的java对象）直接进入年老代。</p>
+<p>6） Old Gen（养老)区内存不足是,会再次触发GC，Major GC 进行养老区的内存清理。</p>
+<p>7） 如果养老区执行了Major GC后仍然没有办法进行对象的保存,就会报OOM异常。</p>
+<p> 如果累计次数到达默认的15次，这会进入Old Gen区。可以通过设置参数，调整阈值 -XX:MaxTenuringThreshold&#x3D;N。如果Survivor区大于等于某个年领的对象超过了Survivor空间的一半，大于等于某个年龄的对象直接进入年老代；大对象（需要大量连续内存空间的java对象）直接进入年老代。<br>  <img src="https://pic3.zhimg.com/80/v2-cae07c8febd9d7e40727ed0af7fb13be_720w.webp" alt="img"> </p>
+<p><strong>堆GC</strong></p>
+<p>Java 中的堆也是GC收集垃圾的主要区域。GC分为两种：部分收集器（Partial GC）和整堆收集器（Full GC）</p>
+<p>部分收集器：</p>
+<ul>
+<li><p>新生代收集（Minor GC &#x2F; Young GC）: 只是新生代的垃圾收集</p>
+</li>
+<li><p>老年代收集（Major GC &#x2F; Old GC）: 只是老年代的垃圾收集 (CMS GC 单独回收老年代)</p>
+</li>
+<li><p>混合收集（Mixed GC）:收集整个新生代及老年代的垃圾收集 (G1 GC会混合回收, region区域回收)</p>
+</li>
+</ul>
+<p> 整堆收集器（Full GC）：收集整个java堆和方法区的垃圾收集器. </p>
+<p> 年轻代GC触发条件: 年轻代空间不足,就会触发Minor GC，这里年轻代指的是Eden代满，Survivor不满不会引发GC，Minor GC会引发STW(stop the world) ,暂停其他用户的线程,等垃圾回收接收,用户的线程才恢复。 </p>
+<p> 老年代GC (Major GC)触发机制：老年代空间不足时,会尝试触发MinorGC. 如果空间还是不足,则触发Major GC </p>
+<p> 如果Major GC , 内存仍然不足,则报错OOM，Major GC的速度比Minor GC慢10倍以上。 </p>
+<p>FullGC 触发机制:</p>
+<p>1）调用System.gc() , 系统会执行Full GC ,不是立即执行。</p>
+<p>2）老年代空间不足。</p>
+<p>3）方法区空间不足。</p>
+<p>4）通过Minor GC进入老年代平均大小大于老年代可用内存。</p>
+<p> <strong>元空间</strong></p>
+<p>JDK1.7之前，HotSpot 虚拟机把方法区当成永久代来进行垃圾回收。而从 JDK 1.8 开始，移除永久代，并把方法区移至元空间，它位于本地内存中，而不是虚拟机内存中。相当于方法区到了元空间。</p>
+<p><strong>区别</strong></p>
+<p>1） 存储位置不同：永久代在物理上是堆的一部分，和新生代、老年代的地址是连续的，而元空间属于本地内存。</p>
+<p>2） 存储内容不同：原来的永久代划分中，永久代用来存放类的元数据信息、静态变量以及常量池等。现在类的元信息存储在元空间，静态变量和常量池等并入堆中，相当于原来的永久代中的数据，被元空间和堆内存给瓜分了。</p>
+<p> <img src="/posts/23682/assets/73d6e8257772ac3b164183720f813bae.webp" alt="img"> </p>
+<p> <strong>废除永久代的目的</strong> </p>
+<p>1） 永久代需要存放类的元数据、静态变量和常量等。它的大小不容易确定，容易造成内存溢出。</p>
+<p>2） 融合HotSpot VM与 JRockit VM而做出的努力，因为JRockit没有永久代。</p>
+<p>3） 永久代会为GC带来不必要的复杂度，回收效率偏低。</p>
+<p><strong>使用元空间好处</strong></p>
+<p>1） 由于类的元数据分配在本地内存中，元空间的最大可分配空间就是系统可用内存空间。不会遇到永久代时的内存溢出错误。</p>
+<p>2） 将运行时常量池从永久代分离出来，与类的元数据分开，提升类元数据的独立性。</p>
+<p>3） 将元数据从永久代剥离出来到元空间，可以提升对元数据的管理同时提升GC效率。</p>
+<p><strong>元空间相关参数设置</strong></p>
+<p>-XX:MetaspaceSize，初始空间大小，达到该值就会触发垃圾收集，根据释放的空间进行动态缩小或增大。</p>
+<p>-XX:MaxMetaspaceSize，最大空间，默认是没有限制的，最大可利用空间是整个系统内存的可用空间。</p>
+<p>-XX:MinMetaspaceFreeRatio，在GC之后，最小的Metaspace剩余空间容量的百分比，默认40%，小于此值增大元空间。</p>
+<p>-XX:MaxMetaspaceFreeRatio，在GC之后，最大的Metaspace剩余空间容量的百分比，默认70%，大于此值缩小元空间。</p>
+<h3 id="方法区简介"><a href="#方法区简介" class="headerlink" title="方法区简介"></a>方法区简介</h3><p>方法区（Method Area） 与Java堆一样， 是各个线程共享的内存区域， 它用于存储已被虚拟机加载的类型信息、</p>
+<p>常量、 静态变量、 即编译器编译后的代码缓存等数据。元空间、永久代是方法区具体的落地实现。方法区看作是一块独立于Java堆的内存空间，它主要是用来存储所加载的类信息。逻辑上属于堆但是不会垃圾回收。</p>
+<p> 常量、 静态变量、 即编译器编译后的代码缓存等数据。元空间、永久代是方法区具体的落地实现。方法区看作是一块独立于Java堆的内存空间，它主要是用来存储所加载的类信息。逻辑上属于堆但是不会垃圾回收 </p>
+<p> <img src="https://pic4.zhimg.com/80/v2-c935e0a301202e13aa4b9697c11c565b_720w.webp" alt="img"> </p>
+<p><strong>特点</strong></p>
+<p>1） 方法区与堆一样是各个线程共享的内存区域</p>
+<p>2） 方法区在JVM启动的时候就会被创建并且它实例的物理内存空间和Java堆一样都可以不连续</p>
+<p>3） 方法区的大小跟堆空间一样 可以选择固定大小或者动态变化</p>
+<p>4） 方法区的对象决定了系统可以保存多少个类,如果系统定义了太多的类 导致方法区内存溢出抛出异常</p>
+<p>5） 关闭JVM就会释放这个区域的内存</p>
+<h3 id="方法区结构"><a href="#方法区结构" class="headerlink" title="方法区结构"></a>方法区结构</h3><p> 类加载器将Class文件加载到内存之后，将类的信息存储到方法区中。 </p>
+<p> <img src="/posts/23682/assets/02a9efd16467ea978fedd88087d92d37.webp" alt="img"> </p>
+<p> 方法区中存储的内容：类型信息、运行时常量池、字符串常量池 </p>
+<p> <img src="https://pic3.zhimg.com/80/v2-0be9453a775f1a7d6acd4e555b9cc01e_720w.webp" alt="img"> </p>
+<p><strong>类型信息</strong></p>
+<p>每个加载的类型，如类class、接口interface、枚举enum、注解annotation，jvm在方法区进行存储类型信息。</p>
+<p>1、类的全限定类名。2、父类全限定类名。3、类的修饰符。4、类的接口有序列表</p>
+<p><strong>域信息</strong></p>
+<p>域信息，即为类的属性，成员变量。即保存类所有的成员变量相关信息及声明顺序。</p>
+<p><strong>方法信息</strong></p>
+<p>1、保存方法名称方法的返回类型。2、方法参数的数量和类型（按顺序）。</p>
+<p>3、方法的修饰符public、private、protecte等等。4、方法的字节码bytecodes、操作数栈、局部变量表及大小</p>
+<p>5、异常表。每个异常处理的开始、结束位置、代码处理在程序计数器中的偏移地址、被捕获的异常类的常量池索引</p>
+<h3 id="方法区设置"><a href="#方法区设置" class="headerlink" title="方法区设置"></a>方法区设置</h3><p>方法区的大小不必是固定的，JVM可以根据应用的需要动态调整。</p>
+<p><strong>Jdk7</strong></p>
+<p>-xx:Permsize来设置永久代初始分配空间</p>
+<p>-XX:MaxPermsize来设定永久代最大可分配空间</p>
+<p><strong>Jdk8</strong></p>
+<p>-XX:MetaspaceSize 和 -XX:MaxMetaspaceSize指定元空间最小最大值，如果触及最小，进行Full GC然后根据释放的空间重新调整空间大小，或大或小。</p>
+<p>jps #查看进程号</p>
+<p>jinfo -flag MetaspaceSize 进程号 #查看Metaspace 最大分配内存空间</p>
+<p>jinfo -flag MaxMetaspaceSize 进程号 #查看Metaspace最大空间</p>
+<h3 id="运行时常量池"><a href="#运行时常量池" class="headerlink" title="运行时常量池"></a>运行时常量池</h3><p>字节码文件中，内部包含了常量池。</p>
+<p>方法区中，内部包含了运行时常量池。</p>
+<p>常量池：存放编译期间生成的各种字面量与符号引用。</p>
+<p>运行时常量池：常量池表在运行时的表现形式。</p>
+<p> <img src="/posts/23682/assets/0648aa952065409e595fe07ec4f12afc.webp" alt="img"> </p>
+<p> 编译后的字节码文件中包含了类型信息、域信息、方法信息等。通过ClassLoader将字节码文件的常量池中的信息加载到内存中，存储在了方法区的运行时常量池中。常量池，可以看做是一张表，虚拟机指令根据这张常量表找到要执行的类名、方法名、参数类型、字面量等类型。 </p>
+<p> <strong>字节码常量池表</strong> </p>
+<p><img src="/posts/23682/assets/fe8fddcf2651adb6da966185c05a3b04.webp" alt="img"></p>
+<p> <strong>方法区中对常量池表的符号引用，也就是运行时常量池。</strong> </p>
+<p><img src="/posts/23682/assets/e9a718bf2af2c04847fec7a5a02cc73e.webp" alt="img"> </p>
+<h3 id="直接内存-堆外内存"><a href="#直接内存-堆外内存" class="headerlink" title="直接内存(堆外内存)"></a>直接内存(堆外内存)</h3><p>直接内存（Direct Memory） 不是虚拟机运行时数据区的一部分，JDK 1.4中新加入了NIO类，引入通道（Channel） 与缓冲区 （Buffer）的I&#x2F;O方式，通过分配堆外内存，然后通过堆中DirectByteBuffer对象进行引用操作，提高性能，避免复制数据带来的性能和时间消耗。</p>
+<p> <img src="/posts/23682/assets/bf206ff54e6694b1c8bf635b805b5a11.webp" alt="img"> </p>
+<p> NIO的Buffer提供一个可以直接访问系统物理内存的类——DirectBuffer，普通的ByteBuffer仍在JVM堆上分配内存，其最大内存受到最大堆内存的 限制。而DirectBffer直接分配在物理内存中，并不占用堆空间。 </p>
+<p> 优点： </p>
+<p>1）改善堆过大时垃圾回收效率，减少停顿。Full GC时会扫描堆内存，回收效率和堆大小成正比。Native的内 存，由OS负责管理和回收。</p>
+<p>2）减少内存在Native堆和JVM堆拷贝过程，避免拷贝损耗，降低内存使用。</p>
+<p>3）可突破JVM内存大小限制。</p>
+<h3 id="Java堆溢出"><a href="#Java堆溢出" class="headerlink" title="Java堆溢出"></a>Java堆溢出</h3><p>堆内存中主要存放对象、数组等，如果不断地创建这些对象，并且保证 GC Roots 到对象之间有可达路径来避免垃</p>
+<p>圾收集回收机制清除这些对象，当这些对象所占空间超过最大堆容量时，就会产生 OutOfMemoryError 的异常。</p>
+<p> <img src="/posts/23682/assets/b7a54ea3bb4d7d88de7dec2a4f17cb39.webp" alt="img"> </p>
+<p> java.lang.OutOfMemoryError: Java heap space 的信息，说明在堆内存空间产生内存溢出的异常。 </p>
+<p> 产生原理：新产生的对象最初分配在新生代，新生代满后会进行一次 Minor GC ，如果 Minor GC 后空间不足会把该对象和 新生代满足条件的对象放入老年代，老年代空间不足时会进行 Full GC ，之后如果空间还不足以存放新对象则抛 出 OutOfMemoryError 异常。 </p>
+<p><strong>造成堆内存溢出的原因</strong></p>
+<p>1）内存中加载的数据过多，如一次从数据库中取出过多数据；</p>
+<p>2）集合对对象引用过多且使用完后没有清空；</p>
+<p>3）代码中存在死循环或循环产生过多重复对象；</p>
+<p>4）堆内存分配不合理</p>
+<h3 id="虚拟机栈和本地方法栈溢出"><a href="#虚拟机栈和本地方法栈溢出" class="headerlink" title="虚拟机栈和本地方法栈溢出"></a>虚拟机栈和本地方法栈溢出</h3><p>HotSpot虚拟机中并不区分虚拟机栈和本地方法栈，所以栈容量只能由-Xss参数来设定。</p>
+<p>两种异常</p>
+<ol>
+<li><p>StackOverflowError异常：线程请求的栈深度大于虚拟机所允许的最大深度，默认压栈次数1000-2000。</p>
+</li>
+<li><p>OutOfMemoryError异常：虚拟机的栈内存允许动态扩展，但是扩展栈容量无法申请到足够的内存。</p>
+</li>
+</ol>
+<p> <img src="https://pic2.zhimg.com/80/v2-d428119b36867d6949ef3d5ce7d77891_720w.webp" alt="img"><br>  <img src="/posts/23682/assets/4274d031aa503d1a5f72ab6e2884c538.webp" alt="img"> </p>
+<p> 不同JDK版本控制台结果可能不同，如果是JDK11的话，就不会抛出异常，而是提示增大栈容量-Xss。 </p>
+<h3 id="运行时常量池内存溢出"><a href="#运行时常量池内存溢出" class="headerlink" title="运行时常量池内存溢出"></a>运行时常量池内存溢出</h3><p>运行时常量池是方法区的一部分，但是JDK7和JDK8针对永久代做了改变,JDK8方法区被移除永久代到了元空间，String::intern()是一个本地方法，它的作用是如果字符串常量池中已经包含一个等于此String对象的 字符串，则返回代表池中这个字符串的String对象的引用；否则会将此String对象包含的字符串添加到常量池中，并且返回此String对象的引用。</p>
+<p> <img src="https://pic2.zhimg.com/80/v2-b2b6853ced31a335e5d73e431a5d88a5_720w.webp" alt="img"> </p>
+<p> 在JDK 6或更早之前的HotSpot虚拟机中， 常量池都是分配在永久代中，自JDK 7起， 原本存放在永久代的字符串常量池被移至Java堆之中。 </p>
+<h3 id="方法区内存溢出"><a href="#方法区内存溢出" class="headerlink" title="方法区内存溢出"></a>方法区内存溢出</h3><p>方法区的其他部分的内容， 方法区的主要职责是用于存放类型的相关信息， 如类名、 访问修饰符、 常量池、 字段描述、 方法描述等。</p>
+<p>方法区溢出也是一种常见的内存溢出异常，一个类如果要被垃圾收集器回收，要达成的条件是比较苛刻的。在经常运行时生成大量动态类的应用场景里， 就应该特别关注这些类的回收状况，比如CGLib字节码增强和动态语言以及大量JSP或动态产生JSP 文件的应用等。JDK 8中转移到元空间中，就需要通过元空间的合理设置来避免内存溢出。</p>
+<p> <img src="/posts/23682/assets/1192d83cd3a2f3b9127436d3ffa70943.webp" alt="img"> </p>
+<p> <img src="/posts/23682/assets/6f61495f2b359d186ac7bb62ca8ff179.webp" alt="img"> </p>
+<p> -XX： MaxMetaspaceSize： 设置元空间最大值，默认是-1，即不限制，或者说只受限于本地内存大小。 </p>
+<p> -XX： MetaspaceSize： 指定元空间的初始空间大小， 以字节为单位， 达到该值就会触发垃圾收集进行类型卸载。 </p>
+<h3 id="直接内存溢出"><a href="#直接内存溢出" class="headerlink" title="直接内存溢出"></a>直接内存溢出</h3><p>直接内存（Direct Memory）不属于Java虚拟机内存的一部分，而是直接作用在本地内存的，直接内存的容量大小可通过-XX： MaxDirectMemorySize参数来指定， 如果不去指定， 默认与 Java堆最大值（由-Xmx指定）一致。</p>
+<p>通过Unsafe类可以进行一些读写操作，JDK 10时才将Unsafe 的部分功能通过VarHandle开放给外部使用。</p>
+<p> <img src="/posts/23682/assets/78b559932eb688b9ec4c8736e23a3b76.webp" alt="img"> </p>
+<p> <img src="/posts/23682/assets/18ad637cdc7621435ba69612890e33b9.webp" alt="img"> </p>
+<p> 直接溢出通过查看Heap Dump文件大小来确定，内存溢出之后产生的Dump文件很小， 而程序中又直接或间接使用了 DirectMemory（典型的间接使用就是NIO，使用了buffer缓存）。 </p>
+<h3 id="三、JVM加载机制"><a href="#三、JVM加载机制" class="headerlink" title="三、JVM加载机制"></a>三、JVM加载机制</h3><h3 id="类加载子系统简介"><a href="#类加载子系统简介" class="headerlink" title="类加载子系统简介"></a>类加载子系统简介</h3><p>1、类加载子系统负责从文件系统或网络中加载.class文件，class文件在文件开头有特定的文件标识。</p>
+<p>2、把加载后的class类信息存放于方法区，除类信息外，方法区还会存放运行时常量池信息，可能还包括字符串字面量和数字常量，即Class文件中在常量池中部分内存映射。</p>
+<p>3、ClassLoader只负责class文件的加载，至于它的运行由Execution Engine决定。</p>
+<p>4、如果调用构造器实例化对象，则该对象存放在堆区。</p>
+<p> <img src="/posts/23682/assets/cab989bfe11d5d2f7f19fd3cf548bf16.webp" alt="img"> </p>
+<p><strong>类加载器角色</strong></p>
+<p>字节码文件Car.class通过类加载器classloader加载到JVM方法区中，并创建一个一模一样的Class文件，他被称为DNA元数据模板，然后根据这个模板，进行实例化，生成N个实例放入堆中，这时就可以通过getClassloader、getClass等方法获取加载器或模板类，类加载器在这个过程中就相当于搬运工。 <img src="/posts/23682/assets/c3cd9bb7df5a974a1ef818eeae2ef1db.webp" alt="img"> </p>
+<h3 id="类加载的执行过程"><a href="#类加载的执行过程" class="headerlink" title="类加载的执行过程"></a>类加载的执行过程</h3><p>类从被加载到虚拟机内存中开始，到卸载出内存，它的整个生命周期包括：加载（Loading）、验证（Verification）、准备（Preparation）、解析（Resolution）、初始化（Initiallization）、使用（Using）和卸载（Unloading）这7个阶段。其中验证、准备、解析3个部分统称为连接（Linking）。</p>
+<p> <img src="https://pic1.zhimg.com/80/v2-73073f4ea2ffcc74af489c18b96ff9a8_720w.webp" alt="img"> </p>
+<p> 加载、验证、准备、初始化、卸载这5个阶段的顺序是确定的，类的加载过程必须按照这种顺序按部就班地开始，而解析阶段不一定。 </p>
+<p><strong>加载</strong></p>
+<p>加载是类加载的第一个阶段。有两种时机会触发类加载。</p>
+<p>预加载：虚拟机启动时加载，加载的是JAVA_HOME&#x2F;lib&#x2F;下的rt.jar下的.class文件，这个jar包的内容是程序运行时非常用到的，像java.lang、java.util、java.io等等。</p>
+<p>运行时加载：虚拟机在用到一个.class文件的时候，会先去内存中查看一下这个.class文件有没有被加载，如果没有就会按照类的全限定名来加载这个类。运行时加载就是上面类加载器角色的过程，获取class文件的二进制流，将类信息、静态变量、常量这些class文件放入方法区，并在方法区生成一个代表这个class对象的class对象，也就是DNA元数据模板，作为这个类各种数据访问接口与堆交互。</p>
+<p><strong>连接</strong></p>
+<p>连接是类加载的第二个阶段。连接包含三个步骤： 分别是 验证Verification , 准备Preparation , 解析Resolution 三个过程。</p>
+<p>验证：确保.class文件的字节流中包含的信息符合当前虚拟机的要求，不会有危害信息，如格式验证、元数据验证、符号引用验证、字节码验证。</p>
+<p> 准备：正式为类变量分配内存并设置其初始值的阶段，这些变量所使用的内存都将在方法区中分配。这是分配的是类变量，不是实例变量，实例变量会在对象实例化时分配，且类变量没有被final修饰。 </p>
+<p>符号引用：类和接口的全限定名、字段的名称和描述符、方法的名称和描述符。</p>
+<p>直接引用：类或接口的解析、类方法解析、接口方法解析、字段解析。</p>
+<p><strong>初始化</strong></p>
+<p>初始化是类加载的最后阶段。执行类构造器也就是clinit()方法的过程。Clinit方法是Javac编译器的自动生成物，用于收集静态变量和执行静态代码块，因为这个构造器，所以我们定义的静态代码块，在项目启动时就会被执行加载，，并且加载优先级非常高，相同静态修饰，父类优先于子类，同类自上而下顺序加载，不过接口的clinit ()方法不需要先执行父接口的clinit ()方法。因为只有当父接口中定义的变量被使用时，父接口才会被初始化。在多线程情况下，只需要一个线程执行clinit ()方法，其他则同步阻塞。</p>
+<p> <img src="https://pic2.zhimg.com/80/v2-1a02ec0c527109000c5e65556f2c74f9_720w.webp" alt="img"> </p>
+<h3 id="cinit方法与init方法"><a href="#cinit方法与init方法" class="headerlink" title="cinit方法与init方法"></a>cinit方法与init方法</h3><p>cinit完成类的初始化，init完成对象初始化。</p>
+<p> <img src="/posts/23682/assets/83871659b7ec98939d93348c0dbeaaf0.webp" alt="img"> </p>
+<p>类的初始化先于对象初始化执行，且类的初始化只会执行一次而对象的初始化阶段可能多次赋值。</p>
+<p> <img src="/posts/23682/assets/47096b4988b8a7e5780e8854277f23a0.webp" alt="img"> </p>
+<p> 执行顺序：A类static代码块-&gt;B类static代码块-&gt;B类父类A类对象构造方法-&gt;B类对象构造方法-&gt;继续new B但是类初始化静态代码块只会执行一次，因此又是B类父类A类对象构造方法-&gt;B类对象构造方法。 </p>
+<h3 id="类加载器"><a href="#类加载器" class="headerlink" title="类加载器"></a>类加载器</h3><p>类的加载指的是将类的.class文件中的二进制数据读入到内存中，将其放在运行时数据区的方法区内，然后在创建一个java.lang.Class对象，用来封装类在方法区内的数据结构。JVM在用到该类是才会加载，也就是按需加载，并不是一开始就全部加载到内存中。</p>
+<p><strong>类加载器分类</strong></p>
+<p>BootStrapClassLoader（启动类加载器）：也称为引导类加载器，由c&#x2F;c++实现，嵌套再jvm内部，来加载Java的核心类库（JAVA_HOME&#x2F;jre&#x2F;lib&#x2F;rt.jar、resource.jar或sun.boot.class.path路径下的内容）。</p>
+<p>ExtensionClassLoader（扩展类加载器）：加载JDK的安装目录的jre&#x2F;lib&#x2F;ext 子目录（扩展目录）下类库。</p>
+<p>SystemClassLoader（系统类加载器）：程序中默认的类加载器，Java应用的类都是由它来完成加载的，它负责加载环境变量classpath或系统属性java.class.path 指定路径下的类库。</p>
+<p>User-Defined ClassLoader（用户自定义类加载器）：自定义来定制类的加载方式。</p>
+<p> <img src="/posts/23682/assets/50c69a4fa5d830369734b691f176738b.webp" alt="img"> </p>
+<p> 加载顺序：自底向上检查是否加载，然后自上而下加载类库。 </p>
+<h3 id="双亲委派模型"><a href="#双亲委派模型" class="headerlink" title="双亲委派模型"></a>双亲委派模型</h3><p> 如果一个类加载器收到类加载请求，它首先不会自己去尝试加载这个类，而是把这个请求委派给父类加载器完成。每个类加载器都是如此，只有当父加载器在自己的搜索范围内找不到指定的类时（即 ClassNotFoundException ），子加载器才会尝试自己去加载。 </p>
+<p> <img src="https://pic3.zhimg.com/80/v2-622ab5936534be2372cda1ca0188edd6_720w.webp" alt="img"> </p>
+<p><strong>双亲委派模型设计目的</strong></p>
+<p>自定义一个 java.lang.String 类，该 String 类具有系统的 String 类相同的功能，只是在某个函数稍作修改，植入病毒代码，就可以通过自定义加载器加载到JVM中，然后执行的时候，如果没有这个模型，这个String类就被加载到程序中了，而存在双亲委派模型就只会加载顶层类中的核心类库中的String类。</p>
+<p> <strong>双亲委派模型加载过程</strong> </p>
+<p>1）首先，检查一下指定名称的类是否已经加载过，如果加载过了，就不需要再加载，直接返回。</p>
+<p>2）如果此类没有加载过，那么，再判断一下是否有父加载器；如果有父加载器，则由父加载器加载（即调用 parent.loadClass(name, false)）或者是调用 bootstrap 类加载器来加载。</p>
+<p> 3）如果父加载器及 bootstrap 类加载器都没有找到指定的类，那么调用当前类加载器，即自定义加载器的 findClass 方法来完成类加载。 </p>
+<h3 id="自定义类加载器"><a href="#自定义类加载器" class="headerlink" title="自定义类加载器"></a>自定义类加载器</h3><p>自定义加载器不仅仅是用户自己编写的类加载器，其实还包括扩展类加载器和系统类加载器。</p>
+<p><strong>自定义加载器的作用</strong></p>
+<p>1） 隔离加载类：模块隔离,把类加载到不同的应用选中。比如tomcat，通过不同类加载器在多项目部署隔离不同应用程序。</p>
+<p>2） 修改类加载方式：除了Bootstrap加载器外，其他类加载器可以按需加载，实现对资源最大化利用。</p>
+<p>3） 扩展加载源：多种加载方式，如从数据库、网络、或其他终端</p>
+<p>4） 防止源码泄漏：java代码容易被编译和篡改，可以进行编译加密，类加载需要自定义还原加密字节码</p>
+<p> <strong>自定义加载器加载过程</strong> </p>
+<p> 先通过loadClass进行加载，判断此类是否被存在于父类，如果存在直接返回对象，如果不存在执行findClass方法，而自定义类加载器的实现逻辑就是重写这个方法，当完成findClass方法之后，便把读取的文件存储字节数组，通过defineClass把这些字节数据转换成class对象并返回。 </p>
+<p><strong>自定义加载器编写</strong></p>
+<p>实现方式</p>
+<p>1）重写loadClass方法(是实现双亲委派逻辑的地方,修改他会破坏双亲委派机制,不推荐)</p>
+<p>2）重写findClass方法 (推荐)</p>
+<p> <img src="https://pic4.zhimg.com/80/v2-7013edcf33f8588f31c81856af3ef06f_720w.webp" alt="img"> </p>
+<p> <img src="/posts/23682/assets/59ac2c95de6573f05e1524ffaf51d1f7.webp" alt="img"> </p>
+<h3 id="ClassLoader源码剖析"><a href="#ClassLoader源码剖析" class="headerlink" title="ClassLoader源码剖析"></a>ClassLoader源码剖析</h3><p> <strong>类关系图</strong> </p>
+<p> <img src="https://pic2.zhimg.com/80/v2-3b0202ea35bf7b57ffaabe9d987e40c5_720w.webp" alt="img"> </p>
+<p><strong>Launcher类源码</strong></p>
+<p>Launcher类是一个启动类，主要作用是通过构造方法初始化扩展类加载器，并通过扩展类加载器初始化应用类加载器，也就是设置父类加载器。接着设置当前线程的上下文类加载器，也就是应用类加载器，最后加载安全模式。</p>
+<p> <img src="/posts/23682/assets/b5eac9c46d4680c1462e87395b8f01a5.webp" alt="img"> </p>
+<p> Launcher类的构造方法是通过静态变量的初始化执行构造方法来完成的，构造方法 Launcher() 中做了四件事情：创建扩展类加载器、创建应用程序类加载器、设置ContextClassLoader、安装安全管理器 security manager。 </p>
+<p><strong>ClassLoader类源码</strong></p>
+<p>ClassLoader类，它是一个抽象类，其后所有的类加载器都继承自ClassLoader，不包括启动类加载器。</p>
+<p> <img src="/posts/23682/assets/2a05d9aeff899b2dd82c731e0352e485.webp" alt="img"> </p>
+<p>loadClass方法</p>
+<p>加载指定名称（包括包名）的二进制类型，方法逻辑就是双亲委派模式的实现。</p>
+<p> <img src="https://pic4.zhimg.com/80/v2-89aaae5893844890dad6aae5f6d0b637_720w.webp" alt="img"> </p>
+<p>findClass方法</p>
+<p>把自定义的类加载逻辑写在findClass()方法中,通过loadClass方法调用，当loadClass()方法中父加载器加载失败后，则调用自己的findClass()方法来完成类加载，这样就可以保证自定义的类加载器也符合双亲委托模式。</p>
+<p> <img src="/posts/23682/assets/1918bc6fe83a1fdff0d3f1562b3dfa6b.webp" alt="img"> </p>
+<p>defineClass方法</p>
+<p>将byte字节流解析成JVM能够识别的Class对象，与findClass结合使用。</p>
+<p> <img src="/posts/23682/assets/f93568279b2b2011498442c2dd71ab86.webp" alt="img"> </p>
+<p>resolveClass方法</p>
+<p>为类变量分配内存并设置初始值同时将字节码文件中的符号引用转换为直接引用。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/jvm/" rel="tag"><i class="fa fa-tag"></i> jvm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/20659/" rel="prev" title="热部署原理">
+                  <i class="fa fa-chevron-left"></i> 热部署原理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/37319/" rel="next" title="jvm">
+                  jvm <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"37e293a09dbac21b1bb6ba7dd902921b"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

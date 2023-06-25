@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="体系架构MySQL Server架构自顶向下大致可以分网络连接层、服务层、存储引擎层和系统文件层。  网络连接层 客户端连接器：提供与MySQL服务器建立的支持。 服务层 主要包含系统管理和控制工具、连接池、SQL接口、解析器、查询优化器和缓存六个部分。 1） 连接池：存储和管理客户端与数据库的连接。 2） 系统管理和控制工具：集群、备份、安全管理。 3） SQL接口：接受客户端发送的各种SQL命">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql架构原理相关知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/55736/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="体系架构MySQL Server架构自顶向下大致可以分网络连接层、服务层、存储引擎层和系统文件层。  网络连接层 客户端连接器：提供与MySQL服务器建立的支持。 服务层 主要包含系统管理和控制工具、连接池、SQL接口、解析器、查询优化器和缓存六个部分。 1） 连接池：存储和管理客户端与数据库的连接。 2） 系统管理和控制工具：集群、备份、安全管理。 3） SQL接口：接受客户端发送的各种SQL命">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/63c91ba3413830969fd9e89113b66589.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/5fb31418669f8ea6c64b9283a04db98b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/5e54f8668d1b9e45733634324fc171df.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/46fb6536b02296f63d9c07827eec58d1.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/b16d631ed851900555ec815f1b005295.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/37d40ba1af52916eabe38540b8a61696.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-8032b827a564cb1b085a64cc62d74136_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/55736/assets/a0acf9f627cd711383546758f1130361.webp">
+<meta property="article:published_time" content="2023-06-17T11:07:51.000Z">
+<meta property="article:modified_time" content="2023-06-20T07:39:56.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/55736/assets/63c91ba3413830969fd9e89113b66589.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/55736/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/55736/","path":"posts/55736/","title":"mysql架构原理相关知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql架构原理相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">体系架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">运行机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="nav-number">3.</span> <span class="nav-text">存储引擎</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">InnoDB存储结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84"><span class="nav-number">5.</span> <span class="nav-text">InnoDB磁盘结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="nav-number">6.</span> <span class="nav-text">InnoDB线程模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6"><span class="nav-number">7.</span> <span class="nav-text">InnoDB数据文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Undo-Log"><span class="nav-number">8.</span> <span class="nav-text">Undo Log</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redo-Log"><span class="nav-number">8.1.</span> <span class="nav-text">Redo Log</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binlog%E6%97%A5%E5%BF%97"><span class="nav-number">8.2.</span> <span class="nav-text">Binlog日志</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/55736/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql架构原理相关知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql架构原理相关知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 19:07:51" itemprop="dateCreated datePublished" datetime="2023-06-17T19:07:51+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.5k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="体系架构"><a href="#体系架构" class="headerlink" title="体系架构"></a>体系架构</h2><p>MySQL Server架构自顶向下大致可以分网络连接层、服务层、存储引擎层和系统文件层。</p>
+<p><img src="/posts/55736/assets/63c91ba3413830969fd9e89113b66589.webp" alt="img"></p>
+<p><strong>网络连接层</strong></p>
+<p>客户端连接器：提供与MySQL服务器建立的支持。</p>
+<p><strong>服务层</strong></p>
+<p>主要包含系统管理和控制工具、连接池、SQL接口、解析器、查询优化器和缓存六个部分。</p>
+<p>1） 连接池：存储和管理客户端与数据库的连接。</p>
+<p>2） 系统管理和控制工具：集群、备份、安全管理。</p>
+<p>3） SQL接口：接受客户端发送的各种SQL命令并返回查询结果。</p>
+<p>4） 解析器：解析SQL，生成一颗解析树，验证SQL是否合法。</p>
+<p>5） 查询优化器：将解析树转化成执行计划，与存储引擎进行交互。</p>
+<p>6） 缓存：各种缓存，比如表、记录、权限等等，缓存有命中查询结果直接返回。</p>
+<p><strong>存储引擎层</strong></p>
+<p>负责MySQL中数据的存储与提取，与底层系统文件进行交互，可插拔，常见的两类：MyISAM和InnoDB。</p>
+<p><strong>系统文件层</strong></p>
+<p>负责将数据库的数据和日志存储在文件系统之上，并完成与存储引擎的交互，比如日志、配置文件等等。</p>
+<p>错误日志查询：show variables like ‘%log_error%’</p>
+<p>通用查询日志：show variables like ‘%general%’;</p>
+<p>二进制日志(恢复和主从复制)：show binary logs;</p>
+<p>慢查询日志(记录超时，默认10秒)：show variables like ‘%slow_query%’;</p>
+<p>配置文件: 存放MySQL所有的配置信息文件。</p>
+<h2 id="运行机制"><a href="#运行机制" class="headerlink" title="运行机制"></a>运行机制</h2><p><img src="/posts/55736/assets/5fb31418669f8ea6c64b9283a04db98b.webp" alt="img"></p>
+<p>1） 建立连接，通过客户端&#x2F;服务器通信协议与MySQL建立连接。通信方式是半双工，也就是不能同时即发送数据也接收数据，除此之外还有全双工和单工，通过show processlist;可以查看用户正在运行的线程信息。</p>
+<p>2） 查询缓存，开启了查询缓存且在查询缓存过程中查询到完全相同的SQL语句，则将查询结果直接返回给客户端，没有的话则进入下一环节。不过查询的结果大于query_cache_limit设置或者存在不确定参数，比如now()不会走缓存。show variables like ‘%query_cache%’;可查看缓存信息。</p>
+<p>3） 解析器，将客户端发送的SQL进行语法解析，生成”解析树”，并检验SQL是否合法。</p>
+<p>4） 查询优化器，根据“解析树”生成最优的执行计划，其实就是SQL优化，比如in排序，max函数等等。</p>
+<p>5） 查询执行引擎，根据 SQL 语句中表的存储引擎类型，以及对应的API接口与底层存储引擎缓存或者物理文件的交互，得到查询结果并返回给客户端，如果开启了查询缓存，会把结果存入缓存中，并且返回方式是增量返回，不是一次性全部返回。</p>
+<h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>根据MySQL提供的文件访问层抽象接口定制的一种文件访问机制，负责MySQL中的数据的存储和提取。5.5版本之前默认采用MyISAM存储引擎，5.5开始采用InnoDB存储引擎。</p>
+<p><strong>InnoDB和MyISAM对比</strong></p>
+<p>1）事务和外键</p>
+<p>InnoDB支持事务和外键，具有安全性和完整性，适合大量insert或update操作</p>
+<p>MyISAM不支持事务和外键，它提供高速存储和检索，适合大量的select查询操作</p>
+<p>2）锁机制</p>
+<p>InnoDB支持行级锁，锁定指定记录。基于索引来加锁实现。</p>
+<p>MyISAM支持表级锁，锁定整张表。</p>
+<p>3）索引结构</p>
+<p>InnoDB使用聚集索引（聚簇索引），索引和记录在一起存储，既缓存索引，也缓存记录。</p>
+<p>MyISAM使用非聚集索引（非聚簇索引），索引和记录分开。</p>
+<p>4）并发处理能力</p>
+<p>MyISAM使用表锁，会导致写操作并发率低，读之间并不阻塞，读写阻塞。</p>
+<p>InnoDB读写阻塞可以与隔离级别有关，可以采用多版本并发控制（MVCC）来支持高并发</p>
+<p>5）存储文件</p>
+<p>InnoDB表对应两个文件，一个.frm表结构文件，一个.ibd数据文件。InnoDB表最大支持64TB；</p>
+<p>MyISAM表对应三个文件，一个.frm表结构文件，一个MYD表数据文件，一个.MYI索引文件。默认限制是256TB。</p>
+<p>6）MyISAM适用场景</p>
+<p>不需要事务支持（不支持）</p>
+<p>并发相对较低（锁定机制问题）</p>
+<p>数据修改相对较少，以读为主</p>
+<p>数据一致性要求不高</p>
+<p>7）InnoDB适用场景</p>
+<p>需要事务支持（具有较好的事务特性）</p>
+<p>行级锁定对高并发有很好的适应能力</p>
+<p>数据更新较为频繁的场景</p>
+<p>数据一致性要求较高</p>
+<p>硬件设备内存较大，可以利用InnoDB较好的缓存能力来提高内存利用率，减少磁盘IO</p>
+<h2 id="InnoDB存储结构"><a href="#InnoDB存储结构" class="headerlink" title="InnoDB存储结构"></a>InnoDB存储结构</h2><p>MySQL 5.5版本开始默认使用InnoDB作为引擎，它擅长处理事务，具有自动崩溃恢复的特性。</p>
+<p><img src="/posts/55736/assets/5e54f8668d1b9e45733634324fc171df.webp" alt="img"></p>
+<p>内存结构主要包括Buffer Pool、Change Buffer、Adaptive Hash Index和Log Buffer四大组件。</p>
+<p><strong>Buffer Pool</strong></p>
+<p>缓冲池，简称BP。BP以Page页为单位，默认大小16K，BP的底层采用链表数据结构管理Page。通过改进型LRU算法维护，即中间插入，命中往头部移动，未命中往尾部移动，实行末尾淘汰。</p>
+<p>建议：将innodb_buffer_pool_size设置为总内存大小的60%-80%，innodb_buffer_pool_instances可以设置为多个，这样可以避免缓存争夺。</p>
+<p><strong>Change Buffer</strong></p>
+<p>写缓冲区，简称CB。在进行DML操作时，如果BP没有其相应的Page数据，并不会立刻将磁盘页加载到缓冲池，而是在CB记录缓冲变更，等未来数据被读取时，再将数据合并恢复到BP中，默认占BP的25%。</p>
+<p><strong>Adaptive Hash Index</strong></p>
+<p>自适应哈希索引，用于优化对BP数据的查询。InnoDB存储引擎会自动根据访问的频率和模式来为某些页建立哈希索引。</p>
+<p><strong>Log Buffer</strong></p>
+<p>日志缓冲区，保存要写入磁盘上log文件（Redo&#x2F;Undo）的数据，日志缓冲区的内容定期刷新到磁盘log文件中。</p>
+<p>缓冲区满自动刷新到磁盘。</p>
+<h2 id="InnoDB磁盘结构"><a href="#InnoDB磁盘结构" class="headerlink" title="InnoDB磁盘结构"></a>InnoDB磁盘结构</h2><p>InnoDB磁盘主要包含Tablespaces，InnoDB Data Dictionary，Doublewrite Buffer、Redo Log 和Undo Logs。</p>
+<p><strong>表空间（Tablespaces）</strong></p>
+<p>存储表结构和数据。并且分为系统表空间、独立表空间、 通用表空间、临时表空间、Undo表空间等多种类型。</p>
+<p>1） 系统表空间：默认包含任何用户在系统表空间创建的表数据和索引数据，是InnoDB Data Dictionary，Doublewrite Buffer，Change Buffer，Undo Logs的存储区域。</p>
+<p>2） 独立表空间：默认开启，独立表空间是一个单表表空间，该表创建于自己的数据文件中，而非创建于系统表空间中。</p>
+<p>3） 通用表空间：通用表空间为通过create tablespace语法创建的共享表空间。</p>
+<p>4） 撤销表空间：撤销表空间由一个或多个包含Undo日志文件组成。</p>
+<p>5） 临时表空间：分为session temporary tablespaces 和global temporary tablespace两种。session temporary tablespaces 存储的是用户创建的临时表和磁盘内部的临时表。global temporary tablespace储存用户临时表的回滚段。</p>
+<p><strong>数据字典（InnoDB Data Dictionary）</strong></p>
+<p>InnoDB数据字典由内部系统表组成，这些表包含用于查找表、索引和表字段等对象的元数据。</p>
+<p><strong>双写缓冲区（Doublewrite Buffer）</strong></p>
+<p>位于系统表空间，是一个存储区域。在BufferPage的page页刷新到磁盘真正的位置前，会先将数据存在Doublewrite 缓冲区，当出现进程崩溃，从这里获取数据并恢复。</p>
+<p><strong>重做日志（Redo Log）</strong></p>
+<p>重做日志是一种基于磁盘的数据结构，用于在崩溃恢复期间更正不完整事务写入的数据。MySQL以循环方式写入重做日志文件，记录InnoDB中所有对Buffer Pool修改的日志，当出现崩溃从重做日志中把数据更新到数据文件。</p>
+<p><strong>撤销日志（Undo Logs）</strong></p>
+<p>撤消日志是在事务开始之前保存的被修改数据的备份，用于例外情况时回滚事务。撤消日志属于逻辑日志，根据每行记录进行记录。</p>
+<p><strong>版本差异</strong></p>
+<p>5.7版本：Undo日志表空间从共享表空间分离，安装时可自由指定，增加临时表空间，并且可动态修改Buffer Pool</p>
+<p>8.0版本：数据字典和Undo、Doublewrite Buffer都从共享表空间分离，临时表空间可以配置多个物理文件。</p>
+<h2 id="InnoDB线程模型"><a href="#InnoDB线程模型" class="headerlink" title="InnoDB线程模型"></a>InnoDB线程模型</h2><p><img src="/posts/55736/assets/46fb6536b02296f63d9c07827eec58d1.webp" alt="img"></p>
+<p><strong>IO Thread</strong></p>
+<p>使用了大量的AIO（Async IO）来做读写处理，10个IO Thread，分别是write（4），read（4），insert buffer和log thread。</p>
+<p><strong>Purge Thread</strong></p>
+<p>事务提交之后，回收已经分配的undo 页。</p>
+<p><strong>Page Cleaner Thread</strong></p>
+<p>将脏数据刷新到磁盘，脏数据刷盘后相应的redo log也就可以覆盖，即可以同步数据，又能达到redo log循环使用的目的。</p>
+<p><strong>Master Thread</strong></p>
+<p>Master thread是InnoDB的主线程，负责调度其他各线程，优先级最高。作用是将缓冲池中的数据异步刷新到磁盘 ，保证数据的一致性，比如脏页的刷新、undo页回收、redo日志刷新、合并写缓冲等，分1秒和10秒执行。</p>
+<h2 id="InnoDB数据文件"><a href="#InnoDB数据文件" class="headerlink" title="InnoDB数据文件"></a>InnoDB数据文件</h2><p><img src="/posts/55736/assets/b16d631ed851900555ec815f1b005295.webp" alt="img"></p>
+<p>InnoDB数据文件存储结构：分为一个ibd数据文件-&gt;Segment（段）-&gt;Extent（区）-&gt;Page（页）-&gt;Row（行）</p>
+<p>Tablesapce：表空间，用于存储多个ibd数据文件，用于存储表的记录和索引。一个文件包含多个段。</p>
+<p>Segment：段，用于管理多个Extent，分为数据段、索引段、回滚段。</p>
+<p>Extent：区，一个区固定包含64个连续的页，大小为1M。</p>
+<p>Page：页，用于存储多个Row行记录，大小为16K。包含很多种页类型，比如数据页，undo页，系统页等等。</p>
+<p>Row：行，包含了记录的字段值，事务ID、滚动指针、字段指针等信息。</p>
+<p>InnoDB只支持两种文件格式：Antelope 和 Barracuda。</p>
+<p>InnoDB存储引擎支持四种行格式：REDUNDANT、COMPACT、DYNAMIC和COMPRESSED。</p>
+<h2 id="Undo-Log"><a href="#Undo-Log" class="headerlink" title="Undo Log"></a>Undo Log</h2><p>数据库事务开始之前，会将要修改的记录存放到 Undo 日志里，当事务回滚时或者数据库崩溃时，可以利用 Undo 日志，撤销未提交事务对数据库产生的影响。事务提交之后也不会马上删除，而是进入删除队列待删除。Undo Log属于逻辑日志，记录一个变化过程，采用段的方式管理和记录。例如执行一个delete，undolog会记录一个insert；执行一个update，undolog会记录一个相反的update。</p>
+<p>1） 实现事务的原子性</p>
+<p>事务处理过程中，如果出现了错误或者用户执行了 ROLLBACK 语句，MySQL可以利用 Undo Log中的备份将数据恢复到事务开始之前的状态。</p>
+<p>2） 实现多版本并发控制（MVCC）</p>
+<p>事务未提交之前，Undo Log保存了未提交之前的版本数据，Undo Log中的数据可作为数据旧版本快照供其他并发事务进行快照读。</p>
+<p><img src="/posts/55736/assets/37d40ba1af52916eabe38540b8a61696.webp" alt="img"></p>
+<h3 id="Redo-Log"><a href="#Redo-Log" class="headerlink" title="Redo Log"></a>Redo Log</h3><p>指事务中修改的任何数据，将最新的数据备份存储的位置（Redo Log），被称为重做日志。事务操作的执行，就会生成Redo Log，在事务提交时会将产生Redo Log写入Log Buffer。等事务操作的脏页写入到磁盘之后，Redo Log占用的空间会被覆盖写入。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-8032b827a564cb1b085a64cc62d74136_720w.webp" alt="img"></p>
+<p>Redo Log 文件内容是以顺序循环的方式写入文件，写满时则回溯到第一个文件，进行覆盖写。</p>
+<h3 id="Binlog日志"><a href="#Binlog日志" class="headerlink" title="Binlog日志"></a>Binlog日志</h3><p>MySQL Server的日志，即Binary log（二进制日志），简称Binlog。Binlog是记录所有数据库表结构变更以及表数据修改的二进制日志，不会记录SELECT和SHOW这类操作。Binlog日志是以事件形式记录，还包含语句所执行的消耗时间。用于主从复制和数据恢复。</p>
+<p>Binlog文件名默认为“主机名_binlog-序列号”格式，文件记录模式有STATEMENT、ROW和MIXED三种。</p>
+<p><strong>Binlog文件结构</strong></p>
+<p>MySQL的binlog文件中记录的是对数据库的各种修改操作，用来表示修改操作的数据结构是Log event。</p>
+<p><img src="/posts/55736/assets/a0acf9f627cd711383546758f1130361.webp" alt="img"></p>
+<p><strong>Binlog写入机制</strong></p>
+<p>1） 根据记录模式和操作触发event事件生成log event（事件触发执行机制）</p>
+<p>2） 将事务执行过程中产生log event写入缓冲区，每个事务线程都有一个缓冲区，存放两个缓冲区，即支持事务和不支持事务的缓冲区。</p>
+<p>3） 事务在提交阶段会将产生的log event写入到外部binlog文件中，以串行写入，保证连续性。</p>
+<p><strong>Binlog文件操作</strong></p>
+<p>状态查看：show variables like ‘log_bin’;</p>
+<p>开启Binlog功能：set global log_bin&#x3D;mysqllogbin;</p>
+<p>使用 binlog 恢复数据：</p>
+<p>mysqlbinlog–start-datetime&#x3D;”2020-04-25 18:00:00” –stopdatetime&#x3D;”2020-04-26 00:00:00” mysqlbinlog.000002 | mysql -uroot -p1234 &#x2F;&#x2F;按指定时间恢复</p>
+<p>mysqlbinlog –start-position&#x3D;154 –stop-position&#x3D;957 mysqlbinlog.000002 | mysql -uroot -p1234&#x2F;&#x2F;按事件位置号恢复</p>
+<p>删除Binlog文件：purge binary logs to ‘mysqlbinlog.000001’; &#x2F;&#x2F;删除指定文件</p>
+<p>可以通过设置expire_logs_days参数来启动自动清理功能。默认值为0表示没启用。设置为1表示超 出1天binlog文件会自动删除掉。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/48068/" rel="prev" title="mysql性能优化总结">
+                  <i class="fa fa-chevron-left"></i> mysql性能优化总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/64993/" rel="next" title="mysql索引原理相关知识">
+                  mysql索引原理相关知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"3e70670aa5253b140d2c7205b676d98f"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

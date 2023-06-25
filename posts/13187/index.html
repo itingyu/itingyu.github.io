@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="多线程多进程概述进程与线程进程英文单词 process，有运行的意思，顾名思义，他必须是运行着的才能称之为进程；        线程英文单词 thread，有丝线的意思，就是颗粒很细，力度很小，因此他要依附于进程，所以我们可以姑且这样认为，没有进程肯定谈不上有线程； 没有真正意义上的多线程了解 CPU（单核）的人都知道，CPU 在同一个时刻只能给一个程序分配资源，也就是赋予一个程序运行权，那么我们">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多进程多线程概述">
+<meta property="og:url" content="https://itingyu.github.io/posts/13187/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="多线程多进程概述进程与线程进程英文单词 process，有运行的意思，顾名思义，他必须是运行着的才能称之为进程；        线程英文单词 thread，有丝线的意思，就是颗粒很细，力度很小，因此他要依附于进程，所以我们可以姑且这样认为，没有进程肯定谈不上有线程； 没有真正意义上的多线程了解 CPU（单核）的人都知道，CPU 在同一个时刻只能给一个程序分配资源，也就是赋予一个程序运行权，那么我们">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/537db49edf54d36397592ed8a150789d.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/a1890bae8fc10d2f19799debd4afeee0.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/75e5f3d71be0e222186a66cd6dc40f5b.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/4a7aa27c880163ca6715859d48035ad0.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/6f49341ff010b69ca85002bed9a04651.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/c7166c0c359ada4dea8cc3fdfcf68565.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/b9b4cbca2620ffd1ae21841b9fad96de.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/23fa8eeb9f04f91659aaef20026aaeb1.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/c87b8fb385e5d1d06810c82e1fca65e9.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/e64aab1aad57efd40347d3305cb4b471.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/005a6db9ee907b3642922f6a0775e531.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/a442f8254ba0cc2cb62c47a499bd20ca.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/ff707cc0ace80cf5ff63f2b4768f6787.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/9b95538f77372e2dde04e601c3c63c88.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/341e593ad1cf6b91b6c98f496a07f99f.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/0486844dbea48b0262b56efeb4349d74.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/05a7c4ec3012e96184e8e36f61fb624d.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/13187/assets/99edd9c04ee3391e17095c7de46b1b9c.png">
+<meta property="article:published_time" content="2023-06-16T09:04:21.000Z">
+<meta property="article:modified_time" content="2023-06-17T09:11:34.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="java多线程编程深入详解">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/13187/assets/537db49edf54d36397592ed8a150789d.png">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/13187/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/13187/","path":"posts/13187/","title":"多进程多线程概述"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>多进程多线程概述 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%A4%9A%E8%BF%9B%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">多线程多进程概述</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">进程与线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B2%A1%E6%9C%89%E7%9C%9F%E6%AD%A3%E6%84%8F%E4%B9%89%E4%B8%8A%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">没有真正意义上的多线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A0%E7%BB%93%E7%9A%84%E6%80%9D%E8%80%83"><span class="nav-number">1.3.</span> <span class="nav-text">纠结的思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">多线程详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%88%9B%E5%BB%BA"><span class="nav-number">2.1.</span> <span class="nav-text">多线程的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%A7%E6%89%BFThread%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.1.1.</span> <span class="nav-text">继承Thread创建线程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%80%9D%E8%80%83"><span class="nav-number">2.1.1.1.</span> <span class="nav-text">思考</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%88%B6%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%AE%97%E6%B3%95%EF%BC%8C%E5%AD%90%E7%B1%BB%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82"><span class="nav-number">2.1.1.2.</span> <span class="nav-text">父类实现算法，子类实现细节</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Thread%E4%B8%AD%E7%9A%84Template-Design"><span class="nav-number">2.1.1.3.</span> <span class="nav-text">Thread中的Template Design</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-number">2.1.2.</span> <span class="nav-text">线程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%9D%E8%80%83-1"><span class="nav-number">2.1.3.</span> <span class="nav-text">思考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0Runnable%E6%8E%A5%E5%8F%A3%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B"><span class="nav-number">2.1.4.</span> <span class="nav-text">实现Runnable接口创建线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Runnable%E5%92%8CThread%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">2.1.5.</span> <span class="nav-text">Runnable和Thread的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E4%B8%AD%E7%9A%84%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.1.6.</span> <span class="nav-text">线程中的策略模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%90%8D%E5%AD%97"><span class="nav-number">2.1.7.</span> <span class="nav-text">线程名字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%90%8C%E6%AD%A5"><span class="nav-number">2.2.</span> <span class="nav-text">线程的同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97"><span class="nav-number">2.2.1.</span> <span class="nav-text">同步代码块</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%99%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE%E5%8A%A0%E9%94%81"><span class="nav-number">2.2.1.1.</span> <span class="nav-text">给共享数据加锁</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5-run-%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.1.2.</span> <span class="nav-text">同步 run 方法</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#this-%E9%94%81%E4%B8%8Estatic%E9%94%81"><span class="nav-number">2.2.2.</span> <span class="nav-text">this 锁与static锁</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%91%E7%9C%A0"><span class="nav-number">2.2.2.1.</span> <span class="nav-text">线程的休眠</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.2.2.2.</span> <span class="nav-text">单例模式的详解</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%BB%E9%94%81"><span class="nav-number">2.2.3.</span> <span class="nav-text">死锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E9%81%BF%E5%85%8D%E6%AD%BB%E9%94%81"><span class="nav-number">2.2.4.</span> <span class="nav-text">如何避免死锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E9%80%9A%E8%AE%AF"><span class="nav-number">3.</span> <span class="nav-text">线程间的通讯</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-number">3.0.1.</span> <span class="nav-text">生产者消费者</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wait"><span class="nav-number">3.0.2.</span> <span class="nav-text">wait</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#notify-%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.0.3.</span> <span class="nav-text">notify 详解</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%88%E6%8A%A4%E7%BA%BF%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">4.</span> <span class="nav-text">守护线程与线程的优先级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%88%E6%8A%A4%E7%BA%BF%E7%A8%8B"><span class="nav-number">4.0.1.</span> <span class="nav-text">守护线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84-yield"><span class="nav-number">4.0.2.</span> <span class="nav-text">线程的 yield</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%81%9C%E6%AD%A2"><span class="nav-number">4.0.3.</span> <span class="nav-text">线程的停止</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E4%BC%98%E5%85%88%E7%BA%A7"><span class="nav-number">4.0.4.</span> <span class="nav-text">线程的优先级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B-Join"><span class="nav-number">4.0.5.</span> <span class="nav-text">线程 Join</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84-interrupt"><span class="nav-number">4.0.6.</span> <span class="nav-text">线程的 interrupt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E7%BB%84"><span class="nav-number">4.0.7.</span> <span class="nav-text">线程组</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E9%9B%8F%E5%BD%A2"><span class="nav-number">4.1.</span> <span class="nav-text">线程池雏形</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/13187/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="多进程多线程概述 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          多进程多线程概述
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-16 17:04:21" itemprop="dateCreated datePublished" datetime="2023-06-16T17:04:21+08:00">2023-06-16</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E6%B7%B1%E5%85%A5%E8%AF%A6%E8%A7%A3/" itemprop="url" rel="index"><span itemprop="name">java多线程编程深入详解</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>12k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="多线程多进程概述"><a href="#多线程多进程概述" class="headerlink" title="多线程多进程概述"></a>多线程多进程概述</h1><h2 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h2><p>进程英文单词 process，有运行的意思，顾名思义，他必须是运行着的才能称之为进程；<br>        线程英文单词 thread，有丝线的意思，就是颗粒很细，力度很小，因此他要依附于进程，<br>所以我们可以姑且这样认为，没有进程肯定谈不上有线程；</p>
+<h2 id="没有真正意义上的多线程"><a href="#没有真正意义上的多线程" class="headerlink" title="没有真正意义上的多线程"></a>没有真正意义上的多线程</h2><p>了解 CPU（单核）的人都知道，CPU 在同一个时刻只能给一个程序分配资源，也就是赋<br>予一个程序运行权，那么我们看到一次能运行好几个程序其实是 CPU 来回切换执行权，所<br>以让别人以为是并发运行，只是切换的速度很快（取决于 CPU 的主频）所以没有真正意义<br>上的并发；</p>
+<h2 id="纠结的思考"><a href="#纠结的思考" class="headerlink" title="纠结的思考"></a>纠结的思考</h2><p>刚才的程序我们看到的已经有两个线程的存在了，我之前说过，一个进程至少有一<br>个执行单元，可以理解为至少有一个线程在运行，那么 main 函数应该就是一个线程，因为<br>它是程序的入口，然后我们又写了一个匿名类它显示的实现了 Runnable 接口，并且构造了<br>一个 Thread 类，因此它也是一个线程，因此有两个线程在同时运行问题往往没有那么简单，这也是本小节名字“纠结的思考”的来源，他真的是两个线程<br>么？难道 JVM 不做些什么吗？最起码我们应该联想到它应该有一个后台线程负责管理堆栈<br>信息管理垃圾的清理工作啊，因此上述的代码远远不止于一个线程，但是往往这样的钻牛角<br>尖会让我们学习 Thread API 产生很多顾虑，因此我们可以暂且不用去管 JVM 在有多少个线<br>程在支撑着我们的程序，但是我们最起码应该有这样的意识，这样也不至于在学习的路上浅<br>尝辄止。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>Main 函数本身其实就是一个线程，我们称他为主线程；</li>
+<li>实现多线程我们可以继承 Thread 类，也可以继承 Runnable 接口；</li>
+<li>没有严格意义上的并发；</li>
+<li>JVM 自身有很多后台线程在运行;</li>
+</ul>
+<h1 id="多线程详解"><a href="#多线程详解" class="headerlink" title="多线程详解"></a>多线程详解</h1><h2 id="多线程的创建"><a href="#多线程的创建" class="headerlink" title="多线程的创建"></a>多线程的创建</h2><h3 id="继承Thread创建线程"><a href="#继承Thread创建线程" class="headerlink" title="继承Thread创建线程"></a>继承Thread创建线程</h3><p>实现一个线程的一种方式为成为 Thread<br>的子类，也就是继承 Thread，然后重写 run 方法，其中 run 方法是线程的执行代码片段；</p>
+<p>可以总结创建并运行一个线程有三个步骤；</p>
+<ul>
+<li>继承 Thread 类；</li>
+<li>重写 run 方法；</li>
+<li>调用线程的 start 方法（启动线程，调用 run 方法）</li>
+</ul>
+<p><img src="/posts/13187/assets/537db49edf54d36397592ed8a150789d.png" alt="1686907971737"></p>
+<p>首先我们继承了 Thread 类，我们也重写了 run 方法，我们也在 main 方法中构造了一个<br>Thread 类然后调用了 start 方法；因此线程被创建并且被运行了</p>
+<h4 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h4><p>为什么我重写的是 run 方法，却要调用 start 方法来启动它，我们如果直接调用线程实<br>例的 run 方法不行么？可以，当然可以因为它是成员函数，调用当然是无可厚非的事情了，<br>但是为什么他不代表启动了线程呢？</p>
+<h4 id="父类实现算法，子类实现细节"><a href="#父类实现算法，子类实现细节" class="headerlink" title="父类实现算法，子类实现细节"></a>父类实现算法，子类实现细节</h4><p>在程序的设计中我们经常会将算法进行抽象，因为它有很多种运算的可能，所以我们为<br>了更好地扩展，我们将算法进行了抽象，并且统一交给父类进行实现，子类只需要知道某个<br>单元模块的功能即可，具体是如何穿插起来的子类不用去关心，</p>
+<p><strong>为什么实现模块的抽象方法都是 protected 的呢?</strong><br>因为我们不想让调用者关注到我们实现的细节，这也是面向对象思想封装的一个体现；</p>
+<p><strong>为什么 display 方法是不可继承的呢？</strong><br>因为算法一旦确定就不允许更改，更改也只允许算法的所有者也就是他的主人更改，如<br>果调用者都可通过继承进行修改，那么算法将没有严谨性可言；</p>
+<h4 id="Thread中的Template-Design"><a href="#Thread中的Template-Design" class="headerlink" title="Thread中的Template Design"></a>Thread中的Template Design</h4><p>打开代码发现 start 代码中调用了 JNI 函数 start0，他就用到了模板模式；读者可以自己<br>查看源码看看；</p>
+<h3 id="线程的状态"><a href="#线程的状态" class="headerlink" title="线程的状态"></a>线程的状态</h3><p><img src="/posts/13187/assets/a1890bae8fc10d2f19799debd4afeee0.png" alt="1686908639994"></p>
+<p><strong>线程的初始化：</strong></p>
+<p>线程的初始化状态就是我们所说的创建了一个线程，也就是说实例化了一个 Thread 的<br>子类，就等着被 start，初始化状态应该是很容易理解的状态；</p>
+<p><strong>线程的运行状态</strong></p>
+<p>线程的运行状态就是我们当创建完线程之后，显式的调用了 start 方法，此时线程就处<br>于运行状态，可是实际是这样的么？这就要看 CPU 的脸色了，因此我刚才的说法只能说对<br>了一半，但是不够严谨，线程被 start 之后并不一定会马上运行，因此还有一个中间状态叫<br>做临时状态我之所以没有在上图中画，是因为我觉得这个状态可以不用太多的关注，所谓临<br>时状态就是指，在 CPU 的执行队列当中，等待 CPU 轮询进行执行，说白了就是在等待获取<br>执行权；</p>
+<p><strong>线程的冻结状态</strong></p>
+<p>所谓线程的冻结状态就是，线程被调用了 sleep 方法或者调用了 wait 方法之后，放弃了CPU 的执行权，根据上图的箭头可以看到这个时候的线程能够继续回到运行状态，也就是说重新获取了 CPU 的执行权，当然它也可以直接到死亡状态，比如被中断，或者出现异常；</p>
+<p><strong>线程的死亡状态</strong></p>
+<p>线程在什么情况下能够到死亡状态呢？第一种是出现了致命的异常导致线程被死亡，另<br>外一种是线程的执行逻辑执行完毕，线程也就正常死亡；死亡后的线程不可能再回到任何一<br>个状态；</p>
+<h3 id="思考-1"><a href="#思考-1" class="headerlink" title="思考"></a>思考</h3><p><strong>线程被 start 了为什么不能严格认为是运行状态呢？</strong></p>
+<p>因为 CPU 有一个执行权的问题，也就是说线程被 start 之后只具备运行资格，但未必获取到了执行权，因此不能严格认定他为运行状态；</p>
+<p><strong>线程冻结之后为什么还能够回到运行状态呢？</strong></p>
+<p>因为线程冻结之后其实他并没有死亡，他只是放弃了运行权，并且他已经没有运行资格<br>了，只有在解冻之后他才有可能获取运行资格，然后获取执行权；</p>
+<p><strong>线程的这几种状态是如何切换的呢？</strong></p>
+<p>1、 初始化状态只能到运行状态；<br>        2、 运行状态能到冻结状态也能到死亡状态；<br>        3、 冻结状态能到运行状态也能到死亡状态；<br>        4、 死亡状态只能接受死亡的事实；</p>
+<h3 id="实现Runnable接口创建线程"><a href="#实现Runnable接口创建线程" class="headerlink" title="实现Runnable接口创建线程"></a>实现Runnable接口创建线程</h3><p>Runnable 只是一个任务的接口，他并不是一个线程，他的出现是为了将线<br>程和业务执行逻辑分离</p>
+<h3 id="Runnable和Thread的区别"><a href="#Runnable和Thread的区别" class="headerlink" title="Runnable和Thread的区别"></a>Runnable和Thread的区别</h3><ul>
+<li><p>Runnable 就是一个可执行任务的标识而已，仅此而已；而 Thread 才是线程所有 API 的体现；</p>
+</li>
+<li><p>继承了 Thread 父类就没有办法去继承其他类，而实现了 Runnable 接口也可以继承其他类并且实现其他接口，<strong>这个区别也是很多书中千篇一律提到的，其实 Java 中的对象即使继承了其他类，也可以通过再构造一个父类的方式继承很多个类，或者通过内部类的方式继承很多个类，因此这个区别个人觉得不痛不痒；</strong></p>
+</li>
+<li><p>将任务执行单元和线程的执行控制区分开来，这才是引入 Runnable 最主要的目的，<br>Thread 你就是一个线程的操作者，或者独裁者，你有 Thread 的所有方法，而 Runnable只是一个任务的标识，只有实现了它才能称之为一个任务，这也符合面向对象接口的逻辑，接口其实就是行为的规范和标识；</p>
+</li>
+</ul>
+<h3 id="线程中的策略模式"><a href="#线程中的策略模式" class="headerlink" title="线程中的策略模式"></a>线程中的策略模式</h3><p>我们可以姑且认为 Thread 是骨架，是提供功能的，而 Runnable 只是其中某个业务逻辑的一种实现罢了，为什么说只是一种实现呢？因为业务逻辑会是很复杂，也会是千变万化的，因此我们需要对它进行高度的抽象，这样才能将具体业务逻辑与抽象分离，程序的可扩展性才能够强，该模式也是本人在编码的时候非常喜欢的一种设计思想；</p>
+<p>相信大家就会明白为什么需要有 Runnable 的出现，也能体会到我为什么说将 Thread 和Runnable 来进行比较本身就是一个不合适的提议，<strong>因为他们关注的东西就不是一个事情，一个负责线程本身的功能，另外一个则专注于业务逻辑的实现</strong></p>
+<h3 id="线程名字"><a href="#线程名字" class="headerlink" title="线程名字"></a>线程名字</h3><p><strong>线程名字的默认编号</strong></p>
+<p>线程的名字默认是这样命名的 thread-n(其中 n 是从 0 开始的数字)当然你也可以通过显<br>式的方式进行设定，比如他有 setName 方法，并且有 Thread(String name)这样的构造函数传递名字，并且有 getName()方法获取名字等</p>
+<p><strong>线程名字的获取方式</strong><br>如何获取当前运行的线程名字呢？我们知道 main 函数并没有继承 Thread 也就是说我们<br>不能通过 getName 这样的 API 获取名字，那么我们应该如何获取呢，其实 Thread 类提<br>供了一个静态方法 Thread.currentThread()就可以获取当前运行的线程，如果获取了线程<br>那么获取他的名字应该是易如反掌的事情了；</p>
+<h2 id="线程的同步"><a href="#线程的同步" class="headerlink" title="线程的同步"></a>线程的同步</h2><p>那个叫号小程序，如果您多运行几次，或者将程序中的 max_value 修<br>改大之后，您可能会发现有这样的问题，为什么有些号码没有显示出来，相反有些号码则被<br>显示了几次，这到底是真么回事呢？可以看到不仅有重复的号码出现，并且有超过 500 的情况出现，这到底是由于什么原因引起的呢？</p>
+<p><img src="/posts/13187/assets/75e5f3d71be0e222186a66cd6dc40f5b.png" alt="1686912727213"></p>
+<p>假设三个线程现在同时执行到了（1）这个位置，判断条件都满足也就是说都小于 500，好的我们假定一个数字此时刚好是 499，接着往下分析，假设此时 1 号线程执行到了（2）这个位置，此时 CPU 恰恰将它的执行权切换到了 2 号线程，那么由于 2 号线程在 1 这个位置上进行过判断条件满足，因此它直接输出 500，这个应该不难理解，2 号线程执行完毕之后继续回到了（1）的位置，但是条件不成立，它自己退出了，因此 CPU 又将执行权转到了1 号线程，一号线程起来之后就执行输出语句，因此变成了 501，回去（1）位置之后判断发现条件不符合退出，现在只剩下 3 号线程，3 号线程也不用再进行判断了，直接到（2）号位置执行输出语句，因此输出了 502，至于重复输出的根据这样的逻辑也是能够解释通过的，读者可以自己进行解释；</p>
+<p>为什么会出现这样的问题呢？因为我们需要访问的数据没有被保护，这就是多线程最最<br>令人头疼的地方，线程安全，多线程之间的数据共享引发的安全问题</p>
+<h3 id="同步代码块"><a href="#同步代码块" class="headerlink" title="同步代码块"></a>同步代码块</h3><h4 id="给共享数据加锁"><a href="#给共享数据加锁" class="headerlink" title="给共享数据加锁"></a>给共享数据加锁</h4><p>可以看到我们的代码中增加了一个 synchronized 这样的关键字，他的意思就是线程的同步，立即的通俗来讲就是给代码或者业务逻辑加锁，<strong>何为加锁呢？就是我们将部分数据保护起来，每次只能有一个线程进行访问，</strong>举个最简单的例子，假设有一个单行道，不管后面的人是老老实实排队的，还是从中间翻越过来的，还吃打架打赢挤过来的，但是单行道的出口总是只能有一个人才能通过！通过单行道的那个门口就是我们所说的锁，那程序加了锁之后是如何运行的呢？</p>
+<p><strong>同步代码块的有效范围</strong></p>
+<p>看到这里有些人就要问了，既然加了锁，我们的代码就只能被一个线程调用，这样岂不<br>是降低了效率，在同步代码的部分并没有多线程并发的情况出现呀？如果你能想到这一点，<br>就说明你对锁的机制了解的差不多了，的确，情况的确如此，因为我们要尽量的缩小同步锁<br>的范围，有什么原则么？其实如果程序写多了，就会想到我们同步代码块最小的粒度应该放<br>在共享数据的上下文，或者说共享数据被操作的上下文中，</p>
+<p>####如何定义一个锁</p>
+<ul>
+<li><p>所谓加锁，就是为了防止多个线程同时操作一份数据，如果多个线程操作的数据都是各自的，那么就没有加锁的必要</p>
+</li>
+<li><p>共享数据的锁对于访问他们的线程来说必须是同一份，否则锁只能私有的锁，各锁个的，起不到保护共享数据的目的，试想一下将 Object lock 的定义放到 run 方法里面，每次都会实例化一个 lock，每个线程获取的锁都是不一样的，也就没有争抢可言，说的在通俗一点甲楼有一个门上了锁，A 要进门，乙楼有一个门上了锁 B 要进门，A 和 B 抢的不是一个门，因此不存在数据保护或者共享；</p>
+</li>
+<li><p>锁的定义可以是任意的一个对象，该对象可以不参与任何运算，只要保证在访问的多个线程看来他是唯一的即可；</p>
+</li>
+</ul>
+<p>####同步方法</p>
+<p>其实方法的同步和代码块的公布大相径庭就是在方法名前面加上 synchronized 关键字，具体的格式如何呢？我这里简单的写一下</p>
+<p>Private|default|protected|public   [static]   synchronized   void|return  type methodName(Parameters)</p>
+<h4 id="同步-run-方法"><a href="#同步-run-方法" class="headerlink" title="同步 run 方法"></a>同步 run 方法</h4><p>Run 方法是否可以加 synchronized 关键字，当然是可以的，这个在任何时候都符合语法规范，但是<strong>为什么不能将 run 方法同步</strong>？如果您仔细阅读了我们对 CPU 执行权那部分的分析之后，这个问题也许您自己都已经找到答案了，<strong>当第一个线程获取到了 CPU 的执行权之后，进入 run 方法，一定是执行完毕所有的逻辑才会退出，</strong>因为 run 方法加了锁，其他线程只有等待的份，地一个线程执行完毕退出，其他线程获取到了锁，想要执行，一看判断已经不符合则自动退出；因此 run 方法加锁，<strong>真实情况是会有多个线程运行，但是只有一个线程执行业务逻辑，其他线程都等于阻塞状态，</strong>如果不相信，可以尝试一下，打印出来的信息一定只是一个线程相关的；</p>
+<p>####同步总结</p>
+<p>不管是同步代码块或者同步方法，我们需要事先确定的是：“<strong>当同一份的数据被多个线</strong><br><strong>程操作的时候才考虑同步</strong>”，否则将会产生效率的问题</p>
+<p>同一份数据，如果不同的线程访问的不是同一份数据，就没有必要加锁保持同步</p>
+<p>多个线程访问，多个线程访问的时候采取考虑同步，如果一份数据只是被一个线程访问，就没有必要进行同步；</p>
+<p>多个线程同步的代码块必须是同一个锁</p>
+<h3 id="this-锁与static锁"><a href="#this-锁与static锁" class="headerlink" title="this 锁与static锁"></a>this 锁与static锁</h3><p>####this锁</p>
+<p>同步函数其实用到的锁就是 this 锁，为什么他用到的是 this 锁呢？</p>
+<p>分别启动了两个线程，分别用来执行 ClassA 中的两个方法 A 和 B，两个方法都是加了锁的，也就是说某个线程尽到方法 A 中其他线程就不能进入 A，但是另一个线程应该能进入 B，但是我们等了半天方法 B 仍然没有输出，因此我们得出一个结论，他们的锁是同一个，至于是哪一个锁呢？答案就是 this 锁；</p>
+<p>####static 锁</p>
+<p>静态锁，锁是类的字节码信息，因此如果一个类的函数为静态方法，那么我们需要通过<br>该类的 class 信息进行加锁；</p>
+<h4 id="线程的休眠"><a href="#线程的休眠" class="headerlink" title="线程的休眠"></a>线程的休眠</h4><p><img src="/posts/13187/assets/4a7aa27c880163ca6715859d48035ad0.png" alt="1686924475386"></p>
+<h4 id="单例模式的详解"><a href="#单例模式的详解" class="headerlink" title="单例模式的详解"></a>单例模式的详解</h4><p>了解单例设计模式的人都知道，单例中涉及的类他在内存之中始终是独一份存在的，如果存在两份则将出现问题，并且单例模式有两种相对比较有特点的形式，那就是饿汉式与懒<br>汉式单例模式，</p>
+<p><strong>饿汉式单例模式</strong></p>
+<p>所谓饿汉式单例设计模式，就是将类的静态实例作为该类的一个成员变量，也就是说在<br>JVM 加载它的时候就已经创建了该类的实例，因此它不会存在多线程的安全问题</p>
+<p><img src="/posts/13187/assets/6f49341ff010b69ca85002bed9a04651.png" alt="1686924617539"></p>
+<p>可以看到上述代码中的单例不存在线程安全的问题，但是他有一个性能上面的问题，那<br>就是提前对实例进行了初始化或者说构造，假设构造该类需要很多的性能消耗，如果代码写<br>成这个样子将会提前完成构造，又假设我们在系统运行过程中压根就没有对该实例进行使用，那岂不是很浪费系统的资源呢？</p>
+<p><strong>懒汉式单例模式</strong></p>
+<p>所谓懒汉式单例模式的意思就是，实例虽然作为该类的一个实例变量，但是他不主动进<br>行创建，如果你不使用它那么他将会永远不被创建，只有你在第一次使用它的时候才会被创<br>建，并且得到保持；</p>
+<p><img src="/posts/13187/assets/c7166c0c359ada4dea8cc3fdfcf68565.png" alt="1686924797726"></p>
+<p>上述的代码就是我们所说的懒汉式单例模式，但是根据上文中的关于线程安全问题的分<br>析我们不难发出现，instance 有可能会被创建两次</p>
+<p>那么我们应该如何避免多线程引起的问题呢，看到这里您可能想到了用 synchronized 这个关键字来解决问题，</p>
+<p><img src="/posts/13187/assets/b9b4cbca2620ffd1ae21841b9fad96de.png" alt="1686924996320"></p>
+<p>但是该方法的效率将是相当低下的，因为每一次调用都要获取锁，判断锁的状态，因此<br>就会出现解决了安全问题，带来了效率问题，当然安全问题和效率问题本来就是两个很不可<br>调和的矛盾，但是我们也不应该就此妥协，需要尽我们的智慧既解决了安全问题又带来了最<br>小的效率影响；我们将程序写成如下的样子</p>
+<p><img src="/posts/13187/assets/23fa8eeb9f04f91659aaef20026aaeb1.png" alt="1686925210905"></p>
+<p><img src="/posts/13187/assets/c87b8fb385e5d1d06810c82e1fca65e9.png" alt="1686925230639"></p>
+<p>上述代码带来了哪些改变又如何将效率的损耗降到了最低</p>
+<p><img src="/posts/13187/assets/e64aab1aad57efd40347d3305cb4b471.png" alt="1686925308749"></p>
+<p>通过上述代码的分析，我们不难发现，锁的等待或者争抢最多发生两次，也就是同步代<br>码块中的代码最多被执行两次，如此一来，安全问题解决了，效率问题也被解决掉了。</p>
+<h3 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h3><p>多线程同步锁总是以牺牲系统性能为代价的，但是比牺牲性能代价更加严重的将是死锁，程序一旦出现死锁的状况，将会挂死而并不是退出，有时候死锁的问题是很难排查的，尤其是在较大的项目中多人协作的项目中，死锁是一个很头疼的问题，所以我们应该在编写程序的时候规避掉死锁，为了规避死锁，我们首先需要写出一个死锁程序，这样会很清楚什么是死锁，然后又如何避免死锁；</p>
+<p><strong>什么是死锁</strong></p>
+<p>假设有两个线程 A 和 B，其中 A 持有 B 想要的锁，而 B 持有 A 想要的锁，两个都在等<br>待各自释放所需要的锁，这样的情况很容易引起死锁现象的发生，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">package org.cy.thread;</span><br><span class="line"></span><br><span class="line">public class DeadLock &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        Dead d = new Dead();</span><br><span class="line">        Thread t1 = new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                while (true)&#123;</span><br><span class="line">                    d.methodA();</span><br><span class="line">                    try &#123;</span><br><span class="line">                        Thread.sleep(10);</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        Thread t2 = new Thread(new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                while (true)&#123;</span><br><span class="line">                    d.methodB();</span><br><span class="line">                    try &#123;</span><br><span class="line">                        Thread.sleep(10);</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">class Dead&#123;</span><br><span class="line">    private Object lock = new Object();</span><br><span class="line">    private int x=0;</span><br><span class="line">    public void methodA()&#123;</span><br><span class="line">        synchronized (lock)&#123;</span><br><span class="line">            synchronized (this)&#123;</span><br><span class="line">                System.out.println(&quot;a .. &quot;+(x++));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    public void methodB()&#123;</span><br><span class="line">        synchronized (this)&#123;</span><br><span class="line">            synchronized (lock)&#123;</span><br><span class="line">                System.out.println(&quot;b .. &quot;+(x++));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/13187/assets/005a6db9ee907b3642922f6a0775e531.png" alt="1686926522257"></p>
+<p>可以看到程序运行到一定地步就阻塞住了，然后没有任何输出，但是程序并没有停止，<br>而是出现了挂死；</p>
+<p>用jstack查看：</p>
+<p><img src="/posts/13187/assets/a442f8254ba0cc2cb62c47a499bd20ca.png" alt="1686927148117"></p>
+<h3 id="如何避免死锁"><a href="#如何避免死锁" class="headerlink" title="如何避免死锁"></a>如何避免死锁</h3><p>从刚才的代码中可以看出我们实现死锁的方式是同步代码块中的同步，因此在日常的开<br>发过程中应该避免使用这样的情况，如果有这样的情况出现也要认真的推演，反复地琢磨，<br>万不得已的请看下才考虑同步代码块中有同步代码块；</p>
+<h1 id="线程间的通讯"><a href="#线程间的通讯" class="headerlink" title="线程间的通讯"></a>线程间的通讯</h1><h3 id="生产者消费者"><a href="#生产者消费者" class="headerlink" title="生产者消费者"></a>生产者消费者</h3><p>一个线程实现让 x++（模拟我们在创建 X 值）而另外一个线程<br>则是不断的消费 X 值（也就是上述代码中打印而已）</p>
+<p><img src="/posts/13187/assets/ff707cc0ace80cf5ff63f2b4768f6787.png" alt="1686930256947"></p>
+<p>真正意义上的生产者消费者应该是这样的，生产一个消费一个，如果没有生产那就没有<br>消费，没有被消费完毕就不应该进行生产，因此我们将推出两个比较重要的方法，那就是<br>wait 和 notify，只启动了一个生产线程和一个消费线程；系统运行并没有什么异样。但是当多个生产者和消费者时，就会出现死锁的问题或者生产多次消费一次，或者生产一次消费多次，为什么会出现上述现象呢？</p>
+<p>改成notifyAll就行了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.cy.thread;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo1</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">NumFactory</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NumFactory</span>();</span><br><span class="line">        <span class="type">Runnable</span> <span class="variable">r1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">                    f.create();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="type">Runnable</span> <span class="variable">r2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">while</span> (<span class="literal">true</span>)&#123;</span><br><span class="line">                    f.consume();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(r1).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(r2).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(r1).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(r2).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NumFactory</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Object lock=<span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> x=<span class="number">0</span>;</span><br><span class="line">    <span class="type">boolean</span> <span class="variable">created</span> <span class="operator">=</span> <span class="literal">false</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">create</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (lock)&#123;</span><br><span class="line">            <span class="keyword">if</span>(!created)&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getId()+<span class="string">&quot; create &quot;</span>+(++x));</span><br><span class="line">                created=<span class="literal">true</span>;</span><br><span class="line">                lock.notifyAll();</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    lock.wait();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">consume</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (lock)&#123;</span><br><span class="line">            <span class="keyword">if</span>(created)&#123;</span><br><span class="line">                System.out.println(Thread.currentThread().getId()+<span class="string">&quot; consume &quot;</span>+(--x));</span><br><span class="line">                created=<span class="literal">false</span>;</span><br><span class="line">                lock.notifyAll();</span><br><span class="line">            &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    lock.wait();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h3><p>wait 方法和之前的 sleep 一样就是放弃 CPU 执行权，但是他和 sleep 不一样的地方是需要等待另外一个持有相同锁的线程对其进行唤醒操作，并且 wait 方法必须有一个同步锁，否则会抛出一个异常 java.lang.IllegalMonitorStateException: current thread not owner</p>
+<h3 id="notify-详解"><a href="#notify-详解" class="headerlink" title="notify 详解"></a>notify 详解</h3><p>notify 方法就是将之前处在临时状态的线程唤醒，并且获取执行权，等待 CPU 的再次调度，但是有一点需要注意的是必须和之前的 wait 方法用到的锁是同一个；</p>
+<p>###notifyAll 详解</p>
+<p>notify 方法是唤醒一个正处在阻塞状态的线程，那他到底唤醒的是谁呢？其实在 JVM 中也存在一个线程队列或者线程池的概念，我们看看下图中的表示，关于 wait 和 notify 中的线程两者均使用的是一把锁，否则将没有可以探讨的必要；</p>
+<p><img src="/posts/13187/assets/9b95538f77372e2dde04e601c3c63c88.png" alt="1686970559762"></p>
+<p>从该图中可以看出，notify 方法将严格按照 FIFO（先进先出）的方式唤醒在线程队列中的与自己持有同样一把锁的线程；通过上图读者应该很清楚 notify 的作用，那么 notifyAll的作用是什么呢？请看下图</p>
+<p><img src="/posts/13187/assets/341e593ad1cf6b91b6c98f496a07f99f.png" alt="1686970602173"></p>
+<p>通过上图的描述，我们可以看出 notifyAll 方法是将所有 wait 中的线程都进行唤醒，当<br>然前提就是唤醒的线程持有和自己一样的锁，否则将不能被唤醒；</p>
+<h1 id="守护线程与线程的优先级"><a href="#守护线程与线程的优先级" class="headerlink" title="守护线程与线程的优先级"></a>守护线程与线程的优先级</h1><h3 id="守护线程"><a href="#守护线程" class="headerlink" title="守护线程"></a>守护线程</h3><p>什么叫做守护线程，你可以简单的将其理解为一个后台线程，他的特点主要是，主线程<br>一旦运行结束，它就会随之结束，不管运行没运行完毕，都会随之结束，（应该是所有非后台线程运行结束，它也随之结束）</p>
+<p>守护线程的设置也是相当简单，只需要将线程的 Daemon设置为 true 即可</p>
+<h3 id="线程的-yield"><a href="#线程的-yield" class="headerlink" title="线程的 yield"></a>线程的 yield</h3><p>线程的 yield 方法就是短暂放弃 CPU 执行权，但是它刹那点就和其他线程争抢 CPU 执行权；</p>
+<p>Thread.yield()方法作用是：暂停当前正在执行的线程对象，并执行其他线程。</p>
+<p>yield()应该做的是让当前运行线程回到可运行状态，以允许具有相同优先级的其他线程获得运行机会。因此，使用yield()的目的是让相同优先级的线程之间能适当的轮转执行。但是，实际中无法保证yield()达到让步目的，因为让步的线程还有可能被线程调度程序再次选中。</p>
+<p>结论：yield()从未导致线程转到等待&#x2F;睡眠&#x2F;阻塞状态。在大多数情况下，yield()将导致线程从运行状态转到可运行状态，但有可能没有效果。<br>暂停当前正在执行的线程对象，并执行其他线程。</p>
+<h3 id="线程的停止"><a href="#线程的停止" class="headerlink" title="线程的停止"></a>线程的停止</h3><p>线程的停止，之前调用 stop 方法可以停止，但是该方法目前也被过期掉了，因为它存<br>在线程安全问题，但是我们也有自己的方法让线程停止，我们一般在线程的 run 方法中会是一个死循环，因此线程的停止一般有两种方式</p>
+<ul>
+<li><p>Run 方法中的业务逻辑执行完毕；</p>
+</li>
+<li><p>死循环退出；</p>
+</li>
+</ul>
+<h3 id="线程的优先级"><a href="#线程的优先级" class="headerlink" title="线程的优先级"></a>线程的优先级</h3><p>线程的优先级别为 5，没一个线程但是我们可以通过设置提高或者降低线程的优先级别，所谓线程的优先级别高就是获得 CPU 执行权的几率高，但是企图通过线程优先级设置来进行业务的控制这个是不可行的  void setPriority(int newPriority)</p>
+<h3 id="线程-Join"><a href="#线程-Join" class="headerlink" title="线程 Join"></a>线程 Join</h3><p>通过字面意思就可以理解到，线程的 Join 方法就是临时加入一个线程，等到该线程执<br>行结束之后才能运行主线程</p>
+<h3 id="线程的-interrupt"><a href="#线程的-interrupt" class="headerlink" title="线程的 interrupt"></a>线程的 interrupt</h3><p>Interrupt 方法的作用就是将处在阻塞中的线程打断，也就是线程将从阻塞状态转换到临时状态或者其他状态，执行该方法会抛出一个异常，也就是 wait 方法或者 sleep 方法中我们经常需要捕获的异常 InterruptedException</p>
+<p>#线程池的实现</p>
+<p>线程的创建和销毁是比较消耗系统性能的，所以如何将已创建线程再次复用就可以避免线程创建和销毁带来的消耗</p>
+<h3 id="线程组"><a href="#线程组" class="headerlink" title="线程组"></a>线程组</h3><p>线程组顾名思义就是一组线程的意思，将一组线程存放在一个组里面，方便管理，方便<br>监控，相比 Thread，ThreadGroup 的使用并不是那么频繁，说实话我在日常的工作中也几乎很少用到 ThreadGroup，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">package org.cy.thread.threadpool;</span><br><span class="line"></span><br><span class="line">public class ThreadGroupDemo &#123;</span><br><span class="line">    public static void main(String[] args) &#123;</span><br><span class="line">        ThreadGroup tg = new ThreadGroup(&quot;tg1&quot;);</span><br><span class="line">        Runnable r = new Runnable() &#123;</span><br><span class="line">            @Override</span><br><span class="line">            public void run() &#123;</span><br><span class="line">                while (true)&#123;</span><br><span class="line">                    System.out.println(Thread.currentThread().getName()+&quot; ... &quot;+Thread.currentThread().getThreadGroup().getName());</span><br><span class="line">                    try &#123;</span><br><span class="line">                        Thread.sleep(1000);</span><br><span class="line">                    &#125; catch (InterruptedException e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        Thread t1 = new Thread(tg,r,&quot;t1&quot;);</span><br><span class="line">        Thread t2 = new Thread(tg,r,&quot;t2&quot;);</span><br><span class="line">        Thread t3 = new Thread(tg,r,&quot;t3&quot;);</span><br><span class="line">        t1.start();</span><br><span class="line">        System.out.println(tg.activeCount());</span><br><span class="line">        t2.start();</span><br><span class="line">        System.out.println(tg.activeCount());</span><br><span class="line">        t3.start();</span><br><span class="line">        System.out.println(tg.activeCount());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>另外一种创建方式:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ThreadGroup tg2 = new ThreadGroup(tg,&quot;tg2&quot;);</span><br></pre></td></tr></table></figure>
+
+<p>可以看到线程组的创建可以将另外一个线程组作为参数传递进去，该线程组就称之为父<br>线程组，在该线程组中可以通过 getParent()方法获取父线程组，当然也可以查看到父线程组中线程的状态等；</p>
+<p><img src="/posts/13187/assets/0486844dbea48b0262b56efeb4349d74.png" alt="1686974463968"></p>
+<p><img src="/posts/13187/assets/05a7c4ec3012e96184e8e36f61fb624d.png" alt="1686974486333"></p>
+<p>enumerate 方法其实就是线程引用的拷贝，并不是深入克隆</p>
+<h2 id="线程池雏形"><a href="#线程池雏形" class="headerlink" title="线程池雏形"></a>线程池雏形</h2><p>线程池应该最起码具备的就是如下几个特点，在接下来的文字中我们将会围绕着这几点<br>然后一一进行实现</p>
+<ul>
+<li>任务队列；</li>
+<li>线程管理者；</li>
+<li>最大线程活跃数；</li>
+<li>线程最小数；</li>
+<li>线程最大数；</li>
+</ul>
+<p>###最小线程数</p>
+<p>既然是线程池，里面的线程应该不止一个，因此它有若干个，也就是线程池初始化的时<br>候需要创建的线程最小数</p>
+<p>###最大线程数</p>
+<p>虽然线程中有很多个线程，但是也是有个极限的吧，因此最大线程就是限制线程池中最<br>大的线程数，那么当线程池中的线程已经不能满足任务时，这个时候需要采取哪些策略呢？<br>当然方式有很多种，等待，抛出异常告知调用者，放入任务队列中等</p>
+<p>###最大活跃线程数</p>
+<p>当线程池的线程需要超过最小线程数时，他需要增加到一个不超过最大线程数的值，这个时候他就重新动态的开辟一个线程，当线程的需求量不是太大的时候，线程池就有义务负责销毁线程释放 CPU，内存等资源，那么应该如何释放这些线程呢？那就释放到活跃线程数的这个值；</p>
+<p>###属性之间的关系</p>
+<p>最小线程数&lt;&#x3D;最大活跃线程数&lt;&#x3D;最大线程数</p>
+<p>###任务队列属性</p>
+<p>我们的任务都是存放在队列之中，但是严格来说，一个任务队列应该还有如下的一些最基本特点；</p>
+<ul>
+<li>任务队列最大任务数</li>
+<li>超过最大任务数该如何处理；</li>
+<li>任务队列中的任务状态监控</li>
+</ul>
+<p>###线程状态的监控</p>
+<p>所谓线程的状态监控就是指通过回调或者监听的手段，得知当前运行线程运行的状况，<br>启动，运行中，正常结束，异常结束等状况</p>
+<p><img src="/posts/13187/assets/99edd9c04ee3391e17095c7de46b1b9c.png" alt="1686993062247"></p>
+<p>可以看到，扮演这个比较重要角色的接口是 Thread.UncaughtExceptionHandler，运行之后我们发现，线程意外死亡被我们很好的捕获到了</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 读书笔记</a>
+              <a href="/tags/java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E6%B7%B1%E5%85%A5%E8%AF%A6%E8%A7%A3/" rel="tag"><i class="fa fa-tag"></i> java多线程编程深入详解</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2408/" rel="prev" title="java并发">
+                  <i class="fa fa-chevron-left"></i> java并发
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/41682/" rel="next" title="设计模式">
+                  设计模式 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"bddadcb67e009ad970fa9df452ce3c99"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

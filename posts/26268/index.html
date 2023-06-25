@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Zookeeper基础Zookeeper定位分布式系统是同时跨越多个物理主机，独⽴运⾏的多个软件所组成系统，而ZooKeeper主要的使⽤场景，就是作为分布式系统的分布式协同服务。分布式系统的协调⼯作就是通过某种⽅式，让每个节点的信息能够同步和共享，这依赖于服务进程之间的通信。 两种通信方式：通过网络进行信息共享、通过共享储存（Zookeeper）。  Zookeeper基本概念Zookeep">
+<meta property="og:type" content="article">
+<meta property="og:title" content="zookeeper相关知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/26268/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Zookeeper基础Zookeeper定位分布式系统是同时跨越多个物理主机，独⽴运⾏的多个软件所组成系统，而ZooKeeper主要的使⽤场景，就是作为分布式系统的分布式协同服务。分布式系统的协调⼯作就是通过某种⽅式，让每个节点的信息能够同步和共享，这依赖于服务进程之间的通信。 两种通信方式：通过网络进行信息共享、通过共享储存（Zookeeper）。  Zookeeper基本概念Zookeep">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d75675da81f6deb6d4b551e45118ac09_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/cecff32374a776223d86ba45cccaa1c8.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-b8a42e6fb0140cdd33d8cd158f9a2343_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/e7d4a741e3f0e11744f8179b4883b824.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/56bfb824b83b1637c3c6367c6e2c9374.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/b0209bc4f091a2708e4bdf2f290a92ef.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-b44d917871121fe5270c941081c0653e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/5ffa44a74b8409bb1925c82ca34a2ed8.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-a254c8c41249ce1c944295e545a4e80d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/7b57651ea4e65f5ce57d68716372d449.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/7ee0b7751eeb1ae4de7317ce40eb97df.webp">
+<meta property="article:published_time" content="2023-06-17T10:58:01.000Z">
+<meta property="article:modified_time" content="2023-06-17T10:58:35.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="zookeeper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-d75675da81f6deb6d4b551e45118ac09_720w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/26268/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/26268/","path":"posts/26268/","title":"zookeeper相关知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>zookeeper相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Zookeeper%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">一、Zookeeper基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Zookeeper%E5%AE%9A%E4%BD%8D"><span class="nav-number">1.1.</span> <span class="nav-text">Zookeeper定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zookeeper%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">Zookeeper基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Zookeeper%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.3.</span> <span class="nav-text">Zookeeper环境搭建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Znode%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.4.</span> <span class="nav-text">Znode系统模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Watcher%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.5.</span> <span class="nav-text">Watcher系统模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACL%E7%B3%BB%E7%BB%9F%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.6.</span> <span class="nav-text">ACL系统模型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Zookeeper%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">二、Zookeeper应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%8F%91%E5%B8%83-x2F-%E8%AE%A2%E9%98%85"><span class="nav-number">2.1.</span> <span class="nav-text">数据发布&#x2F;订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E5%90%8D%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.2.</span> <span class="nav-text">命名服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4%E7%AE%A1%E7%90%86"><span class="nav-number">2.3.</span> <span class="nav-text">集群管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Master%E9%80%89%E4%B8%BE"><span class="nav-number">2.4.</span> <span class="nav-text">Master选举</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">2.5.</span> <span class="nav-text">分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BE%8A%E7%BE%A4%E6%95%88%E5%BA%94"><span class="nav-number">2.6.</span> <span class="nav-text">羊群效应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%98%9F%E5%88%97"><span class="nav-number">2.7.</span> <span class="nav-text">分布式队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ZAB%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.8.</span> <span class="nav-text">ZAB协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.9.</span> <span class="nav-text">运行流程</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/26268/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="zookeeper相关知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          zookeeper相关知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:58:01" itemprop="dateCreated datePublished" datetime="2023-06-17T18:58:01+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/zookeeper/" itemprop="url" rel="index"><span itemprop="name">zookeeper</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.8k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Zookeeper基础"><a href="#一、Zookeeper基础" class="headerlink" title="一、Zookeeper基础"></a>一、Zookeeper基础</h2><h3 id="Zookeeper定位"><a href="#Zookeeper定位" class="headerlink" title="Zookeeper定位"></a>Zookeeper定位</h3><p>分布式系统是同时跨越多个物理主机，独⽴运⾏的多个软件所组成系统，而ZooKeeper主要的使⽤场景，就是作为分布式系统的分布式协同服务。分布式系统的协调⼯作就是通过某种⽅式，让每个节点的信息能够同步和共享，这依赖于服务进程之间的通信。</p>
+<p>两种通信方式：通过网络进行信息共享、通过共享储存（Zookeeper）。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-d75675da81f6deb6d4b551e45118ac09_720w.webp" alt="img"></p>
+<h3 id="Zookeeper基本概念"><a href="#Zookeeper基本概念" class="headerlink" title="Zookeeper基本概念"></a>Zookeeper基本概念</h3><p>Zookeeper是⼀个典型的分布式数据⼀致性的解决⽅案，分布式应⽤程序可以基于它实现诸如数据订阅&#x2F;发布、负载均衡、命名服务、集群管理、分布式锁和分布式队列等功能。</p>
+<p><strong>集群角色</strong>：Zookeeper没用传统的主备模式，即Master&#x2F;Slave模式，而是引⼊了Leader、Follower、Observer三种⻆⾊，Leader通过选举产生，所有机子都可能成为Leader，Follower就是跟随者，Observer也相当于跟随者，但是没有投票权，Observer的意义在于不参与选举，减低投票压力，因为投票者越少，选出Leader越快，并且不参与写操作的过半写策略，提高集群性能。</p>
+<p><img src="/posts/26268/assets/cecff32374a776223d86ba45cccaa1c8.webp" alt="img"></p>
+<p><strong>会话</strong>：Session指客户端会话，⼀个客户端连接是指客户端和服务端之间的⼀个TCP⻓连接，通过心跳机制来保持有效会话。</p>
+<p><strong>数据节点</strong>（Znode）: 构成集群的机器，我们称之为机器节点，数据模型中的数据单元，数据节点——ZNode，他是一颗树状的数据模型。</p>
+<p><strong>版本</strong>：每个ZNode，Zookeeper都会为其维护⼀个叫作Stat的数据结构，Stat记录了这个ZNode的三个数据版本，分别是version（当前ZNode的版本）、cversion（当前ZNode⼦节点的版本）、aversion（当前ZNode的ACL版本）。</p>
+<p><strong>Watcher（事件监听器）</strong>：就是特定的事件监听机制，进行特殊化通知某个服务器协同处理某些逻辑。</p>
+<p><strong>ACL策略</strong>：用于权限控制，五种分类权限：　</p>
+<p>1）CREATE：创建⼦节点的权限。</p>
+<p>2）READ：获取节点数据和⼦节点列表的权限。</p>
+<p>3）WRITE：更新节点数据的权限。</p>
+<p>4）DELETE：删除⼦节点的权限。</p>
+<p>5）ADMIN：设置节点ACL的权限。</p>
+<h3 id="Zookeeper环境搭建"><a href="#Zookeeper环境搭建" class="headerlink" title="Zookeeper环境搭建"></a>Zookeeper环境搭建</h3><p><img src="https://pic4.zhimg.com/80/v2-b8a42e6fb0140cdd33d8cd158f9a2343_720w.webp" alt="img"></p>
+<p><img src="/posts/26268/assets/e7d4a741e3f0e11744f8179b4883b824.webp" alt="img"></p>
+<p>伪集群搭建注意事项，当前zookeeper的节点配置不能写ip地址，要写成0.0.0.0</p>
+<h3 id="Znode系统模型"><a href="#Znode系统模型" class="headerlink" title="Znode系统模型"></a>Znode系统模型</h3><p>ZNode 是Zookeeper 中最⼩数据单位，在 ZNode 下面又可以再挂 ZNode，这样⼀层层下去就形成了⼀个层次化</p>
+<p>命名空间 ZNode 树，我们称为 ZNode Tree，它采用类似⽂件系统的层级树状结构进行管理。</p>
+<p><img src="/posts/26268/assets/56bfb824b83b1637c3c6367c6e2c9374.webp" alt="img"></p>
+<p>Znode类型：持久性节点（创建后一直存在，除非主动删除）、临时性节点（会自动被清理）、顺序性节点（带顺序的持久或者临时节点）</p>
+<p>事务：每个事务请求，ZooKeeper都会为其分配⼀个全局唯⼀的事务ID，⽤ZXID来表示，通常是⼀个64位的数字，</p>
+<p>每⼀个ZXID对应⼀次更新操作，通过他来知道执行顺序，从而保证事务执行。</p>
+<p><img src="/posts/26268/assets/b0209bc4f091a2708e4bdf2f290a92ef.webp" alt="img"></p>
+<h3 id="Watcher系统模型"><a href="#Watcher系统模型" class="headerlink" title="Watcher系统模型"></a>Watcher系统模型</h3><p>ZooKeeper 允许客户端向服务端注册⼀个 Watcher 监听，当服务端的⼀些指定事件触发了这个 Watcher，那么就会向指定客户端发送⼀个事件通知来实现分布式的通知功能。</p>
+<p>Watcher机制：客户端线程、客户端WatcherManager、Zookeeper服务器。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-b44d917871121fe5270c941081c0653e_720w.webp" alt="img"></p>
+<p>客户端在向Zookeeper服务器注册的同时，会将Watcher对象存储在客户端的WatcherManager当中。当Zookeeper服务器触发Watcher事件后，会向客户端发送通知，客户端线程从WatcherManager中取出对应的Watcher对象来执⾏回调逻辑。</p>
+<h3 id="ACL系统模型"><a href="#ACL系统模型" class="headerlink" title="ACL系统模型"></a>ACL系统模型</h3><p>ACL权限控制机制用来保障数据的安全，这部分数据就是内部存储的分布式系统运⾏时状态的元数据。</p>
+<p>ACL机制三部分：权限模式（Scheme）、授权对象（ID）、权限（Permission）</p>
+<p>权限模式：权限验证的检验策略，分Ip（IP地址模式）、Digest（常用模式，即用户名：密码模式）、World（开放模式）、Super（超级管理员模式）</p>
+<p>授权对象：权限赋予的⽤户或⼀个指定实体，例如 IP 地址或是机器等。</p>
+<p>权限：通过权限检查后可以被允许执⾏的操作，也就是前面提到的那五种分类权限。</p>
+<h2 id="二、Zookeeper应用"><a href="#二、Zookeeper应用" class="headerlink" title="二、Zookeeper应用"></a>二、Zookeeper应用</h2><h3 id="数据发布-x2F-订阅"><a href="#数据发布-x2F-订阅" class="headerlink" title="数据发布&#x2F;订阅"></a>数据发布&#x2F;订阅</h3><p>ZooKeeper是⼀个典型的发布&#x2F;订阅模式的分布式数据管理与协调框架，我们可以使⽤它来进⾏分布式数据的发布与订阅。另⼀⽅⾯，通过对ZooKeeper中丰富的数据节点类型进⾏交叉使⽤，配合Watcher事件通知机制，可以⾮常⽅便的构建⼀系列分布式应⽤中都会涉及的核⼼功能，如数据发布&#x2F;订阅、命名服务、集群管理、Master选举、分布式锁和分布式队列等。</p>
+<p>数据发布&#x2F;订阅（Publish&#x2F;Subscribe）系统，即所谓的配置中⼼，顾名思义就是发布者将数据发布到ZooKeeper的⼀个或⼀系列节点上，供订阅者进⾏数据订阅，进⽽达到动态获取数据的⽬的，实现配置信息的集中式管理和数据的动态更新。</p>
+<p>两种设计模式：推（Push）模式和拉（Pull）模式。</p>
+<p>推模式：服务端主动将数据更新发送给所有订阅的客户端。</p>
+<p>拉模式：客户端主动发起请求来获取最新数据，常用轮询方式。</p>
+<p>ZooKeeper 采⽤的是推拉相结合的⽅式：客户端向服务端注册⾃⼰需要关注的节点，⼀旦该节点的数据发⽣变更，那么服务端就会向相应客户端发送Watcher事件通知，客户端接收到这个消息通知之后，需要主动到服务端获取最新的数据。</p>
+<p>比如通过zookeeper配置数据库连接信息，通过zookeeper的watcher事件通知机制，在集群环境下，当集群中的每台机子初始化阶段，就会从配置节点上读取数据库配置信息，并通过在该节点注册的watcher监听，一旦数据发生改变，所有订阅的客户端都能获取到变更通知，然后重新读取最新配置信息。</p>
+<h3 id="命名服务"><a href="#命名服务" class="headerlink" title="命名服务"></a>命名服务</h3><p>命名服务就是集群中的机器、提供的服务地址或远程对象等等一系列的名称，通过使⽤命名服务，客户端应⽤能够根据指定名字来获取资源的实体、服务地址和提供者的信息等，比如RPC中的服务地址列表。</p>
+<p>比如创建全局唯一ID，首先客户端会根据任务类型创建一个顺序节点，如job-0000000001，前缀是任务类型，接着客户端拿到这个值后还会拼接上type类型，最终形成一个全局唯一ID，如type-job-0000000001。</p>
+<h3 id="集群管理"><a href="#集群管理" class="headerlink" title="集群管理"></a>集群管理</h3><p>集群管理，包括集群监控与集群控制两⼤块，前者侧重对集群运⾏时状态的收集，后者则是对集群进⾏操作与控制。</p>
+<p>集群管理主要干的事：统计多少台机器、获取上下线机器情况、监控每台机器运行时状况。</p>
+<p>传统集群管理基于Agent进行分布式集群管理，在每台机子上部署一个Agent，每个 Agent 主动向指定的⼀个监控中⼼系统汇报自己所在机器的状态，但是具有局限性，只能监控大局观上的内容，比如负载、CPU使用率、吞吐量等等，至于内部的一些业务状态，任务执行情况等等没办法监控。</p>
+<p><strong>Zookeeper实现集群管理（分布式日志收集系统）</strong></p>
+<p>特点</p>
+<p>1）客户端如果对Zookeeper的数据节点注册Watcher监听，那么当该数据节点的内容或是其⼦节点列表发⽣变更时，Zookeeper服务器就会向订阅的客户端发送变更通知。</p>
+<p>2）对在Zookeeper上创建的临时节点，如果客户端与服务器之间的会话失效，那么临时节点也会被⾃动删除。</p>
+<p>实现</p>
+<p>1） 注册收集器机器：创建一个节点作为收集器根节点，其他机器纷纷在这个主节点下创建自己的子节点。</p>
+<p>2） 任务分发：系统根据收集器节点下面的数量，进行分组，然后组内的机器日志都写到当前组下面创建的子节点上。</p>
+<p>3） 状态汇报：每个收集器还要创建一个状态节点，这个节点是持久节点，因为临时节点在服务器挂掉后会被自动删除，按时写入状态信息，日志系统定时，也就是主动轮询策略根据状态节点信息更新时间来判断该节点是否存活，类似于心跳机制检测，如果采用Watcher，通知量会很高，因为一更新就会触发，对于检测来说没必要。</p>
+<p>4） 动态分配：当收集器集群机器存在扩展或者挂掉，第一种方式就是全局动态分配，即重新开始分组，影响较大，风险较高。第二种局部动态分配，这也是为什么要分组的原因，当某组的某台机器挂掉或者扩容，对当前组进行重新分配，把挂掉机器的任务分配到其他负载低的机器上或者新加进来的机器分担一些负载高机器的任务。</p>
+<h3 id="Master选举"><a href="#Master选举" class="headerlink" title="Master选举"></a>Master选举</h3><p>所有集群机器通过选举产生一个主机器，成为Master，他的作用就是对其他集群机器进行协调，就最大控制权，同时一些重要业务逻辑和读写分离的写操作由Master执行，Zookeeper是通过所有机器同时创建一个相同的节点，这个节点是临时节点，谁创建成功，谁就是Master的机制进行选举，当确定了Master之后，其他机器就在Master节点后面创建子节点，对Master进行Watcher进行监听，当Master服务器挂了，那么 Master创建的临时节点也会被删除，通过Watcher机制其他集群机器就马上知道了结果，于是重新选举。</p>
+<h3 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h3><p>分布式锁是控制分布式系统之间同步访问共享资源的⼀种⽅式，其实就是对共享资源的访问保持一致性。</p>
+<p><strong>排他锁</strong></p>
+<p>排他锁又称写锁或独占锁，是⼀种基本的锁类型。就是事务1对资源1加了锁，那么只有事务1能对他进行操作，直到他释放了锁之后，其他事务才能操作。</p>
+<p>Zookeeper中排他锁实现：</p>
+<p>1） 定义锁：定义一个lock锁节点</p>
+<p>2） 获取锁：所有客户端都尝试在这个lock节点下创建临时子节点，当谁成功创建临时子节点，就是谁持有了排他锁，其他机器在lock注册监听，监听临时子节点变化。</p>
+<p>3） 释放锁：当临时子节点被删除，也就是当前获取锁客户端宕机或者已经完成操作，其他机器监听到了子节点状态变化，过来争抢创建临时子节点，进行锁的获取。</p>
+<p><img src="/posts/26268/assets/5ffa44a74b8409bb1925c82ca34a2ed8.webp" alt="img"></p>
+<p><strong>共享锁</strong></p>
+<p>共享锁又称为读锁，同样是一种基本锁类型，和排他锁不一样，事务1对资源1加了共享锁，但是资源1对其他事务也可见，资源1是共享的，如果是读，资源2也可以加共享锁获取数据，也就是可以并行读，如果是写，就需要排斥。</p>
+<p>Zookeeper中共享锁实现：</p>
+<p>1） 定义锁：定义一个lock锁节点</p>
+<p>2） 获取锁：所有客户端都往这个锁节点创建子节点，并往lock锁注册watcher事件监听，这时候就不是只允许一个创建了，是大家都可以创建，不过创建的是临时顺序节点，并且读、写请求的别名不一样，分别是R、W。当读节点前面都是读，那么就可以进行读，当读前面有写，那就等待，当写前面有读，等读完，直到自己是第一顺位写再执行。</p>
+<p>3） 释放锁：因为都是临时顺序节点，宕机和执行完都会被删除，然后被监听的其他节点获取，相当于就完成了锁的交替。</p>
+<h3 id="羊群效应"><a href="#羊群效应" class="headerlink" title="羊群效应"></a>羊群效应</h3><p>当集群规模扩大，这种watcher监听事件通知就会消耗很大的资源。如果第一个是读请求，第二个是写请求，只需要通知第二个节点即可，而通过watcher监听，通知的是所有集群机器，所以就造成了不必须的资源浪费。</p>
+<p>改进：很简单，不对lock进行注册事件监听，只需要对当前节点的前面一个节点，也就是序号比自己小的前一位注册watcher事件监听，来监听前面的节点是读还是写请求，并且监听节点的状态变化。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-a254c8c41249ce1c944295e545a4e80d_720w.webp" alt="img"></p>
+<h3 id="分布式队列"><a href="#分布式队列" class="headerlink" title="分布式队列"></a>分布式队列</h3><p>分布式队列可以简单分为两⼤类：⼀种是常规的FIFO先⼊先出队列模型，还有⼀种是等待队列元素聚集后统⼀安排处理执⾏的Barrier模型。</p>
+<p><strong>FIFO先入先出队列</strong></p>
+<p>先进⼊队列的请求操作先完成后，才会开始处理后⾯的请求。</p>
+<p>Zookeeper实现FIFO队列：跟前面的共享锁类似，在一个主节点下面按顺序创建临时顺序子节点，第二个子节点在第一个子节点注册Watcher事件监听，监听前一个子节点变化，当第一个子节点消失，也就是执行完毕，马上执行，这样按顺序挂接下去，实现FIFO。</p>
+<p><strong>Barrier分布式屏障</strong></p>
+<p>FIFO的增强，同样的在主节点下面创建子节点，并注册监听到主节点中，通过getData判断子节点创建的数量是否到达10，如果到达了10个就解除屏障，进行事务处理，未达到就等待，对资源集中处理利用的一种方式。</p>
+<h3 id="ZAB协议"><a href="#ZAB协议" class="headerlink" title="ZAB协议"></a>ZAB协议</h3><p>ZAB协议其实就是一种算法，跟Paxos算法一样，作为数据⼀致性的核⼼算法，不过ZAB协议是zookeeper专⻔设计的⼀种⽀持崩溃恢复的原子广播协议，内部实现的是主备模型。即主进程来接收并处理客户端的所有事务请求，并采⽤ZAB的原⼦⼴播协议，以事务 Proposal的形式广播给所有副本进程，处理大量并发请求。</p>
+<p>ZAB核心：定义了对于那些会改变Zookeeper服务器数据状态的事务请求的处理⽅式，所有事务请求必须由⼀个全局唯⼀的服务器来协调处理，这样的服务器被称为Leader服务器，余下的服务器则称为Follower服务器，通过广播进行调度，并且根据反馈的ACK命令，以半数原则来判断是否可以下达提交命令。</p>
+<p>ZAB协议分两种基本的模式：崩溃恢复和消息⼴播</p>
+<p>崩溃恢复模式：即Leader服务器出现⽹络中断、崩溃退出或重启等异常情况，重新选举新的Leader</p>
+<p>消息⼴播模式：过半的Follower服务器完成了和Leader服务器的状态同步，进入消息广播模式，这时新加入到集群的服务器会自觉进入数据恢复模式，即和Leader服务器数据进行同步，并加入到消息广播模式中。</p>
+<p><strong>消息广播</strong></p>
+<p>ZAB协议的消息⼴播过程使⽤原⼦⼴播协议，类似于⼀个⼆阶段提交过程，针对客户端的事务请求，Leader服务器会为其⽣成对应的事务Proposal，并将其发送给集群中其余所有的机器，这是是基于FIFO队列发送，然后再分别收集各⾃的选票，最后进⾏事务提交。当时ZAB协议移除了中断机制，也就是不需要等每台机子响应，只要过半机子响应了就执行提交事务，而数据不一致的问题就通过崩溃恢复模式来解决了。</p>
+<p><strong>崩溃恢复</strong></p>
+<p>选举算法：能够确保提交已经被 Leader 提交的事务 Proposal，同时丢弃已经被跳过的事务 Proposal。针对这个要求，如果让Leader选举算法能够保证新选举出来的Leader服务器拥有集群中所有机器最⾼编号（即ZXID最⼤）的事务Proposal，那么就可以保证这个新选举出来的Leader⼀定具有所有已经提交的提案。更为重要的是，如果让具有最⾼编号事务Proposal 的机器来成为 Leader，就可以省去 Leader 服务器检查Proposal的提交和丢弃⼯作的这⼀步操作了。</p>
+<p>数据同步：Leader服务器会为每⼀个Follower服务器都准备⼀个队列，并将那些没有被各Follower服务器同步的事务以Proposal消息的形式逐个发送给Follower服务器， 并在每⼀个Proposal消息后⾯紧接着再发送⼀个Commit消息，以表示该事务已经被提交。等到 Follower服务器将所有其尚未同步的事务 Proposal 都从 Leader 服务器上同步过来并成功应⽤到本地数据库中后，Leader服务器就会将该Follower服务器加⼊到真正的可⽤Follower列表中，并开始之后的其他流程。</p>
+<p><strong>运行时分析</strong></p>
+<p>ZAB协议的三种状态：LOOKING：Leader选举阶段、FOLLOWING：Follower服务器和Leader服务器保持同步状态、LEADING：Leader服务器作为主进程领导状态。</p>
+<p>所有进程初始状态都是LOOKING状态，此时不存在Leader，接下来，进程会试图选举出⼀个新的 Leader，之后如果进程发现已经选举出新的Leader了，那么它就会切换到FOLLOWING状态，并开始 和Leader保持同步，处于FOLLOWING状态的进程称为Follower，LEADING状态的进程称为Leader，当 Leader崩溃或放弃领导地位时，其余的Follower进程就会转换到LOOKING状态开始新⼀轮的Leader选举。</p>
+<h3 id="运行流程"><a href="#运行流程" class="headerlink" title="运行流程"></a>运行流程</h3><p><strong>单机模式</strong></p>
+<p>1、注册jmx</p>
+<p>2、解析ServerConfig配置对象</p>
+<p>3、根据配置对象，运⾏单机zk服务</p>
+<p>4、创建管理事务⽇志和快照FileTxnSnapLog对象，zookeeperServer对象，并设置zkServer的统计对象</p>
+<p>5、设置zk服务钩⼦，原理是通过设置CountDownLatch，调⽤ZooKeeperServerShutdownHandler的 handle⽅法，可以将触发shutdownLatch.await⽅法继续执⾏，即调⽤shutdown关闭单机服务</p>
+<p>6、基于jetty创建zk的admin服务</p>
+<p>7、创建连接对象cnxnFactory和secureCnxnFactory（安全连接才创建该对象），⽤于处理客户端的请求</p>
+<p>8、创建定时清除容器节点管理器，⽤于处理容器节点下不存在⼦节点的清理容器节点⼯作等</p>
+<p><img src="/posts/26268/assets/7b57651ea4e65f5ce57d68716372d449.webp" alt="img"></p>
+<p><strong>集群模式</strong></p>
+<p>集群模式执行流程跟单机也是差不多的，只是在单机集群判断不同而已。</p>
+<p><img src="/posts/26268/assets/7ee0b7751eeb1ae4de7317ce40eb97df.webp" alt="img"></p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/zookeeper/" rel="tag"><i class="fa fa-tag"></i> zookeeper</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2320/" rel="prev" title="tomcat相关知识">
+                  <i class="fa fa-chevron-left"></i> tomcat相关知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/2661b4f7/" rel="next" title="dubbo框架知识">
+                  dubbo框架知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"d086d6dab827434abf70efbcd28764b3"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

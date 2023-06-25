@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="索引类型索引可以提升查询速度，会影响where查询，以及order by排序，分为B Tree索引、Hash索引、FULLTEXT全文索引、R Tree索引、普通索引、唯一索引、主键索引、复合索引、主键索引、辅助索引、聚集索引（聚簇索引）、非聚集索引（非聚簇索引） 1） 普通索引：这是最基本的索引类型，基于普通字段建立的索引，没有任何限制。 ALTER TABLE tablename ADD IN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql索引原理相关知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/64993/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="索引类型索引可以提升查询速度，会影响where查询，以及order by排序，分为B Tree索引、Hash索引、FULLTEXT全文索引、R Tree索引、普通索引、唯一索引、主键索引、复合索引、主键索引、辅助索引、聚集索引（聚簇索引）、非聚集索引（非聚簇索引） 1） 普通索引：这是最基本的索引类型，基于普通字段建立的索引，没有任何限制。 ALTER TABLE tablename ADD IN">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/78a49e6672d130a510cc87213887afa5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/71bd060e19c3088f4808935ab8c0a43a.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/98c59f3c35a83d16d38976377aff400e.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-9df413feb67d3705c869d8bfd878b17d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/3f8980f1321f3b022555adb949705cc9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/8b7de0a7f2f4c5eed089dbeed90cbea6.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/5db2ac84e330d1d2f5e2d02866989ea7.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/64993/assets/fd9b9cc140c5e7300cedbd16745c0289.webp">
+<meta property="article:published_time" content="2023-06-17T11:08:54.000Z">
+<meta property="article:modified_time" content="2023-06-17T11:09:37.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/64993/assets/78a49e6672d130a510cc87213887afa5.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/64993/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/64993/","path":"posts/64993/","title":"mysql索引原理相关知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql索引原理相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.</span> <span class="nav-text">索引类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">索引原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-Tree%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">B+Tree结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%E5%92%8C%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95"><span class="nav-number">4.</span> <span class="nav-text">聚簇索引和辅助索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Explain%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">Explain分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E8%A1%A8%E6%9F%A5%E8%AF%A2"><span class="nav-number">6.</span> <span class="nav-text">回表查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">7.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80%E5%8E%9F%E5%88%99"><span class="nav-number">8.</span> <span class="nav-text">最左前缀原则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LIKE%E6%9F%A5%E8%AF%A2%E5%92%8CNULL%E6%9F%A5%E8%AF%A2"><span class="nav-number">9.</span> <span class="nav-text">LIKE查询和NULL查询</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E4%B8%8E%E6%8E%92%E5%BA%8F"><span class="nav-number">10.</span> <span class="nav-text">索引与排序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%AE%9A%E4%BD%8D"><span class="nav-number">11.</span> <span class="nav-text">慢查询定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%85%A2%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="nav-number">12.</span> <span class="nav-text">慢查询优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E9%A1%B5%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="nav-number">13.</span> <span class="nav-text">分页查询优化</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/64993/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql索引原理相关知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql索引原理相关知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 19:08:54" itemprop="dateCreated datePublished" datetime="2023-06-17T19:08:54+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.7k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a><strong>索引类型</strong></h3><p>索引可以提升查询速度，会影响where查询，以及order by排序，分为B Tree索引、Hash索引、FULLTEXT全文索引、R Tree索引、普通索引、唯一索引、主键索引、复合索引、主键索引、辅助索引、聚集索引（聚簇索引）、非聚集索引（非聚簇索引）</p>
+<p>1） 普通索引：这是最基本的索引类型，基于普通字段建立的索引，没有任何限制。</p>
+<p>ALTER TABLE tablename ADD INDEX [索引的名字] (字段名);</p>
+<p>2） 唯一索引：索引字段的值必须唯一，但允许有空值 。</p>
+<p>ALTER TABLE tablename ADD UNIQUE INDEX [索引的名字] (字段名);</p>
+<p>3） 主键索引：它是一种特殊的唯一索引，不允许有空值。</p>
+<p>ALTER TABLE tablename ADD PRIMARY KEY (字段名);</p>
+<p>4） 复合索引：用户可以在多个列上建立索 引，这种索引叫做组复合索引，分窄索引和宽索引，使用复合索引，要根据where条件建索引。</p>
+<p>ALTER TABLE tablename ADD INDEX [索引的名字] (字段名1，字段名2…);</p>
+<p>5） 全文索引：对于大量的文本数据检索，使用模糊查询效率很低。使用全文索引，查询速度会比like快很多倍。全文索引字段值可以进行切词模糊查询。</p>
+<p>创建方式：ALTER TABLE tablename ADD FULLTEXT [索引的名字] (字段名); CREATE TABLE tablename ( […], FULLTEXT KEY [索引的名字] (字段名</p>
+<h3 id="索引原理"><a href="#索引原理" class="headerlink" title="索引原理"></a><strong>索引原理</strong></h3><p>索引是存储引擎用于快速查找记录的一种数据结构，物理数据页存储。需要额外开辟空间和数据维护工作，索引可以加快检索速度，但是同时也会降低增删改操作速度。</p>
+<p><strong>二分查找法</strong></p>
+<p><img src="/posts/64993/assets/78a49e6672d130a510cc87213887afa5.webp" alt="img"></p>
+<p><img src="/posts/64993/assets/71bd060e19c3088f4808935ab8c0a43a.webp" alt="img"></p>
+<p><img src="/posts/64993/assets/98c59f3c35a83d16d38976377aff400e.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-9df413feb67d3705c869d8bfd878b17d_720w.webp" alt="img"></p>
+<p><strong>Hash结构</strong></p>
+<p>Hash底层实现是由Hash表来实现的，是根据键值存储数据的结构。</p>
+<p><img src="/posts/64993/assets/3f8980f1321f3b022555adb949705cc9.webp" alt="img"></p>
+<h3 id="B-Tree结构"><a href="#B-Tree结构" class="headerlink" title="B+Tree结构"></a><strong>B+Tree结构</strong></h3><p>MySQL数据库索引采用的是B+Tree结构，在B-Tree结构上做了优化改造。</p>
+<p><strong>B-Tree结构</strong></p>
+<p><img src="/posts/64993/assets/8b7de0a7f2f4c5eed089dbeed90cbea6.webp" alt="img"></p>
+<p>原理：从根节点开始，对节点内的索引值序列采用二分法查找，如果命中就结束查找。没有命中会进入子节点重复查找过程，直到所对应的的节点指针为空，或已经是叶子节点了才结束。</p>
+<p><strong>B+Tree结构</strong></p>
+<p><img src="/posts/64993/assets/5db2ac84e330d1d2f5e2d02866989ea7.webp" alt="img"></p>
+<p>B+树进行范围查找时，只需要查找定位两个节点的索引值，然后利用叶子节点的指针进行遍历。</p>
+<h3 id="聚簇索引和辅助索引"><a href="#聚簇索引和辅助索引" class="headerlink" title="聚簇索引和辅助索引"></a><strong>聚簇索引和辅助索引</strong></h3><p>B+Tree的叶子节点存放主键索引值和行记录就属于聚簇索引；如果索引值和行记录分开存放就属于非聚簇索引。</p>
+<p>B+Tree的叶子节点存放的是主键字段值就属于主键索引；如果存放的是非主键值 就属于辅助索引。</p>
+<p>聚簇索引：如果表定义了主键，则主键索引就是聚簇索引，否则第一个非空unique列作为聚簇索引，不然自建隐藏索引。</p>
+<p>辅助索引：一个表InnoDB只能创建一个聚簇索引，但可以创建多个辅助索引。</p>
+<p>非聚簇索引： MyISAM数据表的索引文件和数据文件是分开的，被称为非聚簇索引结构。</p>
+<h3 id="Explain分析"><a href="#Explain分析" class="headerlink" title="Explain分析"></a><strong>Explain分析</strong></h3><p>EXPLAIN 命令用于对 SELECT 语句进行分析，并输出 SELECT 执行的详细信息。</p>
+<p><img src="/posts/64993/assets/fd9b9cc140c5e7300cedbd16745c0289.webp" alt="img"></p>
+<p><strong>select_type查询的类型</strong></p>
+<p>SIMPLE ： 表示查询语句不包含子查询或union</p>
+<p>PRIMARY：表示此查询是最外层的查询</p>
+<p>UNION：表示此查询是UNION的第二个或后续的查询</p>
+<p>DEPENDENT UNION：UNION中的第二个或后续的查询语句，使用了外面查询结果</p>
+<p>UNION RESULT：UNION的结果</p>
+<p>SUBQUERY：SELECT子查询语句</p>
+<p>DEPENDENT SUBQUERY：SELECT子查询语句依赖外层查询的结果。</p>
+<p><strong>type</strong></p>
+<p>ALL：表示全表扫描，性能最差。</p>
+<p>index：表示基于索引的全表扫描，先扫描索引再扫描全表数据。</p>
+<p>range：表示使用索引范围查询。使用&gt;、&gt;&#x3D;、&lt;、&lt;&#x3D;、in等等。</p>
+<p>ref：表示使用非唯一索引进行单值查询。</p>
+<p>eq_ref：一般情况下出现在多表join查询，表示前面表的每一个记录，都只能匹配后面表的一 行结果。</p>
+<p>const：表示使用主键或唯一索引做等值查询，常量查询。</p>
+<p>NULL：表示不用访问表，速度最快。</p>
+<p><strong>possible_keys</strong></p>
+<p>表示查询时能够使用到的索引。注意并不一定会真正使用，显示的是索引名称。</p>
+<p><strong>key</strong></p>
+<p>表示查询时真正使用到的索引，显示的是索引名称。</p>
+<p><strong>rows</strong></p>
+<p>MySQL查询优化器会根据统计信息，估算SQL要查询到结果需要扫描多少行记录。</p>
+<p><strong>key_len</strong></p>
+<p>表示查询使用了索引的字节数量。可以判断是否全部使用了组合索引。</p>
+<p><strong>Extra</strong></p>
+<p>Using where: 表示查询需要通过索引回表查询数据。</p>
+<p>Using index: 表示查询需要通过索引，索引就可以满足所需数据。</p>
+<p>Using filesort: 表示查询出来的结果需要额外排序，数据量小在内存，大的话在磁盘，有Using filesort 建议优化。</p>
+<p>Using temprorary: 查询使用到了临时表，一般出现于去重、分组等操作。</p>
+<h3 id="回表查询"><a href="#回表查询" class="headerlink" title="回表查询"></a><strong>回表查询</strong></h3><p>通过辅助索引无法直接定位行记录, 先通过辅助索引定位主键值，然后再通过聚簇索引定位行记录，它的性能比扫一遍索引树低。</p>
+<h3 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a><strong>覆盖索引</strong></h3><p>只需要在一棵索引树上就能获取SQL所需的所有列数据，无需回表，速度更快，这就叫做索引覆盖。将被查询的字段，建立到组合索引。</p>
+<h3 id="最左前缀原则"><a href="#最左前缀原则" class="headerlink" title="最左前缀原则"></a><strong>最左前缀原则</strong></h3><p>复合索引使用时遵循最左前缀原则，最左前缀顾名思义，就是最左优先，即查询中使用到最左边的列， 那么查询就会使用到索引，如果从索引的第二列开始查找，索引将失效。</p>
+<h3 id="LIKE查询和NULL查询"><a href="#LIKE查询和NULL查询" class="headerlink" title="LIKE查询和NULL查询"></a><strong>LIKE查询和NULL查询</strong></h3><p>select * from user where name like ‘%o%’; &#x2F;&#x2F;不起作用</p>
+<p>select * from user where name like ‘o%’; &#x2F;&#x2F;起作用</p>
+<p>select * from user where name like ‘%o’; &#x2F;&#x2F;不起作用</p>
+<p>可以在含有NULL的列上使用索引，但NULL和其他数据还是有区别的，NULL列需要增加额外空间来记录其值是否为NULL。</p>
+<h3 id="索引与排序"><a href="#索引与排序" class="headerlink" title="索引与排序"></a><strong>索引与排序</strong></h3><p>MySQL查询支持filesort和index两种方式的排序，filesort是先把结果查出，然后在缓存或磁盘进行排序操作，效率较低。使用index是指利用索引自动实现排序，不需另做排序操作，效率会比较高。</p>
+<p>filesort有两种排序算法：双路排序和单路排序。</p>
+<p><strong>index方式的排序</strong></p>
+<ol>
+<li><p>ORDER BY 子句索引列组合满足索引最左前列</p>
+</li>
+<li><p>WHERE子句+ORDER BY子句索引列组合满足索引最左前列</p>
+</li>
+</ol>
+<p><strong>filesort方式的排序</strong></p>
+<ol>
+<li><p>对索引列同时使用了ASC和DESC</p>
+</li>
+<li><p>WHERE子句和ORDER BY子句满足最左前缀，但where子句使用了范围查询（例如&gt;、&lt;、in等）</p>
+</li>
+<li><p>ORDER BY或者WHERE+ORDER BY索引列没有满足索引最左前列</p>
+</li>
+<li><p>使用了不同的索引，MySQL每次只采用一个索引，ORDER BY涉及了两个索引</p>
+</li>
+<li><p>WHERE子句与ORDER BY子句，使用了不同的索引</p>
+</li>
+<li><p>WHERE子句或者ORDER BY子句中索引列使用了表达式，包括函数表达式</p>
+</li>
+</ol>
+<h3 id="慢查询定位"><a href="#慢查询定位" class="headerlink" title="慢查询定位"></a><strong>慢查询定位</strong></h3><p>开启慢查询日志: SHOW VARIABLES LIKE ‘slow_query_log%’</p>
+<p>通过文本编辑器打开slow.log日志</p>
+<p>time：日志记录的时间</p>
+<p>User@Host：执行的用户及主机</p>
+<p>Query_time：执行的时间</p>
+<p>Lock_time：锁表时间</p>
+<p>Rows_sent：发送给请求方的记录数，结果数量</p>
+<p>Rows_examined：语句扫描的记录条数</p>
+<p>SET timestamp：语句执行的时间点</p>
+<p>select….：执行的具体的SQL语句</p>
+<p>也可以通过分析工具查看，比如mysqldumpslow。</p>
+<h3 id="慢查询优化"><a href="#慢查询优化" class="headerlink" title="慢查询优化"></a><strong>慢查询优化</strong></h3><p><strong>如何判断是否为慢查询？</strong></p>
+<p>依据SQL语句的执行时间，它把当前语句的执行时间跟 long_query_time 参数做比较，超出记录日志，long_query_time 参数的默认值是 10s，该参数值可以根据自己的业务需要进行调整。</p>
+<p><strong>如何判断是否应用了索引？</strong></p>
+<p>根据SQL语句执行过程中有没有用到表的索引，可通过 explain 命令分析查看</p>
+<p>查询是否使用索引，只是表示一个SQL语句的执行过程；而是否为慢查询，是由它执行的时间决定，不止要创建索引，还要考虑索引过滤性，过滤性好，执行速度才会快。</p>
+<p><strong>慢查询原因总结</strong></p>
+<p>1） 全表扫描：explain分析type属性all</p>
+<p>2） 全索引扫描：explain分析type属性index</p>
+<p>3） 索引过滤性不好：靠索引字段选型、数据量和状态、表设计</p>
+<p>4） 频繁的回表查询开销：尽量少用select *，使用覆盖索引</p>
+<h3 id="分页查询优化"><a href="#分页查询优化" class="headerlink" title="分页查询优化"></a><strong>分页查询优化</strong></h3><p>一般的分页查询使用简单的 limit 子句就可以实现</p>
+<p>SELECT * FROM 表名 LIMIT [offset,] rows</p>
+<p>如果查询偏移量变化，比如查询万，百万级后面的数据，就不能用简单的直接分页了</p>
+<p>1） 利用覆盖索引优化</p>
+<p>2） 利用子查询优化</p>
+<p>select * from user where id&gt;&#x3D; (select id from user limit 10000,1) limit 100;</p>
+<p>使用了id做主键比较(id&gt;&#x3D;)，并且子查询使用了覆盖索引进行优化。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/55736/" rel="prev" title="mysql架构原理相关知识">
+                  <i class="fa fa-chevron-left"></i> mysql架构原理相关知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/33988/" rel="next" title="mysql事务和锁相关知识">
+                  mysql事务和锁相关知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"8c389b2f13525dfa7f633cf59d43a816"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

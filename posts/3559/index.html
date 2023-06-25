@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Spring MVC基础Spring MVC简介基于java的实现MVC设计模式的请求驱动类型的轻量级Web框架，通过注解，无需实现任何接口，处理请求，支持restful。 三层结构：表现层、业务层、持久层 设计模式：Model（模型）、View(视图)、Controller（控制器） Spring Web MVC工作流程SpringMvc请求处理流程： \1. 前端用户发送请求到前端控制器D">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springmvc知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/3559/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Spring MVC基础Spring MVC简介基于java的实现MVC设计模式的请求驱动类型的轻量级Web框架，通过注解，无需实现任何接口，处理请求，支持restful。 三层结构：表现层、业务层、持久层 设计模式：Model（模型）、View(视图)、Controller（控制器） Spring Web MVC工作流程SpringMvc请求处理流程： \1. 前端用户发送请求到前端控制器D">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-99b2e5db9ea125bd4c80aff6d43be2ed_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e9642fff56f030db5d9a9f4ea8e47729_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-9e8be62e7d268c243a3e60f3d54c9ccb_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-86c1234262dec2460e5fa8cacee45dd5_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-0f961a547e15f98ddedba7acd6a12c47_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-c99b9742aa72c620d57fe9e6d962b0cd_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-9df905a7d4523e1d8f940e5397144a6d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/cb25b16d305f46df4b4b74867a613fe2.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/5a726ae3db7a77496d3207ff3dc87730.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-b1df46cd3b549a26d34c592c989290bd_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-11ff4c212c0d24f459cafd8f60834aa3_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/e67ce651790b47d39333ce90fb791afb.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-73f459798a255155710a8190eb207a1f_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-52e5fed94f0a89eb5972e54621890ebd_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-4ddd7b6d8fbf0cfeeb0b2f0108e70669_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-16c1340cbb50a03cbcceef834bb7411e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/608356f509ea163fc24c5253a433598a.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-f220d2649222cd8b428c452f25219d6f_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-c0b503a5265f5f60128ec00942ebb937_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/33d64b20dfe8fc06471d624690b61e47.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/915ce0c74ff616db88edec713aa3ba89.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-59d6807884f8f105b05b95530f543b65_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-dc0f27c67cbb05606c5d2faca1e66c66_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/335a8d7519fbfa8a9cc88d7e08a7827e.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-1f02372224f8665e9b76b07867b6e3ca_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/ab1f48e43662246c5254cfc5b49f031c.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-28391e30c4b6df2976e70ce1a5577dfe_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-595c09254d36fac8bda5644382913e09_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/af9fb334560804749aab7523e7364672.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/20705417edae9bc8b2408e07fcdd175b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/d50231e36bcafd7e7391289e875727a1.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-2293205c4504046c022831da1e20fb8b_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-28953922d961a975c36326000d872cfb_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-69bae507d0c6769558e82f7376a4d4a1_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/0a7374bf65ba46459433dbec9068d988.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/e862bc5b87d594110827c2aab7063f96.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/4f4213f50e16d744be1f3f3a1269f1b9.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-191609ddeaf0775ffbb558729ab9ede1_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/7ccd4f8df9b37243abcb2dbf6a1afffc.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-41aca86bb26cb93f93e1f6cd4e65301a_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/acbd153c637e4225221115ffbb8b0544.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/c9311d1595e33c21705223d0e480415c.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-24e7c455f70721262ed7b0f032500681_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/8949ff5f86407a1692c36393275d6b46.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/beac5f7cfab4041155192a7352792fba.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-9865d857e7c2a4af9bc63c6c961c13d6_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/a48438626867a2c4d20281a92e5dee80.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/333fc2d6e202c1f1e2e10bd5d4e2b60f.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-704d11b3360c373613447e55f2692c1f_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-ae9ea6dd0112591ff3dd40fd816b7d0e_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-a799530957f2e7b9e030e1c872396096_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-ab8917a29047a5e20323ca19c6ce9a1a_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/3559/assets/a22ce3d20bbf340b8d55c53eff2786a2.webp">
+<meta property="article:published_time" content="2023-06-17T10:48:57.000Z">
+<meta property="article:modified_time" content="2023-06-17T10:50:10.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="springmvc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic2.zhimg.com/80/v2-99b2e5db9ea125bd4c80aff6d43be2ed_720w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/3559/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/3559/","path":"posts/3559/","title":"springmvc知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>springmvc知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Spring-MVC%E5%9F%BA%E7%A1%80"><span class="nav-number">1.</span> <span class="nav-text">一、Spring MVC基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-MVC%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">Spring MVC简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-Web-MVC%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">Spring Web MVC工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-MVC%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="nav-number">1.3.</span> <span class="nav-text">Spring MVC请求参数绑定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Restful%E8%AF%B7%E6%B1%82%E6%94%AF%E6%8C%81"><span class="nav-number">1.4.</span> <span class="nav-text">Restful请求支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ajax-Json%E4%BA%A4%E4%BA%92"><span class="nav-number">1.5.</span> <span class="nav-text">Ajax Json交互</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring%E9%AB%98%E7%BA%A7%E6%8A%80%E6%9C%AF%E4%B9%8B%E7%9B%91%E5%90%AC%E5%99%A8%E3%80%81%E6%8B%A6%E6%88%AA%E5%99%A8%E3%80%81%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.6.</span> <span class="nav-text">Spring高级技术之监听器、拦截器、过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#multipart%E5%BD%A2%E5%BC%8F-%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0-%E6%95%B0%E6%8D%AE%E3%80%81%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7%E3%80%81%E9%87%8D%E5%AE%9A%E5%90%91%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92"><span class="nav-number">1.7.</span> <span class="nav-text">multipart形式(文件上传)数据、异常捕获、重定向参数传递</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89MVC%E6%A1%86%E6%9E%B6"><span class="nav-number">1.8.</span> <span class="nav-text">二、自定义MVC框架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MVC%E6%A1%86%E6%9E%B6%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86"><span class="nav-number">1.9.</span> <span class="nav-text">MVC框架运行原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A1%86%E6%9E%B6%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.10.</span> <span class="nav-text">自定义框架实现步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Spring-MVC%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90"><span class="nav-number">1.11.</span> <span class="nav-text">三、Spring MVC源码剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E7%AB%AF%E6%8E%A7%E5%88%B6%E5%99%A8DispatcherServlet%E7%BB%A7%E6%89%BF%E7%BB%93%E6%9E%84"><span class="nav-number">1.12.</span> <span class="nav-text">前端控制器DispatcherServlet继承结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringMVC%E8%AF%B7%E6%B1%82%E5%A4%84%E7%90%86%E5%A4%A7%E8%87%B4%E8%B5%B0%E5%90%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.13.</span> <span class="nav-text">SpringMVC请求处理大致走向流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SpringMVC%E4%B9%9D%E5%A4%A7%E7%BB%84%E4%BB%B6%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.14.</span> <span class="nav-text">SpringMVC九大组件初始化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Handler%E6%96%B9%E6%B3%95%E6%89%A7%E8%A1%8C%E7%BB%86%E8%8A%82%E5%89%96%E6%9E%90"><span class="nav-number">1.15.</span> <span class="nav-text">Handler方法执行细节剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%86%E5%9B%BE%E6%B8%B2%E6%9F%93%E7%BB%86%E8%8A%82%E5%89%96%E6%9E%90"><span class="nav-number">1.16.</span> <span class="nav-text">视图渲染细节剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Spring-Spring-MVC-Mybatis%E6%95%B4%E5%90%88"><span class="nav-number">1.17.</span> <span class="nav-text">四、Spring + Spring MVC + Mybatis整合</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%90%88%E7%9B%AE%E6%A0%87"><span class="nav-number">1.18.</span> <span class="nav-text">整合目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%BC%95%E5%85%A5jir%E5%8C%85"><span class="nav-number">1.19.</span> <span class="nav-text">具体引入jir包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#applicationContext-xml%E9%85%8D%E7%BD%AE"><span class="nav-number">1.20.</span> <span class="nav-text">applicationContext.xml配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#springmvc-xml%E9%85%8D%E7%BD%AE"><span class="nav-number">1.21.</span> <span class="nav-text">springmvc.xml配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#web-xml%E9%85%8D%E7%BD%AE"><span class="nav-number">1.22.</span> <span class="nav-text">web.xml配置</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/3559/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="springmvc知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          springmvc知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:48:57" itemprop="dateCreated datePublished" datetime="2023-06-17T18:48:57+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/springmvc/" itemprop="url" rel="index"><span itemprop="name">springmvc</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8.4k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Spring-MVC基础"><a href="#一、Spring-MVC基础" class="headerlink" title="一、Spring MVC基础"></a>一、Spring MVC基础</h2><h3 id="Spring-MVC简介"><a href="#Spring-MVC简介" class="headerlink" title="Spring MVC简介"></a>Spring MVC简介</h3><p>基于java的实现MVC设计模式的请求驱动类型的轻量级Web框架，通过注解，无需实现任何接口，处理请求，支持restful。</p>
+<p>三层结构：表现层、业务层、持久层</p>
+<p>设计模式：Model（模型）、View(视图)、Controller（控制器）</p>
+<h3 id="Spring-Web-MVC工作流程"><a href="#Spring-Web-MVC工作流程" class="headerlink" title="Spring Web MVC工作流程"></a>Spring Web MVC工作流程</h3><p>SpringMvc请求处理流程：</p>
+<p>\1. 前端用户发送请求到前端控制器DispatcherServlet</p>
+<p>\2. DispatcherServlet收到请求之后调用处理映射器HandlerMapping</p>
+<p>\3. 处理映射器根据url找到对应的后端控制器handler,生成处理器对象和处理器拦截器返回前端控制器</p>
+<p>\4. 前端控制器再去调用处理适配器HandlerAdapter去调用具体的后端控制器</p>
+<p>\5. 后端控制器执行完毕之后，把ModelAndView返回给处理适配器</p>
+<p>\6. 处理适配器把ModelAndView返回给前端控制器。</p>
+<p>\7. 前端控制器调用视图解析器ViewResolver进行解析，解析完毕返回视图view</p>
+<p>\8. 前端控制器进行视图渲染，就是数据填充</p>
+<p>\9. 前端控制器向用户响应结果</p>
+<p><img src="https://pic2.zhimg.com/80/v2-99b2e5db9ea125bd4c80aff6d43be2ed_720w.webp" alt="img"></p>
+<p>SpringMvc九大组件：</p>
+<p>HandlerMapping（处理器映射器）、</p>
+<p>HandlerAdapter（处理器适配器）、</p>
+<p>HandlerExceptionResolver（异常处理）、</p>
+<p>ViewResolver（视图解析器）、</p>
+<p>RequestToViewNameTranslator（请求在查找视图名称，视图名转化器组件）</p>
+<p>LocaleResolver（区域化解析，表示所在地）、ThemeResolver（主题解析）</p>
+<p>MultipartResolver（多部件解析器文件上传处理）、FlashMapManager（flash属性管理组件 重定向参数传递）</p>
+<p>web.xml中url-pattern配置三种方式：</p>
+<p>方式一：带后缀，比如*.action *.do *.aaa</p>
+<p>方式二：&#x2F; 不会拦截 .jsp，但是会拦截.html等静态资源（静态资源：除了servlet和jsp之外的js、css、png等）</p>
+<p>因为tomcat容器中有一个web.xml（父），你的项目中也有一个web.xml（子），是一个继承关系父web.xml中有一个DefaultServlet, url-pattern 是一个 &#x2F;此时我们自己的web.xml中也配置了一个 &#x2F; ,覆写了父web.xml的配置</p>
+<p>为什么不拦截.jsp呢？</p>
+<p>因为父web.xml中有一个JspServlet，这个servlet拦截.jsp文件，而我们并没有覆写这个配置，所以springmvc此时不拦截jsp，jsp的处理交给了tomcat</p>
+<p>方式三：&#x2F;* 拦截所有，包括.jsp</p>
+<p><img src="https://pic2.zhimg.com/80/v2-e9642fff56f030db5d9a9f4ea8e47729_720w.webp" alt="img"></p>
+<p>数据输入类型ModelMap、Model、Map</p>
+<p>运行的时候都会使用BindingAwareModelMap类型，而这个类型是上面三种接口的实现</p>
+<h3 id="Spring-MVC请求参数绑定"><a href="#Spring-MVC请求参数绑定" class="headerlink" title="Spring MVC请求参数绑定"></a>Spring MVC请求参数绑定</h3><p>前后端交互传输数据都是http,简称超文本传输协议。SpringMvc对serlvet封装，接收整形参数时直接在Handler⽅法中声明形参。</p>
+<p>简单数据类型：⼋种基本数据类型及其包装类型</p>
+<p>参数类型推荐使⽤包装数据类型，因为基础数据类型不可以为null</p>
+<p>整型：Integer、int</p>
+<p>字符串：String</p>
+<p>单精度：Float、float</p>
+<p>双精度：Double、double</p>
+<p>布尔型：Boolean、boolean</p>
+<p>说明：对于布尔类型的参数，请求的参数值为true或false。或者1或0</p>
+<p>注意：绑定简单数据类型参数，只需要直接声明形参即可（形参参数名和传递的参数名要保持⼀致，建议 使⽤包装类型，当形参参数名和传递参数名不⼀致时可以使⽤@RequestParam注解进⾏⼿动映射）</p>
+<p>自定义类型，比如日期处理，需要实现Converter接口，并注册自定义转换器</p>
+<p><img src="https://pic4.zhimg.com/80/v2-9e8be62e7d268c243a3e60f3d54c9ccb_720w.webp" alt="img"></p>
+<h3 id="Restful请求支持"><a href="#Restful请求支持" class="headerlink" title="Restful请求支持"></a>Restful请求支持</h3><p>Restful 是⼀种 web 软件架构⻛格，它不是标准也不是协议，它倡导的是⼀个资源定位及资源操作的⻛格。</p>
+<p>优点：</p>
+<p>结构清晰、符合标准、易于理解、扩展⽅便</p>
+<p>特性：</p>
+<p>⽹络上的⼀个实体，或者说是⽹络上的⼀个具体信息。它可以是⼀段⽂本、⼀张图⽚、⼀⾸歌曲、⼀种服务，总之就是⼀个具体的存在。可以⽤⼀个 URI（统⼀资源定位符）指向它，每种资源对应⼀个特定的 URI 。要获取这个资源，访问它的 URI 就可以，因此URI 即为每⼀个资源的独⼀⽆⼆的识别符。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-86c1234262dec2460e5fa8cacee45dd5_720w.webp" alt="img"></p>
+<p>乱码过滤器web.xml配置，如果是put和delete请求需要配置请求方式转换，但是此方式不常用</p>
+<p><img src="https://pic4.zhimg.com/80/v2-0f961a547e15f98ddedba7acd6a12c47_720w.webp" alt="img"></p>
+<h3 id="Ajax-Json交互"><a href="#Ajax-Json交互" class="headerlink" title="Ajax Json交互"></a>Ajax Json交互</h3><p>Json是⼀种与语⾔⽆关的数据交互格式，就是⼀种字符串，只是⽤特殊符号{}内表示对象、[]内表示数组、””内是属性或值、：表示后者是前者的值。</p>
+<p>{“name”: “Michael”}可以理解为是⼀个包含name为Michael的对象</p>
+<p>[{“name”: “Michael”},{“name”: “Jerry”}]就表示包含两个对象的数组</p>
+<p>前端到后台：前端ajax发送json格式字符串，后台直接接收为pojo参数，使⽤注解@RequstBody</p>
+<p>后台到前端：后台直接返回pojo对象，前端直接接收为json对象或者字符串，使⽤注解@ResponseBody，此注解不走视图解析器，而是直接将数据写入流中。</p>
+<h3 id="Spring高级技术之监听器、拦截器、过滤器"><a href="#Spring高级技术之监听器、拦截器、过滤器" class="headerlink" title="Spring高级技术之监听器、拦截器、过滤器"></a>Spring高级技术之监听器、拦截器、过滤器</h3><p>过滤器（Filter）：对Request请求起到过滤的作⽤，作⽤在Servlet之前，如果url-pattern配置为&#x2F;*可以对所有的资源访问（servlet、js&#x2F;css静态资源等）进⾏过滤处理</p>
+<p>监听器（Listener）：实现了javax.servlet.ServletContextListener 接⼝的服务器端组件，它随Web应⽤的启动⽽启动，只初始化⼀次，然后会⼀直运⾏监视，随Web应⽤的停⽌⽽销毁，做一些初始化工作以及监听特定事件对其处理，比如从A方法进入B方法，A方法需要知道B方法执行完继续进行下一步，那么A方法就可以监听B方法的运行情况。</p>
+<p>拦截器（Interceptor）：拦截访问的控制器⽅法（Handler），一个拦截器拦截三次。</p>
+<p>\1. 在Handler业务逻辑执⾏之前拦截⼀次</p>
+<p>\2. 在Handler逻辑执⾏完毕但未跳转⻚⾯之前拦截⼀次</p>
+<p>\3. 在跳转⻚⾯之后拦截⼀次</p>
+<p><img src="https://pic2.zhimg.com/80/v2-c99b9742aa72c620d57fe9e6d962b0cd_720w.webp" alt="img"></p>
+<p>拦截器执行流程：多个拦截器执行顺序是按照配置文件拦截器的前后顺序执行的，按照先进后出的顺序，第一个拦截器先进去最后出来。</p>
+<p>\1. 程序先执⾏preHandle()⽅法，如果该⽅法的返回值为true，则程序会继续向下执⾏处理器中的⽅法，否则将不再向下执⾏。</p>
+<p>\2. 在业务处理器（即控制器Controller类）处理完请求后，会执⾏postHandle()⽅法，然后会通过DispatcherServlet向客户端返回响应。</p>
+<p>\3. 在DispatcherServlet处理完请求后，才会执⾏afterCompletion()⽅法。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-9df905a7d4523e1d8f940e5397144a6d_720w.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/cb25b16d305f46df4b4b74867a613fe2.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/5a726ae3db7a77496d3207ff3dc87730.webp" alt="img"></p>
+<h3 id="multipart形式-文件上传-数据、异常捕获、重定向参数传递"><a href="#multipart形式-文件上传-数据、异常捕获、重定向参数传递" class="headerlink" title="multipart形式(文件上传)数据、异常捕获、重定向参数传递"></a>multipart形式(文件上传)数据、异常捕获、重定向参数传递</h3><p><strong>文件上传</strong></p>
+<p>客户端：POST请求；enctype&#x3D;multipart;file组件</p>
+<p>服务端: 重命名uuid;存储到磁盘，按日期建文件夹；把文件储存路径存入数据库，方便根据路径获取想要的资源。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-b1df46cd3b549a26d34c592c989290bd_720w.webp" alt="img"></p>
+<p><img src="https://pic4.zhimg.com/80/v2-11ff4c212c0d24f459cafd8f60834aa3_720w.webp" alt="img"></p>
+<p><strong>异常捕获</strong></p>
+<p>需要实现HandlerExceptionResolver接口把程序所有或者单一异常都捕获做统一返回处理，比如专门做一个错误页面告知用户，给用户更好的反馈和体验。单类捕获就写在当前类就行了，全局捕获自定义一个类添加@ControllerAdvice注解。</p>
+<p><img src="/posts/3559/assets/e67ce651790b47d39333ce90fb791afb.webp" alt="img"></p>
+<p><strong>重定向参数传递</strong></p>
+<p>重定向时请求参数会丢失，我们往往需要重新携带请求参数，在路径中手动拼接，解决办法声明RedirectAttributes类，可以添加flash属性，框架会在session中记录该属性值，进行重定向参数传递，而且完成之后会自动被清理。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-73f459798a255155710a8190eb207a1f_720w.webp" alt="img"></p>
+<h3 id="二、自定义MVC框架"><a href="#二、自定义MVC框架" class="headerlink" title="二、自定义MVC框架"></a>二、自定义MVC框架</h3><h3 id="MVC框架运行原理"><a href="#MVC框架运行原理" class="headerlink" title="MVC框架运行原理"></a>MVC框架运行原理</h3><p>\1. Tomcat加载web.xml，前端控制器DispatcherServlet加载指定的配置文件springmvc.xml</p>
+<p>\2. 根据配置文件扫描包和注解</p>
+<p><img src="https://pic2.zhimg.com/80/v2-52e5fed94f0a89eb5972e54621890ebd_720w.webp" alt="img"></p>
+<p>\3. IOC容器进行相应的Bean初始化和依赖注入维护</p>
+<p>\4. SpringMvc相关组件的初始化,建立url和method之间的映射关系，也就是处理映射器HandlerMapping</p>
+<p><img src="https://pic2.zhimg.com/80/v2-4ddd7b6d8fbf0cfeeb0b2f0108e70669_720w.webp" alt="img"></p>
+<p>\5. 等待请求进来，处理请求。</p>
+<h3 id="自定义框架实现步骤"><a href="#自定义框架实现步骤" class="headerlink" title="自定义框架实现步骤"></a>自定义框架实现步骤</h3><p>\1. 加载配置文件springmvc.properties，把文件加载成字节流然后转化成字符流存入properties。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-16c1340cbb50a03cbcceef834bb7411e_720w.webp" alt="img"></p>
+<p>\2. 从properties中取出配置的地址，拼接成绝对路径，扫描该路径下所有文件，找到class文件对应集合中</p>
+<p><img src="/posts/3559/assets/608356f509ea163fc24c5253a433598a.webp" alt="img"></p>
+<p>\3. 初始化Bean对象，变量全限定类名集合中每一个元素，进行注解判断，如果存在注解，进行反射实例化，然后存入bean对象集合中。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-f220d2649222cd8b428c452f25219d6f_720w.webp" alt="img"></p>
+<p>\4. 实现依赖注入，遍历上面的beanMap集合，然后再对遍历出来的类，取出所有属性再遍历，判断属性上面是否存在@Autowired注解，存在再进行相应处理。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-c0b503a5265f5f60128ec00942ebb937_720w.webp" alt="img"></p>
+<p>\5. 构造一个HandlerMapping处理映射器，将配置好的url和method建立映射关系，遍历beanMap集合，判断类和方法上面是否存在@Controller注解，如果存在取出两个值拼接成url存入一个自定义的普通类中，类里面有所属类、方法、url以及参数位置四个属性。</p>
+<p><img src="/posts/3559/assets/33d64b20dfe8fc06471d624690b61e47.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/915ce0c74ff616db88edec713aa3ba89.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-59d6807884f8f105b05b95530f543b65_720w.webp" alt="img"></p>
+<p>\6. 执行dopost方法，接受前端请求，执行自定义MVC框架，从handler中取出参数，进行请求处理，进行参数绑定最后调用该handler所属方法的invoke方法，执行到控制层。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-dc0f27c67cbb05606c5d2faca1e66c66_720w.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/335a8d7519fbfa8a9cc88d7e08a7827e.webp" alt="img"></p>
+<h3 id="三、Spring-MVC源码剖析"><a href="#三、Spring-MVC源码剖析" class="headerlink" title="三、Spring MVC源码剖析"></a>三、Spring MVC源码剖析</h3><h3 id="前端控制器DispatcherServlet继承结构"><a href="#前端控制器DispatcherServlet继承结构" class="headerlink" title="前端控制器DispatcherServlet继承结构"></a>前端控制器DispatcherServlet继承结构</h3><p>前端控制配置在web.xml中，执行前后端交互的重要组件，比如接收请求，调用处理器，渲染视图等等，他的继承结构如下：DispatcherServlet extends FrameworkServlet extends HttpServletBean extends HttpServlet。</p>
+<p>\1. HttpServlet里面定义两个方法doGet、doPost方法用于获取协议等等参数，但是并没有进行具体的业务逻辑处理</p>
+<p><img src="https://pic3.zhimg.com/80/v2-1f02372224f8665e9b76b07867b6e3ca_720w.webp" alt="img"></p>
+<p>\2. 在继承类FrameworkServlet中，重写了doGet、doPost方法，在这两个方法内对前端发送的请求调用自己内部定义的processRequest方法进行处理。</p>
+<p><img src="/posts/3559/assets/ab1f48e43662246c5254cfc5b49f031c.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-28391e30c4b6df2976e70ce1a5577dfe_720w.webp" alt="img"></p>
+<p>\3. 在processRequest方法结束调用了一个doSercive方法，他是一个抽象方法，交给了最底层类DispatcherServlet来实现。在方法内进行参数存储，设置属性值以及重定向参数管理，结尾又调用了自己内部的doDispatch方法进行请求派发。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-595c09254d36fac8bda5644382913e09_720w.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/af9fb334560804749aab7523e7364672.webp" alt="img"></p>
+<p>\4. 在doDispatch方法内主要是检查是否是文件上传请求，获取处理当前请求的处理器handler，再获取处理请求的适配器，处理请求返回视图对象，最后对视图对象进行处理。</p>
+<p><img src="/posts/3559/assets/20705417edae9bc8b2408e07fcdd175b.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/d50231e36bcafd7e7391289e875727a1.webp" alt="img"></p>
+<p>完整走向图</p>
+<p><img src="https://pic4.zhimg.com/80/v2-2293205c4504046c022831da1e20fb8b_720w.webp" alt="img"></p>
+<h3 id="SpringMVC请求处理大致走向流程"><a href="#SpringMVC请求处理大致走向流程" class="headerlink" title="SpringMVC请求处理大致走向流程"></a>SpringMVC请求处理大致走向流程</h3><p>\1. 前端用户发送请求，执行到控制层</p>
+<p><img src="https://pic4.zhimg.com/80/v2-28953922d961a975c36326000d872cfb_720w.webp" alt="img"></p>
+<p>\2. 接着走doGet&#x2F;doPost请求，跟上面DispatcherServlet继承结构走向一致，进入到doDispatch方法开始真正的执行逻辑处理。doDispatch方法核心步骤:</p>
+<p>1)调取getHandler()获取到能够处理当前请求的执行链HandlerExecutionChain</p>
+<p><img src="https://pic2.zhimg.com/80/v2-69bae507d0c6769558e82f7376a4d4a1_720w.webp" alt="img"></p>
+<p>2)调用getHandlerAdapter方法获取能够执行1)的Handler的适配器</p>
+<p><img src="/posts/3559/assets/0a7374bf65ba46459433dbec9068d988.webp" alt="img"></p>
+<p>3）适配器调用Handler执行ha.handle，返回一个视图ModelAndView对象</p>
+<p><img src="/posts/3559/assets/e862bc5b87d594110827c2aab7063f96.webp" alt="img"></p>
+<p>4)调用processDispatchResult方法完成视图渲染调转</p>
+<p><img src="/posts/3559/assets/4f4213f50e16d744be1f3f3a1269f1b9.webp" alt="img"></p>
+<p>\3. getHandler方法剖析</p>
+<p>如何获取适配器Handler对象？</p>
+<p>在容器启动初始化过程中，扫描@RequestMapping注解建立url和Handler方法的对应映射关系，handlerMappings是一个接口，里面有两个实现类，通过遍历获取requestHandlerMapping实现类，通过传进来的请求request进行筛选，得到匹配的handlder并返回。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-191609ddeaf0775ffbb558729ab9ede1_720w.webp" alt="img"></p>
+<p>\4. getHandlerAdapter方法剖析</p>
+<p>如何获取处理器getHandlerAdapter对象</p>
+<p>HandlerInterceptor也是一个接口，里面有三个实现类，对不同方式请求进行分别处理，遍历获取能处理当前handler的处理器，通过supports方法内是否是这个接口的实现就能判断是否是他的处理器，返回是否处理的布尔值结果。</p>
+<p><img src="/posts/3559/assets/7ccd4f8df9b37243abcb2dbf6a1afffc.webp" alt="img"></p>
+<h3 id="SpringMVC九大组件初始化"><a href="#SpringMVC九大组件初始化" class="headerlink" title="SpringMVC九大组件初始化"></a>SpringMVC九大组件初始化</h3><p>九大组件，全部定义在DispatcherServlet中，他们都定义成了接口，接口定义了规范。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-41aca86bb26cb93f93e1f6cd4e65301a_720w.webp" alt="img"></p>
+<p>Spring容器启动时，AbstractApplicationContext类中的核心方法refresh中调用了onRefresh方法，由子类实现了DispatcherServlet做了实现(完成九大件初始化)，通过onRefresh方法内调用initStrategies方法完成.</p>
+<p><img src="/posts/3559/assets/acbd153c637e4225221115ffbb8b0544.webp" alt="img"></p>
+<p>多部件解析的id是固定multipartResolver，因为内部定义了一个常量就叫multipartResolver</p>
+<p><img src="/posts/3559/assets/c9311d1595e33c21705223d0e480415c.webp" alt="img"></p>
+<h3 id="Handler方法执行细节剖析"><a href="#Handler方法执行细节剖析" class="headerlink" title="Handler方法执行细节剖析"></a>Handler方法执行细节剖析</h3><p>此方法就是上面doDispatch方法核心步骤第三步，调用ha.handle方法，针对他内部实现进行剖析。根据外部这个方法进入handleInternal方法，创建一个视图，然后判断这个session是否需要同步处理，因为session是线程不安全的，如果需要同步，则获取当前session对象并且一个唯一key增加synchronized关键字进行锁定保证线程安全。在锁里面调用invokeHandlerMethod方法对handler进行适配，如果不需要同步处理则直接进入此方法。在该方法内部进行一系列检查和前置处理，走到invokeAndHandle方法这里，开始对请求参数进行处理，调用目标的HandlerMethod，将返回值封装返回成一个ModelAndView对象。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-24e7c455f70721262ed7b0f032500681_720w.webp" alt="img"></p>
+<p><img src="/posts/3559/assets/8949ff5f86407a1692c36393275d6b46.webp" alt="img"></p>
+<p>在invokeAndHandle方法内部又请求了自己类的invokeForRequest方法，，把参数和请求以及类传递下去调用doInvoke方法使用反射对目标方法调用，并且一个Object来接收并返回。</p>
+<p><img src="/posts/3559/assets/beac5f7cfab4041155192a7352792fba.webp" alt="img"></p>
+<p>接着回到invokeHandlerMethod方法，进行下一步，调用getModelAndView方法对上面获取的ModelAndView对象进行处理。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-9865d857e7c2a4af9bc63c6c961c13d6_720w.webp" alt="img"></p>
+<h3 id="视图渲染细节剖析"><a href="#视图渲染细节剖析" class="headerlink" title="视图渲染细节剖析"></a>视图渲染细节剖析</h3><p>此方法就是上面doDispatch方法核心步骤第四步，调用processDispatchResult方法，针对他内部实现进行剖析。</p>
+<p>进入方法内部，进行异常判断和非空判断走到render方法进行渲染</p>
+<p><img src="/posts/3559/assets/a48438626867a2c4d20281a92e5dee80.webp" alt="img"></p>
+<p>在方法内部定义了一个视图对象，从getViewName方法中取出视图名称，比如success，如果不为空根据视图名进行内部视图封装方法。</p>
+<p><img src="/posts/3559/assets/333fc2d6e202c1f1e2e10bd5d4e2b60f.webp" alt="img"></p>
+<p>在方法内部用视图解析器viewResolver进行封装。在内部的buildView方法根据配置的视图解析器在内部进行组装完整视图名称。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-704d11b3360c373613447e55f2692c1f_720w.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-ae9ea6dd0112591ff3dd40fd816b7d0e_720w.webp" alt="img"></p>
+<p>当完成一系列数据填充后，我们的modelMap中就有了对应数据，这时候他会把里面的数据暴露到request域中，所以当model.add完成之后，jsp就可以直接从请求域中获取数据的原因。完成数据暴露之后就调用RequestDispatcher进行请求分发，根据前面拼接的jsp完整路径调转到对应页面。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-a799530957f2e7b9e030e1c872396096_720w.webp" alt="img"></p>
+<p>注意：转发和重定向都会走不同的视图解析，并且视图解析是走缓存的，缓存存在就直接返回，没有才重新创建。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-ab8917a29047a5e20323ca19c6ce9a1a_720w.webp" alt="img"></p>
+<h3 id="四、Spring-Spring-MVC-Mybatis整合"><a href="#四、Spring-Spring-MVC-Mybatis整合" class="headerlink" title="四、Spring + Spring MVC + Mybatis整合"></a>四、Spring + Spring MVC + Mybatis整合</h3><h3 id="整合目标"><a href="#整合目标" class="headerlink" title="整合目标"></a>整合目标</h3><p>数据库连接池以及事务管理都交给Spring容器来完成</p>
+<p>SqlSessionFactory对象应该放到Spring容器中作为单例对象管理</p>
+<p>Mapper动态代理对象交给Spring管理，我们从Spring容器中直接获得Mapper的代理对象</p>
+<p>把SpringMVC的⼊⻔案例整合进来</p>
+<p><strong>所需jar包</strong></p>
+<p>Junit测试jar（4.12版本）</p>
+<p>Mybatis的jar（3.4.5）</p>
+<p>Spring相关jar（spring-context、spring-test、spring-jdbc、spring-tx、spring-aop、</p>
+<p>aspectjweaver）</p>
+<p>Mybatis&#x2F;Spring整合包jar（mybatis-spring-xx.jar）</p>
+<p>Mysql数据库驱动jar</p>
+<p>Druid数据库连接池的jar</p>
+<p><strong>完整整合项目截图</strong></p>
+<p><img src="/posts/3559/assets/a22ce3d20bbf340b8d55c53eff2786a2.webp" alt="img"></p>
+<h3 id="具体引入jir包"><a href="#具体引入jir包" class="headerlink" title="具体引入jir包"></a>具体引入jir包</h3><!--junit-->
+
+<dependency>
+
+<p><groupId>junit</groupId></p>
+<p><artifactId>junit</artifactId></p>
+<p><version>4.12</version></p>
+<p><scope>test</scope></p>
+</dependency>
+
+<!--⽇志坐标-->
+
+<dependency>
+
+<p><groupId>log4j</groupId></p>
+<p><artifactId>log4j</artifactId></p>
+<p><version>1.2.12</version></p>
+</dependency>
+
+<!--mybatis-->
+
+<dependency>
+
+<p><groupId>org.mybatis</groupId></p>
+<p><artifactId>mybatis</artifactId></p>
+<p><version>3.4.5</version></p>
+</dependency>
+
+<!--spring相关-->
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-context</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-test</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-jdbc</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-tx</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-aop</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>org.aspectj</groupId></p>
+<p><artifactId>aspectjweaver</artifactId></p>
+<p><version>1.8.9</version></p>
+</dependency>
+
+<!--mybatis与spring的整合包-->
+
+<dependency>
+
+<p><groupId>org.mybatis</groupId></p>
+<p><artifactId>mybatis-spring</artifactId></p>
+<p><version>2.0.3</version></p>
+</dependency>
+
+<!--数据库驱动jar-->
+
+<dependency>
+
+<p><groupId>mysql</groupId></p>
+<p><artifactId>mysql-connector-java</artifactId></p>
+<p><version>5.1.46</version></p>
+</dependency>
+
+<!--druid连接池-->
+
+<dependency>
+
+<p><groupId>com.alibaba</groupId></p>
+<p><artifactId>druid</artifactId></p>
+<p><version>1.1.21</version></p>
+</dependency>
+
+<!--SpringMVC-->
+
+<dependency>
+
+<p><groupId>org.springframework</groupId></p>
+<p><artifactId>spring-webmvc</artifactId></p>
+<p><version>5.1.12.RELEASE</version></p>
+</dependency>
+
+<!--jsp-api&servlet-api-->
+
+<dependency>
+
+<p><groupId>javax.servlet</groupId></p>
+<p><artifactId>jsp-api</artifactId></p>
+<p><version>2.0</version></p>
+<p><scope>provided</scope></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>javax.servlet</groupId></p>
+<p><artifactId>javax.servlet-api</artifactId></p>
+<p><version>3.1.0</version></p>
+<p><scope>provided</scope></p>
+</dependency>
+
+<!--⻚⾯使⽤jstl表达式-->
+
+<dependency>
+
+<p><groupId>jstl</groupId></p>
+<p><artifactId>jstl</artifactId></p>
+<p><version>1.2</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>taglibs</groupId></p>
+<p><artifactId>standard</artifactId></p>
+<p><version>1.1.2</version></p>
+</dependency>
+
+<!--json数据交互所需jar，start-->
+
+<dependency>
+
+<p><groupId>com.fasterxml.jackson.core</groupId></p>
+<p><artifactId>jackson-core</artifactId></p>
+<p><version>2.9.0</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>com.fasterxml.jackson.core</groupId></p>
+<p><artifactId>jackson-databind</artifactId></p>
+<p><version>2.9.0</version></p>
+</dependency>
+
+<dependency>
+
+<p><groupId>com.fasterxml.jackson.core</groupId></p>
+<p><artifactId>jackson-annotations</artifactId></p>
+<p><version>2.9.0</version></p>
+</dependency>
+
+<!--json数据交互所需jar，end-->
+
+<!--⽂件上传所需jar坐标-->
+
+<dependency>
+
+<p><groupId>commons-fileupload</groupId></p>
+<p><artifactId>commons-fileupload</artifactId></p>
+<p><version>1.3.1</version></p>
+</dependency>
+
+<h3 id="applicationContext-xml配置"><a href="#applicationContext-xml配置" class="headerlink" title="applicationContext.xml配置"></a>applicationContext.xml配置</h3><!--包扫描-->
+
+<p>&lt;context:component-scan base-package&#x3D;”com.lg”&#x2F;&gt;</p>
+<!--数据库连接池以及事务管理都交给Spring容器来完成-->
+
+<!--引⼊外部资源⽂件-->
+
+<p>&lt;context:property-placeholder location&#x3D;”classpath:jdbc.properties”&#x2F;&gt;</p>
+<!--第三⽅jar中的bean定义在xml中-->
+
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+
+<property name="driverClassName" value="${jdbc.driver}"/>
+
+<property name="url" value="${jdbc.url}"/>
+
+<property name="username" value="${jdbc.username}"/>
+
+<property name="password" value="${jdbc.password}"/>
+
+</bean>
+
+<!--spring声明式事务配置，声明式事务无非就是配置一个aop，只不过有些标签不一样罢了-->
+
+<!--横切逻辑-->
+
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+
+<p><property name="dataSource" ref="dataSource"></property></p>
+</bean>
+
+<!--声明式事务的注解驱动-->
+
+<p>&lt;tx:annotation-driven transaction-manager&#x3D;”transactionManager”&gt;</tx:annotation-driven></p>
+<!--SqlSessionFactory对象应该放到Spring容器中作为单例对象管理 代替mybatis的：SqlMapConfig.xml文件-->
+
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+
+<!--扫描别名映射-->
+
+<p><property name="typeAliasesPackage" value="com.lg.pojo"></property></p>
+<!--数据源dataSource-->
+
+<p><property name="dataSource" ref="dataSource"></property></p>
+</bean>
+
+<!--Mapper动态代理对象交给Spring管理，我们从Spring容器中直接获得Mapper的代理对象-->
+
+<!--扫描mapper接⼝，⽣成代理对象，⽣成的代理对象会存储在ioc容器中-->
+
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+
+<!--扫描mapper接口包路径配置-->
+
+<p><property name="basePackage" value="com.lg.mapper"></property></p>
+<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+
+</bean>
+
+<h3 id="springmvc-xml配置"><a href="#springmvc-xml配置" class="headerlink" title="springmvc.xml配置"></a>springmvc.xml配置</h3><!--开启controller扫描-->
+
+<p>&lt;context:component-scan base-package&#x3D;”com.lg.controller”&gt;</context:component-scan></p>
+<!--配置springmvc的视图解析器-->
+
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+
+<p><property name="prefix" value="/WEB-INF/jsp/"></property></p>
+<p><property name="suffix" value=".jsp"></property></p>
+</bean>
+
+<!--配置spring注解驱动 自动注册合适的组件handleMapping和handlerAdapter -->
+
+<p><a href="mvc:annotation-driven">mvc:annotation-driven</a></mvc:annotation-driven></p>
+<!---->
+
+<p>&lt;mvc:annotation-driven conversion-service&#x3D;”conversionServiceBean”&gt;</mvc:annotation-driven></p>
+<!--注册自定义日期处理转换器-->
+
+<bean id="conversionServiceBean" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+
+<property name="converters">
+
+<set>
+
+<p><bean class="com.lg.converter.DateConverter"></bean></p>
+</set>
+
+</property>
+
+</bean>
+
+<!--静态资源配置方案-->
+
+<p><a href="mvc:default-servlet-handler">mvc:default-servlet-handler</a></mvc:default-servlet-handler></p>
+<p>&lt;mvc:resources location&#x3D;”&#x2F;WEB-INF&#x2F;js&#x2F;“ mapping&#x3D;”&#x2F;js&#x2F;**”&#x2F;&gt;</p>
+<p><a href="mvc:interceptors">mvc:interceptors</a></p>
+<!--拦截所有的handle-->
+
+<!-- <bean class="com.lg.interceptor.MyInterceptor"></bean>-->
+
+<p><a href="mvc:interceptor">mvc:interceptor</a></p>
+<!--拦截所有-->
+
+<p>&lt;mvc:mapping path&#x3D;”&#x2F;**”&#x2F;&gt;</p>
+<!--可以放行不拦截的请求-->
+
+<!--<mvc:exclude-mapping path="/demo/**"/>-->
+
+<!--拦截器 有先后顺序 放在最后-->
+
+<p><bean class="com.lg.interceptor.MyInterceptor"></bean></p>
+<p></mvc:interceptor></p>
+<p></mvc:interceptors></p>
+<!--配置⽂件上传解析器，id是固定的multipartResolver-->
+
+<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+<!--设置上传⼤⼩，单位字节-->
+
+<property name="maxUploadSize" value="5000000"/>
+
+<property name="maxInMemorySize" value="4096" />
+
+<p><property name="defaultEncoding" value="UTF-8"></property></p>
+</bean>
+
+<h3 id="web-xml配置"><a href="#web-xml配置" class="headerlink" title="web.xml配置"></a>web.xml配置</h3><context-param>
+
+<p><param-name>contextConfigLocation</param-name></p>
+<p><param-value>classpath*:applicationContext.xml</param-value></p>
+</context-param>
+
+<!--spring框架启动-->
+
+<listener>
+
+<p><listener-class>org.springframework.web.context.ContextLoaderListener</listener-class></p>
+</listener>
+
+<!--springmvc启动-->
+
+<servlet>
+
+<p><servlet-name>springmvc</servlet-name></p>
+<p><servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class></p>
+<init-param>
+
+<p><param-name>contextConfigLocation</param-name></p>
+<p><param-value>classpath*:springmvc.xml</param-value></p>
+</init-param>
+
+</servlet>
+
+<servlet-mapping>
+
+<p><servlet-name>springmvc</servlet-name></p>
+<p><url-pattern>&#x2F;*</url-pattern></p>
+</servlet-mapping>
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/springmvc/" rel="tag"><i class="fa fa-tag"></i> springmvc</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/30508/" rel="prev" title="spring框架知识">
+                  <i class="fa fa-chevron-left"></i> spring框架知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/8228/" rel="next" title="分布式架构知识总结">
+                  分布式架构知识总结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"f810068ee707b9a561de4cecd1259e01"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

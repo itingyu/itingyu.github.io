@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="jps指令Java版的ps命令，查看java进程及其相关的信息。 命令格式：jps [options] [hostid] options参数解释： -l : 显示进程id,显示主类全名或jar路径 -q : 显示进程id -m : 显示进程id, 显示JVM启动时传递给main()的参数 -v : 显示进程id,显示JVM启动时显示指定的JVM参数 hostid : 主机或其他服务器ip jinf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="常用指令与可视化调试工具">
+<meta property="og:url" content="https://itingyu.github.io/posts/34961/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="jps指令Java版的ps命令，查看java进程及其相关的信息。 命令格式：jps [options] [hostid] options参数解释： -l : 显示进程id,显示主类全名或jar路径 -q : 显示进程id -m : 显示进程id, 显示JVM启动时传递给main()的参数 -v : 显示进程id,显示JVM启动时显示指定的JVM参数 hostid : 主机或其他服务器ip jinf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/764ea936b5ddb7ae12b0fd50d34d73a3.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/380a967e0614392d0ddd074df5b2df2e.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/8e40bcb82a6384c5fbd2800e55ddd1f0.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/5d425b2d1e0881cf320816c1610cb669.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/f613d69286489cabbf9a45358f8d8fd7.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-2bdf38c2aea5ef897990fc9baba52a5e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/fa3d346aa3a4d1b9c0b05fe78ed85c8f.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/75439f60834adfe29ed8af10c182fb78.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-ce187d3551e0f6c73840969afc60cba9_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-5a7bd0fd1cac0ee875d315c76206af0e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/bc6d0576194ec9023509ac5a81d2af57.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/52aeaf8b5a84482ea241b42d1bc00c6b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/8cf3c57166edb4f7f6aad3209d7f35e3.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/244e5a0001783bb8632279008fb64854.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-9a5e87aeca057b69bd3800a22bce608f_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/c4fbe9f59cfe241cf33b084b9104a547.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-eb62e81fef70afcac9b83ccea14d26c2_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-f2611c4638799daca59262b434e1102b_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/611781ccb01aa0975fa94911d89a26a4.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-dfc17b51ab661dddff0f4c3cf2a89ea6_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/34943e7bf368a7762ffa1d22f5a87506.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/e2a8e6d7491d872dd477d9d5da9134bf.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/06f1da89c2d4618572a92999c44db666.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/49102c6397c0be694e664fa8152ed341.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/a213f5aa051149a32c1c73e63d661cf6.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-481f72e193a21cca694a29003a67ffaa_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/d7da538746fdecec06e61c3c8d3e1243.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/f3587d58c3c46d991e475e269b47bdb5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/b407171ffb0292645f1ba12ac6a15ffd.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/08a318857bb0b5ca8edf9b62779c10f9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/2b64a143a324b3af3c0cbf5c7a8a9eba.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/062275a3c23f333f3dcb88d9b7d5d46c.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e8a527e5e600969d37ba5ad5c4b1e511_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/a2febcdc8cfd5a2eefdd5045d7446d28.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/a4e4e49d0087c89ab9be6698978ecdd6.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/fffe6d8d55c2551236751b60c9afa666.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/ccbcfa023bd019e75122a23e0da1a772.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/34961/assets/c3cb4b1bd8271f7d2da3bc6ad9c2fdae.webp">
+<meta property="article:published_time" content="2023-06-15T15:20:15.000Z">
+<meta property="article:modified_time" content="2023-06-15T18:46:48.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/34961/assets/764ea936b5ddb7ae12b0fd50d34d73a3.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/34961/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/34961/","path":"posts/34961/","title":"常用指令与可视化调试工具"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>常用指令与可视化调试工具 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#jps%E6%8C%87%E4%BB%A4"><span class="nav-number">1.</span> <span class="nav-text">jps指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jinfo%E6%8C%87%E4%BB%A4"><span class="nav-number">2.</span> <span class="nav-text">jinfo指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jstat%E6%8C%87%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">jstat指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jstack%E6%8C%87%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">jstack指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jmap%E6%8C%87%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">jmap指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jhat%E6%8C%87%E4%BB%A4"><span class="nav-number">6.</span> <span class="nav-text">jhat指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jconsole-%E7%9B%91%E6%8E%A7%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">7.</span> <span class="nav-text">jconsole 监控管理工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VisualVM-%E5%8F%AF%E8%A7%86%E5%8C%96%E4%BC%98%E5%8C%96%E5%B7%A5%E5%85%B7"><span class="nav-number">8.</span> <span class="nav-text">VisualVM 可视化优化工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AD%E3%80%81GC%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">9.</span> <span class="nav-text">六、GC日志分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC%E6%97%A5%E5%BF%97%E5%8F%82%E6%95%B0"><span class="nav-number">10.</span> <span class="nav-text">GC日志参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GC%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90"><span class="nav-number">11.</span> <span class="nav-text">GC日志分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="nav-number">12.</span> <span class="nav-text">日志分析工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%83%E3%80%81JVM%E8%B0%83%E4%BC%98%E5%AE%9E%E6%88%98"><span class="nav-number">13.</span> <span class="nav-text">七、JVM调优实战</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat%E4%B8%8EJVM%E8%B0%83%E4%BC%98"><span class="nav-number">14.</span> <span class="nav-text">Tomcat与JVM调优</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Apache-Jmeter%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7"><span class="nav-number">15.</span> <span class="nav-text">Apache Jmeter测试工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E6%95%B4tomcat%E5%8F%82%E6%95%B0%E8%BF%9B%E8%A1%8C%E4%BC%98%E5%8C%96"><span class="nav-number">16.</span> <span class="nav-text">调整tomcat参数进行优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E6%95%B4JVM%E5%8F%82%E6%95%B0%E8%BF%9B%E8%A1%8C%E4%BC%98%E5%8C%96"><span class="nav-number">17.</span> <span class="nav-text">调整JVM参数进行优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AB%E3%80%81Linux%E4%BC%98%E5%8C%96"><span class="nav-number">18.</span> <span class="nav-text">八、Linux优化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%A6%82%E8%BF%B0"><span class="nav-number">19.</span> <span class="nav-text">Linux性能优化概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-CPU%E4%BC%98%E5%8C%96%EF%BC%88%E6%80%A7%E8%83%BD%E7%BB%9F%E8%AE%A1%EF%BC%89"><span class="nav-number">20.</span> <span class="nav-text">Linux优化-CPU优化（性能统计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-CPU%E4%BC%98%E5%8C%96%EF%BC%88%E8%B0%83%E4%BC%98%E7%AD%96%E7%95%A5%EF%BC%89"><span class="nav-number">21.</span> <span class="nav-text">Linux优化-CPU优化（调优策略）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96%EF%BC%88%E6%80%A7%E8%83%BD%E7%BB%9F%E8%AE%A1%EF%BC%89"><span class="nav-number">22.</span> <span class="nav-text">Linux优化-内存优化（性能统计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-%E5%86%85%E5%AD%98%E4%BC%98%E5%8C%96%EF%BC%88%E8%B0%83%E4%BC%98%E7%AD%96%E7%95%A5%EF%BC%89"><span class="nav-number">23.</span> <span class="nav-text">Linux优化-内存优化（调优策略）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-%E7%A3%81%E7%9B%98IO%E4%BC%98%E5%8C%96%EF%BC%88%E6%80%A7%E8%83%BD%E7%BB%9F%E8%AE%A1%EF%BC%89"><span class="nav-number">24.</span> <span class="nav-text">Linux优化-磁盘IO优化（性能统计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E4%BC%98%E5%8C%96-%E7%A3%81%E7%9B%98IO%E4%BC%98%E5%8C%96%EF%BC%88%E8%B0%83%E4%BC%98%E7%AD%96%E7%95%A5%EF%BC%89"><span class="nav-number">25.</span> <span class="nav-text">Linux优化-磁盘IO优化（调优策略）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/34961/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="常用指令与可视化调试工具 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          常用指令与可视化调试工具
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-15 23:20:15" itemprop="dateCreated datePublished" datetime="2023-06-15T23:20:15+08:00">2023-06-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.7k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="jps指令"><a href="#jps指令" class="headerlink" title="jps指令"></a>jps指令</h3><p>Java版的ps命令，查看java进程及其相关的信息。</p>
+<p>命令格式：jps [options] [hostid]</p>
+<p>options参数解释：</p>
+<p>-l : 显示进程id,显示主类全名或jar路径</p>
+<p>-q : 显示进程id</p>
+<p>-m : 显示进程id, 显示JVM启动时传递给main()的参数</p>
+<p>-v : 显示进程id,显示JVM启动时显示指定的JVM参数</p>
+<p>hostid : 主机或其他服务器ip</p>
+<h3 id="jinfo指令"><a href="#jinfo指令" class="headerlink" title="jinfo指令"></a>jinfo指令</h3><p>常用指令之一，主要用来查看JVM参数和动态修改部分JVM参数的命令。</p>
+<p>命令格式：jinfo [options] <pid></p>
+<p>options参数解释：</p>
+<p>no options 输出所有的系统属性和参数</p>
+<p>-flag 打印指定名称的参数</p>
+<p>-flag [+|-] 打开或关闭参数</p>
+<p>-flag &#x3D; 设置参数</p>
+<p>-flags 打印所有参数</p>
+<p>-sysprops 打印系统配置</p>
+<h3 id="jstat指令"><a href="#jstat指令" class="headerlink" title="jstat指令"></a>jstat指令</h3><p>常用指令之一，主要用来查看JVM运行时的状态信息，包括内存状态、垃圾回收等。</p>
+<p>命令格式：jstat [option] VMID [interval] [count ]</p>
+<p>VMID是进程id，interval是打印间隔时间（毫秒），count是打印次数（默认一直打印）。</p>
+<p>option参数解释：</p>
+<p>-class class loader的行为统计</p>
+<p>-compiler HotSpt JIT即时编译器行为统计</p>
+<p>-gc 垃圾回收堆的行为统计</p>
+<p>-gccapacity 各个垃圾回收代容量(young,old,perm)和他们相应的空间统计</p>
+<p>-gcutil 垃圾回收统计概述</p>
+<p>-gccause 垃圾收集统计概述（同-gcutil），附加最近两次垃圾回收事件的原因</p>
+<p>-gcnew 新生代行为统计</p>
+<p>-gcnewcapacity 新生代与其相应的内存空间的统计</p>
+<p>-gcold 年老代和永生代行为统计</p>
+<p>-gcoldcapacity 年老代行为统计</p>
+<p>-printcompilation HotSpot编译方法统计</p>
+<p>查看GC堆容量使用情况 jstat -gc 2708 200 10</p>
+<p> <img src="/posts/34961/assets/764ea936b5ddb7ae12b0fd50d34d73a3.webp" alt="img"> </p>
+<p>0C幸存0区容量、S0U幸存0区已使用量、EC Eden区总量、EU Eden区已使用量、OC老年区总容量、OU老年区已使用总量、MC方法区总量、MU方法去已使用量、CCSC压缩空间总量、CCSU压缩已使用量、YGC 年轻代垃圾回收次数、YGCT 年轻代执行垃圾回收消耗时间、FGC Full GC垃圾回收次数、FGCT Full GC垃圾回收消耗时间、GCT 垃圾回收消耗总时间</p>
+<p>查看GC堆百分比占比情况jstat -gcutil 2708 200 3</p>
+<p> <img src="/posts/34961/assets/380a967e0614392d0ddd074df5b2df2e.webp" alt="img"> </p>
+<p> S0 幸存0区使用百分比、E Eden区使用百分比、O 老年代使用百分比、M 元数据区使用百分比、CCS 压缩使用百分比 </p>
+<p> <strong>示例：3次创建byte对象，GC垃圾回收情况，对象从年轻代晋升到老年代。</strong> </p>
+<p> <img src="/posts/34961/assets/8e40bcb82a6384c5fbd2800e55ddd1f0.webp" alt="img"> </p>
+<h3 id="jstack指令"><a href="#jstack指令" class="headerlink" title="jstack指令"></a>jstack指令</h3><p>查看JVM线程快照的命令，线程快照是当前JVM线程正在执行的方法堆栈集合，定位线程出现长时间卡顿的原因，例如死锁，死循环等。</p>
+<p>命令格式：jstack [options]</p>
+<p>option参数解释：</p>
+<p>-F 当使用jstack 无响应时，强制输出线程堆栈。</p>
+<p>-m 同时输出java堆栈和c&#x2F;c++堆栈信息(混合模式)</p>
+<p>-l 除了输出堆栈信息外,还显示关于锁的附加信息，如死锁。</p>
+<p><strong>cpu占用过高问题排查</strong></p>
+<p>1）使用Process Explorer工具找到cpu占用率较高的线程</p>
+<p>2）在thread卡中找到cpu占用高的线程id</p>
+<p>3）线程id转换成16进制</p>
+<p>4）使用jstack -l 查看进程的线程快照 根据16进制id找到对应线程</p>
+<p>5）线程快照中找到指定线程,并分析代码</p>
+<h3 id="jmap指令"><a href="#jmap指令" class="headerlink" title="jmap指令"></a>jmap指令</h3><p>jmap可以生成 java 程序的 dump 文件， 也可以查看堆内对象示例的统计信息、查看 ClassLoader 的信息以及 finalizer 队列</p>
+<p>命令格式：jmap [option] (连接正在执行的进程) 不加参数默认打印所有</p>
+<p>option参数解释：</p>
+<p>-heap 打印java heap摘要</p>
+<p>-histo[:live] 打印堆中的java对象统计信息</p>
+<p>-clstats 打印类加载器统计信息</p>
+<p>-finalizerinfo 打印在f-queue中等待执行finalizer方法的对象</p>
+<p>-dump: 生成java堆的dump文件</p>
+<h3 id="jhat指令"><a href="#jhat指令" class="headerlink" title="jhat指令"></a>jhat指令</h3><p>jhat是用来分析jmap生成dump文件的命令，jhat内置了应用服务器，可以通过网页查看dump文件分析结果，jhat一般是用在离线分析上。</p>
+<p>命令格式 : jhat [option][dumpfile]</p>
+<p>option参数解释：</p>
+<p>-stack false: 关闭对象分配调用堆栈的跟踪</p>
+<p>-refs false: 关闭对象引用的跟踪</p>
+<p>-port : HTTP服务器端口，默认是7000 -debug : debug级别</p>
+<p>-version 分析报告版本</p>
+<h3 id="jconsole-监控管理工具"><a href="#jconsole-监控管理工具" class="headerlink" title="jconsole 监控管理工具"></a>jconsole 监控管理工具</h3><p>java5开始，在JDK中自带的java监控和管理控制台，用于对JVM中内存，线程和类等的监控，是一个基于JMX的GUI性能监测工具。</p>
+<p> <img src="/posts/34961/assets/5d425b2d1e0881cf320816c1610cb669.webp" alt="img"> </p>
+<h3 id="VisualVM-可视化优化工具"><a href="#VisualVM-可视化优化工具" class="headerlink" title="VisualVM 可视化优化工具"></a>VisualVM 可视化优化工具</h3><p>VisualVM 是一个工具，它提供了一个可视界面，用于查看 Java 虚拟机 (Java Virtual Machine, JVM) 上运行的基于 Java 技术的应用程序（Java 应用程序）的详细信息，如果存在死锁等异常问题会直接警告，然后根据警告找到线程定位到对应代码。</p>
+<p><img src="/posts/34961/assets/f613d69286489cabbf9a45358f8d8fd7.webp" alt="img"></p>
+<h3 id="六、GC日志分析"><a href="#六、GC日志分析" class="headerlink" title="六、GC日志分析"></a>六、GC日志分析</h3><h3 id="GC日志参数"><a href="#GC日志参数" class="headerlink" title="GC日志参数"></a>GC日志参数</h3><p>GC日志是一个很重要的工具，它准确记录了每一次的GC的执行时间和执行结果，通过分析GC日志可以优化堆设置 和GC设置，或者改进应用程序的对象分配模式。</p>
+<p> <img src="https://pic3.zhimg.com/80/v2-2bdf38c2aea5ef897990fc9baba52a5e_720w.webp" alt="img"> </p>
+<p> <strong>常用垃圾收集器参数</strong> </p>
+<p> <img src="/posts/34961/assets/fa3d346aa3a4d1b9c0b05fe78ed85c8f.webp" alt="img"> </p>
+<h3 id="GC日志分析"><a href="#GC日志分析" class="headerlink" title="GC日志分析"></a>GC日志分析</h3><p>比如日志格式如下</p>
+<p>比如日志格式如下</p>
+<p><img src="/posts/34961/assets/75439f60834adfe29ed8af10c182fb78.webp" alt="img"></p>
+<p>进行抽象化</p>
+<p><img src="https://pic2.zhimg.com/80/v2-ce187d3551e0f6c73840969afc60cba9_720w.webp" alt="img"></p>
+<p>a: GC 或者是 Full GC</p>
+<p>b: 用来说明发生这次 GC 的原因</p>
+<p>c: 表示发生GC的区域，这里表示是新生代发生了GC，上面那个例子是因为在新生代中内存不够给新对象分配了，然后触发了 GC</p>
+<p>d: GC 之前该区域已使用的容量</p>
+<p>e: GC 之后该区域已使用的容量</p>
+<p>f: 该内存区域的总容量</p>
+<p>g: 表示该区域这次 GC 使用的时间</p>
+<p>h: 表示 GC 前整个堆的已使用容量</p>
+<p>i: 表示 GC 后整个堆的已使用容量</p>
+<p>j: 表示 Java 堆的总容量</p>
+<p>k: 表示 Java堆 这次 GC 使用的时间</p>
+<p>l: 代表用户态消耗的 CPU 时间</p>
+<p>m: 代表内核态消耗的 CPU 时间</p>
+<p>n: 整个 GC 事件从开始到结束的墙钟时间（Wall Clock Time）</p>
+<p>大对象直接进入老年代，虚拟机提供一个参数 -XX:PretenureSizeThreshold 用来设置直接在老年代分配的对象的大小，如果对象大于这个值就会直接在老年代分配，避免Eden区和Survivor区复制消耗性能。</p>
+<h3 id="日志分析工具"><a href="#日志分析工具" class="headerlink" title="日志分析工具"></a>日志分析工具</h3><p>GC日志可视化分析工具GCeasy（在线的GC日志分析器 在线地址<a href="https://link.zhihu.com/?target=https://gceasy.io/index.jsp">https://gceasy.io/index.jsp</a>）和GCviewer（免费开源软件），通过这些工具可以直接看到JVM各个分代的内存使用情况、垃圾回收次数、垃圾回收的原因、垃圾回收占用的时间、吞吐量等。</p>
+<p> <img src="https://pic3.zhimg.com/80/v2-5a7bd0fd1cac0ee875d315c76206af0e_720w.webp" alt="img"> </p>
+<h3 id="七、JVM调优实战"><a href="#七、JVM调优实战" class="headerlink" title="七、JVM调优实战"></a>七、JVM调优实战</h3><h3 id="Tomcat与JVM调优"><a href="#Tomcat与JVM调优" class="headerlink" title="Tomcat与JVM调优"></a>Tomcat与JVM调优</h3><p>修改tomcat-users.xml 配置tomcat管理用户</p>
+<p> <img src="/posts/34961/assets/bc6d0576194ec9023509ac5a81d2af57.webp" alt="img"> </p>
+<p> <img src="/posts/34961/assets/52aeaf8b5a84482ea241b42d1bc00c6b.webp" alt="img"> </p>
+<h3 id="Apache-Jmeter测试工具"><a href="#Apache-Jmeter测试工具" class="headerlink" title="Apache Jmeter测试工具"></a>Apache Jmeter测试工具</h3><p>Apache Jmeter是开源的压力测试工具，我们借助于此工具进行测试，将测试出tomcat 的吞吐量等信息。</p>
+<p>下载地址：<a href="https://link.zhihu.com/?target=http://jmeter.apache.org/download_jmeter.cgi">http://jmeter.apache.org/download_jmeter.cgi</a></p>
+<p><img src="/posts/34961/assets/8cf3c57166edb4f7f6aad3209d7f35e3.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/244e5a0001783bb8632279008fb64854.webp" alt="img"></p>
+<h3 id="调整tomcat参数进行优化"><a href="#调整tomcat参数进行优化" class="headerlink" title="调整tomcat参数进行优化"></a>调整tomcat参数进行优化</h3><p>1） 禁用AJP服务，AJP是定向包协议，Tomcat在 server.xml 中配置了两种连接器，一种监听8080，负责和其他的HTTP服务器建立连接，一种监听8009，负责和其他的HTTP服务器建立连接，第二种如要要用可以配置nginx实现负载均衡，所以可以直接注释掉。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-9a5e87aeca057b69bd3800a22bce608f_720w.webp" alt="img"></p>
+<p>2） 设置执行器(线程池)，频繁地创建线程会造成性能浪费，所以使用线程池来优化，通过修改server.xml文件</p>
+<p><img src="/posts/34961/assets/c4fbe9f59cfe241cf33b084b9104a547.webp" alt="img"></p>
+<p>3） 设置最大等待队列，默认情况下，请求发送到tomcat，如果tomcat正忙，那么该请求会一直等待，可以设置超过就不等待，请求失败，降低服务器负载。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-eb62e81fef70afcac9b83ccea14d26c2_720w.webp" alt="img"></p>
+<p>4） 设置nio2的运行模式，tomcat8以前默认是bio，同步并阻塞，性能低下无优化，8之后是nio，同步非阻塞，还有个性能更高的nio2，异步非阻塞，可以更改设置。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-f2611c4638799daca59262b434e1102b_720w.webp" alt="img"></p>
+<h3 id="调整JVM参数进行优化"><a href="#调整JVM参数进行优化" class="headerlink" title="调整JVM参数进行优化"></a>调整JVM参数进行优化</h3><p>1） 设置并行垃圾回收器，提高并发效率。</p>
+<p>修改catalina.sh</p>
+<p><img src="/posts/34961/assets/611781ccb01aa0975fa94911d89a26a4.webp" alt="img"></p>
+<p>2） 通过GC easy查看GC日志文件，查看年轻代和老年代空间大小分配是否合理并调整优化。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-dfc17b51ab661dddff0f4c3cf2a89ea6_720w.webp" alt="img"></p>
+<p>修改catalina.sh</p>
+<p><img src="/posts/34961/assets/34943e7bf368a7762ffa1d22f5a87506.webp" alt="img"></p>
+<p>3） 设置G1垃圾收集器，G1的性能是非常强悍的，能用G1的情况下优先使用，能极大提高程序运行性能。</p>
+<p>修改catalina.sh</p>
+<p><img src="/posts/34961/assets/e2a8e6d7491d872dd477d9d5da9134bf.webp" alt="img"></p>
+<h3 id="八、Linux优化"><a href="#八、Linux优化" class="headerlink" title="八、Linux优化"></a>八、Linux优化</h3><h3 id="Linux性能优化概述"><a href="#Linux性能优化概述" class="headerlink" title="Linux性能优化概述"></a>Linux性能优化概述</h3><p>Linux性能的基本指标、工具，相应的观测、分析和调优方法。包括CPU性能、磁盘I&#x2F;O性能、内存性能及网络性能。其实最终目的就是为了实现高并发和吞吐快，也就是延时和吞吐。</p>
+<p><strong>调优的步骤</strong></p>
+<p>1） 选择指标评估应用程序和系统性能</p>
+<p>2） 设置性能目标</p>
+<p>3） 进行性能基准测试</p>
+<p>4） 性能分析，如果未达到目标，分析定位瓶颈。</p>
+<p>5） 根据分析结果优化应用程序和系统</p>
+<p>6） 进行性能监控和阀值警告机制</p>
+<p><strong>性能优化方法论</strong></p>
+<p>应用程序维度：吞吐量和请求延迟评估应用程序性能</p>
+<p>系统资源维度：CPU使用率评估系统CPU使用情况</p>
+<p>多个性能问题同时存在，二八原则，即优先优化问题最大最重要的，也是提示最大的。</p>
+<p>多种优化方案，选择提升性能最明显的，复杂的优化方案会降低程序可维护性。</p>
+<h3 id="Linux优化-CPU优化（性能统计）"><a href="#Linux优化-CPU优化（性能统计）" class="headerlink" title="Linux优化-CPU优化（性能统计）"></a>Linux优化-CPU优化（性能统计）</h3><p><strong>1）平均负载率</strong></p>
+<p>单位时间内，系统处于可运行状态和不可中断状态的平均进程数，也就是平均活跃进程数，平均负载率高不一定CPU使用率也高，比如I&#x2F;O密集架进程，等待I&#x2F;O。</p>
+<p>可运行状态的进程：正在使用CPU和等待CPU的进程，ps指令，处于R状态的进程。</p>
+<p>不可中断状态的进程：处于内核态关键流程中的进程，如I&#x2F;O响应，ps指令，处于D状态的进程。</p>
+<p>查看负载命令uptime</p>
+<p><img src="/posts/34961/assets/06f1da89c2d4618572a92999c44db666.webp" alt="img"></p>
+<p>主要看最后三个值，也就是1分钟，5分钟，15分钟平均负载，相差不大说明系统负载稳定。</p>
+<p>平均负载最理想的情况是等于CPU个数，从上图来说，如果系统只有1个CPU，1分钟的负载率就高达501%，说明有多个进程正在争抢这个CPU，已经超载，最佳方案是平均负载不能高于CPU数量的70%。</p>
+<p> Linux系统压力测试工具Stress </p>
+<p> <img src="/posts/34961/assets/49102c6397c0be694e664fa8152ed341.webp" alt="img"> </p>
+<p>Linux系统性能监控和分析工具Sysstat</p>
+<p>mpstat命令：实时查看每个CPU的性能指标以及所有CPU的平均指标。</p>
+<p>pidstat命令：实时查看进程的CPU、内存、I&#x2F;O以及上下文切换等性能指标。</p>
+<p> <img src="/posts/34961/assets/a213f5aa051149a32c1c73e63d661cf6.webp" alt="img"> </p>
+<p><strong>2）上下文切换</strong></p>
+<p>Linux是多任务操作系统，支持远大于CPU数量的任务同时运行，通过频繁的上下文切换，将CPU轮流分配给不同任务。CPU上下文切换就是保存当前任务的上下文，即CPU寄存器和程序计数器，加载新任务的上下文到CPU寄存器和程序计数器中，调转程序计数器所指的新位置，运行新任务，保存的上下文存储在系统中，通过任务重新调度执行加载。</p>
+<p>上下文切换时机：</p>
+<p>CPU会给每一个进程划分时间片，时间片耗尽上下文切换。</p>
+<p>进程资源不足，如内存不够，就挂起</p>
+<p>通过sleep函数休眠</p>
+<p>有优先级更高的进程</p>
+<p>发生故障，硬件中断。</p>
+<p>发生故障，硬件中断。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-481f72e193a21cca694a29003a67ffaa_720w.webp" alt="img"></p>
+<p>从Ring 0 内核空间即内核态到Ring 3用户空间即用户态权限递减，即Ring 0能访问所有。</p>
+<p>进程的上下文切换：一个进程到另一个进程</p>
+<p>系统调用：同一个进程运行，即上面模型图中的特权模式切换，即内核态和用户态切换，比如读取一个文件，先是把用户开发文件，保存用户态指令，然后切换到内核态执行，再切换回用户态响应结果。</p>
+<p>进程上下文切换：进程是资源拥有的结伴单位，切换就两步，保存上下文，切换上下文。</p>
+<p>CPU挑选进程运行原则：每个CPU都维护了一个等待队列，按优先级和CPU等待时间排序，即优先级和先入先出原则执行进程。</p>
+<p>线程上下文切换：线程是调度的基本单位，切换分两种，两个线程属于不同进程和进程切换一致，属于同一进程，共有资源不动，只切换私有资源。</p>
+<p>中断上下文切换：受到中断信号，保存当前进程，等待中断结束继续运行，中断优先级比进程上下文切换高，并发也不会同时发生。</p>
+<p>通过<strong>vmstat</strong>工具分析上下文切换情况及中断次数</p>
+<p>命令vmstat 3 5 即3秒打印一次结果一共输出5次</p>
+<p><img src="/posts/34961/assets/d7da538746fdecec06e61c3c8d3e1243.webp" alt="img"></p>
+<p>查看进程对应情况命令 pidstat -u -w 3</p>
+<p><img src="/posts/34961/assets/f3587d58c3c46d991e475e269b47bdb5.webp" alt="img"></p>
+<p><strong>3）CPU使用率</strong></p>
+<p>单位时间内CPU的使用情况，百分比显示。CPU使用率&#x3D;1-（空间时间&#x2F;总CPU时间），性能工具是按间隔时间求平均得到使用率。</p>
+<p>top(总体)、ps（所有进程）、pidstat（单个进程）是最常用性能分析工具</p>
+<h3 id="Linux优化-CPU优化（调优策略）"><a href="#Linux优化-CPU优化（调优策略）" class="headerlink" title="Linux优化-CPU优化（调优策略）"></a>Linux优化-CPU优化（调优策略）</h3><p>CPU优化分应用程序维度和系统的角度，即代码工程优化和系统参数设置优化。</p>
+<p>应用程序优化：排除所有不必要操作保留核心逻辑</p>
+<p>1） 编译器优化，大部分编译器都提高优化选项，开启之后，在编译阶段就能对工程优化，提高性能。</p>
+<p>2） 减少循环的次数、减少递归、减少动态内存分配</p>
+<p>3） 算法优化，使用复杂度更低的算法。</p>
+<p>4） 异步处理，提高程序并发处理能力，避免程序因等待资源一直阻塞，比如把轮询替换为事件通知。</p>
+<p>5） 多线程代替多进程，多线程之前的切换比多进程切换成本低</p>
+<p>6） 多用缓存，经常访问的数据和计算过程的步骤放入缓存，加快程序处理速度。</p>
+<p>系统角度：利用CPU缓存的本地性并控制进程的CPU使用情况</p>
+<p>1） 进程优先级调整</p>
+<p>2） 进程设置资源限制，避免过多消耗系统资源</p>
+<p>3） 中断负载均衡，任何中断处理程序都会消耗大量CPU资源，把中断处理过程均衡分配到多个CPU上。</p>
+<h3 id="Linux优化-内存优化（性能统计）"><a href="#Linux优化-内存优化（性能统计）" class="headerlink" title="Linux优化-内存优化（性能统计）"></a>Linux优化-内存优化（性能统计）</h3><p>要先知道内存的各个内存量，才能根据指标进行优化，分系统内存和进程内存。</p>
+<p>系统内存使用情况 free命令 free -h -c 2 -s 2间隔两秒输出两次 并人性化输出所有信息</p>
+<p><img src="/posts/34961/assets/b407171ffb0292645f1ba12ac6a15ffd.webp" alt="img"></p>
+<p>从头开始列名含义：总内存大小、已使用内存大小、未使用内存大小、共享内存大小、缓存和缓冲区内存大小、新进程可用内存大小（包含未使用和可回收内存）。</p>
+<p> <img src="/posts/34961/assets/08a318857bb0b5ca8edf9b62779c10f9.webp" alt="img"> </p>
+<p>Buffer是对磁盘数据的缓存，Cache是文件数据的缓存，读写请求都可以使用。</p>
+<p>缓存和缓冲区的缓存命中率越高，使用缓存带来的收益就会越高，应用程序的性能就会越好。</p>
+<p>通过top指令查看进程内存</p>
+<p><img src="/posts/34961/assets/2b64a143a324b3af3c0cbf5c7a8a9eba.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/062275a3c23f333f3dcb88d9b7d5d46c.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-e8a527e5e600969d37ba5ad5c4b1e511_720w.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/a2febcdc8cfd5a2eefdd5045d7446d28.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/a4e4e49d0087c89ab9be6698978ecdd6.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/fffe6d8d55c2551236751b60c9afa666.webp" alt="img"></p>
+<p><img src="/posts/34961/assets/ccbcfa023bd019e75122a23e0da1a772.webp" alt="img"></p>
+<h3 id="Linux优化-内存优化（调优策略）"><a href="#Linux优化-内存优化（调优策略）" class="headerlink" title="Linux优化-内存优化（调优策略）"></a>Linux优化-内存优化（调优策略）</h3><p>1） 禁止Swap，使用本地内存空间，避免服务器因物理内存不够用，使用Swap分区空间。</p>
+<p>2） 减少内存的动态分配，使用如内存池，大页等。</p>
+<p>3） 尽量使用缓存和缓冲区来访问数据。如redis组件。</p>
+<p>4） 使用cgroups限制进程内存使用情况。</p>
+<p>5） 通过&#x2F;proc&#x2F;pid&#x2F;oom_adj调整核心应用的oom_score，设置为0，保证内存紧张，核心应用不会被OOM杀死。</p>
+<h3 id="Linux优化-磁盘IO优化（性能统计）"><a href="#Linux优化-磁盘IO优化（性能统计）" class="headerlink" title="Linux优化-磁盘IO优化（性能统计）"></a>Linux优化-磁盘IO优化（性能统计）</h3><p>文件数据的储存：超级块、索引节点区、数据块区</p>
+<p>超级块：整个文件系统的状态</p>
+<p>索引节点区：存储索引节点，便于查找</p>
+<p>数据块区：存储文件的数据</p>
+<p>1） 每秒IO数（IOPS）：每秒磁盘连续读次数和连续写次数之和。</p>
+<p>2） 吞吐量（Throughput）：硬盘传输数据流的速度，即读写数据之和</p>
+<p>3） 平均IO数据尺寸：吞吐量&#x2F;IO数目</p>
+<p>4） 磁盘活动时间百分比：磁盘处于活动时间的比率，即磁盘利用率。</p>
+<p>5） 服务时间：磁盘进行读和写执行时间。</p>
+<p>6） IO等待队列长度：等待磁盘处理的IO请求长度</p>
+<p>7） 等待时间：磁盘读或写等待执行的时间</p>
+<p>IO性能观测工具iostat，通过他查看磁盘的使用率、IOPS、吞吐量，使用命令iostat -d -x 1</p>
+<p> <img src="/posts/34961/assets/c3cb4b1bd8271f7d2da3bc6ad9c2fdae.webp" alt="img"> </p>
+<h3 id="Linux优化-磁盘IO优化（调优策略）"><a href="#Linux优化-磁盘IO优化（调优策略）" class="headerlink" title="Linux优化-磁盘IO优化（调优策略）"></a>Linux优化-磁盘IO优化（调优策略）</h3><p>应用程序优化策略</p>
+<p>1） 追加写代替随机写</p>
+<p>2） 利用缓存IO降低IO次数</p>
+<p>3） 使用redis外部缓存</p>
+<p>4） 频繁读写同一块磁盘空间，使用mmap代替read&#x2F;write，减少内存拷贝次数</p>
+<p>5） 同步写场景，将请求合并，不要多次请求同步写入磁盘。</p>
+<p>6） 多应用程序共享磁盘，使用cgroups进行限制</p>
+<p>文件系统优化策略</p>
+<p>1） 如果做了负载均衡，选择最适配的文件系统，如Ubuntu默认ext4，CentOS 7默认xfs</p>
+<p>2） 优化文件系统配置</p>
+<p>3） 优化文件系统缓存</p>
+<p>磁盘优化策略</p>
+<p>1） 选择更好的磁盘，如固态硬盘SSD代替机械硬盘HDD</p>
+<p>2） 使用RAID把多块磁盘组合成一个矩阵逻辑磁盘</p>
+<p>3） 选择最合适的IO调度算法，如虚拟机和SSD使用noop调度算法，数据库应用可以改为deadline算法</p>
+<p>4） 对应用程序数据进行磁盘级别隔离</p>
+<p>5） 读场景较多，增大磁盘预读数据</p>
+<p>6） 如果对磁盘操作频繁，调整磁盘队列的长度，增大磁盘吞吐量</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/jvm/" rel="tag"><i class="fa fa-tag"></i> jvm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/12926/" rel="prev" title="垃圾回收机制及算法">
+                  <i class="fa fa-chevron-left"></i> 垃圾回收机制及算法
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/7828/" rel="next" title="jvm参数配置">
+                  jvm参数配置 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"e950d676d858396f6d2280c159250ccd"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

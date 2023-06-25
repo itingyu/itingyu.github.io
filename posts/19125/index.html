@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Mybatis高级应用映射文件：约束头；根标签；命名空间；操作标签（curd）;结果实体类；语句的id标识；sql语句 Environment标签：数据库配置环节 TransactionManager标签：事务管理器 DataSource标签：数据源-&gt;pooled 使用连接池管理，unpooled反之 Mapper标签：加载映射，可单独加也可以直接加一个包下所有。 Propreties">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mybatis框架知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/19125/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Mybatis高级应用映射文件：约束头；根标签；命名空间；操作标签（curd）;结果实体类；语句的id标识；sql语句 Environment标签：数据库配置环节 TransactionManager标签：事务管理器 DataSource标签：数据源-&gt;pooled 使用连接池管理，unpooled反之 Mapper标签：加载映射，可单独加也可以直接加一个包下所有。 Propreties">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/36ef6d0d749a0bfebc2f481f67967629.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/2e69670f3e010c1a7d1ed9ba0cc06643.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d8ab8a5134d008cc37f7905538b808f1_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/f16965401ca0ccecb1592368f7f8460c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/70f145662dcce5ed4a1a82754c8c5646.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/4d782ab6d929882217cededbc60a391b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/af2bdf9d5dbb84492c427de7accaf409.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/aac555ee0b590185ca4d32da26adea34.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-f23cb9bed8d949962bb3e8e65e03b262_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/00a9cee54dde5318cc3bbd84eb2cfdcb.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-54ddaf1cd090c9831eef0d1a29be9eaa_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/b7cc9e3e0d4bd75b544786112b8698ed.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/19125/assets/637e6d2178c21eb125fc950e855e1c75.webp">
+<meta property="article:published_time" content="2023-06-17T10:37:54.000Z">
+<meta property="article:modified_time" content="2023-06-17T10:44:10.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="mybatis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/19125/assets/36ef6d0d749a0bfebc2f481f67967629.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/19125/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/19125/","path":"posts/19125/","title":"mybatis框架知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mybatis框架知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Mybatis%E9%AB%98%E7%BA%A7%E5%BA%94%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">一、Mybatis高级应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mybatis%E4%BA%8C%E7%BA%A7%E7%BC%93%E5%AD%98%E8%A7%A3%E6%9E%90"><span class="nav-number">1.1.</span> <span class="nav-text">Mybatis二级缓存解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD"><span class="nav-number">2.</span> <span class="nav-text">延迟加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Mybatis%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">Mybatis设计模式</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/19125/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mybatis框架知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mybatis框架知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:37:54" itemprop="dateCreated datePublished" datetime="2023-06-17T18:37:54+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mybatis/" itemprop="url" rel="index"><span itemprop="name">mybatis</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Mybatis高级应用"><a href="#一、Mybatis高级应用" class="headerlink" title="一、Mybatis高级应用"></a><strong>一、Mybatis高级应用</strong></h2><p><strong>映射文件</strong>：约束头；根标签；命名空间；操作标签（curd）;结果实体类；语句的id标识；sql语句</p>
+<p><strong>Environment标签</strong>：数据库配置环节</p>
+<p><strong>TransactionManager标签</strong>：事务管理器</p>
+<p><strong>DataSource标签</strong>：数据源-&gt;pooled 使用连接池管理，unpooled反之</p>
+<p><strong>Mapper标签</strong>：加载映射，可单独加也可以直接加一个包下所有。</p>
+<p><strong>Propreties标签</strong>：加载外部对应文件，比如提取jdbc或者日志配置文件</p>
+<p><strong>TypeAliases标签</strong>：给实体类全限定名起别名，使用packge可以批量</p>
+<p><strong>forEach标签</strong>:collection遍历的集合；open开始部分；close结束部分；item遍历的元素；sperator分隔符</p>
+<p>代理模式开发接口规范：</p>
+<p>\1. mapper.xml的namespace与接口限定名一致</p>
+<p>\2. mapper接口方法名与mapper.xml定义的每个statament的id相同</p>
+<p>\3. mapper接口方法的入参对应mapper.xml的parameterType类型相同</p>
+<p>\4. mapper接口方法的返回结果对应mapper.xml的resultType类型相同</p>
+<p><strong>Mybatis复杂映射</strong>：通过resultMap手动配置实体属性与表配置关系。一对一：在resultMap标签内通过assocition标签配置实体类引用的另一个实体类字段。一对多、多对多：collection标签。</p>
+<p><strong>Mybatis注解开发</strong>；使用@result注解代替resultMap，column数据库列名，property装配的属性名，@one一对一，@many一对多，多对多。（通过当前方法上面的查询结果根据@result注解内关联字段，调取另一个方法注解关联sql，获取综合返回结果）</p>
+<p><strong>Mybatis一级缓存</strong>；存储在sqlsession中，默认开启，底层是一个hashmap（cachekey键(statsmentid+params+boundsql+rowbounds),值(具体对象)）。第一次查询先去缓存中查找，找到直接返回，没找到去数据库获取，返回查询结果并缓存。事务提交操作会清空缓存。</p>
+<p>一级缓存源码理解：根据父子关系翻阅源码，比如sqlsession(clearCache)-&gt;defaultSqlsession(clearCache)-&gt;excutor(clearLocalCache)-&gt;</p>
+<p>baseExcutor(clearLocalCache)-&gt;perpetualCache(clear)查看最底层，他定义的就是一个hashmap,得出结果缓存就是存放map对象。方法执行底层中都要调用createCacheKey获取cachekey,在方法内通过Configuration.getEnvironment是否为空来决定是否完成cachekey值的封装。根据key是否为空来判定缓存的添加。</p>
+<p><strong>Mybatis二级缓存</strong>：</p>
+<p>横跨sqlsesion,默认关闭，通过注解标签@CacheNamespace开启二级缓存，多个sqlsession共享二级缓存，二级缓存的不是对象，是缓存的数据，注意二级缓存实体类要实现序列化接口，因为二级缓存能存储内存和硬盘。可以引入外部redis非关系性数据库来进行二级缓存，自定义缓存类必须要实现cache包下的Cache接口。</p>
+<p>全局二级缓存开启</p>
+<settings>
+
+<setting name="cacheEnabled" value="true"/>
+
+</settings>
+
+<p><strong>Mybatis整合Redis缓存：</strong>解决分布式二级缓存，对缓存数据进行集中管理，从redis缓存服务器中获取缓存数据，redis源码自带默认配置。缓存的数据也是一个hash结构。</p>
+<p><strong>三层架构：</strong>api接口层-&gt;传统或者代理方式、数据处理层-&gt;数据库操作、框架支撑层-&gt;连接，事务，配置，缓存等等。</p>
+<p><strong>Sqlsession</strong>:作为mybatis工作的主要顶层api,表示和数据库交互的会话，完成数据库curd功能</p>
+<p><strong>Excutor</strong>:Mybatis执行器，负责sql语句的生成和查询缓存的维护</p>
+<p><strong>BatchExecutor</strong> (重⽤语句并执⾏批量更新)</p>
+<p><strong>ReuseExecutor</strong> (重⽤预处理语句 prepared statements)</p>
+<p><strong>SimpleExecutor</strong> (普通的执⾏器，默认)</p>
+<p>(1、根据传递的参数，完成SQL语句的动态解析，⽣成BoundSql对象，供StatementHandler使⽤；</p>
+<p>(2、为查询创建缓存，以提⾼性能</p>
+<p>(3、创建JDBC的Statement连接对象，传递给<em>StatementHandler</em>对象，返回List查询结果。</p>
+<p><strong>StatementHandler</strong>：封装了jdbc statement操作，设置参数，将结果转化成list集合</p>
+<p>对于JDBC的PreparedStatement类型的对象，创建的过程中，我们使⽤的是SQL语句字符串会包含若⼲个？占位符，我们其后再对占位符进⾏设值。StatementHandler通过parameterize(statement)⽅法对 S tatement 进⾏设值；</p>
+<p>StatementHandler 通过 List query(Statement statement, ResultHandler resultHandler)⽅法来完成执⾏Statement，和将Statement对象返回的resultSet封装成List；</p>
+<p><strong>ParameterHandler</strong>:把传递的参数转化成jdbc statement所需要的参数</p>
+<p><strong>ResultSetHandler</strong>：将jdbc返回的结果集转化成list类型集合</p>
+<p><strong>TypeHandler</strong>：负责java数据和jdbc数据类型之间的映射和转换</p>
+<p><strong>MappedStatement</strong>：维护了一条＜select | update | delete | insert＞节点的封装</p>
+<p><strong>SqlSource</strong>:根据用户传递的parameterObject动态生成sql语句，封装到BoundSql对象并返回</p>
+<p><strong>BoundSql</strong>:动态生成sql语句和参数信息</p>
+<p><strong>Mybatis执行总体流程：</strong></p>
+<p>\1. 加载配置文件并初始化</p>
+<p>\2. 接受调用请求</p>
+<p>\3. 处理操作请求（根据sql的id查找对应的mappedstatement对象-&gt;根据传入参数解析mappedstatement对象，得到sql和入参-&gt;获取数据库连接并执行sql，返回结果-&gt;根据mappedstatement对象结果映射配置对执行结果进行转化处理，得到最终返回结果）</p>
+<p>\4. 返回处理结果</p>
+<h3 id="Mybatis二级缓存解析"><a href="#Mybatis二级缓存解析" class="headerlink" title="Mybatis二级缓存解析"></a>Mybatis二级缓存解析</h3><p>⼆级缓存构建在⼀级缓存之上，在收到查询请求时，MyBatis ⾸先会查询⼆级缓存，若⼆级缓存未命中，再去查询⼀级缓存，⼀级缓存没有，再查询数据库。二级缓存-&gt;一级缓存-&gt;数据库与⼀级缓存不同，⼆级缓存和具体的命名空间绑定，⼀个Mapper中有⼀个Cache，相同Mapper中的MappedStatement共⽤⼀个Cache，⼀级缓存则是和 SqlSession 绑定。</p>
+<p><strong>Cache标签解析</strong>：在xml配置文件初始化的时候，在build方法内通过XmlConfigBuilder类的parser方法对configuration标签下所有子节点标签进行解析，找到引入的mapper配置标签，进入对应mapper内部解析方法，在resource或url或class任意不为空的情况下，调用构造的XMLMapperBuilder类中parse方法对mapper节点进行解析，在对应逻辑中找到cache处理模块（里面还有一个相关的处理cache-ref标签解析，是应对引入其他缓存数据库作为二级缓存）。获取标签内所有可定义属性，根据解析的属性通过builderAssistant.useNewCache方法来创建cache对象，最后存入configuration，并赋值给MapperBuilderAssistant的currentCache,而这个变量在构造MappedStatement的build对象时会对currentCache封装，所以相同mapper的MappedStatement共用一个caChe</p>
+<p><img src="/posts/19125/assets/36ef6d0d749a0bfebc2f481f67967629.webp" alt="img"></p>
+<p><img src="/posts/19125/assets/2e69670f3e010c1a7d1ed9ba0cc06643.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-d8ab8a5134d008cc37f7905538b808f1_720w.webp" alt="img"></p>
+<p><strong>二级缓存的执行</strong>：在使用端通过对具体方法的调用，比如查询，到重载方法后会执行executor.query()方法，因为开启了二级缓存，这时候执行器的query方法就会走CachingExecutor类，而不是默认的BaseExecutor类。在对应类里面获取BoundSql对象并创建CacheKey对象，把参数带入query方法，在具体方法内如果cache不为空，进入具体逻辑，首先有一个flushCacheIfRequired方法通过flushCache&#x3D;”true”设置属性对缓存是否清空进行处理，接着会有一个tcm.getObject方法，从二级缓存中获取结果，如果为空执行delegate.query（）方法从一级缓存获取结果，SimpleExecutor其实就是delegate的具体实现。如果没有再从数据库获取，最后通过tcm.setObjetc再把结果存入一个map对象中,这里还没有存入二级缓存，在执行commit或者close时，才会把map对象转移到二级缓存中，而tcm就是TransactionalCacheManager事务缓存管理器(说到事务就明白了撒，进行事务管控，没有提交就暂时把数据操作临时存放，待完成后进行事务提交，完成最终操作) ，但是⼆级缓存是从 MappedStatement 中获取的。由于 MappedStatement 存在于全局配置中，可以多个 CachingExecutor 获取到，这样就会出现线程安全问题。除此之外，若不加以控制，多个事务共⽤⼀个缓存实例，会导致脏读问题。因此设计可一个Map&lt;Cache, TransactionalCache&gt; transactionalCaches &#x3D; new HashMap&lt;Cache, TransactionalCache&gt;();来映射Cache 与 TransactionalCache的关系。在进行tcm.setObject时, 存储⼆级缓存对象的时候是放到了TransactionalCache.entriesToAddOnCommit这个map中。而查询又是TransactionalCache.delegate中去查询，避免了数据问题的产生，在提交之后，通过flushPendingEntries方法把数据加载进了delegate中，二级缓存数据正式生效。</p>
+<p><img src="/posts/19125/assets/f16965401ca0ccecb1592368f7f8460c.webp" alt="img"></p>
+<p><img src="/posts/19125/assets/70f145662dcce5ed4a1a82754c8c5646.webp" alt="img"></p>
+<p><img src="/posts/19125/assets/4d782ab6d929882217cededbc60a391b.webp" alt="img"></p>
+<p><img src="/posts/19125/assets/af2bdf9d5dbb84492c427de7accaf409.webp" alt="img"></p>
+<p><img src="/posts/19125/assets/aac555ee0b590185ca4d32da26adea34.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-f23cb9bed8d949962bb3e8e65e03b262_720w.webp" alt="img"></p>
+<h2 id="延迟加载"><a href="#延迟加载" class="headerlink" title="延迟加载"></a>延迟加载</h2><p>一对多，多对多采用延迟加载，什么时候用什么时候加载</p>
+<p>一对一，多对一采用；立即加载，默认采用策略</p>
+<p>优点：延迟加载可以实现先从单表查询，需要时再关联其他表获取数据，提高查询效率，优化数据库性能。</p>
+<p>缺点：因为只有当需要⽤到数据时，才会进⾏数据库查询，这样在⼤批量数据查询时，因为查询⼯作也要消耗时间，所以可能造成⽤户等待时间变⻓，造成⽤户体验下降。</p>
+<p>在association和collection标签中都有⼀个fetchType属性，通过修改它的值，可以修改局部的加载策略</p>
+<p>局部延迟加载</p>
+<p><img src="/posts/19125/assets/00a9cee54dde5318cc3bbd84eb2cfdcb.webp" alt="img"></p>
+<p>全局延迟加载</p>
+<p><img src="https://pic3.zhimg.com/80/v2-54ddaf1cd090c9831eef0d1a29be9eaa_720w.webp" alt="img"></p>
+<p>它的原理是，使⽤ CGLIB 或 Javassist( 默认 ) 创建⽬标对象的代理对象。当调⽤代理对象的延迟加载属性getting ⽅法时，进⼊拦截器⽅法。⽐如调⽤ a.getB().getName() ⽅法，进⼊拦截器的invoke(…) ⽅法，到invoke方法，通过代理拦截到指定⽅法，执⾏数据加载Invoke方法：获取或设置实体类属性延迟加载底层判断，第一层判断是否是延迟加载的属性，第二层是否是setting方法，移除延迟加载，第三层是否是getting方法，并且配置了延迟加载， 发现 a.getB() 需要延迟加载时，那么就会单独发送事先保存好的查询关联 B对象的 SQL ，把 B 查询上来，然后调⽤ a.setB(b) ⽅法，于是 a 对象 b 属性就有值了，接着完成 a.getB().getName() ⽅法的调⽤。</p>
+<h2 id="Mybatis设计模式"><a href="#Mybatis设计模式" class="headerlink" title="Mybatis设计模式"></a>Mybatis设计模式</h2><p><img src="/posts/19125/assets/b7cc9e3e0d4bd75b544786112b8698ed.webp" alt="img"></p>
+<p><strong>构建者设计模式</strong></p>
+<p>Builder模式的定义是”将⼀个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。”，它属于创建类模式，⼀般来说，如果⼀个对象的构建⽐较复杂，超出了构造函数所能包含的范围，就可以使⽤⼯⼚模式和Builder模式，相对于⼯⼚模式会产出⼀个完整的产品，Builder应⽤于更加复杂的对象的构建，甚⾄只会构建产品的⼀个部分，直⽩来说，就是使⽤多个简单的对象⼀步⼀步构建成⼀个复杂的对象。</p>
+<p><img src="/posts/19125/assets/637e6d2178c21eb125fc950e855e1c75.webp" alt="img"></p>
+<p><strong>工厂模式</strong></p>
+<p>在Mybatis中⽐如SqlSessionFactory使⽤的是⼯⼚模式，该⼯⼚没有那么复杂的逻辑，是⼀个简单⼯⼚模式。</p>
+<p>简单⼯⼚模式(Simple Factory Pattern)：⼜称为静态⼯⼚⽅法(Static Factory Method)模式，它属于创建型模式。</p>
+<p>在简单⼯⼚模式中，可以根据参数的不同返回不同类的实例。简单⼯⼚模式专⻔定义⼀个类来负责创建其他类的实例，被创建的实例通常都具有共同的⽗类。</p>
+<p>在mybatis中SqlSessionFactory负责SqlSession创建，并且的openSession ()⽅法重载了很多个，分别⽀持autoCommit、Executor、Transaction等参数的输⼊，来构建核⼼的SqlSession对象。</p>
+<p>在DefaultSqlSessionFactory的openSessionFromDataSource方法，通过获取的数据库连接、事务对象、执行器，最后构建了defaultSqlSession。</p>
+<p><strong>代理模式</strong></p>
+<p>代理模式(Proxy Pattern):给某⼀个对象提供⼀个代理，并由代理对象控制对原对象的引⽤。代理模式的英⽂叫做Proxy，它是⼀种对象结构型模式，代理模式分为静态代理和动态代理，我们来介绍动态代理，我们使⽤Configuration的getMapper⽅法时，会调⽤mapperRegistry.getMapper⽅法，⽽该⽅法⼜会调⽤mapperProxyFactory.newInstance(sqlSession)来⽣成⼀个具体的代理，通过T newInstance(SqlSession sqlSession)⽅法会得到⼀个MapperProxy对象，这个MapperProxy对象实现了InvocationHandler重写了invoke方法，该⽅法则会调⽤后续的sqlSession.cud&gt;executor.execute&gt;prepareStatement 等⼀系列⽅法，完成 SQL 的执⾏和返回，最后调⽤T newInstance(MapperProxy mapperProxy)⽣成代理对象然后返回 。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/mybatis/" rel="tag"><i class="fa fa-tag"></i> mybatis</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/8600/" rel="prev" title="思考">
+                  <i class="fa fa-chevron-left"></i> 思考
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/62590/" rel="next" title="mybatis">
+                  mybatis <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"f07ad1610d5bdd2288dd3ed893aa4224"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

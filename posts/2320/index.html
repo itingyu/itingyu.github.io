@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、 Tomcat系统架构和原理剖析浏览器访问服务器的流程 浏览器访问服务器使⽤的是Http协议，Http是应⽤层协议，⽤于定义数据通信的格式，具体的数据传输使⽤的是TCP&#x2F;IP协议。 Tomcat 系统总体架构Tomcat的两个身份： 1）http服务器 2）Tomcat是⼀个Servlet容器 Tomcat是⼀个Http服务器，HTTP 服务器接收到请求之后把请求交给Servlet容">
+<meta property="og:type" content="article">
+<meta property="og:title" content="tomcat相关知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/2320/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、 Tomcat系统架构和原理剖析浏览器访问服务器的流程 浏览器访问服务器使⽤的是Http协议，Http是应⽤层协议，⽤于定义数据通信的格式，具体的数据传输使⽤的是TCP&#x2F;IP协议。 Tomcat 系统总体架构Tomcat的两个身份： 1）http服务器 2）Tomcat是⼀个Servlet容器 Tomcat是⼀个Http服务器，HTTP 服务器接收到请求之后把请求交给Servlet容">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-bcc32c3b6cb7a2ba6b1a272b2c0c3fe2_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/efdb8b714f44fe0c3fd8bf488fee0013.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/36379b79999327337f7d8db2092f7e15.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/4e70d4e3313490b56a509f95cf7674bb.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-18b84208b91eb96c8a86e3321d88819a_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-39c0a3f4f15e3145b027642fe58b18a7_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/812f5fcc102346c63adbb4878f7e0d0c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/3f8eef762783307fcfdc98394ce3d108.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/9ca9f4221d6c8bdc1d0ffdaacca6b5c6.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/989b041079ee1ef1ac6b3efb2f74e238.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/a02b581b3cfabcecdfd66e3a9cb2800d.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/c8bd3a4cdc0b64c68670e1781ca51472.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-73127870fcce3df98ba75cf41be8b951_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/6bc951d9c7f6fe1b47a7b59924d803ea.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/3cf4f30992c15107f56a39e739fa1723.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/6cb5ba980d6886fc1fa34b04f5d7c970.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-f3e5efed8367c39cabf0763d86b89587_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/a694ff087aab0a04a5dcc99668fd39e1.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/84c07c550e2553cd4ce3e75400409228.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/0f16d95069dd71d57c9ef884f4769cad.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d556554d799b10a0728b275749d59b89_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/6bf49db3da69c7b16bb079a327089255.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/1da87bffb7ba9d23b198a9b97fa252d2.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-c7ef8d1509d33955578f6d48fcc34af5_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/ae9c0cf3fddd9576185fd4fdd4dc0662.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/54ed60b1539016fe66ef12ad2b951b43.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/3422109b0992b60d7987996e724c7462.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-46cdf77a7c957192ef2582e542453829_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/623e79a5cb86319afca419593816352b.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-95e2ba7c2cd2061adcdd10a058081169_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/09484d20f46241fd81f0ee06dfdb9016.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/84be9f837ec2ea4c779b39d580cc02a2.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/1b43c97cc74a951249792cd6722db1ac.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/9e68caf918a0c2a4981a729c6de4759a.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/4467bfc76f7470191ecf6c775665d63f.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/c281e5618ddac033e359f214ddc8d5d3.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/67070137f7139efc792e161736b51bb4.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/ce94e1800948882bd1d16675bd91917e.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/0ab38bc46cd9530bf692ea205e26757c.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/ac69ae4d989337259f071c78559a266d.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/c6a7877eaa145326ae23fb02807c1266.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/b7b7a9eec83d5f000ea2c775963fed3b.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-00461d1c0704ebb062852639a0f3b97d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/2320/assets/2e3803931a16d4e5b980188d399a126f.webp">
+<meta property="article:published_time" content="2023-06-17T10:56:09.000Z">
+<meta property="article:modified_time" content="2023-06-17T10:57:22.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="tomcat">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-bcc32c3b6cb7a2ba6b1a272b2c0c3fe2_720w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/2320/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/2320/","path":"posts/2320/","title":"tomcat相关知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>tomcat相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81-Tomcat%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E5%92%8C%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">一、 Tomcat系统架构和原理剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">浏览器访问服务器的流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E7%B3%BB%E7%BB%9F%E6%80%BB%E4%BD%93%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">Tomcat 系统总体架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E4%B8%A4%E5%A4%A7%E7%BB%84%E4%BB%B6%E4%B9%8B%E8%BF%9E%E6%8E%A5%E5%99%A8%E7%BB%84%E4%BB%B6-Coyote"><span class="nav-number">1.3.</span> <span class="nav-text">Tomcat 两大组件之连接器组件 Coyote</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E4%B8%A4%E5%A4%A7%E7%BB%84%E4%BB%B6%E4%B9%8BServlet%E5%AE%B9%E5%99%A8%E7%BB%84%E4%BB%B6Catalina"><span class="nav-number">1.4.</span> <span class="nav-text">Tomcat 两大组件之Servlet容器组件Catalina</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEServer%E6%A0%87%E7%AD%BE"><span class="nav-number">1.5.</span> <span class="nav-text">Tomcat 服务器核⼼配置Server标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEService%E6%A0%87%E7%AD%BE"><span class="nav-number">1.6.</span> <span class="nav-text">Tomcat 服务器核⼼配置Service标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEExecutor%E6%A0%87%E7%AD%BE"><span class="nav-number">1.7.</span> <span class="nav-text">Tomcat 服务器核⼼配置Executor标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEConnector%E6%A0%87%E7%AD%BE"><span class="nav-number">1.8.</span> <span class="nav-text">Tomcat 服务器核⼼配置Connector标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEEngine%E6%A0%87%E7%AD%BE"><span class="nav-number">1.9.</span> <span class="nav-text">Tomcat 服务器核⼼配置Engine标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEHost%E6%A0%87%E7%AD%BE"><span class="nav-number">1.10.</span> <span class="nav-text">Tomcat 服务器核⼼配置Host标签</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%A0%B8%E2%BC%BC%E9%85%8D%E7%BD%AEContext%E6%A0%87%E7%AD%BE"><span class="nav-number">1.11.</span> <span class="nav-text">Tomcat 服务器核⼼配置Context标签</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%89%8B%E5%86%99%E5%AE%9E%E7%8E%B0Tomcat%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8E%E6%BA%90%E7%A0%81%E5%89%96%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">二、手写实现Tomcat服务器与源码剖析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%8B%E5%86%99%E5%AE%9E%E7%8E%B0Tomcat%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%9C%80%E6%B1%82%E5%8F%8A%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.1.</span> <span class="nav-text">手写实现Tomcat服务器需求及实现步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">Tomcat启动流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat%E8%AF%B7%E6%B1%82%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">Tomcat请求流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6%E5%89%96%E6%9E%90"><span class="nav-number">2.4.</span> <span class="nav-text">三、Tomcat类加载机制剖析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">2.5.</span> <span class="nav-text">JVM类加载机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="nav-number">2.6.</span> <span class="nav-text">JVM双亲委派机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%9C%BA%E5%88%B6"><span class="nav-number">2.7.</span> <span class="nav-text">Tomcat类加载机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Tomcat-%E5%AF%B9-Https-%E7%9A%84%E6%94%AF%E6%8C%81%E5%8F%8A-Tomcat-%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E7%AD%96%E7%95%A5"><span class="nav-number">3.</span> <span class="nav-text">四、Tomcat 对 Https 的支持及 Tomcat 性能优化策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat-%E5%AF%B9-HTTPS-%E7%9A%84%E6%94%AF%E6%8C%81"><span class="nav-number">3.1.</span> <span class="nav-text">Tomcat 对 HTTPS 的支持</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98"><span class="nav-number">3.2.</span> <span class="nav-text">JVM内存调优</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JVM%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E7%AD%96%E7%95%A5"><span class="nav-number">3.3.</span> <span class="nav-text">JVM垃圾收集策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Tomcat%E8%B0%83%E4%BC%98"><span class="nav-number">3.4.</span> <span class="nav-text">Tomcat调优</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/2320/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="tomcat相关知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          tomcat相关知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 18:56:09" itemprop="dateCreated datePublished" datetime="2023-06-17T18:56:09+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/tomcat/" itemprop="url" rel="index"><span itemprop="name">tomcat</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.5k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、-Tomcat系统架构和原理剖析"><a href="#一、-Tomcat系统架构和原理剖析" class="headerlink" title="一、 Tomcat系统架构和原理剖析"></a>一、 Tomcat系统架构和原理剖析</h2><h3 id="浏览器访问服务器的流程"><a href="#浏览器访问服务器的流程" class="headerlink" title="浏览器访问服务器的流程"></a>浏览器访问服务器的流程</h3><p><img src="https://pic3.zhimg.com/80/v2-bcc32c3b6cb7a2ba6b1a272b2c0c3fe2_720w.webp" alt="img"></p>
+<p>浏览器访问服务器使⽤的是Http协议，Http是应⽤层协议，⽤于定义数据通信的格式，具体的数据传输使⽤的是TCP&#x2F;IP协议。</p>
+<h3 id="Tomcat-系统总体架构"><a href="#Tomcat-系统总体架构" class="headerlink" title="Tomcat 系统总体架构"></a>Tomcat 系统总体架构</h3><p><strong>Tomcat的两个身份：</strong></p>
+<p>1）http服务器</p>
+<p>2）Tomcat是⼀个Servlet容器</p>
+<p>Tomcat是⼀个Http服务器，HTTP 服务器接收到请求之后把请求交给Servlet容器来处理，Servlet 容器通过Servlet接⼝调⽤业务类，避免tomcat和业务类耦合在一起。Servlet接⼝和Servlet容器这⼀整套内容就是Servlet规范。</p>
+<p><strong>Tomcat Servlet容器处理流程：</strong></p>
+<p>1）HTTP服务器会把请求信息使⽤ServletRequest对象封装起来</p>
+<p>2）进⼀步去调⽤Servlet容器中某个具体的Servlet</p>
+<p>3）Servlet容器拿到请求后，根据URL和Servlet的映射关系，找到相应的Servlet</p>
+<p>4）如果Servlet还没有被加载，就⽤反射机制创建这个Servlet，并调⽤Servlet的init⽅法来完成初始化</p>
+<p>5）接着调⽤这个具体Servlet的service⽅法来处理请求，请求处理结果使⽤ServletResponse对象封装</p>
+<p>6）把ServletResponse对象返回给HTTP服务器，HTTP服务器会把响应发送给客户端</p>
+<p><img src="/posts/2320/assets/efdb8b714f44fe0c3fd8bf488fee0013.webp" alt="img"></p>
+<p>总结：Tomcat主要干两个事情</p>
+<p>1）和客户端浏览器进⾏交互，进⾏socket通信，将字节流和Request&#x2F;Response等对象进⾏转换</p>
+<p>2）Servlet容器处理业务逻辑</p>
+<p><img src="/posts/2320/assets/36379b79999327337f7d8db2092f7e15.webp" alt="img"></p>
+<p>Tomcat设计了两个核心组件：连接器（Connector）和容器（Container）来干上面的两个事情</p>
+<p>连接器，负责对外交流： 处理Socket连接，负责⽹络字节流与Request和Response对象的转化</p>
+<p>容器，负责内部处理：加载和管理Servlet，以及具体处理Request请求</p>
+<h3 id="Tomcat-两大组件之连接器组件-Coyote"><a href="#Tomcat-两大组件之连接器组件-Coyote" class="headerlink" title="Tomcat 两大组件之连接器组件 Coyote"></a>Tomcat 两大组件之连接器组件 Coyote</h3><p>客户端通过Coyote与服务器建⽴连接、发送请求并接受响应：</p>
+<p>（1）Coyote 封装了底层的⽹络通信（Socket 请求及响应处理）</p>
+<p>（2）Coyote 使Catalina 容器（Container容器组件）与具体的请求协议及IO操作⽅式完全解 耦</p>
+<p>（3）Coyote 将Socket 输⼊转换封装为 Request 对象，进⼀步封装后交由Catalina 容器进⾏处理，处理请求完成后, Catalina 通过Coyote 提供的Response 对象将结果写⼊输出流。</p>
+<p>（4）Coyote 负责的是具体协议（应⽤层）和IO（传输层）相关内容</p>
+<p><img src="/posts/2320/assets/4e70d4e3313490b56a509f95cf7674bb.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-18b84208b91eb96c8a86e3321d88819a_720w.webp" alt="img"></p>
+<p>注意： 8.0 之前 ，Tomcat 默认采⽤的I&#x2F;O⽅式为 BIO，之后改为 NIO。 ⽆论 NIO、NIO2 还是 APR， 在性能⽅⾯均优于以往的BIO。 如果采⽤APR， 甚⾄可以达到 Apache HTTP Server 的影响性能。</p>
+<p><strong>Coyote 的内部组件及流程</strong></p>
+<p><img src="https://pic4.zhimg.com/80/v2-39c0a3f4f15e3145b027642fe58b18a7_720w.webp" alt="img"></p>
+<p><img src="/posts/2320/assets/812f5fcc102346c63adbb4878f7e0d0c.webp" alt="img"></p>
+<h3 id="Tomcat-两大组件之Servlet容器组件Catalina"><a href="#Tomcat-两大组件之Servlet容器组件Catalina" class="headerlink" title="Tomcat 两大组件之Servlet容器组件Catalina"></a>Tomcat 两大组件之Servlet容器组件Catalina</h3><p>Tomcat是由⼀系列可配置（conf&#x2F;server.xml）的组件构成的Web容器，⽽Catalina是Tomcat的servlet容器。</p>
+<p>Tomcat 本质上就是⼀款 Servlet 容器， 因此Catalina 才是 Tomcat 的核⼼ ， 其他模块都是为Catalina 提供⽀撑的。 ⽐如 ： 通过 Coyote 模块提供链接通信，Jasper 模块提供 JSP 引擎，Naming 提供JNDI 服务，Juli 提供⽇志服务。</p>
+<p><img src="/posts/2320/assets/3f8eef762783307fcfdc98394ce3d108.webp" alt="img"></p>
+<p>整个Tomcat就是⼀个Catalina实例，一个Catalina实例有一个Server实例，一个Server实例可以有多个Service实例, 每⼀个Service实例下可以有多个Connector实例和⼀个Container实例。</p>
+<p><img src="/posts/2320/assets/9ca9f4221d6c8bdc1d0ffdaacca6b5c6.webp" alt="img"></p>
+<p><strong>Catalina</strong></p>
+<p>负责解析Tomcat的配置⽂件（server.xml） , 以此来创建服务器Server组件并进⾏管理</p>
+<p><strong>Server</strong></p>
+<p>服务器表示整个Catalina Servlet容器以及其它组件，负责组装并启动Servlaet引擎,Tomcat连接器。Server通过实现Lifecycle接⼝，提供了⼀种优雅的启动和关闭整个系统的⽅式</p>
+<p><strong>Service</strong></p>
+<p>服务是Server内部的组件，⼀个Server包含多个Service。它将若⼲个Connector组件绑定到⼀个</p>
+<p><strong>Container</strong></p>
+<p>Container容器，负责处理⽤户的servlet请求，并返回对象给web⽤户的模块</p>
+<p>Container组件下有四种具体的组件，分别是Engine、Host、Context和Wrapper，他们是层级关系。</p>
+<p>Engine：表示整个Catalina的Servlet引擎，⽤来管理多个虚拟站点，⼀个Service最多只能有⼀个Engine，但是⼀个引擎可包含多个Host。</p>
+<p>Host：代表⼀个虚拟主机，或者说⼀个站点，可以给Tomcat配置多个虚拟主机地址，⽽⼀个虚拟主机下可包含多个Context。</p>
+<p>Context：表示⼀个Web应⽤程序， ⼀个Web应⽤可包含多个Wrapper。</p>
+<p>Wrapper：表示⼀个Servlet，Wrapper 作为容器中的最底层，不能包含⼦容器。</p>
+<h3 id="Tomcat-服务器核⼼配置Server标签"><a href="#Tomcat-服务器核⼼配置Server标签" class="headerlink" title="Tomcat 服务器核⼼配置Server标签"></a>Tomcat 服务器核⼼配置Server标签</h3><p><img src="/posts/2320/assets/989b041079ee1ef1ac6b3efb2f74e238.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Service标签"><a href="#Tomcat-服务器核⼼配置Service标签" class="headerlink" title="Tomcat 服务器核⼼配置Service标签"></a>Tomcat 服务器核⼼配置Service标签</h3><p><img src="/posts/2320/assets/a02b581b3cfabcecdfd66e3a9cb2800d.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Executor标签"><a href="#Tomcat-服务器核⼼配置Executor标签" class="headerlink" title="Tomcat 服务器核⼼配置Executor标签"></a>Tomcat 服务器核⼼配置Executor标签</h3><p><img src="/posts/2320/assets/c8bd3a4cdc0b64c68670e1781ca51472.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Connector标签"><a href="#Tomcat-服务器核⼼配置Connector标签" class="headerlink" title="Tomcat 服务器核⼼配置Connector标签"></a>Tomcat 服务器核⼼配置Connector标签</h3><p>Connector 标签⽤于创建链接器实例默认情况下，server.xml 配置了两个链接器，⼀个⽀持HTTP协议，⼀个⽀持AJP协议</p>
+<p>⼤多数情况下，我们并不需要新增链接器配置，只是根据需要对已有链接器进⾏优化.</p>
+<p><img src="https://pic2.zhimg.com/80/v2-73127870fcce3df98ba75cf41be8b951_720w.webp" alt="img"></p>
+<p>共享线程池:配置共享线程池，多个connector共用，节约资源。</p>
+<p><img src="/posts/2320/assets/6bc951d9c7f6fe1b47a7b59924d803ea.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Engine标签"><a href="#Tomcat-服务器核⼼配置Engine标签" class="headerlink" title="Tomcat 服务器核⼼配置Engine标签"></a>Tomcat 服务器核⼼配置Engine标签</h3><p>Engine 表示 Servlet 引擎</p>
+<p><img src="/posts/2320/assets/3cf4f30992c15107f56a39e739fa1723.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Host标签"><a href="#Tomcat-服务器核⼼配置Host标签" class="headerlink" title="Tomcat 服务器核⼼配置Host标签"></a>Tomcat 服务器核⼼配置Host标签</h3><p><img src="/posts/2320/assets/6cb5ba980d6886fc1fa34b04f5d7c970.webp" alt="img"></p>
+<h3 id="Tomcat-服务器核⼼配置Context标签"><a href="#Tomcat-服务器核⼼配置Context标签" class="headerlink" title="Tomcat 服务器核⼼配置Context标签"></a>Tomcat 服务器核⼼配置Context标签</h3><p><img src="https://pic4.zhimg.com/80/v2-f3e5efed8367c39cabf0763d86b89587_720w.webp" alt="img"></p>
+<h2 id="二、手写实现Tomcat服务器与源码剖析"><a href="#二、手写实现Tomcat服务器与源码剖析" class="headerlink" title="二、手写实现Tomcat服务器与源码剖析"></a>二、手写实现Tomcat服务器与源码剖析</h2><h3 id="手写实现Tomcat服务器需求及实现步骤"><a href="#手写实现Tomcat服务器需求及实现步骤" class="headerlink" title="手写实现Tomcat服务器需求及实现步骤"></a>手写实现Tomcat服务器需求及实现步骤</h3><p>1）提供服务，接收请求（Socket通信）</p>
+<p>2）请求信息封装成Request对象（Response对象）</p>
+<p>3）客户端请求资源，资源分为静态资源（html）和动态资源（Servlet）</p>
+<p>4）资源返回给客户端浏览器</p>
+<p>\1. 创建一个启动类Bootstrap，通过main方法调用启动start方法</p>
+<p><img src="/posts/2320/assets/a694ff087aab0a04a5dcc99668fd39e1.webp" alt="img"></p>
+<p><img src="/posts/2320/assets/84c07c550e2553cd4ce3e75400409228.webp" alt="img"></p>
+<p>\2. 通过dom4j加载解析web.xml存入map集合中，此map存储的是地址和自定义的HttpServlet类</p>
+<p><img src="/posts/2320/assets/0f16d95069dd71d57c9ef884f4769cad.webp" alt="img"></p>
+<p>\3. 定义端口号，创建一个ServerSocket，通过accept获取Socket类,把Socket和map集合传入多线程处理类。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-d556554d799b10a0728b275749d59b89_720w.webp" alt="img"></p>
+<p>\4. 通过Socket获取输入流封装Request对象</p>
+<p><img src="/posts/2320/assets/6bf49db3da69c7b16bb079a327089255.webp" alt="img"></p>
+<p>\5. 通过Socket获取输出流封装Response对象。</p>
+<p><img src="/posts/2320/assets/1da87bffb7ba9d23b198a9b97fa252d2.webp" alt="img"></p>
+<p>\6. 根据请求查询map集合是否为空判断静态资源，静态资源处理</p>
+<p><img src="https://pic2.zhimg.com/80/v2-c7ef8d1509d33955578f6d48fcc34af5_720w.webp" alt="img"></p>
+<p>\7. 动态资源处理，调用自定义的LgServlet继承HttpServlet重写doGet和doPost进行输出</p>
+<p><img src="/posts/2320/assets/ae9c0cf3fddd9576185fd4fdd4dc0662.webp" alt="img"></p>
+<p>\8. 关闭socket，获取已经创建好的多线程类，放入调用定义线程池threadPoolExecutor中调用execute执行。</p>
+<p><img src="/posts/2320/assets/54ed60b1539016fe66ef12ad2b951b43.webp" alt="img"></p>
+<h3 id="Tomcat启动流程"><a href="#Tomcat启动流程" class="headerlink" title="Tomcat启动流程"></a>Tomcat启动流程</h3><p>从脚本start.sh找到Bootstap类的main方法从父容器开始把组件一个个初始化再逐级启动</p>
+<p><img src="/posts/2320/assets/3422109b0992b60d7987996e724c7462.webp" alt="img"></p>
+<h3 id="Tomcat请求流程"><a href="#Tomcat请求流程" class="headerlink" title="Tomcat请求流程"></a>Tomcat请求流程</h3><p>请求处理流程分析图</p>
+<p><img src="https://pic2.zhimg.com/80/v2-46cdf77a7c957192ef2582e542453829_720w.webp" alt="img"></p>
+<p>Mapper组件体系结构</p>
+<p><img src="/posts/2320/assets/623e79a5cb86319afca419593816352b.webp" alt="img"></p>
+<p>请求处理流程示意图</p>
+<p><img src="https://pic2.zhimg.com/80/v2-95e2ba7c2cd2061adcdd10a058081169_720w.webp" alt="img"></p>
+<h3 id="三、Tomcat类加载机制剖析"><a href="#三、Tomcat类加载机制剖析" class="headerlink" title="三、Tomcat类加载机制剖析"></a>三、Tomcat类加载机制剖析</h3><p>类加载过程：Java类（.java）文件被编译成字节码文件（.class），然后通过类加载器（classloader）加载到jvm内存中。</p>
+<h3 id="JVM类加载机制"><a href="#JVM类加载机制" class="headerlink" title="JVM类加载机制"></a>JVM类加载机制</h3><p>Jvm内置了⼏种类加载器，包括：引导类加载器、扩展类加载器、系统类加载器，他们之间形成⽗⼦关系，通过 Parent 属性来定义这种关系，最终可以形成树形结构，同时我们自己也可以自定义类加载器。</p>
+<p><img src="/posts/2320/assets/09484d20f46241fd81f0ee06dfdb9016.webp" alt="img"></p>
+<p><img src="/posts/2320/assets/84be9f837ec2ea4c779b39d580cc02a2.webp" alt="img"></p>
+<p>⽤户可以⾃定义类加载器（Java编写，⽤户⾃定义的类加载器，可加载指定路径的 class ⽂件）当 JVM 运⾏过程中，⽤户⾃定义了类加载器去加载某些类时，会按照下⾯的步骤（⽗类委托机制）</p>
+<p>1） ⽤户⾃⼰的类加载器，把加载请求传给⽗加载器，⽗加载器再传给其⽗加载器，⼀直到加载器树的顶层</p>
+<p>2 ）最顶层的类加载器⾸先针对其特定的位置加载，如果加载不到就转交给⼦类</p>
+<p>3 ）如果⼀直到底层的类加载都没有加载到，那么就会抛出异常 ClassNotFoundException</p>
+<p>因此，按照这个过程可以想到，如果同样在 classpath 指定的⽬录中和⾃⼰⼯作⽬录中存放相同的class，会优先加载 classpath ⽬录中的⽂件。</p>
+<h3 id="JVM双亲委派机制"><a href="#JVM双亲委派机制" class="headerlink" title="JVM双亲委派机制"></a>JVM双亲委派机制</h3><p>当某个类加载器需要加载某个.class⽂件时，它⾸先把这个任务委托给他的上级类加载器，递归这个操作，如果上级的类加载器没有加载，⾃⼰才会去加载这个类。</p>
+<p><strong>作用：</strong></p>
+<p>防⽌重复加载同⼀个.class。通过委托去向上⾯问⼀问，加载过了，就不⽤再加载⼀遍。保证数据安全。</p>
+<p>保证核⼼.class不能被篡改。通过委托⽅式，不会去篡改核⼼.class，即使篡改也不会去加载，即使加载也不会是同⼀个.class对象了。不同的加载器加载同⼀个.class也不是同⼀个.class对象。这样保证了class执⾏安全（如果⼦类加载器先加载，那么我们可以写⼀些与java.lang包中基础类同名的类， 然后再定义⼀个⼦类加载器，这样整个应⽤使⽤的基础类就都变成我们⾃⼰定义的类了）。</p>
+<h3 id="Tomcat类加载机制"><a href="#Tomcat类加载机制" class="headerlink" title="Tomcat类加载机制"></a>Tomcat类加载机制</h3><p>Tomcat 的类加载机制相对于 Jvm 的类加载机制做了⼀些改变<strong>，</strong>因为如果同时存在两个应用，然后他们有相同的全限定类名，如果遵循双亲委派机制，tomcat加载了应用1的全限定类之后就不会再加载应用2的类，但是这两个类虽然全限定类名相同，里面的逻辑却是不同的，所以JVM的双亲委派机制就不适合Tomcat了。因此在原来Jvm类加载机制上做了扩展和改变。增加了Commons、Catalina、Shared、WebApp类加载器。</p>
+<p><img src="/posts/2320/assets/1b43c97cc74a951249792cd6722db1ac.webp" alt="img"></p>
+<p><img src="/posts/2320/assets/9e68caf918a0c2a4981a729c6de4759a.webp" alt="img"></p>
+<p>引导类加载器 和 扩展类加载器 的作⽤不变。</p>
+<p>系统类加载器正常情况下加载的是 CLASSPATH 下的类，但是 Tomcat 的启动脚本并未使⽤该变量，⽽是加载tomcat启动的类，⽐如bootstrap.jar，通常在catalina.bat或者catalina.sh中指定，位于CATALINA_HOME&#x2F;bin下。</p>
+<p>Common 通⽤类加载器加载Tomcat使⽤以及应⽤通⽤的类，位于CATALINA_HOME&#x2F;lib下，⽐如servlet-api.jar。</p>
+<p>Catalina ClassLoader ⽤于加载服务器内部可⻅类，这些类应⽤程序不能访问。</p>
+<p>Shared ClassLoader ⽤于加载应⽤程序共享类，这些类服务器不会依赖。</p>
+<p>Webapp ClassLoader，每个应⽤程序都会有⼀个独⼀⽆⼆的Webapp ClassLoader，他⽤来加载本应⽤程序 &#x2F;WEB-INF&#x2F;classes 和 &#x2F;WEB-INF&#x2F;lib 下的类。</p>
+<p><strong>加载顺序：</strong></p>
+<p>⾸先从 Bootstrap Classloader加载指定的类-&gt;</p>
+<p>如果未加载到，则从 &#x2F;WEB-INF&#x2F;classes加载-&gt;</p>
+<p>如果未加载到，则从 &#x2F;WEB-INF&#x2F;lib&#x2F;*.jar 加载-&gt;</p>
+<p>如果未加载到，则依次从 System、Common、Shared 加载（在这最后⼀步，遵从双亲委派机制）</p>
+<h2 id="四、Tomcat-对-Https-的支持及-Tomcat-性能优化策略"><a href="#四、Tomcat-对-Https-的支持及-Tomcat-性能优化策略" class="headerlink" title="四、Tomcat 对 Https 的支持及 Tomcat 性能优化策略"></a>四、Tomcat 对 Https 的支持及 Tomcat 性能优化策略</h2><h3 id="Tomcat-对-HTTPS-的支持"><a href="#Tomcat-对-HTTPS-的支持" class="headerlink" title="Tomcat 对 HTTPS 的支持"></a>Tomcat 对 HTTPS 的支持</h3><p>Https是⽤来加强数据传输安全的。Http超⽂本传输协议，明⽂传输 ，传输不安全，https在传输数据的时候会对数据进⾏加密，也就是在http的基础上增加了ssl协议。</p>
+<p><strong>HTTPS和HTTP的主要区别：</strong></p>
+<p>HTTPS协议使⽤时需要到电⼦商务认证授权机构（CA）申请SSL证书。</p>
+<p>HTTP默认使⽤8080端⼝，HTTPS默认使⽤8443端⼝。</p>
+<p>HTTPS则是具有SSL加密的安全性传输协议，对数据的传输进⾏加密，效果上相当于HTTP的升级版。</p>
+<p>HTTP的连接是⽆状态的，不安全的；HTTPS协议是由SSL+HTTP协议构建的可进⾏加密传输、身份认证的⽹络协议，⽐HTTP协议安全。</p>
+<p><strong>HTTPS⼯作原理：</strong></p>
+<p><img src="/posts/2320/assets/4467bfc76f7470191ecf6c775665d63f.webp" alt="img"></p>
+<p>使用：生成秘钥库文件xx.keystore，把绝对路径地址配置到conf&#x2F;server.xml即可。</p>
+<h3 id="JVM内存调优"><a href="#JVM内存调优" class="headerlink" title="JVM内存调优"></a>JVM内存调优</h3><p>系统性能的衡量指标，主要是响应时间和吞吐量。</p>
+<p>1）响应时间：执行某个操作的耗时；</p>
+<ol start="2">
+<li>吞吐量：系统在给定时间内能够⽀持的事务数量，单位为TPS（Transactions PerSecond的缩写，也就是事务数&#x2F;秒，⼀个事务是指⼀个客户机向服务器发送请求然后服务器做出反应的过程。</li>
+</ol>
+<p>Java 虚拟机的运⾏优化主要是内存分配和垃圾回收策略的优化</p>
+<p>1）内存直接影响服务的运⾏效率和吞吐量</p>
+<p>2）垃圾回收机制会不同程度地导致程序运⾏中断（垃圾回收策略不同，垃圾回收次数和回收效率都是不同的）</p>
+<p><img src="/posts/2320/assets/c281e5618ddac033e359f214ddc8d5d3.webp" alt="img"></p>
+<p>JVM内存模型</p>
+<p><img src="/posts/2320/assets/67070137f7139efc792e161736b51bb4.webp" alt="img"></p>
+<p><strong>使用：配置在catalina.sh的脚本</strong></p>
+<p><img src="/posts/2320/assets/ce94e1800948882bd1d16675bd91917e.webp" alt="img"></p>
+<h3 id="JVM垃圾收集策略"><a href="#JVM垃圾收集策略" class="headerlink" title="JVM垃圾收集策略"></a>JVM垃圾收集策略</h3><p>垃圾回收性能指标</p>
+<p>吞吐量：⼯作时间（排除GC时间）占总时间的百分⽐， ⼯作时间并不仅是程序运⾏的时间，还包含内存分配时间。</p>
+<p>暂停时间：由垃圾回收导致的应⽤程序停⽌响应次数&#x2F;时间。</p>
+<p><strong>垃圾收集器：</strong></p>
+<p>串⾏收集器（Serial Collector）</p>
+<p>单线程执⾏所有的垃圾回收⼯作， 适⽤于单核CPU服务器⼯作进程—–|（单线程）垃圾回收线程进⾏垃圾收集|—⼯作进程继续</p>
+<p>并⾏收集器（Parallel Collector）</p>
+<p>⼯作进程—–|（多线程）垃圾回收线程进⾏垃圾收集|—⼯作进程继续⼜称为吞吐量收集器（关注吞吐量）， 以并⾏的⽅式执⾏年轻代的垃圾回收， 该⽅式可以显著降低垃圾回收的开销(指多条垃圾收集线程并⾏⼯作，但此时⽤户线程仍然处于等待状态)。适⽤于多处理器或多线程硬件上运⾏的数据量较⼤的应⽤</p>
+<p>并发收集器（Concurrent Collector）</p>
+<p>以并发的⽅式执⾏⼤部分垃圾回收⼯作，以缩短垃圾回收的暂停时间。适⽤于那些响应时间优先于吞吐量的应⽤， 因为该收集器虽然最⼩化了暂停时间(指⽤户线程与垃圾收集线程同时执⾏,但不⼀定是并⾏的，可能会交替进⾏)， 但是会降低应⽤程序的性能</p>
+<p>CMS收集器（Concurrent Mark Sweep Collector）</p>
+<p>并发标记清除收集器， 适⽤于那些更愿意缩短垃圾回收暂停时间并且负担的起与垃圾回收共享处理器资源的应⽤</p>
+<p>G1收集器（Garbage-First Garbage Collector）</p>
+<p>适⽤于⼤容量内存的多核服务器， 可以在满⾜垃圾回收暂停时间⽬标的同时， 以最⼤可能性实现⾼吞吐量(JDK1.7之后)</p>
+<p><strong>垃圾回收器参数：</strong></p>
+<p><img src="/posts/2320/assets/0ab38bc46cd9530bf692ea205e26757c.webp" alt="img"></p>
+<p><strong>使用：配置在catalina.sh的脚本</strong></p>
+<p><img src="/posts/2320/assets/ac69ae4d989337259f071c78559a266d.webp" alt="img"></p>
+<h3 id="Tomcat调优"><a href="#Tomcat调优" class="headerlink" title="Tomcat调优"></a>Tomcat调优</h3><p>Tomcat优化从两个⽅⾯进⾏</p>
+<p>1）JVM虚拟机优化（优化内存模型）</p>
+<p>2）Tomcat⾃身配置的优化（⽐如是否使⽤了共享线程池？IO模型？）</p>
+<p><strong>优化一调整线程池</strong></p>
+<p><img src="/posts/2320/assets/c6a7877eaa145326ae23fb02807c1266.webp" alt="img"></p>
+<p><strong>优化二调整tomcat的连接器：调整tomcat&#x2F;conf&#x2F;server.xml 中关于链接器的配置可以提升应⽤服务器的性能。</strong></p>
+<p><img src="/posts/2320/assets/b7b7a9eec83d5f000ea2c775963fed3b.webp" alt="img"></p>
+<p><strong>优化三禁用 AJP 连接器</strong></p>
+<p><img src="https://pic2.zhimg.com/80/v2-00461d1c0704ebb062852639a0f3b97d_720w.webp" alt="img"></p>
+<p><strong>优化四调整 IO 模式</strong></p>
+<p>Tomcat8之前的版本默认使⽤BIO（阻塞式IO），对于每⼀个请求都要创建⼀个线程来处理，不适合⾼并发；Tomcat8以后的版本默认使⽤NIO模式（⾮阻塞式IO）</p>
+<p><img src="/posts/2320/assets/2e3803931a16d4e5b980188d399a126f.webp" alt="img"></p>
+<p>当Tomcat并发性能有较⾼要求或者出现瓶颈时，我们可以尝试使⽤APR模式，APR（Apache PortableRuntime）是从操作系统级别解决异步IO问题，使⽤时需要在操作系统上安装APR和Native（因为APR原理是使⽤使⽤JNI技术调⽤操作系统底层的IO接⼝）</p>
+<p><strong>优化五动静分离</strong></p>
+<p>可以使⽤Nginx+Tomcat相结合的部署⽅案，Nginx负责静态资源访问，Tomcat负责Jsp等动态资源访问处理（因为Tomcat不擅⻓处理静态资源）。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/tomcat/" rel="tag"><i class="fa fa-tag"></i> tomcat</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/45764/" rel="prev" title="集群模式相关知识">
+                  <i class="fa fa-chevron-left"></i> 集群模式相关知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/26268/" rel="next" title="zookeeper相关知识">
+                  zookeeper相关知识 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"6b20cbe7bd90aa4786e159573fc83e4b"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>

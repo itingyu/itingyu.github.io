@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="一、Spring Cloud基础知识微服务架构微服务架构可以说是SOA架构的⼀种拓展，这种架构模式下它拆分粒度更⼩、服务更独⽴。把应⽤拆分成为⼀个个微⼩的服务，不同的服务可以使⽤不同的开发语⾔和存储，服务之间往往通过Restful等轻量级通信。微服务架构关键在于微⼩、独⽴、轻量级通信。微服务是在SOA上做的升华粒度更加细致，微服务架构强调的⼀个重点是“业务需要彻底的组件化和服务化。  微服务架构的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springcloud组件知识">
+<meta property="og:url" content="https://itingyu.github.io/posts/30414/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="一、Spring Cloud基础知识微服务架构微服务架构可以说是SOA架构的⼀种拓展，这种架构模式下它拆分粒度更⼩、服务更独⽴。把应⽤拆分成为⼀个个微⼩的服务，不同的服务可以使⽤不同的开发语⾔和存储，服务之间往往通过Restful等轻量级通信。微服务架构关键在于微⼩、独⽴、轻量级通信。微服务是在SOA上做的升华粒度更加细致，微服务架构强调的⼀个重点是“业务需要彻底的组件化和服务化。  微服务架构的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/a7b08d8aa29f8dc93f072c4539021b3a.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-84bf0900356e0dda3796cf12efa0ac8d_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/f012fe4698a40c000fffbbc453e04b5d.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-278ffbedb72d5df6849da39f49242c0d_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-da77b3c5d9931936d55fd851207f109a_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-58400794e0d81907118d3dac831829c7_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/973034bad588f76220538678ccbd9ee9.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-2fc134e04511ad56584c71339762ce7d_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-d5bdb69416eee569f3df31f744b06cf1_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-bb252d46c865e2a2714060456ef7fb99_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/09f7fe6733769ae2507d67a437b69eb8.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/b295f5fab6b866747ea9f8ca39f7fbd1.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/e8fffb10a28ce5bef09d35841a4a4d52.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/2fc24d42dfe54a70ddf0c3c55318fcf0.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-676bfe41dbcc3e95de157d23f67defd1_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/60bbed5790945a6fe7805f0076bbff1b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/a8c34d6e84a81feda03b0e32b5ddfa71.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/f615a9e06813ddb6473617abd6d9b91f.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/36d5487ad31e49ace09c57ee28d125a5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/4a0f15c759d1cc644bac5900a0a1b225.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/fb96b904f8411ad4e8d9e0a1b504ffa5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/4d8afa62f85342f113159d9d484f4106.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-ae46d85f7b5f786d470b2c240e26fde2_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/b62007feaa48da9872799c9d2540bf72.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/503654ef3b84ef235fc7c12baa41a4d3.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-1e3cdf3beeec9831082f14ab3d9c88b6_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-29a8c0308049f351313d963b025bab62_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-64d3bfd6116f05ab102fb01f6e0b1f9e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/cdf6d703af76133df8e19c755d25cc57.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/93f4608535382a6409ede93df0c03a59.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-67733eda7b7fdd550ee442d40e6d4ccf_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-2109d7b215c50acaf9a90e85482278e9_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-7d8e4965360cc36882756a6ed62ffbf3_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/3c5b93717edf71d56ca9fee5b5232cb9.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-38bb7be029177aa2a7d86a96ad8620b2_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/1994fd0e4b47b19fdc46acb9097c73e9.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/89f013d10d5df6ce78a7a6fe85518931.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/30414/assets/d06512fcd8c631f76d848197bf45a979.webp">
+<meta property="article:published_time" content="2023-06-17T11:01:03.000Z">
+<meta property="article:modified_time" content="2023-06-17T11:02:10.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="spring cloud">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/30414/assets/a7b08d8aa29f8dc93f072c4539021b3a.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/30414/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/30414/","path":"posts/30414/","title":"springcloud组件知识"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>springcloud组件知识 | itingyu的博客 - 记录一些琐事罢了</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81Spring-Cloud%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">一、Spring Cloud基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">微服务架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">体系结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-Cloud-%E4%B8%8E-Dubbo"><span class="nav-number">4.</span> <span class="nav-text">Spring Cloud 与 Dubbo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring-Cloud-%E4%B8%8E-Spring-Boot"><span class="nav-number">5.</span> <span class="nav-text">Spring Cloud 与 Spring Boot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Spring-Cloud%E6%A0%B8%E5%BF%83%E7%BB%84%E4%BB%B6"><span class="nav-number">6.</span> <span class="nav-text">二、Spring Cloud核心组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eureka%E6%B3%A8%E5%86%8C%E6%9C%8D%E5%8A%A1%E4%B8%AD%E5%BF%83"><span class="nav-number">7.</span> <span class="nav-text">Eureka注册服务中心</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ribbon%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-number">8.</span> <span class="nav-text">Ribbon负载均衡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hystrix%E7%86%94%E6%96%AD%E5%99%A8"><span class="nav-number">9.</span> <span class="nav-text">Hystrix熔断器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Feign%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">10.</span> <span class="nav-text">Feign远程调用组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GateWay%E7%BD%91%E5%85%B3%E7%BB%84%E4%BB%B6"><span class="nav-number">11.</span> <span class="nav-text">GateWay网关组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Config%E5%88%86%E5%B8%83%E5%BC%8F%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83"><span class="nav-number">12.</span> <span class="nav-text">Config分布式配置中心</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stream%E6%B6%88%E6%81%AF%E9%A9%B1%E5%8A%A8%E7%BB%84%E4%BB%B6"><span class="nav-number">13.</span> <span class="nav-text">Stream消息驱动组件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E5%8F%8A%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">14.</span> <span class="nav-text">常见问题及解决方案</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/30414/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="springcloud组件知识 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          springcloud组件知识
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-17 19:01:03" itemprop="dateCreated datePublished" datetime="2023-06-17T19:01:03+08:00">2023-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" itemprop="url" rel="index"><span itemprop="name">基础知识</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring-cloud/" itemprop="url" rel="index"><span itemprop="name">spring cloud</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8.2k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h3 id="一、Spring-Cloud基础知识"><a href="#一、Spring-Cloud基础知识" class="headerlink" title="一、Spring Cloud基础知识"></a>一、Spring Cloud基础知识</h3><h3 id="微服务架构"><a href="#微服务架构" class="headerlink" title="微服务架构"></a>微服务架构</h3><p>微服务架构可以说是SOA架构的⼀种拓展，这种架构模式下它拆分粒度更⼩、服务更独⽴。把应⽤拆分成为⼀个个微⼩的服务，不同的服务可以使⽤不同的开发语⾔和存储，服务之间往往通过Restful等轻量级通信。微服务架构关键在于微⼩、独⽴、轻量级通信。微服务是在SOA上做的升华粒度更加细致，微服务架构强调的⼀个重点是“业务需要彻底的组件化和服务化。</p>
+<p><img src="/posts/30414/assets/a7b08d8aa29f8dc93f072c4539021b3a.webp" alt="img"></p>
+<p><strong>微服务架构的优点</strong></p>
+<p>1）微服务很⼩，便于特定业务功能的聚焦 A B C D</p>
+<p>2）微服务很⼩，每个微服务都可以被⼀个⼩团队单独实施（开发、测试、部署上线、运维），团队合作⼀定程度解耦，便于实施敏捷开发</p>
+<p>3）微服务很⼩，便于重⽤和模块之间的组装</p>
+<p>4）微服务很独⽴，那么不同的微服务可以使⽤不同的语⾔开发，松耦合</p>
+<p>5）微服务架构下，我们更容易引⼊新技术</p>
+<p>6）微服务架构下，我们可以更好的实现DevOps开发运维⼀体化；</p>
+<p><strong>微服务架构的缺点</strong></p>
+<p>1）微服务架构下，分布式复杂难以管理，当服务数量增加，管理将越加复杂；</p>
+<p>2）微服务架构下，分布式链路跟踪难等；</p>
+<p><strong>微服务架构的概念</strong></p>
+<p>服务注册：服务提供者将所提供服务的信息（服务器IP和端⼝、服务访问协议等） 注册&#x2F;登记到注册中⼼</p>
+<p>服务发现：服务消费者能够从注册中⼼获取到较为实时的服务列表，然后根究⼀定 的策略选择⼀个服务访问</p>
+<p><img src="https://pic2.zhimg.com/80/v2-84bf0900356e0dda3796cf12efa0ac8d_720w.webp" alt="img"></p>
+<p>负载均衡：负载均衡即将请求压⼒分配到多个服务器（应⽤服务器、数据库服务器等），以 此来提⾼服务的性能、可靠性。</p>
+<p><img src="/posts/30414/assets/f012fe4698a40c000fffbbc453e04b5d.webp" alt="img"></p>
+<p>熔断：熔断即断路保护。微服务架构中，如果下游服务因访问压⼒过⼤⽽响应变慢或失 败，上游服务为了保护系统整体可⽤性，可以暂时切断对下游服务的调⽤。这种牺 牲局部，保全整体的措施就叫做熔断。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-278ffbedb72d5df6849da39f49242c0d_720w.webp" alt="img"></p>
+<p>链路追踪：所谓链路追踪，就是对⼀次请求涉及的很多个服务链路进⾏⽇志记 录、性能监控。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-da77b3c5d9931936d55fd851207f109a_720w.webp" alt="img"></p>
+<p>API ⽹关：微服务架构下，不同的微服务往往会有不同的访问地址，客户端可能需要调⽤多个服务的接⼝才能完成⼀个业务需求，API请求调用统⼀接⼊API⽹关层，由⽹关转发请求。API⽹关更专注在安全、路由、流量等问题的处理上。</p>
+<p>1） 统⼀接⼊（路由）</p>
+<p>2） 安全防护</p>
+<p>3） ⿊⽩名单</p>
+<p>4） 协议适配</p>
+<p>5） 流量管控</p>
+<p>6） 容错能⼒</p>
+<p><img src="https://pic4.zhimg.com/80/v2-58400794e0d81907118d3dac831829c7_720w.webp" alt="img"></p>
+<h3 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h3><p><img src="/posts/30414/assets/973034bad588f76220538678ccbd9ee9.webp" alt="img"></p>
+<p><img src="https://pic2.zhimg.com/80/v2-2fc134e04511ad56584c71339762ce7d_720w.webp" alt="img"></p>
+<p>Spring Cloud中的各组件协同⼯作，才能够⽀持⼀个完整的微服务架构。</p>
+<p>1） 注册中⼼负责服务的注册与发现，很好将各服务连接起来</p>
+<p>2） API⽹关负责转发所有外来的请求</p>
+<p>3） 断路器负责监控服务之间的调⽤情况，连续多次失败进⾏熔断保护。</p>
+<p>4） 配置中⼼提供了统⼀的配置信息管理服务,可以实时的通知各个服务获取最新的 配置信息</p>
+<h3 id="Spring-Cloud-与-Dubbo"><a href="#Spring-Cloud-与-Dubbo" class="headerlink" title="Spring Cloud 与 Dubbo"></a>Spring Cloud 与 Dubbo</h3><p>Dubbo是阿⾥巴巴公司开源的⼀个⾼性能优秀的服务框架，基于RPC调⽤，对于⽬前使⽤率较⾼的Spring Cloud Netflix来说，它是基于HTTP的，所以效率上没有Dubbo⾼，但问题在于Dubbo体系的组件不全，不能够提供⼀站式解决⽅案。</p>
+<h3 id="Spring-Cloud-与-Spring-Boot"><a href="#Spring-Cloud-与-Spring-Boot" class="headerlink" title="Spring Cloud 与 Spring Boot"></a>Spring Cloud 与 Spring Boot</h3><p>Spring Cloud 只是利⽤了Spring Boot 的特点，让我们能够快速的实现微服务组件开发，否则不使⽤Spring Boot的话，我们在使⽤Spring Cloud时，每⼀个组件的相关Jar包都需要我们⾃⼰导⼊配置以及需要开发⼈员考虑兼容性等各种情况。所以Spring Boot是我们快速把Spring Cloud微服务技术应⽤起来的⼀种⽅式</p>
+<h3 id="二、Spring-Cloud核心组件"><a href="#二、Spring-Cloud核心组件" class="headerlink" title="二、Spring Cloud核心组件"></a>二、Spring Cloud核心组件</h3><h3 id="Eureka注册服务中心"><a href="#Eureka注册服务中心" class="headerlink" title="Eureka注册服务中心"></a>Eureka注册服务中心</h3><p>分布式微服务架构中，服务注册中⼼⽤于存储服务提供者地址信息、服务发布相关的属性信息，消费者通过主动查询和被动通知的⽅式获取服务提供者的地址信息，⽽不再需要通过硬编码⽅式得到提供者的地址信息。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-d5bdb69416eee569f3df31f744b06cf1_720w.webp" alt="img"></p>
+<p>1） 服务提供者启动</p>
+<p>2） 服务提供者将相关信息主动注册到注册中心</p>
+<p>3） 服务消费者获取服务注册信息：</p>
+<p>Pull模式：服务消费者可以主动拉去可用的服务提供者清单</p>
+<p>Push模式：服务消费者可以主动拉去可用的服务提供者清单</p>
+<p>4） 服务消费者直接调用服务提供者</p>
+<p><strong>主流服务中心对比</strong></p>
+<p>Zookeeper: Zookeeper ⽤来做服务注册中⼼，主要是因为它具有节点变更通知功能，只要客户端监听相关服务节点，服务节点的所有变更，都能及时的通知到监听客户端，这样作为调⽤⽅只要使⽤ Zookeeper 的客户端就能实现服务节点的订阅和 变更通知功能了，zookeeper遵循半数集群可用原则。</p>
+<p>Nocas: 注册中⼼ + 配置中⼼的组合，帮助我们解决微服务开发必会涉及到的服务注册与发现，服务配置，服务管理等问题。Nacos 是Spring Cloud Alibaba 核⼼组件之⼀，负责服务注册与发现，还有配置。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-bb252d46c865e2a2714060456ef7fb99_720w.webp" alt="img"></p>
+<p><strong>基础架构</strong></p>
+<p><img src="/posts/30414/assets/09f7fe6733769ae2507d67a437b69eb8.webp" alt="img"></p>
+<p>Eureka 包含两个组件：Eureka Server 和 Eureka Client，也就是服务端，存储该服务的信息以及客户端</p>
+<p>1）图中us-east-1c、us-east-1d，us-east-1e代表不同的区也就是不同的机房</p>
+<p>2）图中每⼀个Eureka Server都是⼀个集群。</p>
+<p>3）图中Application Service作为服务提供者向Eureka Server中注册服务， Eureka Server接受到注册事件会在集群和分区中进⾏数据同步，Application Client作为消费端（服务消费者）可以从Eureka Server中获取到服务注册信息，进⾏服务调⽤。</p>
+<p>4）微服务启动后，会周期性地向Eureka Server发送⼼跳（默认周期为30秒） 以续约⾃⼰的信息</p>
+<p>5）Eureka Server在⼀定时间内没有接收到某个微服务节点的⼼跳，Eureka Server将会注销该微服务节点（默认90秒）</p>
+<p>6）每个Eureka Server同时也是Eureka Client，多个Eureka Server之间通过复制的⽅式完成服务注册列表的同步 7）Eureka Client会缓存Eureka Server中的信息。即使所有的Eureka Server节点都宕掉，服务消费者依然可以使⽤缓存中的信息找到服务提供者</p>
+<p><strong>Euraka客户端详解</strong></p>
+<p>服务提供者（也是Eureka客户端）要向EurekaServer注册服务，并完成服务续约等工作</p>
+<p>服务注册详解：导⼊了eureka-client依赖坐标，配置Eureka服务注册中⼼地址后，服务在启动时会向注册中⼼发起注册请求，携带服务元数据信息，Eureka注册中⼼接收到了之后会把服务的信息保存在Map中。</p>
+<p>服务续约详解：服务每隔30秒会向注册中⼼续约(⼼跳)⼀次（也称为报活），如果没有续约，租约在90秒后到期，然后服务会被失效。</p>
+<p>获取服务列表详解：服务消费者启动时，从 EurekaServer服务列表获取只读备份，缓存到本地，每隔30秒，会重新获取并更新数据。</p>
+<p><strong>Eurake服务端详解</strong></p>
+<p>服务下线：当服务正常关闭操作时，会发送服务下线的REST请求给EurekaServer，服务中⼼接受到请求后，将该服务置为下线状态。</p>
+<p>失效剔除：Eureka Server会定时，默认60S检查发现实例在在⼀定时间，默认90S没有收到心跳，注销此实例。</p>
+<p>自我保护：如果在15分钟内超过85%的客户端节点都没有正常的⼼跳，那么Eureka就认为客户端与注册中⼼出现了⽹络故障，Eureka Server⾃动进⼊⾃我保护机制。</p>
+<p>1） 不会剔除任何服务实例，保证大多数服务可用</p>
+<p>2） Eureka Server仍然能够接受新服务的注册和查询请求，但是不会同步，需要等网络稳定再同步。</p>
+<p>3） 可配置开关：eureka.server.enable-self-preservation</p>
+<h3 id="Ribbon负载均衡"><a href="#Ribbon负载均衡" class="headerlink" title="Ribbon负载均衡"></a>Ribbon负载均衡</h3><p>负载均衡分为服务器端负载均衡和客户端负载均衡</p>
+<p>服务器端负载均衡：Nginx、F5等等，请求到达服务器之后由这些负载均衡器根据⼀定的算法将请求路由到⽬标服务器处理。</p>
+<p>客户端负载均衡：Ribbon，服务消费者客户端会有⼀个服务器地址列表，调用⽅在请求前通过⼀定的负载均衡算法选择⼀个服务器进⾏访问，负载均衡算法的执行是在请求客户端进⾏。</p>
+<p><img src="/posts/30414/assets/b295f5fab6b866747ea9f8ca39f7fbd1.webp" alt="img"></p>
+<p>负载均衡策略，定义在IRule接口</p>
+<p><img src="/posts/30414/assets/e8fffb10a28ce5bef09d35841a4a4d52.webp" alt="img"></p>
+<p><img src="/posts/30414/assets/2fc24d42dfe54a70ddf0c3c55318fcf0.webp" alt="img"></p>
+<p><strong>Ribbon工作原理</strong></p>
+<p><img src="https://pic2.zhimg.com/80/v2-676bfe41dbcc3e95de157d23f67defd1_720w.webp" alt="img"></p>
+<p>Ribbon给restTemplate添加了⼀个拦截器interceptor方法，通过拦截器进行请求拦截，然后通过负载策略实现请求分发。</p>
+<h3 id="Hystrix熔断器"><a href="#Hystrix熔断器" class="headerlink" title="Hystrix熔断器"></a>Hystrix熔断器</h3><p><strong>雪崩效应</strong></p>
+<p><img src="/posts/30414/assets/60bbed5790945a6fe7805f0076bbff1b.webp" alt="img"></p>
+<p>扇⼊：代表着该微服务被调⽤的次数，扇⼊⼤，说明该模块复⽤性好</p>
+<p>扇出：该微服务调⽤其他微服务的个数，扇出⼤，说明业务逻辑复杂</p>
+<p>在微服务架构中，⼀个应用可能会有多个微服务组成，微服务之间的数据交互通过远程过程调⽤完成。这就带来⼀个问题，假设微服务A调用微服务B和微服务C，微服务B和微服务C又调用其它的微服务，这就是所谓的“扇出”。如果扇出的链路上某个微服务的调用响应时间过⻓或者不可⽤，对微服务A的调用就会占⽤越来越多的系统资源，进⽽引起系统崩溃，所谓的“雪崩效应”。</p>
+<p><strong>解决方案</strong></p>
+<p>服务熔断：当扇出链路的某个微服务不可⽤或者响应时间太⻓时，熔断该节点微服务的调⽤，进⾏服务的降级，快速返回错误的响应信息。当检测到该节点微服务调⽤响应正常后，恢复调⽤链路。</p>
+<p>服务降级：先将⼀些不关紧的服务停掉（调⽤我的时候，给你返回⼀个预留的值，也叫做兜底数据），待渡过难关⾼峰过去，再把那些服务打开。</p>
+<p>服务限流：服务降级是当服务出问题或者影响到核⼼流程的性能时，暂时将服务屏蔽掉，待⾼峰或者问题解决后再打开。</p>
+<p><strong>Hystrix基础知识</strong></p>
+<ol>
+<li><p>包裹请求: 使⽤@HystrixCommand注解添加Hystrix控制，包裹对依赖的调用逻辑。⾃动投递微服务方法。</p>
+</li>
+<li><p>跳闸机制：当某服务的错误率超过⼀定的阈值时，Hystrix可以跳闸，停⽌请求 该服务⼀段时间。</p>
+</li>
+<li><p>资源隔离：Hystrix为每个依赖都维护了⼀个⼩型的线程池(舱壁模式)。如果该线程池已满，发往该依赖的请求就被⽴即拒绝，⽽不是排队等待，从而加速失败判定。</p>
+</li>
+<li><p>监控：Hystrix可以近乎实时地监控运⾏指标和配置的变化，如成功、失败、超时等等。</p>
+</li>
+<li><p>回退机制：当请求失败、超时、被拒绝，或当断路器打开时，执⾏回退逻辑，回退逻辑自定义。</p>
+</li>
+<li><p>自我修复：断路器打开⼀段时间后，会⾃动进⼊“半开”状态。</p>
+</li>
+</ol>
+<p><strong>舱壁模式（线程池隔离策略）</strong></p>
+<p>Hystrix线程池默认线程数是10个，当所有服务共用这个线程池，请求数量超过10个，那么一些服务就不可用了，因此诞生了舱壁模式，每一个控制方法创建一个线程池，也就是各自用自己的线程池。</p>
+<p><img src="/posts/30414/assets/a8c34d6e84a81feda03b0e32b5ddfa71.webp" alt="img"></p>
+<p><strong>Hystrix跳闸、自我修复</strong></p>
+<p><img src="/posts/30414/assets/f615a9e06813ddb6473617abd6d9b91f.webp" alt="img"></p>
+<p>1）当调用出现问题时，开启⼀个时间窗（10s）。</p>
+<p>2）在这个时间窗内，统计调用次数是否达到最小请求数？如果没有达到，则重置统计信息，回到第1步 如果达到了，则统计失败的请求数占所有请求数的百分⽐，是否达到阈值？如果达到，则跳闸（不再请求对应服务） 如果没有达到，则重置统计信息，回到第1步 。</p>
+<p>3）如果跳闸，则会开启⼀个活动窗⼝（默认5s），每隔5s，Hystrix会让⼀个请求通过,到达那个问题服务，看是否调用成功，如果成功，重置断路器回到第1步，如果失败，回到第3步。</p>
+<p><strong>Hystrix</strong> <strong>DashBoard健康检查</strong></p>
+<p>Hystrix官方提供了基于图形化的 DashBoard（仪表板）监控平台。通过搭建一个DashBoard项目实现对Hystrix仪表板每个断路器（被 @HystrixCommand注解的⽅法）的状态监控。</p>
+<p><img src="/posts/30414/assets/36d5487ad31e49ace09c57ee28d125a5.webp" alt="img"></p>
+<p><strong>Hystrix Turbine聚合监控</strong></p>
+<p>在集群环境下，结合dashboard仪表盘就需要每次输⼊⼀个监控数据流url进去查看，通过Hystrix Turbine聚合监控，专门新建一个Turbine监控项目可以实现聚合各个实例上的hystrix监控数据。</p>
+<p><img src="/posts/30414/assets/4a0f15c759d1cc644bac5900a0a1b225.webp" alt="img"></p>
+<h3 id="Feign远程调用组件"><a href="#Feign远程调用组件" class="headerlink" title="Feign远程调用组件"></a>Feign远程调用组件</h3><p>服务消费者调⽤服务提供者的时候使⽤RestTemplate技术需要拼接url以及getForObject存在硬编码。</p>
+<p>Feign是Netflix开发的⼀个轻量级RESTful的HTTP服务客户端，以Java接⼝注解的⽅式调⽤Http请求，类似于dubbo，服务消费者拿到服务提供者的接⼝，然后像调用本地接⼝⽅法⼀样去调用，实际发出的是远程的请求。</p>
+<p>本质：封装了Http调用流程，更符合⾯向接口化的编程习惯，类似于Dubbo的服务调用，基于代理实现。</p>
+<p>Feign &#x3D; RestTemplate+Ribbon+Hystrix</p>
+<p><strong>Feign对负载均衡的⽀持</strong></p>
+<p>Feign 本身已经集成了Ribbon依赖和⾃动配置，因此我们不需要额外引⼊依赖，可以通过 ribbon.xx 来进⾏全局配置,也可以通过服务名.ribbon.xx 来对指定服务进⾏ 细节配置配置。</p>
+<p><img src="/posts/30414/assets/fb96b904f8411ad4e8d9e0a1b504ffa5.webp" alt="img"></p>
+<p><strong>Feign对熔断器的支持</strong></p>
+<p>⾃定义FallBack处理类（需要实现FeignClient接⼝）；Feign集成了Hystrix，但是他们的超时是独立的，使用又是一起的，以最小值触发熔断。</p>
+<p><img src="/posts/30414/assets/4d8afa62f85342f113159d9d484f4106.webp" alt="img"></p>
+<p><img src="https://pic3.zhimg.com/80/v2-ae46d85f7b5f786d470b2c240e26fde2_720w.webp" alt="img"></p>
+<p><strong>Feign的日志级别配置</strong></p>
+<p>如果我们想看到Feign请求时的⽇志，首先要创建一个能被扫描到的配置类，通过这个类来加载配置的yml日志级别配置来实现。</p>
+<p><img src="/posts/30414/assets/b62007feaa48da9872799c9d2540bf72.webp" alt="img"></p>
+<p><strong>Feign对请求压缩和响应压缩的⽀持</strong></p>
+<p>Feign ⽀持对请求和响应进⾏GZIP压缩，以减少通信过程中的性能损耗，以配置方式实现。</p>
+<h3 id="GateWay网关组件"><a href="#GateWay网关组件" class="headerlink" title="GateWay网关组件"></a>GateWay网关组件</h3><p>网关是微服务架构中的重要组成部分，基于Spring5.0+SpringBoot2.0+WebFlux等技术开发，性能比Zuul高，为微服务架构提供⼀种简单有效的统⼀的API路由管理⽅式。不仅可以提供统⼀的路由⽅式，还可以做过滤、鉴权、 流量控制、熔断、路径重写、日志监控等等。</p>
+<p><img src="/posts/30414/assets/503654ef3b84ef235fc7c12baa41a4d3.webp" alt="img"></p>
+<p><strong>GateWay核心</strong></p>
+<p>路由（route）：最基础的部分，由⼀个ID、一个目标URL、⼀系列的断⾔（匹配条件判断）和 Filter过滤器（精细化控制）组成。如果断言为true，则匹配该路由。</p>
+<p>断⾔（predicates）：匹配Http请求中的所有内容（包括请求头、请求参数等）</p>
+<p>过滤器（filter）：请求之前或者之后执⾏业务逻辑。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-1e3cdf3beeec9831082f14ab3d9c88b6_720w.webp" alt="img"></p>
+<p>工作流程，核心路由转发+执行过滤链</p>
+<p><img src="https://pic3.zhimg.com/80/v2-29a8c0308049f351313d963b025bab62_720w.webp" alt="img"></p>
+<p>客户端向Spring Cloud GateWay发出请求，然后在GateWay Handler Mapping中 找到与请求相匹配的路由，将其发送到GateWay Web Handler；Handler再通过指 定的过滤器链来将请求发送到我们实际的服务执⾏业务逻辑，然后返回。</p>
+<p><strong>GateWay路由规则</strong></p>
+<p><img src="https://pic3.zhimg.com/80/v2-64d3bfd6116f05ab102fb01f6e0b1f9e_720w.webp" alt="img"></p>
+<p>可以实现时间前后，区间匹配、Cookie正则匹配、Host匹配、Method匹配、远程地址匹配等等。</p>
+<p>GateWay动态路由：GateWay⽀持⾃动从注册中⼼中获取服务列表并访问，即所谓的动态路由。</p>
+<p><strong>GateWay过滤器</strong></p>
+<p>从过滤器⽣命周期分pre和post</p>
+<p><img src="/posts/30414/assets/cdf6d703af76133df8e19c755d25cc57.webp" alt="img"></p>
+<p>从过滤器类型分GateWayFilter和 GlobalFilter，常用GlobalFilter，即全局过滤器。</p>
+<p><img src="/posts/30414/assets/93f4608535382a6409ede93df0c03a59.webp" alt="img"></p>
+<p>GateWay高可用：可以启动多个GateWay实例来实现⾼可⽤，在GateWay 的上游使⽤Nginx等负载均衡设备进⾏负载转发以达到高可用的目的。</p>
+<h3 id="Config分布式配置中心"><a href="#Config分布式配置中心" class="headerlink" title="Config分布式配置中心"></a>Config分布式配置中心</h3><p>Config Server是集中式的配置服务，⽤于集中管理应⽤程序各个环境下的配置。默认使⽤Git存储配置⽂件内容，也可以SVN。</p>
+<p><strong>配置中心的优点</strong></p>
+<p>1） 集中配置管理，多个微服务不同配置统一管控。</p>
+<p>2） 不同环境不同配置，对于测试、生产等环境不同配置。</p>
+<p>3） 实现运⾏期间可动态调整，如更改数据库连接信息，连接池等。</p>
+<p>4） 配置内容发⽣变化，微服务可以⾃动更新配置</p>
+<p><img src="https://pic4.zhimg.com/80/v2-67733eda7b7fdd550ee442d40e6d4ccf_720w.webp" alt="img"></p>
+<p>Server 端：提供配置⽂件的存储、以接口的形式将配置⽂件的内容提供出去，通过使⽤@EnableConfigServer注解在 Spring boot 应⽤中⾮常简单的嵌⼊。</p>
+<p>Client 端：通过接口获取配置数据并初始化自己的应用。</p>
+<p>Config配置手动刷新</p>
+<p>1）Client客户端添加依赖springboot-starter-actuator（已添加）</p>
+<p>2）Client客户端bootstrap.yml中添加配置（暴露通信端点</p>
+<p>3）Client客户端使⽤到配置信息的类上添加@RefreshScope</p>
+<p>4）⼿动向Client客户端发起POST请求，<a target="_blank" rel="noopener" href="http://localhost:8080/actuator/refresh%EF%BC%8C">http://localhost:8080/actuator/refresh，</a> 刷新配置信息</p>
+<p><strong>Config配置⾃动更新，结合消息总线BUS，支持（RabbitMq&#x2F;Kafka）</strong></p>
+<p>消息总线Bus，即我们经常会使⽤MQ消息代理构建⼀个共⽤的Topic，通过这个Topic连接各个微服务实例，MQ⼴播的消息会被所有在注册中⼼的微服务实例监听和消费。就是通过⼀个主题连接各个微服务，打通脉络。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-2109d7b215c50acaf9a90e85482278e9_720w.webp" alt="img"></p>
+<ol>
+<li>Config Server服务端添加消息总线⽀持</li>
+</ol>
+<p><img src="https://pic4.zhimg.com/80/v2-7d8e4965360cc36882756a6ed62ffbf3_720w.webp" alt="img"></p>
+<ol start="2">
+<li>ConfigServer添加配置连接RabbitMq</li>
+</ol>
+<p><img src="/posts/30414/assets/3c5b93717edf71d56ca9fee5b5232cb9.webp" alt="img"></p>
+<ol start="3">
+<li>微服务暴露端口</li>
+</ol>
+<p><img src="https://pic3.zhimg.com/80/v2-38bb7be029177aa2a7d86a96ad8620b2_720w.webp" alt="img"></p>
+<ol start="4">
+<li>重启各个服务，更改配置之后，向配置中⼼服务端发送post请求<a target="_blank" rel="noopener" href="http://localhost:9003/actuator/bus-refresh%EF%BC%8C%E5%90%84%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%85%8D%E7%BD%AE%E5%8D%B3%E5%8F%AF%E2%BE%83%E5%8A%A8%E5%88%B7%E6%96%B0%EF%BC%8C%E4%B9%9F%E6%94%AF%E6%8C%81%E5%AE%9A%E5%90%91%E5%88%B7%E6%96%B0%EF%BC%8C%E8%B7%9F%E6%9C%8D%E5%8A%A1%E5%90%8D:%E7%AB%AF%E5%8F%A3%E5%8F%B7%E5%8D%B3%E5%8F%AF%E3%80%82">http://localhost:9003/actuator/bus-refresh，各个客户端配置即可⾃动刷新，也支持定向刷新，跟服务名:端口号即可。</a></li>
+</ol>
+<h3 id="Stream消息驱动组件"><a href="#Stream消息驱动组件" class="headerlink" title="Stream消息驱动组件"></a>Stream消息驱动组件</h3><p>Spring Cloud Stream 消息驱动组件帮助我们更快速，更⽅便，更友好的去构建消息驱动微服务的。Spring Cloud Stream进⾏了很好的上层抽象，可以让我们与具体消息中间件解耦合，屏蔽掉了底层具体MQ消息中间件的细节差异，就像Hibernate屏蔽掉了具体数据库（Mysql&#x2F;Oracle⼀样）。</p>
+<p>本质：屏蔽掉了底层不同MQ消息中间件之间的差异，统⼀了MQ的编程模型，降低了学习、开发、维护MQ的成本。</p>
+<p>Spring Cloud Stream 是⼀个构建消息驱动微服务的框架。应⽤程序通过inputs（相 当于消息消费者consumer）或者outputs（相当于消息⽣产者producer）来与 Spring Cloud Stream中的binder对象交互，⽽Binder对象是⽤来屏蔽底层MQ细节 的，它负责与具体的消息中间件交互。对于我们来说，只需要知道如何使⽤Spring Cloud Stream与Binder对象交互即可。</p>
+<p><img src="/posts/30414/assets/1994fd0e4b47b19fdc46acb9097c73e9.webp" alt="img"></p>
+<p><strong>Binder绑定器</strong></p>
+<p>通过它来屏蔽底层不同MQ消息中间件的细节差异，当需要更换为其他消息中间件时，我们需要做的就是更换对应的Binder绑定器。</p>
+<p>Stream中的消息通信⽅式遵循了发布—订阅模式。当⼀条消息被投递到消息中间件之后，它会通过共享的Topic 主题进⾏⼴播，消息消费者在订阅的 主题中收到它并触发⾃身的业务逻辑处理。</p>
+<p><img src="/posts/30414/assets/89f013d10d5df6ce78a7a6fe85518931.webp" alt="img"></p>
+<h3 id="常见问题及解决方案"><a href="#常见问题及解决方案" class="headerlink" title="常见问题及解决方案"></a>常见问题及解决方案</h3><p><strong>Eureka 服务发现慢的原因</strong></p>
+<p>Eureka 服务发现慢的原因主要有两个，⼀部分是因为服务缓存导致的，另⼀部分是 因为客户端缓存导致的。</p>
+<p><img src="/posts/30414/assets/d06512fcd8c631f76d848197bf45a979.webp" alt="img"></p>
+<p><strong>服务端缓存</strong></p>
+<p>服务注册到注册中⼼后，服务实例信息是存储在内存中，为了提高响应效率，Eureta内部加了两层缓存结构，一二级缓存之间会进行数据同步，默认30S，当Client获取服务实例数据时，会先从⼀级缓存中获取，如果⼀级缓存中不存在，再从⼆级缓存中获取，如果⼆级缓存也不存在，会触发缓存的加载，从存储层拉取数据到缓存中，然后再返回给Client，服务下线、过期、注册、状态变更等操作都会清除二级缓存中的数据，基于Guava，默认过期180S，因此产生的弊端也出现了，同步时间有30S，会导致服务发现慢的问题，解决办法要么缩短更新时间，要么禁用一级缓存。</p>
+<p><strong>客户端缓存</strong></p>
+<p>Eureka Client负责跟Eureka Server进⾏交互，默认30S拉取一次数据，也可以缩短拉取时间。</p>
+<p>Ribbon会从Eureka Client中获取服务信息，默认也是30S，也可以缩短定时更新时间。</p>
+<p><strong>Spring Cloud 各组件超时，通过设置超时时间解决</strong></p>
+<p>Ribbon 如果采⽤的是服务发现⽅式，就可以通过服务名去进⾏转发，需要配置 Ribbon的超时，Hystrix的超时时间要⼤于Ribbon的超时时间，因为Hystrix将请求包装了起来，特别需要注意的是，如果Ribbon开启了重试机制，⽐如 重试3 次，Ribbon 的超时为 1 秒，那么 Hystrix 的超时时间应该⼤于 3 秒，否则就 会出现 Ribbon 还在重试中，⽽Hystrix已经超时的现象。</p>
+<p>Feign Feign本身也有超时时间的设置，如果此时设置了Ribbon的时间就以Ribbon的时间为准，如果没设置Ribbon的时间但配置了Feign的时间，就以Feign的时间为准。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
+              <a href="/tags/spring-cloud/" rel="tag"><i class="fa fa-tag"></i> spring cloud</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2661b4f7/" rel="prev" title="dubbo框架知识">
+                  <i class="fa fa-chevron-left"></i> dubbo框架知识
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/48068/" rel="next" title="mysql性能优化总结">
+                  mysql性能优化总结 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"4fb9841f556bc25940b3cec7023cb4a9"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+</html>
