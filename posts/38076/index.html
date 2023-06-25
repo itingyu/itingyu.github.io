@@ -10,10 +10,13 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
 
@@ -78,6 +81,8 @@
 <title>mysql集群架构 | itingyu的博客 - 记录一些琐事罢了</title>
   
 
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
 
 
 
@@ -222,6 +227,18 @@
     </div>
 
     
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
   </aside>
 
 
@@ -650,20 +667,20 @@
 <p>9） 四台服务器之间建立免密设置，输入第一个命令，回车然后再输入各个服务器地址命名并输入登录密码</p>
 <p>#MHA 49.235.99.6</p>
 <p>ssh-keygen -t rsa</p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#52;&#x37;&#46;&#x31;&#48;&#54;&#x2e;&#49;&#51;&#56;&#x2e;&#52;&#54;">&#114;&#x6f;&#111;&#116;&#64;&#52;&#x37;&#46;&#x31;&#48;&#54;&#x2e;&#49;&#51;&#56;&#x2e;&#52;&#54;</a></p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#x34;&#57;&#x2e;&#x32;&#51;&#53;&#46;&#56;&#x35;&#46;&#x32;&#52;&#x36;">&#114;&#111;&#x6f;&#116;&#x40;&#x34;&#57;&#x2e;&#x32;&#51;&#53;&#46;&#56;&#x35;&#46;&#x32;&#52;&#x36;</a></p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x31;&#x37;&#46;&#53;&#48;&#x2e;&#x35;&#46;&#x32;&#x35;&#50;">&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x31;&#x37;&#46;&#53;&#48;&#x2e;&#x35;&#46;&#x32;&#x35;&#50;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#52;&#55;&#x2e;&#x31;&#x30;&#x36;&#46;&#x31;&#51;&#x38;&#x2e;&#x34;&#x36;">&#x72;&#111;&#x6f;&#x74;&#64;&#52;&#55;&#x2e;&#x31;&#x30;&#x36;&#46;&#x31;&#51;&#x38;&#x2e;&#x34;&#x36;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#x34;&#x39;&#x2e;&#x32;&#x33;&#53;&#46;&#x38;&#x35;&#46;&#50;&#x34;&#x36;">&#x72;&#111;&#x6f;&#x74;&#64;&#x34;&#x39;&#x2e;&#x32;&#x33;&#53;&#46;&#x38;&#x35;&#46;&#50;&#x34;&#x36;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#49;&#x37;&#46;&#53;&#x30;&#x2e;&#53;&#46;&#x32;&#53;&#x32;">&#x72;&#x6f;&#111;&#x74;&#64;&#x31;&#49;&#x37;&#46;&#53;&#x30;&#x2e;&#53;&#46;&#x32;&#53;&#x32;</a></p>
 <p>#master 47.106.138.46</p>
 <p>ssh-keygen -t rsa</p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#52;&#x39;&#46;&#50;&#51;&#53;&#46;&#x38;&#53;&#x2e;&#50;&#52;&#54;">&#114;&#x6f;&#111;&#116;&#64;&#52;&#x39;&#46;&#50;&#51;&#53;&#46;&#x38;&#53;&#x2e;&#50;&#52;&#54;</a></p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#49;&#x31;&#x37;&#x2e;&#x35;&#48;&#46;&#53;&#x2e;&#x32;&#x35;&#50;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#49;&#x31;&#x37;&#x2e;&#x35;&#48;&#46;&#53;&#x2e;&#x32;&#x35;&#50;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#111;&#111;&#116;&#64;&#x34;&#57;&#46;&#x32;&#51;&#53;&#46;&#56;&#53;&#46;&#50;&#52;&#x36;">&#114;&#111;&#111;&#116;&#64;&#x34;&#57;&#46;&#x32;&#51;&#53;&#46;&#56;&#53;&#46;&#50;&#52;&#x36;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#x6f;&#x6f;&#116;&#x40;&#49;&#49;&#x37;&#x2e;&#53;&#x30;&#x2e;&#53;&#46;&#50;&#53;&#x32;">&#x72;&#x6f;&#x6f;&#116;&#x40;&#49;&#49;&#x37;&#x2e;&#53;&#x30;&#x2e;&#53;&#46;&#50;&#53;&#x32;</a></p>
 <p>#slave1 49.235.85.246</p>
 <p>ssh-keygen -t rsa</p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#111;&#x6f;&#x74;&#x40;&#x34;&#55;&#46;&#x31;&#x30;&#54;&#x2e;&#x31;&#51;&#56;&#x2e;&#x34;&#x36;">&#114;&#111;&#x6f;&#x74;&#x40;&#x34;&#55;&#46;&#x31;&#x30;&#54;&#x2e;&#x31;&#51;&#56;&#x2e;&#x34;&#x36;</a></p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#x6f;&#111;&#x74;&#x40;&#x31;&#49;&#55;&#46;&#x35;&#x30;&#46;&#53;&#x2e;&#x32;&#53;&#50;">&#x72;&#x6f;&#111;&#x74;&#x40;&#x31;&#49;&#55;&#46;&#x35;&#x30;&#46;&#53;&#x2e;&#x32;&#53;&#50;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#111;&#111;&#x74;&#64;&#52;&#55;&#46;&#x31;&#48;&#x36;&#46;&#x31;&#x33;&#56;&#x2e;&#x34;&#x36;">&#x72;&#111;&#111;&#x74;&#64;&#52;&#55;&#46;&#x31;&#48;&#x36;&#46;&#x31;&#x33;&#56;&#x2e;&#x34;&#x36;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x31;&#55;&#x2e;&#53;&#48;&#x2e;&#53;&#x2e;&#x32;&#x35;&#50;">&#114;&#x6f;&#111;&#x74;&#64;&#49;&#x31;&#55;&#x2e;&#53;&#48;&#x2e;&#53;&#x2e;&#x32;&#x35;&#50;</a></p>
 <p>#slave2 117.50.5.252</p>
 <p>ssh-keygen -t rsa</p>
-<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#x34;&#x37;&#x2e;&#49;&#48;&#x36;&#46;&#x31;&#51;&#x38;&#46;&#52;&#x36;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#x34;&#x37;&#x2e;&#49;&#48;&#x36;&#46;&#x31;&#51;&#x38;&#46;&#52;&#x36;</a></p>
+<p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:&#x72;&#111;&#111;&#116;&#x40;&#x34;&#55;&#x2e;&#x31;&#48;&#54;&#x2e;&#49;&#51;&#56;&#x2e;&#52;&#54;">&#x72;&#111;&#111;&#116;&#x40;&#x34;&#55;&#x2e;&#x31;&#48;&#54;&#x2e;&#49;&#51;&#56;&#x2e;&#52;&#54;</a></p>
 <p>ssh-copy-id -i &#x2F;root&#x2F;.ssh&#x2F;id_rsa <a href="mailto:root@49.235.85.246">root@49.235.85.246</a></p>
 <p><img src="/posts/38076/assets/610fe7b6aaaba3090289e8ff706e14f1.webp" alt="img"></p>
 <p>10）MHA配置</p>
@@ -807,6 +824,35 @@
     
     
     <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
           <div class="post-tags">
               <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" rel="tag"><i class="fa fa-tag"></i> 基础知识</a>
               <a href="/tags/mysql/" rel="tag"><i class="fa fa-tag"></i> mysql</a>
@@ -868,7 +914,10 @@
 
 
   
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
 <script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
@@ -877,7 +926,9 @@
 
 
 
+  <script src="/js/third-party/fancybox.js"></script>
 
+  <script src="/js/third-party/pace.js"></script>
 
 
   
@@ -891,4 +942,5 @@
 <script src="/js/third-party/comments/gitalk.js"></script>
 
 </body>
+
 </html>
