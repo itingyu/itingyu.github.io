@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="堆一般指的是二叉堆，顾名思义，二叉堆是完全二叉树或者近似完全二叉树  堆1. 堆的性质 ① 是一棵完全二叉树② 每个节点的值都大于或等于其子节点的值，为最大堆；反之为最小堆。   2. 堆的存储一般用数组来表示堆，下标为 i 的结点的父结点下标为(i-1)&#x2F;2；其左右子结点分别为 (2i + 1)、(2i + 2)  3. 堆的操作在堆的数据结构中，堆中的最大值总是位于根节点(在优先队">
+<meta property="og:type" content="article">
+<meta property="og:title" content="堆排序">
+<meta property="og:url" content="https://itingyu.github.io/posts/c2a5fdc5/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="堆一般指的是二叉堆，顾名思义，二叉堆是完全二叉树或者近似完全二叉树  堆1. 堆的性质 ① 是一棵完全二叉树② 每个节点的值都大于或等于其子节点的值，为最大堆；反之为最小堆。   2. 堆的存储一般用数组来表示堆，下标为 i 的结点的父结点下标为(i-1)&#x2F;2；其左右子结点分别为 (2i + 1)、(2i + 2)  3. 堆的操作在堆的数据结构中，堆中的最大值总是位于根节点(在优先队">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-a78e7c4a1cc919a322adc87b33006dab_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-54a318a1acd0cccb8ac0018ccf58815f_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/c2a5fdc5/asset/v2-b7907d351809293c60658b0b87053c66_b.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-6db33bd4ddb7937ca5946283ef2acc5d_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-6db33bd4ddb7937ca5946283ef2acc5d_720w.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-29c3af6ba60e66f1d328c164d09b4adc_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-cf88501a8092e7b0c4712aa81a875f03_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-e96b570c470785e19936abceee95c8ca_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-5bbfec3cb200b9fa7efcf29fe71fc7dd_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-1f490e927a5d7d5e97e9609f7e99b6e5_720w.webp">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-d77c2cf77a7b81041fba5871979f3910_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-724e54aaff73bd4c0bf5e5352fc673ce_720w.webp">
+<meta property="article:published_time" content="2023-07-01T14:54:57.000Z">
+<meta property="article:modified_time" content="2023-07-02T06:53:51.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="排序算法">
+<meta property="article:tag" content="选择排序">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic4.zhimg.com/80/v2-a78e7c4a1cc919a322adc87b33006dab_720w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/c2a5fdc5/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/c2a5fdc5/","path":"posts/c2a5fdc5/","title":"堆排序"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>堆排序 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A0%86"><span class="nav-number">1.</span> <span class="nav-text">堆</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%A0%86%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">1.1.</span> <span class="nav-text">1. 堆的性质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%A0%86%E7%9A%84%E5%AD%98%E5%82%A8"><span class="nav-number">1.2.</span> <span class="nav-text">2. 堆的存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%A0%86%E7%9A%84%E6%93%8D%E4%BD%9C"><span class="nav-number">1.3.</span> <span class="nav-text">3. 堆的操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3"><span class="nav-number">1.4.</span> <span class="nav-text">1. 基本思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%AE%9E%E7%8E%B0%E9%80%BB%E8%BE%91"><span class="nav-number">1.5.</span> <span class="nav-text">2. 实现逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%8A%A8%E5%9B%BE%E6%BC%94%E7%A4%BA"><span class="nav-number">1.6.</span> <span class="nav-text">3. 动图演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%88%9B%E5%BB%BA%E6%9C%80%E5%A4%A7%E5%A0%86"><span class="nav-number">1.7.</span> <span class="nav-text">3.1 创建最大堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%A0%86%E6%8E%92%E5%BA%8F%EF%BC%88%E6%9C%80%E5%A4%A7%E5%A0%86%E8%B0%83%E6%95%B4%EF%BC%89"><span class="nav-number">1.8.</span> <span class="nav-text">3.2 堆排序（最大堆调整）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-number">1.9.</span> <span class="nav-text">4. 复杂度分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.</span> <span class="nav-text">代码实现</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/c2a5fdc5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="堆排序 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          堆排序
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-01 22:54:57" itemprop="dateCreated datePublished" datetime="2023-07-01T22:54:57+08:00">2023-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">排序算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/" itemprop="url" rel="index"><span itemprop="name">选择排序</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.5k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p> 堆一般指的是二叉堆，顾名思义，二叉堆是完全二叉树或者近似完全二叉树 </p>
+<h2 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h2><h3 id="1-堆的性质"><a href="#1-堆的性质" class="headerlink" title="1. 堆的性质"></a>1. 堆的性质</h3><blockquote>
+<p>① 是一棵完全二叉树<br>② 每个节点的值都大于或等于其子节点的值，为最大堆；反之为最小堆。</p>
+</blockquote>
+<p><img src="https://pic4.zhimg.com/80/v2-a78e7c4a1cc919a322adc87b33006dab_720w.webp" alt="img"></p>
+<h3 id="2-堆的存储"><a href="#2-堆的存储" class="headerlink" title="2. 堆的存储"></a>2. 堆的存储</h3><p>一般用数组来表示堆，下标为 i 的结点的父结点下标为(i-1)&#x2F;2；其左右子结点分别为 (2i + 1)、(2i + 2)</p>
+<p><img src="https://pic4.zhimg.com/80/v2-54a318a1acd0cccb8ac0018ccf58815f_720w.webp" alt="img"></p>
+<h3 id="3-堆的操作"><a href="#3-堆的操作" class="headerlink" title="3. 堆的操作"></a>3. 堆的操作</h3><p>在堆的数据结构中，堆中的最大值总是位于根节点(在优先队列中使用堆的话堆中的最小值位于根节点)。堆中定义以下几种操作：</p>
+<blockquote>
+<p>① <strong>最大堆调整（Max_Heapify）</strong>：将堆的末端子节点作调整，使得子节点永远小于父节点<br>② <strong>创建最大堆（Build_Max_Heap）</strong>：将堆所有数据重新排序<br>③ <strong>堆排序（HeapSort）</strong>：移除位在第一个数据的根节点，并做最大堆调整的递归运算</p>
+</blockquote>
+<p>##堆排序（Heap Sort）</p>
+<p>堆排序（Heapsort）是指利用堆这种数据结构所设计的一种排序算法。堆积是一个近似完全二叉树的结构，并同时满足堆积的性质：即子结点的键值或索引总是小于（或者大于）它的父节点。</p>
+<h3 id="1-基本思想"><a href="#1-基本思想" class="headerlink" title="1. 基本思想"></a>1. 基本思想</h3><p>利用大顶堆(小顶堆)堆顶记录的是最大关键字(最小关键字)这一特性，使得每次从无序中选择最大记录(最小记录)变得简单。</p>
+<blockquote>
+<p> ① 将待排序的序列构造成一个最大堆，此时序列的最大值为根节点<br>② 依次将根节点与待排序序列的最后一个元素交换<br>③ 再维护从根节点到该元素的前一个节点为最大堆，如此往复，最终得到一个递增序列 </p>
+</blockquote>
+<h3 id="2-实现逻辑"><a href="#2-实现逻辑" class="headerlink" title="2. 实现逻辑"></a>2. 实现逻辑</h3><blockquote>
+<p>① 先将初始的R[0…n-1]建立成最大堆，此时是无序堆，而堆顶是最大元素。<br>② 再将堆顶R[0]和无序区的最后一个记录R[n-1]交换，由此得到新的无序区R[0…n-2]和有序区R[n-1]，且满足R[0…n-2].keys ≤ R[n-1].key<br>③ 由于交换后新的根R[1]可能违反堆性质，故应将当前无序区R[1..n-1]调整为堆。然后再次将R[1..n-1]中关键字最大的记录R[1]和该区间的最后一个记录R[n-1]交换，由此得到新的无序区R[1..n-2]和有序区R[n-1..n]，且仍满足关系R[1..n-2].keys≤R[n-1..n].keys，同样要将R[1..n-2]调整为堆。<br>④ 直到无序区只有一个元素为止。</p>
+</blockquote>
+<h3 id="3-动图演示"><a href="#3-动图演示" class="headerlink" title="3. 动图演示"></a>3. 动图演示</h3><p><img src="/posts/c2a5fdc5/asset/v2-b7907d351809293c60658b0b87053c66_b.webp" alt="动图"></p>
+<p>堆排序算法的演示。首先，将元素进行重排，以匹配堆的条件。图中排序过程之前简单的绘出了堆树的结构。</p>
+<p><video src="https://vdn.vzuu.com/SD/3bb38dfe-236a-11eb-8039-a6caf32b14c9.mp4?disable_local_cache=1&bu=078babd7&c=avc.0.0&f=mp4&expiration=1688228226&auth_key=1688228226-0-0-165a4e13b3983ec98069ec94ee08a81c&v=ali&pu=078babd7"></video><br><strong>分步解析说明</strong>：</p>
+<p>实现堆排序需要解决两个问题：</p>
+<blockquote>
+<p>1、如何由一个无序序列建成一个堆？<br>2、如何在输出堆顶元素之后，调整剩余元素成为一个新的堆？</p>
+</blockquote>
+<p>假设给定一个组无序数列{100,5,3,11,6,8,7}，带着问题，我们对其进行堆排序操作进行分步操作说明。</p>
+<h3 id="3-1-创建最大堆"><a href="#3-1-创建最大堆" class="headerlink" title="3.1 创建最大堆"></a>3.1 创建最大堆</h3><p>①首先我们将数组我们将数组从上至下按顺序排列，转换成二叉树：一个无序堆。每一个三角关系都是一个堆，上面是父节点，下面两个分叉是子节点，两个子节点俗称左孩子、右孩子；</p>
+<p><img src="https://pic2.zhimg.com/80/v2-6db33bd4ddb7937ca5946283ef2acc5d_720w.webp" alt="img"></p>
+<p>②转换成无序堆之后，我们要努力让这个无序堆变成最大堆(或是最小堆)，即每个堆里都实现父节点的值都大于任何一个子节点的值。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-6db33bd4ddb7937ca5946283ef2acc5d_720w.webp" alt="img"></p>
+<p>③从最后一个堆开始，即左下角那个没有右孩子的那个堆开始；首先对比左右孩子，由于这个堆没有右孩子，所以只能用左孩子，左孩子的值比父节点的值小所以不需要交换。如果发生交换，要检测子节点是否为其他堆的父节点，如果是，递归进行同样的操作。</p>
+<p>④第二次对比红色三角形内的堆，取较大的子节点，右孩子8胜出，和父节点比较，右孩子8大于父节点3，升级做父节点，与3交换位置，3的位置没有子节点，这个堆建成最大堆。</p>
+<p><img src="https://pic1.zhimg.com/80/v2-29c3af6ba60e66f1d328c164d09b4adc_720w.webp" alt="img"></p>
+<p>⑤对黄色三角形内堆进行排序，过程和上面一样，最终是右孩子33升为父节点，被交换的右孩子下面也没有子节点，所以直接结束对比。</p>
+<p>⑥最顶部绿色的堆，堆顶100比左右孩子都大，所以不用交换，至此最大堆创建完成。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-cf88501a8092e7b0c4712aa81a875f03_720w.webp" alt="img"></p>
+<h3 id="3-2-堆排序（最大堆调整）"><a href="#3-2-堆排序（最大堆调整）" class="headerlink" title="3.2 堆排序（最大堆调整）"></a>3.2 堆排序（最大堆调整）</h3><p>①首先将堆顶元素100交换至最底部7的位置，7升至堆顶，100所在的底部位置即为有序区，有序区不参与之后的任何对比。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-e96b570c470785e19936abceee95c8ca_720w.webp" alt="img"></p>
+<p>②在7升至顶部之后，对顶部重新做最大堆调整，左孩子33代替7的位置。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-5bbfec3cb200b9fa7efcf29fe71fc7dd_720w.webp" alt="img"></p>
+<p>③在7被交换下来后，下面还有子节点，所以需要继续与子节点对比，左孩子11比7大，所以11与7交换位置，交换位置后7下面为有序区，不参与对比，所以本轮结束，无序区再次形成一个最大堆。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-1f490e927a5d7d5e97e9609f7e99b6e5_720w.webp" alt="img"></p>
+<p>④将最大堆堆顶33交换至堆末尾，扩大有序区；</p>
+<p><img src="https://pic1.zhimg.com/80/v2-d77c2cf77a7b81041fba5871979f3910_720w.webp" alt="img"></p>
+<p>⑤不断建立最大堆，并且扩大有序区，最终全部有序。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-724e54aaff73bd4c0bf5e5352fc673ce_720w.webp" alt="img"></p>
+<h3 id="4-复杂度分析"><a href="#4-复杂度分析" class="headerlink" title="4. 复杂度分析"></a>4. 复杂度分析</h3><ul>
+<li>平均时间复杂度：O(nlogn)</li>
+<li>最佳时间复杂度：O(nlogn)</li>
+<li>最差时间复杂度：O(nlogn)</li>
+<li>稳定性：不稳定</li>
+</ul>
+<p>堆排序其实也是一种选择排序，是一种树形选择排序。只不过直接选择排序中，为了从R[1…n]中选择最大记录，需比较n-1次，然后从R[1…n-2]中选择最大记录需比较n-2次。事实上这n-2次比较中有很多已经在前面的n-1次比较中已经做过，而树形选择排序恰好利用树形的特点保存了部分前面的比较结果，因此可以减少比较次数。对于n个关键字序列，最坏情况下每个节点需比较log2(n)次，因此其最坏情况下时间复杂度为nlogn。堆排序为不稳定排序，不适合记录较少的排序。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HeapSort</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> data[];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HeapSort</span><span class="params">(<span class="type">int</span>[] data)</span>&#123;</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">    &#125;</span><br><span class="line">     <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">sink</span><span class="params">(<span class="type">int</span> index,<span class="type">int</span> len)</span>&#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">child</span> <span class="operator">=</span> (index&lt;&lt;<span class="number">1</span>)+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span>(child&gt;len-<span class="number">1</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span>(child+<span class="number">1</span>&lt;len&amp;&amp;(data[child]&lt;data[child+<span class="number">1</span>]))&#123;</span><br><span class="line">                child++;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(data[index]&gt;=data[child])&#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            swap(index,child);</span><br><span class="line">            sink(child,len);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sort</span><span class="params">()</span>&#123;</span><br><span class="line">      <span class="comment">//可以用raise按顺序添加，建立大顶堆</span></span><br><span class="line"><span class="comment">//        for (int i = 0; i &lt; data.length ; i++) &#123;  </span></span><br><span class="line"><span class="comment">//            raise(i);</span></span><br><span class="line"><span class="comment">//        &#125;</span></span><br><span class="line"><span class="comment">//        System.out.println(Arrays.toString(data));</span></span><br><span class="line">        <span class="comment">// 用下面倒序调整，建立大顶堆</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> data.length/<span class="number">2</span>; i &gt;=<span class="number">0</span>; i--) &#123; </span><br><span class="line">            sink(i,data.length);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> data.length-<span class="number">1</span>; i &gt;<span class="number">0</span>; i--) &#123;</span><br><span class="line">            System.out.println(Arrays.toString(data));</span><br><span class="line">            swap(<span class="number">0</span>,i);</span><br><span class="line">            sink(<span class="number">0</span>,i);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">swap</span><span class="params">(<span class="type">int</span> i,<span class="type">int</span> j)</span>&#123;</span><br><span class="line">        data[i]^=data[j];</span><br><span class="line">        data[j]^=data[i];</span><br><span class="line">        data[i]^=data[j];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">raise</span><span class="params">(<span class="type">int</span> index)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(index==<span class="number">0</span>)&#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(data[(index-<span class="number">1</span>)/<span class="number">2</span>]&gt;=data[index]) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        swap(index,(index-<span class="number">1</span>)/<span class="number">2</span>);</span><br><span class="line">        raise((index-<span class="number">1</span>)/<span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">int</span>[] data = <span class="keyword">new</span> <span class="title class_">int</span>[]&#123;<span class="number">8</span>,<span class="number">6</span>,<span class="number">9</span>,<span class="number">2</span>,<span class="number">5</span>,<span class="number">1</span>,<span class="number">7</span>,<span class="number">10</span>,<span class="number">3</span>,<span class="number">4</span>&#125;;</span><br><span class="line">        <span class="type">HeapSort</span> <span class="variable">hs</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HeapSort</span>(data);</span><br><span class="line">        hs.sort();</span><br><span class="line">        System.out.println(Arrays.toString(data));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>建堆两种方法：（两种方式产生的堆不一定一样，但根节点都是最大的）</p>
+<ul>
+<li>可以从头到尾上浮一边， （上浮操作，保证了父节点不小于子节点）</li>
+<li>也可以从最后一个非叶子节点开始到根节点做下沉操作。（下沉操作，保证了节点的左右子树均是堆）</li>
+</ul>
+<p>将堆顶与最后元素交换后，因为左右子树都是堆，所以只要对堆顶做一次下沉操作即可。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 排序算法</a>
+              <a href="/tags/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/" rel="tag"><i class="fa fa-tag"></i> 选择排序</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2b06d603/" rel="prev" title="直接插入排序">
+                  <i class="fa fa-chevron-left"></i> 直接插入排序
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/6367b42a/" rel="next" title="基数排序">
+                  基数排序 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"5c90fae0c9bd15c14321a32f49e9b8f1"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

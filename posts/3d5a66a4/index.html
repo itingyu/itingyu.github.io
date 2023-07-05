@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="递归爬楼梯 斐波那契 直接递归 hash表 定义两个变量  两数之和（leetcode 1） 暴力求解 hashMap避免二次扫描  合并两个有序数组(leetcode 88) 利用Arrays的方法，合并后再排序 临时数组+双指针(取小) 双指针（倒序遍历，取大）  移动零 （leetcode283） 双指针（一个指向非零，一个指向挪动的目标位置）  找到所有数组中消失的数字（leetcode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="经典题思路">
+<meta property="og:url" content="https://itingyu.github.io/posts/3d5a66a4/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="递归爬楼梯 斐波那契 直接递归 hash表 定义两个变量  两数之和（leetcode 1） 暴力求解 hashMap避免二次扫描  合并两个有序数组(leetcode 88) 利用Arrays的方法，合并后再排序 临时数组+双指针(取小) 双指针（倒序遍历，取大）  移动零 （leetcode283） 双指针（一个指向非零，一个指向挪动的目标位置）  找到所有数组中消失的数字（leetcode">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-04-13T13:31:08.000Z">
+<meta property="article:modified_time" content="2022-04-11T04:37:46.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/3d5a66a4/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/3d5a66a4/","path":"posts/3d5a66a4/","title":"经典题思路"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>经典题思路 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%92%E5%BD%92"><span class="nav-number">1.</span> <span class="nav-text">递归</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%88%AC%E6%A5%BC%E6%A2%AF-%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91"><span class="nav-number">1.1.</span> <span class="nav-text">爬楼梯 斐波那契</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%A4%E6%95%B0%E4%B9%8B%E5%92%8C%EF%BC%88leetcode-1%EF%BC%89"><span class="nav-number">1.2.</span> <span class="nav-text">两数之和（leetcode 1）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84-leetcode-88"><span class="nav-number">1.3.</span> <span class="nav-text">合并两个有序数组(leetcode 88)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E5%8A%A8%E9%9B%B6-%EF%BC%88leetcode283%EF%BC%89"><span class="nav-number">1.4.</span> <span class="nav-text">移动零 （leetcode283）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%BE%E5%88%B0%E6%89%80%E6%9C%89%E6%95%B0%E7%BB%84%E4%B8%AD%E6%B6%88%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97%EF%BC%88leetcode-448%EF%BC%89"><span class="nav-number">1.5.</span> <span class="nav-text">找到所有数组中消失的数字（leetcode 448）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8-%EF%BC%88%E9%80%92%E5%BD%92%E7%90%86%E8%A7%A3%E4%B8%BA%E9%93%BE%E8%A1%A8%E5%8F%98%E7%9F%AD%E4%BA%86%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">链表 （递归理解为链表变短了）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E4%B8%A4%E4%B8%AA%E6%9C%89%E5%BA%8F%E9%93%BE%E8%A1%A8-%EF%BC%88leetcode-21%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">合并两个有序链表 （leetcode 21）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E5%85%83%E7%B4%A0"><span class="nav-number">2.2.</span> <span class="nav-text">删除排序链表中的重复元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8%EF%BC%88leetcode-141%EF%BC%89%EF%BC%88%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%9C%89%E7%8E%AF%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">环形链表（leetcode 141）（判断是否有环）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8%EF%BC%88leetcode-142%EF%BC%89%EF%BC%88%E5%88%A4%E7%8E%AF%E5%92%8C%E5%85%A5%E7%8E%AF%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%BD%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">环形链表（leetcode 142）（判环和入环第一个位置）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%B8%E4%BA%A4%E9%93%BE%E8%A1%A8-%EF%BC%88leetcode-160%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">相交链表 （leetcode 160）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%8D%E8%BD%AC%E9%93%BE%E8%A1%A8%EF%BC%88leetcode-206%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">反转链表（leetcode 206）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E6%96%87%E9%93%BE%E8%A1%A8%EF%BC%88leetcode-234%EF%BC%89"><span class="nav-number">2.7.</span> <span class="nav-text">回文链表（leetcode 234）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8%E7%9A%84%E4%B8%AD%E9%97%B4%E8%8A%82%E7%82%B9%EF%BC%88leetcode-876%EF%BC%89"><span class="nav-number">2.8.</span> <span class="nav-text">链表的中间节点（leetcode 876）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%80%92%E6%95%B0%E7%AC%ACk%E4%B8%AA%E8%8A%82%E7%82%B9-%EF%BC%88leetcode-876%EF%BC%89"><span class="nav-number">2.9.</span> <span class="nav-text">链表中倒数第k个节点 （leetcode 876）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%88%E5%92%8C%E9%98%9F%E5%88%97"><span class="nav-number">3.</span> <span class="nav-text">栈和队列</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E6%A0%88%E5%AE%9E%E7%8E%B0%E9%98%9F%E5%88%97-%EF%BC%88leetcode-232%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">用栈实现队列 （leetcode 232）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A7%A3%E7%A0%81%EF%BC%88leetcode-394%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">字符串解码（leetcode 394）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%91"><span class="nav-number">4.</span> <span class="nav-text">树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E4%B8%AD%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88leetcode-94%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">二叉树的中序遍历（leetcode 94）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%89%8D%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88leetcode-144%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">二叉树的前序遍历（leetcode 144）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%EF%BC%88leetcode-145%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">二叉树的后序遍历（leetcode 145）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91%EF%BC%88leetcode-101%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">对称二叉树（leetcode 101）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E5%A4%A7%E6%B7%B1%E5%BA%A6-%EF%BC%88leetcode-104%EF%BC%89"><span class="nav-number">4.5.</span> <span class="nav-text">二叉树的最大深度 （leetcode 104）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91%EF%BC%88leetcode-%EF%BC%89%EF%BC%88%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E4%B8%BA%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91%EF%BC%89"><span class="nav-number">4.6.</span> <span class="nav-text">平衡二叉树（leetcode ）（判断是否为平衡二叉树）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BF%BB%E8%BD%AC%E4%BA%8C%E5%8F%89%E6%A0%91-%EF%BC%88leetcode-226%EF%BC%89"><span class="nav-number">4.7.</span> <span class="nav-text">翻转二叉树 （leetcode 226）</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/3d5a66a4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="经典题思路 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          经典题思路
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-04-13 21:31:08" itemprop="dateCreated datePublished" datetime="2022-04-13T21:31:08+08:00">2022-04-13</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>918</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="递归"><a href="#递归" class="headerlink" title="递归"></a>递归</h1><h2 id="爬楼梯-斐波那契"><a href="#爬楼梯-斐波那契" class="headerlink" title="爬楼梯 斐波那契"></a>爬楼梯 斐波那契</h2><ul>
+<li>直接递归</li>
+<li>hash表</li>
+<li>定义两个变量</li>
+</ul>
+<h2 id="两数之和（leetcode-1）"><a href="#两数之和（leetcode-1）" class="headerlink" title="两数之和（leetcode 1）"></a>两数之和（leetcode 1）</h2><ul>
+<li>暴力求解</li>
+<li>hashMap避免二次扫描</li>
+</ul>
+<h2 id="合并两个有序数组-leetcode-88"><a href="#合并两个有序数组-leetcode-88" class="headerlink" title="合并两个有序数组(leetcode 88)"></a>合并两个有序数组(leetcode 88)</h2><ul>
+<li>利用Arrays的方法，合并后再排序</li>
+<li>临时数组+双指针(取小)</li>
+<li>双指针（倒序遍历，取大）</li>
+</ul>
+<h2 id="移动零-（leetcode283）"><a href="#移动零-（leetcode283）" class="headerlink" title="移动零 （leetcode283）"></a>移动零 （leetcode283）</h2><ul>
+<li>双指针（一个指向非零，一个指向挪动的目标位置）</li>
+</ul>
+<h2 id="找到所有数组中消失的数字（leetcode-448）"><a href="#找到所有数组中消失的数字（leetcode-448）" class="headerlink" title="找到所有数组中消失的数字（leetcode 448）"></a>找到所有数组中消失的数字（leetcode 448）</h2><ul>
+<li>标记下标法（负号或者加某个数）</li>
+</ul>
+<h1 id="链表-（递归理解为链表变短了）"><a href="#链表-（递归理解为链表变短了）" class="headerlink" title="链表 （递归理解为链表变短了）"></a>链表 （递归理解为链表变短了）</h1><h2 id="合并两个有序链表-（leetcode-21）"><a href="#合并两个有序链表-（leetcode-21）" class="headerlink" title="合并两个有序链表 （leetcode 21）"></a>合并两个有序链表 （leetcode 21）</h2><ul>
+<li>双指针</li>
+<li>递归</li>
+</ul>
+<h2 id="删除排序链表中的重复元素"><a href="#删除排序链表中的重复元素" class="headerlink" title="删除排序链表中的重复元素"></a>删除排序链表中的重复元素</h2><ul>
+<li>双指针</li>
+<li>递归</li>
+</ul>
+<h2 id="环形链表（leetcode-141）（判断是否有环）"><a href="#环形链表（leetcode-141）（判断是否有环）" class="headerlink" title="环形链表（leetcode 141）（判断是否有环）"></a>环形链表（leetcode 141）（判断是否有环）</h2><ul>
+<li>hash表法</li>
+<li>快慢指针（是否相遇）</li>
+</ul>
+<h2 id="环形链表（leetcode-142）（判环和入环第一个位置）"><a href="#环形链表（leetcode-142）（判环和入环第一个位置）" class="headerlink" title="环形链表（leetcode 142）（判环和入环第一个位置）"></a>环形链表（leetcode 142）（判环和入环第一个位置）</h2><ul>
+<li>快慢指针（相遇后，都一步一步移动）</li>
+</ul>
+<h2 id="相交链表-（leetcode-160）"><a href="#相交链表-（leetcode-160）" class="headerlink" title="相交链表 （leetcode 160）"></a>相交链表 （leetcode 160）</h2><ul>
+<li>穷举</li>
+<li>hash表法</li>
+<li>双指针（移动到尾时，指向另一个链表头）</li>
+<li>双指针（计算长度差d，然后长的先移动d）</li>
+</ul>
+<h2 id="反转链表（leetcode-206）"><a href="#反转链表（leetcode-206）" class="headerlink" title="反转链表（leetcode 206）"></a>反转链表（leetcode 206）</h2><ul>
+<li>preNode</li>
+</ul>
+<h2 id="回文链表（leetcode-234）"><a href="#回文链表（leetcode-234）" class="headerlink" title="回文链表（leetcode 234）"></a>回文链表（leetcode 234）</h2><ul>
+<li>复制到数组中，然后双指针（相遇前值是否相同）</li>
+<li>快慢指针找到中点，然后后半部分反转后，再逐一比较两部分（注意链表节点数目为奇数时）</li>
+</ul>
+<h2 id="链表的中间节点（leetcode-876）"><a href="#链表的中间节点（leetcode-876）" class="headerlink" title="链表的中间节点（leetcode 876）"></a>链表的中间节点（leetcode 876）</h2><ul>
+<li>复制到数组中，找中间下标</li>
+<li>快慢指针找中点</li>
+</ul>
+<h2 id="链表中倒数第k个节点-（leetcode-876）"><a href="#链表中倒数第k个节点-（leetcode-876）" class="headerlink" title="链表中倒数第k个节点 （leetcode 876）"></a>链表中倒数第k个节点 （leetcode 876）</h2><ul>
+<li>hash表存正数位置</li>
+<li>遍历得长度，再遍历</li>
+<li>快慢指针（使得两个指针相距k-1,然后步长都为1，快指针到表尾时即可）</li>
+</ul>
+<h1 id="栈和队列"><a href="#栈和队列" class="headerlink" title="栈和队列"></a>栈和队列</h1><h2 id="用栈实现队列-（leetcode-232）"><a href="#用栈实现队列-（leetcode-232）" class="headerlink" title="用栈实现队列 （leetcode 232）"></a>用栈实现队列 （leetcode 232）</h2><ul>
+<li>两个栈（输入栈和输出栈）</li>
+</ul>
+<h2 id="字符串解码（leetcode-394）"><a href="#字符串解码（leetcode-394）" class="headerlink" title="字符串解码（leetcode 394）"></a>字符串解码（leetcode 394）</h2><ul>
+<li>栈，中括号配对后，弹栈，看左中括号右边的字符（注意数字可以是多位数）</li>
+</ul>
+<h1 id="树"><a href="#树" class="headerlink" title="树"></a>树</h1><h2 id="二叉树的中序遍历（leetcode-94）"><a href="#二叉树的中序遍历（leetcode-94）" class="headerlink" title="二叉树的中序遍历（leetcode 94）"></a>二叉树的中序遍历（leetcode 94）</h2><h2 id="二叉树的前序遍历（leetcode-144）"><a href="#二叉树的前序遍历（leetcode-144）" class="headerlink" title="二叉树的前序遍历（leetcode 144）"></a>二叉树的前序遍历（leetcode 144）</h2><h2 id="二叉树的后序遍历（leetcode-145）"><a href="#二叉树的后序遍历（leetcode-145）" class="headerlink" title="二叉树的后序遍历（leetcode 145）"></a>二叉树的后序遍历（leetcode 145）</h2><h2 id="对称二叉树（leetcode-101）"><a href="#对称二叉树（leetcode-101）" class="headerlink" title="对称二叉树（leetcode 101）"></a>对称二叉树（leetcode 101）</h2><ul>
+<li>递归（只要不相等就退出）</li>
+<li>队列</li>
+</ul>
+<h2 id="二叉树的最大深度-（leetcode-104）"><a href="#二叉树的最大深度-（leetcode-104）" class="headerlink" title="二叉树的最大深度 （leetcode 104）"></a>二叉树的最大深度 （leetcode 104）</h2><ul>
+<li>递归遍历</li>
+<li>队列</li>
+</ul>
+<h2 id="平衡二叉树（leetcode-）（判断是否为平衡二叉树）"><a href="#平衡二叉树（leetcode-）（判断是否为平衡二叉树）" class="headerlink" title="平衡二叉树（leetcode ）（判断是否为平衡二叉树）"></a>平衡二叉树（leetcode ）（判断是否为平衡二叉树）</h2><ul>
+<li>递归（从上往下递归，从下往上回溯）</li>
+</ul>
+<h2 id="翻转二叉树-（leetcode-226）"><a href="#翻转二叉树-（leetcode-226）" class="headerlink" title="翻转二叉树 （leetcode 226）"></a>翻转二叉树 （leetcode 226）</h2><ul>
+<li>递归</li>
+</ul>
+<p>查找算法：<br>二分<br>顺序<br>插值<br>斐波那契<br>树表<br>分块<br>哈希</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%85%B6%E4%BB%96/" rel="tag"><i class="fa fa-tag"></i> 其他</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/91a7e4d1/" rel="prev" title="双指针">
+                  <i class="fa fa-chevron-left"></i> 双指针
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/3635a217/" rel="next" title="回溯法">
+                  回溯法 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"23000dc1d8c9533323f86910cfeb8cee"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

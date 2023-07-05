@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="存储引擎InnoDB、Mysql、Memory、blackhole等   现在数据库默认的版本存储引擎时InnoDB,并且Msql8.0宣布InnoDB存储数据字典，MylSAM彻底从MyQL数据库中剥离开，被废弃了。 建议把线上的MyISM的存储引擎表全部转化成InnoDB表存储。下面是两种之间的主要区别  可以看出InnoDB存储引擎的优势很明显。 ##表 整型int   tinyint  使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql王者晋级之路">
+<meta property="og:url" content="https://itingyu.github.io/posts/115d16e7/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="存储引擎InnoDB、Mysql、Memory、blackhole等   现在数据库默认的版本存储引擎时InnoDB,并且Msql8.0宣布InnoDB存储数据字典，MylSAM彻底从MyQL数据库中剥离开，被废弃了。 建议把线上的MyISM的存储引擎表全部转化成InnoDB表存储。下面是两种之间的主要区别  可以看出InnoDB存储引擎的优势很明显。 ##表 整型int   tinyint  使">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687768365725.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687768385011.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687768646223.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687771979891.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687772000859.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687772412789.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687772443967.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687772496719.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687773196369.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687773385247.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687773991188.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687794828234.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687794992864.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687795034807.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687795060611.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687775957789.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687776200360.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687776324267.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687777607677.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687777900715.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778242689.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778257645.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778298642.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778351949.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778370663.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778691528.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687778805400.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687791962554.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687792013621.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687792152768.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687850088508.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687850169056.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687850797419.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687850857646.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687850872578.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687854477167.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687854510391.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687854798875.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687855020232.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687855062341.png">
+<meta property="og:image" content="https://itingyu.github.io/asset/1687856499872.png">
+<meta property="article:published_time" content="2023-06-27T18:05:44.000Z">
+<meta property="article:modified_time" content="2023-07-05T12:37:45.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="mysql王者晋级之路">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/115d16e7/asset/1687768365725.png">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/115d16e7/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/115d16e7/","path":"posts/115d16e7/","title":"mysql王者晋级之路"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql王者晋级之路 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="nav-number">1.</span> <span class="nav-text">存储引擎</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">整型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%AE%E7%82%B9%E5%9E%8B"><span class="nav-number">1.2.</span> <span class="nav-text">浮点型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%97%B4%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">时间类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.4.</span> <span class="nav-text">字符串类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A1%A8%E7%A2%8E%E7%89%87%E4%BA%A7%E7%94%9F%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="nav-number">1.5.</span> <span class="nav-text">表碎片产生的原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql-%E5%BA%93%E8%A1%A8%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">mysql 库表常用命令总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.7.</span> <span class="nav-text">平衡二叉树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b%E6%A0%91%E7%BB%93%E6%9E%84"><span class="nav-number">1.8.</span> <span class="nav-text">b树结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b-%E6%A0%91"><span class="nav-number">1.9.</span> <span class="nav-text">b+树</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%9A%E9%9B%86%E7%B4%A2%E5%BC%95%E5%92%8C%E6%99%AE%E9%80%9A%E7%B4%A2%E5%BC%95"><span class="nav-number">1.9.1.</span> <span class="nav-text">聚集索引和普通索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BB%E9%94%AE%E7%B4%A2%E5%BC%95%E5%92%8C%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95"><span class="nav-number">1.9.2.</span> <span class="nav-text">主键索引和唯一索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95"><span class="nav-number">1.9.3.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%89%8D%E7%BC%80%E7%B4%A2%E5%BC%95"><span class="nav-number">1.9.4.</span> <span class="nav-text">前缀索引</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95"><span class="nav-number">1.9.5.</span> <span class="nav-text">联合索引</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95"><span class="nav-number">1.10.</span> <span class="nav-text">哈希索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E7%89%B9%E6%80%A7"><span class="nav-number">1.11.</span> <span class="nav-text">事务的特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E8%AF%AD%E5%8F%A5"><span class="nav-number">1.12.</span> <span class="nav-text">事务语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#truncate%E5%92%8Cdelete%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-number">1.13.</span> <span class="nav-text">truncate和delete的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB"><span class="nav-number">1.14.</span> <span class="nav-text">事务的隔离级别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%84%8F%E8%AF%BB%E3%80%81%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E3%80%81%E5%B9%BB%E8%AF%BB%E5%92%8C%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB"><span class="nav-number">1.15.</span> <span class="nav-text">脏读、不可重复读、幻读和可重复读</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%84%8F%E8%AF%BB"><span class="nav-number">1.15.1.</span> <span class="nav-text">脏读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E4%B8%8E%E5%B9%BB%E8%AF%BB"><span class="nav-number">1.15.2.</span> <span class="nav-text">不可重复读与幻读</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB"><span class="nav-number">1.15.3.</span> <span class="nav-text">可重复读</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%94%81"><span class="nav-number">2.</span> <span class="nav-text">锁</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#InnoDB%E7%9A%84%E9%94%81%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.1.</span> <span class="nav-text">InnoDB的锁类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E9%94%81"><span class="nav-number">2.1.1.</span> <span class="nav-text">读锁</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%BF%E5%85%8D%E6%AD%BB%E9%94%81%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">避免死锁的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%B7%E5%A4%87%E5%8F%8A%E6%81%A2%E5%A4%8D"><span class="nav-number">2.3.</span> <span class="nav-text">冷备及恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%83%AD%E5%A4%87%E5%8F%8A%E6%81%A2%E5%A4%8D"><span class="nav-number">2.4.</span> <span class="nav-text">热备及恢复</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/115d16e7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql王者晋级之路 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql王者晋级之路
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 02:05:44" itemprop="dateCreated datePublished" datetime="2023-06-28T02:05:44+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/mysql%E7%8E%8B%E8%80%85%E6%99%8B%E7%BA%A7%E4%B9%8B%E8%B7%AF/" itemprop="url" rel="index"><span itemprop="name">mysql王者晋级之路</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6.2k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="存储引擎"><a href="#存储引擎" class="headerlink" title="存储引擎"></a>存储引擎</h2><p>InnoDB、Mysql、Memory、blackhole等</p>
+<p><img src="/posts/115d16e7/asset/1687768365725.png" alt="1687768365725"></p>
+<p><img src="/posts/115d16e7/asset/1687768385011.png" alt="1687768385011"></p>
+<p>现在数据库默认的版本存储引擎时InnoDB,并且Msql8.0宣布InnoDB存储数据字典，MylSAM彻底从MyQL数据库中剥离开，被废弃了。</p>
+<p>建议把线上的MyISM的存储引擎表全部转化成InnoDB表存储。下面是两种之间的主要区别</p>
+<p><img src="/posts/115d16e7/asset/1687768646223.png" alt="1687768646223"></p>
+<p>可以看出InnoDB存储引擎的优势很明显。</p>
+<p>##表</p>
+<h3 id="整型"><a href="#整型" class="headerlink" title="整型"></a>整型</h3><p>int   tinyint  使用最多</p>
+<p><img src="/posts/115d16e7/asset/1687771979891.png" alt="1687771979891"></p>
+<p><img src="/posts/115d16e7/asset/1687772000859.png" alt="1687772000859"></p>
+<p>id 一般都选择int，基本不用bigint这种，因为int unsigned数值范围可以达到43亿</p>
+<p>问题：int(4)和int(10)有区别吗？</p>
+<p>Int(n) 括号里面的数字无论写成多少，都是占四个字节，最多能存10位数字。n不是代表能存多少位数，只是显示宽度。所以两者没有区别。但如果定义了zerofill，就有区别了，比如写入一个1，int(4)会写成0001，int(10)会写成0000000001.</p>
+<p><img src="/posts/115d16e7/asset/1687772412789.png" alt="1687772412789"></p>
+<p><img src="/posts/115d16e7/asset/1687772443967.png" alt="1687772443967"></p>
+<h3 id="浮点型"><a href="#浮点型" class="headerlink" title="浮点型"></a>浮点型</h3><p><img src="/posts/115d16e7/asset/1687772496719.png" alt="1687772496719"></p>
+<p>避免使用浮点型，因为他属于并不精确的类型，生产中不建议使用float和double。</p>
+<p>在生产环境中，我们大多数使用decimal来存储金钱字段，但是数值运算过程中，还是会转成浮点数来运算，而且在运算过程中会出现四舍五入的情况，这样就造成了金额的不准确。</p>
+<p>decimal(6,2)   6代表整数加小数部分的总长度，2代表小数点后的保留位数，插入的值的小数部分会自动补齐或者四舍五入。插入的数字的整数部分长度不能超过M-D位，否则不能成功插入，会报超出范围的错误。</p>
+<p>对于交易类的平台，这种四舍五入的现象还是要避免的，可以使用int来存储金钱，int单位为分，这样就不存在四舍五入了，让数据更精确。</p>
+<h3 id="时间类型"><a href="#时间类型" class="headerlink" title="时间类型"></a>时间类型</h3><p><img src="/posts/115d16e7/asset/1687773196369.png" alt="1687773196369"></p>
+<p>也可以使用int类型来存储时间，可以通过两个函数转换来，unix_timestamp和from_unixtime</p>
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><p><img src="/posts/115d16e7/asset/1687773385247.png" alt="1687773385247"></p>
+<p>text和blob这种存大量文字或者存图片的大数据类型建议不要与业务表放在一起。主要业务表切忌出现这样类型的字段。</p>
+<p>问题：Char和VarChar的区别？</p>
+<p>Char类型用于定长字符串，并且范围为0-255.如果字符数没有达到定义的位数，会在后面用空格补齐全存入数据库，如果超过大小，会被截断。</p>
+<p>Varchar是变长长度，长度范围为0-65535，存储时，不会在后面补空格；如果超过指定长度，也会截断。可以根据实际内容动态地改变存储值地长度，在不确定需要多少字符时，可以大大地节约磁盘空间，提高存储效率。会使用多余字节记录长度，&lt;255一个字节，&gt;255两个字节</p>
+<p><img src="/posts/115d16e7/asset/1687773991188.png" alt="1687773991188"></p>
+<p>问题：IPv4这样地字段，选择什么类型数据存储合适？</p>
+<p>推荐使用int类型类存储ip字段，可int不是整数吗，怎么可以存字符串呢？这里使用到inet_aton和inet_ntoa两个函数</p>
+<h3 id="表碎片产生的原因"><a href="#表碎片产生的原因" class="headerlink" title="表碎片产生的原因"></a>表碎片产生的原因</h3><p><img src="/./asset/1687794828234.png" alt="1687794828234"></p>
+<p><img src="/./asset/1687794992864.png" alt="1687794992864"></p>
+<p><img src="/./asset/1687795034807.png" alt="1687795034807"></p>
+<p><img src="/./asset/1687795060611.png" alt="1687795060611"></p>
+<h3 id="mysql-库表常用命令总结"><a href="#mysql-库表常用命令总结" class="headerlink" title="mysql 库表常用命令总结"></a>mysql 库表常用命令总结</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">use database   选择数据库</span><br><span class="line">show databases 查看所有数据库</span><br><span class="line">show tables  查看某库下所有表</span><br><span class="line">crate database database_name  创建数据库</span><br><span class="line">drop database database_name 删除数据库</span><br><span class="line">create table table_name(字段列表) 创建表</span><br><span class="line">drop table table_name 删除表</span><br><span class="line">delete from table_name(where)或者truncate table table_name 只删除表数据</span><br><span class="line">insert into table_name(字段列表) values (对应字段地值) 往表插入数据</span><br><span class="line">update table_name set: 字段值=某值(where) 更新表中某行数据</span><br><span class="line">select * from table_name (where) 查询表中数据</span><br><span class="line">show create table table_name \G 查看建表语句</span><br><span class="line">desc table_name 查看表结构</span><br><span class="line">show table status 获取表基础信息</span><br><span class="line">show index from table_name 查看当前表下索引地情况</span><br><span class="line">show full processlist 查看数据库当前连接地情况</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>##索引</p>
+<p>###二叉树结构</p>
+<p>B+树是由  二叉树-&gt;平衡二叉树-&gt;b树  演化而来地。</p>
+<p><img src="/posts/115d16e7/asset/1687775957789.png" alt="1687775957789"></p>
+<h3 id="平衡二叉树"><a href="#平衡二叉树" class="headerlink" title="平衡二叉树"></a>平衡二叉树</h3><p>二叉树随着节点地深度加大时，查询地均分复杂度就会上升，为了提供更快地查询速度，平衡树就出现了。必须满足左右两个子树地高度差地绝对值不超过1，且它地左右子树都是一颗平衡二叉树。它和二叉树地区别在于随时要保证插入后地整颗二叉树是平衡地。它会左旋或者右旋来使不平衡地树变成平横树。</p>
+<p><img src="/posts/115d16e7/asset/1687776200360.png" alt="1687776200360"></p>
+<h3 id="b树结构"><a href="#b树结构" class="headerlink" title="b树结构"></a>b树结构</h3><p>有些书说索引结构是Btree，其实不正确。mysql地索引结构是B+tree,下图为Btree的结构</p>
+<p><img src="/posts/115d16e7/asset/1687776324267.png" alt="1687776324267"></p>
+<p>所有的叶子节点都在同一层，叶子结点都出现在同一层，叶子节点不包含任何关键字的信息。</p>
+<h3 id="b-树"><a href="#b-树" class="headerlink" title="b+树"></a>b+树</h3><p>是btree的变体，定义与btree基本相同，但它所有关键字的信息都出现在叶子节点中，并且包含这些关键字记录的指针，叶子节点可以按照关键字的大小顺序链接。还有它所有的数据都保存在叶子节点中，这是区别于btree结构最主要的特点。</p>
+<p><img src="/posts/115d16e7/asset/1687777607677.png" alt="1687777607677"></p>
+<p>B+树索引是双向链表结构，而且用B+tree结构做索引要比Btree块，可以看出访问关键字的顺序是连续的，不用再访问上一个节点，而且叶子节点包含所有数据信息。</p>
+<h4 id="聚集索引和普通索引"><a href="#聚集索引和普通索引" class="headerlink" title="聚集索引和普通索引"></a>聚集索引和普通索引</h4><p>MySQL数据库的B+tree索引其实可以分为两大类，一类叫聚集索引，一类叫非聚集索引，也就是普通索引。</p>
+<p>聚集索引叶子节点存放表中所有行数据记录的信息，所以经常会说数据即索引，索引即数据。<strong>创建表时，要显示为表指定一个主键（聚集索引），如果不主动创建主键，那么InnoDB会选择第一个不包含null值的唯一索引作为主键。如果唯一索引都没有，InnoDB就会为该表默认生成一个6字节的rowid作为主键</strong></p>
+<p>普通索引在叶子节点并不包含所有行的数据记录，只是会在叶子节点存有自己本身的键值和主键的值。在检索数据时，通过普通索引叶子节点上的主键来获取到想要查找的行数据记录</p>
+<p><img src="/posts/115d16e7/asset/1687777900715.png" alt="1687777900715"></p>
+<p>普通索引的创建语法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">alter table table_name add index (索引字段)</span><br><span class="line">或者</span><br><span class="line">create index index_name on table_name(索引字段)</span><br></pre></td></tr></table></figure>
+
+<p>通常使用show index from table_name 来查看表中有那些索引。还可用explain命令查看sql语句的执行计划，判断添加索引后，优化器是否生成了更高效的执行计划。</p>
+<p><img src="/posts/115d16e7/asset/1687778242689.png" alt="1687778242689"></p>
+<p><img src="/posts/115d16e7/asset/1687778257645.png" alt="1687778257645"></p>
+<p><img src="/posts/115d16e7/asset/1687778298642.png" alt="1687778298642"></p>
+<p><img src="/posts/115d16e7/asset/1687778351949.png" alt="1687778351949"></p>
+<p><img src="/posts/115d16e7/asset/1687778370663.png" alt="1687778370663"></p>
+<p><img src="/posts/115d16e7/asset/1687778691528.png" alt="1687778691528"></p>
+<p><img src="/posts/115d16e7/asset/1687778805400.png" alt="1687778805400"></p>
+<h4 id="主键索引和唯一索引"><a href="#主键索引和唯一索引" class="headerlink" title="主键索引和唯一索引"></a>主键索引和唯一索引</h4><p>主键索引其实就是唯一索引，每张表中有且仅有一个主键，可以由表中一个或多个字段组成。主键索引必须满足三个条件，主键值必须唯一：不能包含null值；一定要保证该值是自增属性。使用自增列做索引，可以保证写入数据的顺序也是自增的，这就在很大程度上提高了存取效率。</p>
+<p>创建主键的语法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table table_name add primary key(column);</span><br></pre></td></tr></table></figure>
+
+<p>唯一索引是约束条件的一种，其实就是不允许有重复值，但是可以运行有null值。唯一索引可以有多个</p>
+<p>创建唯一索引的语法</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table table_name add unique(column)</span><br></pre></td></tr></table></figure>
+
+<h4 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h4><p>只需通过索引就可以返回查询所需要的数据，而不必在查到索引之后再去回表查询数据了。这样就减少了大量的i&#x2F;0操作，查询速度也相当块。</p>
+<p>比如，想要查询主键id字段，而且在查询条件中name字段是普通索引，之但普通索引中包含主键的值，相当于（name，id）那么这条语句就使用了覆盖索引，出现了using index。</p>
+<p>**如果使用覆盖索引，一定要让select列出所需要的列。坚决不可以直接写出select ***</p>
+<h4 id="前缀索引"><a href="#前缀索引" class="headerlink" title="前缀索引"></a>前缀索引</h4><p>对应BLOB、TEXT。或者很长的VARCHAR类型的列，为它的前几个字符建立索引，这样的索引就叫做前缀索引，这样建立的索引更小，所以查询更快，但也有坏处，他不能在ordery by或group by中使用前缀索引，也不能把他们用作覆盖索引</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">alter</span> <span class="keyword">table</span> table_name <span class="keyword">add</span> key(column_name(prefix_length));</span><br></pre></td></tr></table></figure>
+
+<h4 id="联合索引"><a href="#联合索引" class="headerlink" title="联合索引"></a>联合索引</h4><p>联合索引又叫复合索引，是在表中两个以上的列上创建的索引，利用索引中的附加表，可以缩小检索的段池范围，更快的搜索到数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create index idx_c1_c2 on t (c1,c2);  可以用到从索引和c1,c2索引</span><br></pre></td></tr></table></figure>
+
+<p>联合索引使用过程中，必须满足最左前缀原则。一般把选择性高的列放在前面。一条查询语句可以只使用索引的一部分，但必须从最左侧开始。</p>
+<p><img src="/posts/115d16e7/asset/1687791962554.png" alt="1687791962554"></p>
+<p><img src="/posts/115d16e7/asset/1687792013621.png" alt="1687792013621"></p>
+<h3 id="哈希索引"><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h3><p><img src="/posts/115d16e7/asset/1687792152768.png" alt="1687792152768"></p>
+<p>###索引总结</p>
+<p><strong>索引的优点</strong></p>
+<ul>
+<li>提高数据检索效率</li>
+<li>提高聚合函数效率</li>
+<li>提高排序效率</li>
+<li>使用覆盖索引可以避免会标</li>
+</ul>
+<p><strong>索引创建的四不要</strong></p>
+<ul>
+<li>选择性低的字段不要创建索引 （例如sex，status）</li>
+<li>很少查询的列不要创建索引</li>
+<li>大数据类型字段不要创建索引</li>
+<li>尽量避免使用null，应该指定列为not null（在mysql中，含有空值的列很难进行查询优化，他们会使得索引、索引的统计信息及比较运算更加复杂，可以使用空字符串代替空值）</li>
+</ul>
+<p>使用不到索引的情况</p>
+<ul>
+<li><p>通过索引扫描的行记录超过全表30%，优化器就不会走索引，而变成全表索引。</p>
+</li>
+<li><p>联合索引中，第一个查询条件不是最左索引列</p>
+</li>
+<li><p>联合索引中，第一个索引列使用范围查询，指南用到部分索引，有ICP出现（范围查询是指&lt; 、&#x3D;、 &lt;&#x3D;、 between and）</p>
+</li>
+<li><p>联合索引中，第一个查询条件不是最左前缀列</p>
+</li>
+<li><p>模糊查询条件列最左以通配符%开始（可以考虑放到子查询里面）</p>
+</li>
+<li><p>两个单列索引，一个用于检索，一个用于排序。这种情况下只能使用到一个索引。因为查询语句中最多使用一个索引，考虑建立联合索引</p>
+</li>
+<li><p>查询字段上面有索引，但是使用了函数运算</p>
+</li>
+</ul>
+<p>##事务<br>  事务其实就是一组DML（insert，delete，update）语句的集合。MySQL数据库InnoDB存储引擎支持事务，MyISAM不支持。而且MySQL的事务默认是自提交模式，如果想要开启事务，必须以begin命令开始，以commit或者rollback命令结束。</p>
+<h3 id="事务的特性"><a href="#事务的特性" class="headerlink" title="事务的特性"></a>事务的特性</h3><ol>
+<li>原子性<br>事务中包含的所有操作要么都做，要么都不做，保证数据库是一致的。</li>
+<li>一致性<br>数据库中的数据在事务操作前和事务处理后都必须满足业务规则约束。</li>
+<li>隔离性<br>数据库允许多个并发事务同时对数据进行读写和修改的能力，隔离性可以防止多个事务并发执行时由于交叉执行而导致数据的不一致。</li>
+<li>持久性<br>事务处理结束后，对数据的修改就是永久的，即使系统发生故障也不会丢失</li>
+</ol>
+<h3 id="事务语句"><a href="#事务语句" class="headerlink" title="事务语句"></a>事务语句</h3><p>事务的开启语句是由begin 或者start transaction命令来开始的，或者把自提交特性关掉（set autocommit&#x3D;0命令）事务结束语句通常使用commit或者rollback显示结束。commit代表提交事务，使得已对数据库的所有修改改为永久性。rollback代表回滚事务，撤销正在进行的所有未提交的修改。</p>
+<p><img src="/./asset/1687850088508.png" alt="1687850088508"></p>
+<p><img src="/./asset/1687850169056.png" alt="1687850169056"></p>
+<h3 id="truncate和delete的区别"><a href="#truncate和delete的区别" class="headerlink" title="truncate和delete的区别"></a>truncate和delete的区别</h3><p>truncate是DDL语句操作，delete是DML语句操作，他们的共同点都是清空表内的数据，但truncate在事务中不能被回滚，而且truncate会清空表的自增属性。</p>
+<ol>
+<li>truncate不能回滚，delete可以回滚</li>
+<li>truncate清空表的自增id属性，从1重新开始记录，而delete则不会。</li>
+</ol>
+<p><img src="/./asset/1687850797419.png" alt="1687850797419"></p>
+<p><img src="/./asset/1687850857646.png" alt="1687850857646"></p>
+<p><img src="/./asset/1687850872578.png" alt="1687850872578"></p>
+<h3 id="事务的隔离级别"><a href="#事务的隔离级别" class="headerlink" title="事务的隔离级别"></a>事务的隔离级别</h3><p>MySQL InnoDB存储引擎实现SQL标准的4种隔离级别，用来限定事务内外的哪些改变是可见的，哪些是不可见的。低级别的隔离级一般支持更高的并发处理，并拥有更低的系统开销。查看当前数据库的隔离级别命令,默认级别是REPEATABLE-READ</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">show variable like &#x27;%tx_isolation%&#x27;</span><br><span class="line">set global|session transaction isolation level</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>读未提交（read uncommitted），简称RU，在其中一个事务中，可以读取到其他事务未提交的数据变化。这种读取其他会话还没提交的事务，叫做脏读现象。在生产环境不建议使用。</p>
+</li>
+<li><p>读已提交（read committed），简称RC，<strong>在其中一个事务中，可以读取到其他事务已经提交的数据变化</strong>，这种读取也可以叫做不可重复读，允许幻读现象的发生，是Oracle数据库默认的事务隔离级别，</p>
+</li>
+<li><p>可重复读（repetable read），简称RR，它是MySQL默认的事务隔离级别，在其中一个事务中，直到事务结束前，<strong>都可以反复读取到事务刚开始时看到的数据</strong>，并不会发生变化，避免了脏读。不可重复读和幻读现象的发生。</p>
+</li>
+<li><p>串行（serizlizable）在每个读的数据行上都加表级共享锁，在每次写数据时都要加表级排他锁。这就会造成InnoDB的并发能力下降，大量的超时和锁竞争就会发生。不建议使用到生产环境中。</p>
+</li>
+</ol>
+<h3 id="脏读、不可重复读、幻读和可重复读"><a href="#脏读、不可重复读、幻读和可重复读" class="headerlink" title="脏读、不可重复读、幻读和可重复读"></a>脏读、不可重复读、幻读和可重复读</h3><h4 id="脏读"><a href="#脏读" class="headerlink" title="脏读"></a>脏读</h4><p>脏读是在事务隔离级别读未提交（RU）中出现的现象。一个事务读取到了其他事务还没有提交的数据。</p>
+<p><img src="/./asset/1687854477167.png" alt="1687854477167"></p>
+<p><img src="/posts/115d16e7/asset/1687854510391.png" alt="1687854510391"></p>
+<h4 id="不可重复读与幻读"><a href="#不可重复读与幻读" class="headerlink" title="不可重复读与幻读"></a>不可重复读与幻读</h4><p>在其中一个事务中，读取到了其他事务针对旧数据的修改记录（常见操作就是update或者delete）</p>
+<p>幻读是指其中一个事务，读取到了其他事务新增的数据，仿佛出现了幻影现象（常见的就是insert语句）。这种读的现象允许出现在读已提交的事务隔离级别中</p>
+<p><img src="/./asset/1687854798875.png" alt="1687854798875"></p>
+<h4 id="可重复读"><a href="#可重复读" class="headerlink" title="可重复读"></a>可重复读</h4><p>是MySQL数据库默认的事务隔离级别。它消除了脏读、不可重复读、幻读现象，很好的保证了事务的一致性。</p>
+<p><img src="/./asset/1687855020232.png" alt="1687855020232"></p>
+<p><img src="/./asset/1687855062341.png" alt="1687855062341"></p>
+<h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2><p>简单来说就是为了保证数据库数据的一致性，使共享资源在被并发访问时变得有序而设计的一种规则</p>
+<p>InnoDB支持行锁，有时也会升级为表锁，MyISAM只支持表锁</p>
+<ul>
+<li>表锁的特点就是开销小、加锁快；锁粒度大，发生锁冲突的概率高。并发度相对低。</li>
+<li>行锁的特定就是开销大，加锁慢；会出现死锁；锁粒度小，发生锁冲突的概率低，并发度也相对较高。</li>
+</ul>
+<h3 id="InnoDB的锁类型"><a href="#InnoDB的锁类型" class="headerlink" title="InnoDB的锁类型"></a>InnoDB的锁类型</h3><p>主要有读锁（共享锁），写锁（排他锁），意向锁和MDL锁。</p>
+<h4 id="读锁"><a href="#读锁" class="headerlink" title="读锁"></a>读锁</h4><p>读锁简称S锁，一个是为u会的了一个数据行的读锁，其他事务能获得该行对应的读锁，但不能获得写锁，即一个事务在读一个数据行时，其他事务也可以读，但不能对该数据行进行增删改查的操作。</p>
+<p>两者select方式，一种就不加任何锁，直接返回结果，这就是一致性非锁定读。一种是通过select lock in share mode 在被读取的行记录的范围加一个读锁，让其他事务可以读，但是想要申请加写锁，那就会被阻塞。</p>
+<p>###写锁</p>
+<p>写锁简称X锁，一个事务获取了一个数据行的写锁，其他事务就不能再获取该行的其他锁，写锁优先级最高。写锁的应用就很简单了，一些DML语句的操作就会对行记录加写锁</p>
+<p>比较特殊的就是select for update，它就会对读取的行记录加一个写锁，那么其他任何事务就不能对被锁定的行加上任何锁了，要不然会被阻塞。</p>
+<h3 id="避免死锁的方法"><a href="#避免死锁的方法" class="headerlink" title="避免死锁的方法"></a>避免死锁的方法</h3><ul>
+<li><p>如果不同程序会并发存取多个表，或者涉及多行记录时，尽量约定以相同的顺序访问表，可以大大降低死锁的机会</p>
+</li>
+<li><p>业务中尽量采用小事务，避免大事务，要及时提交或者回滚事务，可减少死锁产生的概率</p>
+</li>
+<li><p>在同一个事务中，尽可能做到一次锁定所需要的所有资源，减少死锁产生的概率</p>
+</li>
+<li><p>对于非常容易产生死锁的业务部分，可以尝试使用升级锁粒度，通过表锁来减少死锁产生的概率</p>
+</li>
+</ul>
+<p>##备份恢复</p>
+<p><img src="/./asset/1687856499872.png" alt="1687856499872"></p>
+<h3 id="冷备及恢复"><a href="#冷备及恢复" class="headerlink" title="冷备及恢复"></a>冷备及恢复</h3><p>冷备：数据库处于关闭状态下的备份，好处是保证数据库的完整，备份过程简单并且恢复速度相对块一些</p>
+<h3 id="热备及恢复"><a href="#热备及恢复" class="headerlink" title="热备及恢复"></a>热备及恢复</h3><p>数据库处于运行状态下的备份，不影响现有业务的正常运行。细分为逻辑文件备份和裸文件备份。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 读书笔记</a>
+              <a href="/tags/mysql%E7%8E%8B%E8%80%85%E6%99%8B%E7%BA%A7%E4%B9%8B%E8%B7%AF/" rel="tag"><i class="fa fa-tag"></i> mysql王者晋级之路</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2075dfe/" rel="prev" title="redis入门指南">
+                  <i class="fa fa-chevron-left"></i> redis入门指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/379d38db/" rel="next" title="1.位运算">
+                  1.位运算 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"be3de543f4cb43eeb59e51023b5a9786"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

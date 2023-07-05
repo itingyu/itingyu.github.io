@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Skip List–跳表https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;9d8296562806 跳表是一种神奇的数据结构，因为几乎所有版本的大学本科教材上都没有跳表这种数据结构，而且神书《算法导论》、《算法第四版》这两本书中也没有介绍跳表。但是跳表插入、删除、查找元素的时间复杂度跟红黑树都是一样量级的，时间复杂度都是O(logn)，而且跳表有一个特性是红黑树无法匹敌的（具体什么特性后面会提到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Skip List--跳表">
+<meta property="og:url" content="https://itingyu.github.io/posts/23aa0016/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="Skip List–跳表https:&#x2F;&#x2F;www.jianshu.com&#x2F;p&#x2F;9d8296562806 跳表是一种神奇的数据结构，因为几乎所有版本的大学本科教材上都没有跳表这种数据结构，而且神书《算法导论》、《算法第四版》这两本书中也没有介绍跳表。但是跳表插入、删除、查找元素的时间复杂度跟红黑树都是一样量级的，时间复杂度都是O(logn)，而且跳表有一个特性是红黑树无法匹敌的（具体什么特性后面会提到">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-70b00aafa9f5b793.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-4f4535e6d0959c32.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-3852cc36af701f46.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-d7bc5026051ea412.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1200/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-5ec10e6ae2c32587.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-8899cf09c97fd229.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-684743ff91121d5f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-83c166a281525a19.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-af95a14df3637963.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-684743ff91121d5f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-174e6712e183eff7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1114/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-d4fce992be91d0b3.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-4ef315fec46639ef.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-dd671e793f1e3ffe.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-1a7f35e43819c9c4.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/19063731-e95c396e6e62bc87.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+<meta property="article:published_time" content="2023-06-27T18:05:28.000Z">
+<meta property="article:modified_time" content="2023-06-27T18:08:44.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/19063731-70b00aafa9f5b793.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/23aa0016/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/23aa0016/","path":"posts/23aa0016/","title":"Skip List--跳表"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Skip List--跳表 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Skip-List%E2%80%93%E8%B7%B3%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">Skip List–跳表</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E8%B7%B3%E8%A1%A8%EF%BC%8C%E4%BB%8E%E5%8D%95%E9%93%BE%E8%A1%A8%E5%BC%80%E5%A7%8B%E8%AF%B4%E8%B5%B7"><span class="nav-number">1.0.1.</span> <span class="nav-text">理解跳表，从单链表开始说起</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.0.2.</span> <span class="nav-text">查找的时间复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A9%BA%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="nav-number">1.0.3.</span> <span class="nav-text">空间复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="nav-number">1.0.4.</span> <span class="nav-text">插入数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%A0%E9%99%A4%E6%95%B0%E6%8D%AE"><span class="nav-number">1.0.5.</span> <span class="nav-text">删除数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.0.6.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Redis%E9%80%89%E6%8B%A9%E4%BD%BF%E7%94%A8%E8%B7%B3%E8%A1%A8%E8%80%8C%E4%B8%8D%E6%98%AF%E7%BA%A2%E9%BB%91%E6%A0%91%E6%9D%A5%E5%AE%9E%E7%8E%B0%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88%EF%BC%9F"><span class="nav-number">1.0.7.</span> <span class="nav-text">为什么Redis选择使用跳表而不是红黑树来实现有序集合？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%B8%9A%E4%B8%8A%E5%85%B6%E4%BB%96%E4%BD%BF%E7%94%A8%E8%B7%B3%E8%A1%A8%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">1.0.8.</span> <span class="nav-text">工业上其他使用跳表的场景</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/23aa0016/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Skip List--跳表 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Skip List--跳表
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 02:05:28" itemprop="dateCreated datePublished" datetime="2023-06-28T02:05:28+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>8.5k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Skip-List–跳表"><a href="#Skip-List–跳表" class="headerlink" title="Skip List–跳表"></a>Skip List–跳表</h1><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/9d8296562806">https://www.jianshu.com/p/9d8296562806</a></p>
+<p>跳表是一种神奇的数据结构，因为几乎所有版本的大学本科教材上都没有跳表这种数据结构，而且神书《算法导论》、《算法第四版》这两本书中也没有介绍跳表。但是跳表插入、删除、查找元素的时间复杂度跟红黑树都是一样量级的，时间复杂度都是O(logn)，而且跳表有一个特性是红黑树无法匹敌的（具体什么特性后面会提到）。所以在工业中，跳表也会经常被用到。废话不多说了，开始今天的跳表学习。</p>
+<p>通过本文，你能 get 到以下知识：</p>
+<ul>
+<li>什么是跳表？</li>
+<li>跳表的查找、插入、删除元素的流程</li>
+<li>跳表查找、插入、删除元素的时间复杂度</li>
+<li>跳表插入元素时，如何动态维护索引？</li>
+<li>为什么Redis选择使用跳表而不是红黑树来实现有序集合？</li>
+<li>工业上其他使用跳表的场景</li>
+</ul>
+<blockquote>
+<p>友情提示：下文在跳表插入数据时，会讲述如何动态维护索引，实现比较简单，逻辑比较绕，不要放弃，加油！！！如果一遍看不懂没关系，可以选择暂时性的跳过，毕竟这块偏向于源码。但是读者必须知道跳表的查找、插入、删除的时间复杂度都是 O(logn)，而且可以按照范围区间查找元素，当工作中遇到某些场景时，需要想到可以使用跳表解决问题即可。毕竟平时的工作都是直接使用封装好的跳表，例如：java.util.concurrent 下的 ConcurrentSkipListMap()。</p>
+</blockquote>
+<h3 id="理解跳表，从单链表开始说起"><a href="#理解跳表，从单链表开始说起" class="headerlink" title="理解跳表，从单链表开始说起"></a>理解跳表，从单链表开始说起</h3><p>下图是一个简单的<strong>有序单链表</strong>，单链表的特性就是每个元素存放下一个元素的引用。即：通过第一个元素可以找到第二个元素，通过第二个元素可以找到第三个元素，依次类推，直到找到最后一个元素。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-70b00aafa9f5b793.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>跳表-原始链表.jpeg</p>
+<p>现在我们有个场景，想快速找到上图链表中的 10 这个元素，只能从头开始遍历链表，直到找到我们需要找的元素。查找路径：1、3、4、5、7、8、9、10。这样的查找效率很低，平均时间复杂度很高O(n)。那有没有办法提高链表的查找速度呢？如下图所示，我们从链表中每两个元素抽出来，加一级索引，一级索引指向了原始链表，即：通过一级索引 7 的down指针可以找到原始链表的 7 。那现在怎么查找 10 这个元素呢？</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-4f4535e6d0959c32.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>跳表-一级索引.jpeg</p>
+<p>先在索引找 1、4、7、9，遍历到一级索引的 9 时，发现 9 的后继节点是 13，比 10 大，于是不往后找了，而是通过 9 找到原始链表的 9，然后再往后遍历找到了我们要找的 10，遍历结束。有没有发现，加了一级索引后，查找路径：1、4、7、9、10，查找节点需要遍历的元素相对少了，我们不需要对 10 之前的所有数据都遍历，查找的效率提升了。</p>
+<p>那如果加二级索引呢？如下图所示，查找路径：1、7、9、10。是不是找 10 的效率更高了？这就是跳表的思想，用“空间换时间”，通过给链表建立索引，提高了查找的效率。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-3852cc36af701f46.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>跳表-二级索引.jpeg</p>
+<p>可能同学们会想，从上面案例来看，提升的效率并不明显，本来需要遍历8个元素，优化了半天，还需要遍历 4 个元素，其实是因为我们的数据量太少了，当数据量足够大时，效率提升会很大。如下图所示，假如有序单链表现在有1万个元素，分别是 0~9999。现在我们建了很多级索引，最高级的索引，就两个元素 0、5000，次高级索引四个元素 0、2500、5000、7500，依次类推，当我们查找 7890 这个元素时，查找路径为 0、5000、7500 … 7890，通过最高级索引直接跳过了5000个元素，次高层索引直接跳过了2500个元素，<strong>从而使得链表能够实现二分查找</strong>。由此可以看出，当元素数量较多时，索引提高的效率比较大，近似于二分查找。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-d7bc5026051ea412.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1200/format/webp" alt="img"></p>
+<p>数据量增多后，索引效果图.png</p>
+<p>到这里大家应该已经明白了什么是跳表。跳表是<strong>可以实现二分查找的有序链表</strong>。</p>
+<h3 id="查找的时间复杂度"><a href="#查找的时间复杂度" class="headerlink" title="查找的时间复杂度"></a>查找的时间复杂度</h3><p>既然跳表可以提升链表查找元素的效率，那查找一个元素的时间复杂度到底是多少呢？查找元素的过程是从最高级索引开始，一层一层遍历最后下沉到原始链表。所以，时间复杂度 &#x3D; 索引的高度 * 每层索引遍历元素的个数。</p>
+<p>先来求跳表的索引高度。如下图所示，假设每两个结点会抽出一个结点作为上一级索引的结点，原始的链表有n个元素，则一级索引有n&#x2F;2 个元素、二级索引有 n&#x2F;4 个元素、k级索引就有 n&#x2F;2k个元素。最高级索引一般有2个元素，即：最高级索引 h 满足 2 &#x3D; n&#x2F;2h，即 h &#x3D; log2n - 1，最高级索引 h 为索引层的高度加上原始数据一层，跳表的总高度 h &#x3D; log2n。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-5ec10e6ae2c32587.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>查找的时间复杂度证明.jpeg</p>
+<p>我们看上图中加粗的箭头，表示查找元素 x 的路径，那查找过程中每一层索引最多遍历几个元素呢？</p>
+<p>图中所示，现在到达第 k 级索引，我们发现要查找的元素 x 比 y 大比 z 小，所以，我们需要从 y 处下降到 k-1 级索引继续查找，k-1级索引中比 y 大比 z 小的只有一个 w，所以在 k-1 级索引中，我们遍历的元素最多就是 y、w、z，发现 x 比 w大比 z 小之后，再下降到 k-2 级索引。所以，k-2 级索引最多遍历的元素为 w、u、z。其实每级索引都是类似的道理，每级索引中都是两个结点抽出一个结点作为上一级索引的结点。 现在我们得出结论：当每级索引都是两个结点抽出一个结点作为上一级索引的结点时，每一层最多遍历3个结点。</p>
+<p>跳表的索引高度 h &#x3D; log2n，且每层索引最多遍历 3 个元素。所以跳表中查找一个元素的时间复杂度为 O(3*logn)，省略常数即：O(logn)。</p>
+<h3 id="空间复杂度"><a href="#空间复杂度" class="headerlink" title="空间复杂度"></a>空间复杂度</h3><p>跳表通过建立索引，来提高查找元素的效率，就是典型的“空间换时间”的思想，所以在空间上做了一些牺牲，那空间复杂度到底是多少呢？</p>
+<p>假如原始链表包含 n 个元素，则一级索引元素个数为 n&#x2F;2、二级索引元素个数为 n&#x2F;4、三级索引元素个数为 n&#x2F;8 以此类推。所以，索引节点的总和是：n&#x2F;2 + n&#x2F;4 + n&#x2F;8 + … + 8 + 4 + 2 &#x3D; n-2，**空间复杂度是 O(n)**。</p>
+<p>如下图所示：如果每三个结点抽一个结点做为索引，索引总和数就是 n&#x2F;3 + n&#x2F;9 + n&#x2F;27 + … + 9 + 3 + 1&#x3D; n&#x2F;2，减少了一半。所以我们可以通过较少索引数来减少空间复杂度，但是相应的肯定会造成查找效率有一定下降，我们可以根据我们的应用场景来控制这个阈值，看我们更注重时间还是空间。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-8899cf09c97fd229.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>三个节点提取一个做索引.jpeg</p>
+<p>But，索引结点往往只需要存储 key 和几个指针，并不需要存储完整的对象，所以当对象比索引结点大很多时，索引占用的额外空间就可以忽略了。举个例子：我们现在需要用跳表来给所有学生建索引，学生有很多属性：学号、姓名、性别、身份证号、年龄、家庭住址、身高、体重等。学生的各种属性只需要在原始链表中存储一份即可，我们只需要用学生的学号（int 类型的数据）建立索引，所以索引相对原始数据而言，占用的空间可以忽略。</p>
+<h3 id="插入数据"><a href="#插入数据" class="headerlink" title="插入数据"></a>插入数据</h3><p>插入数据看起来也很简单，跳表的原始链表需要保持有序，所以我们会向查找元素一样，找到元素应该插入的位置。如下图所示，要插入数据6，整个过程类似于查找6，整个的查找路径为 1、1、1、4、4、5。查找到第底层原始链表的元素 5 时，发现 5 小于 6 但是后继节点 7 大于 6，所以应该把 6 插入到 5 之后 7 之前。整个时间复杂度为查找元素的时间复杂度 O(logn)。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-684743ff91121d5f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据图示.jpeg</p>
+<p>如下图所示，假如一直往原始列表中添加数据，但是不更新索引，就可能出现两个索引节点之间数据非常多的情况，极端情况，跳表退化为单链表，从而使得查找效率从 O(logn) 退化为 O(n)。那这种问题该怎么解决呢？我们需要在插入数据的时候，索引节点也需要相应的增加、或者重建索引，来避免查找效率的退化。那我们该如何去维护这个索引呢？</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-83c166a281525a19.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据，不更新索引图示.jpeg</p>
+<p>比较容易理解的做法就是完全重建索引，我们每次插入数据后，都把这个跳表的索引删掉全部重建，重建索引的时间复杂度是多少呢？因为索引的空间复杂度是 O(n)，即：索引节点的个数是 O(n) 级别，每次完全重新建一个 O(n) 级别的索引，时间复杂度也是 O(n) 。造成的后果是：为了维护索引，导致每次插入数据的时间复杂度变成了 O(n)。</p>
+<p>那有没有其他效率比较高的方式来维护索引呢？假如跳表每一层的晋升概率是 1&#x2F;2，最理想的索引就是在原始链表中每隔一个元素抽取一个元素做为一级索引。换种说法，<strong>我们在原始链表中随机的选 n&#x2F;2 个元素做为一级索引是不是也能通过索引提高查找的效率呢？</strong> 当然可以了，因为一般随机选的元素相对来说都是比较均匀的。如下图所示，随机选择了n&#x2F;2 个元素做为一级索引，虽然不是每隔一个元素抽取一个，但是对于查找效率来讲，影响不大，比如我们想找元素 16，仍然可以通过一级索引，使得遍历路径较少了将近一半。如果抽取的一级索引的元素恰好是前一半的元素 1、3、4、5、7、8，那么查找效率确实没有提升，但是这样的概率太小了。我们可以认为：当原始链表中<strong>元素数量足够大</strong>，且<strong>抽取足够随机</strong>的话，我们得到的索引是均匀的。我们要清楚设计良好的数据结构都是为了应对大数据量的场景，如果原始链表只有 5 个元素，那么依次遍历 5 个元素也没有关系，因为数据量太少了。所以，我们可以维护一个这样的索引：<strong>随机选 n&#x2F;2 个元素做为一级索引、随机选 n&#x2F;4 个元素做为二级索引、随机选 n&#x2F;8 个元素做为三级索引，依次类推，一直到最顶层索引</strong>。这里每层索引的元素个数已经确定，且每层索引元素选取的足够随机，所以可以通过索引来提升跳表的查找效率。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-af95a14df3637963.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>跳表-一级索引随机分布.jpg</p>
+<p>那代码该如何实现，才能使跳表满足上述这个样子呢？可以在每次新插入元素的时候，尽量让该元素有 1&#x2F;2 的几率建立一级索引、1&#x2F;4 的几率建立二级索引、1&#x2F;8 的几率建立三级索引，以此类推，就能满足我们上面的条件。现在我们就需要一个概率算法帮我们把控这个 1&#x2F;2、1&#x2F;4、1&#x2F;8 … ，<strong>当每次有数据要插入时，先通过概率算法告诉我们这个元素需要插入到几级索引中</strong>，然后开始维护索引并把数据插入到原始链表中。下面开始讲解这个概率算法代码如何实现。</p>
+<p>我们可以实现一个 randomLevel() 方法，该方法会随机生成 1~MAX_LEVEL 之间的数（MAX_LEVEL表示索引的最高层数），且该方法<strong>有 1&#x2F;2 的概率返回 1、1&#x2F;4 的概率返回 2、1&#x2F;8的概率返回 3，以此类推</strong>。</p>
+<ul>
+<li>randomLevel() 方法返回 1 表示当前插入的该元素不需要建索引，只需要存储数据到原始链表即可（概率 1&#x2F;2）</li>
+<li>randomLevel() 方法返回 2 表示当前插入的该元素需要建一级索引（概率 1&#x2F;4）</li>
+<li>randomLevel() 方法返回 3 表示当前插入的该元素需要建二级索引（概率 1&#x2F;8）</li>
+<li>randomLevel() 方法返回 4 表示当前插入的该元素需要建三级索引（概率 1&#x2F;16）</li>
+<li>。。。以此类推</li>
+</ul>
+<p>所以，通过 randomLevel() 方法，我们可以控制整个跳表各级索引中元素的个数。<strong>重点来了</strong>：randomLevel() 方法返回 2 的时候会建立一级索引，我们想要一级索引中元素个数占原始数据的 1&#x2F;2，但是 randomLevel() 方法返回 2 的概率为 1&#x2F;4，那是不是有矛盾呢？明明说好的 1&#x2F;2，结果一级索引元素个数怎么变成了原始链表的 1&#x2F;4？我们先看下图，应该就明白了。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-684743ff91121d5f.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据图示.jpeg</p>
+<p>假设我们在插入元素 6 的时候，randomLevel() 方法返回 1，则我们不会为 6 建立索引。插入 7 的时候，randomLevel() 方法返回3 ，所以我们需要为元素 7 建立二级索引。这里我们发现了一个特点：当建立二级索引的时候，同时也会建立一级索引；当建立三级索引时，同时也会建立一级、二级索引。所以，一级索引中元素的个数等于 <em>[ 原始链表元素个数 ]</em> * *[ randomLevel() 方法返回值 &gt; 1 的概率 ]*。因为 randomLevel() 方法返回值 &gt; 1就会建索引，凡是建索引，无论几级索引必然有一级索引，<strong>所以一级索引中元素个数占原始数据个数的比率为 randomLevel() 方法返回值 &gt; 1 的概率</strong>。那 randomLevel() 方法返回值 &gt; 1 的概率是多少呢？因为 randomLevel() 方法随机生成 1~MAX_LEVEL 的数字，且 randomLevel() 方法返回值 1 的概率为 1&#x2F;2，则 randomLevel() 方法返回值 &gt; 1 的概率为 1 - 1&#x2F;2 &#x3D; 1&#x2F;2。即<strong>通过上述流程实现了一级索引中元素个数占原始数据个数的 1&#x2F;2</strong>。</p>
+<p>同理，当 randomLevel() 方法返回值 &gt; 2 时，会建立二级或二级以上索引，都会在二级索引中增加元素，因此<strong>二级索引中元素个数占原始数据的比率为 randomLevel() 方法返回值 &gt; 2 的概率</strong>。 randomLevel() 方法返回值 &gt; 2 的概率为 1 减去 randomLevel() &#x3D; 1 或 &#x3D;2 的概率，即 1 - 1&#x2F;2 - 1&#x2F;4 &#x3D; 1&#x2F;4。OK，达到了我们设计的目标：<strong>二级索引中元素个数占原始数据的 1&#x2F;4</strong>。</p>
+<p>以此类推，可以得出，遵守以下两个条件：</p>
+<ul>
+<li>randomLevel() 方法，随机生成 1~MAX_LEVEL 之间的数（MAX_LEVEL表示索引的最高层数），且<strong>有 1&#x2F;2的概率返回 1、1&#x2F;4的概率返回 2、1&#x2F;8的概率返回 3 …</strong> </li>
+<li>randomLevel() 方法返回 1 不建索引、返回2建一级索引、返回 3 建二级索引、返回 4 建三级索引 …</li>
+</ul>
+<p>就可以满足我们想要的结果，即：一级索引中元素个数应该占原始数据的 1&#x2F;2，二级索引中元素个数占原始数据的 1&#x2F;4，三级索引中元素个数占原始数据的 1&#x2F;8 ，依次类推，一直到最顶层索引。</p>
+<p>但是问题又来了，怎么设计这么一个 randomLevel() 方法呢？直接撸代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 该 randomLevel 方法会随机生成 1~MAX_LEVEL 之间的数，且 ：</span></span><br><span class="line"><span class="comment">//        1/2 的概率返回 1</span></span><br><span class="line"><span class="comment">//        1/4 的概率返回 2</span></span><br><span class="line"><span class="comment">//        1/8 的概率返回 3 以此类推</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="type">int</span> <span class="title">randomLevel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="type">int</span> level = <span class="number">1</span>;</span><br><span class="line">  <span class="comment">// 当 level &lt; MAX_LEVEL，且随机数小于设定的晋升概率时，level + 1</span></span><br><span class="line">  <span class="keyword">while</span> (Math.<span class="built_in">random</span>() &lt; SKIPLIST_P &amp;&amp; level &lt; MAX_LEVEL)</span><br><span class="line">    level += <span class="number">1</span>;</span><br><span class="line">  <span class="keyword">return</span> level;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码可以实现我们的功能，而且，我们的案例中晋升概率 SKIPLIST_P 设置的 1&#x2F;2，即：每两个结点抽出一个结点作为上一级索引的结点。如果我们想节省空间利用率，可以适当的降低代码中的 SKIPLIST_P，从而减少索引元素个数，Redis 的 zset 中 SKIPLIST_P 设定的 0.25。下图所示，是Redis <a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://github.com/antirez/redis/blob/unstable/src/t_zset.c">t_zset.c</a> 中 zslRandomLevel 函数的实现：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-174e6712e183eff7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1114/format/webp" alt="img"></p>
+<p>Redis zslRandomLevel实现原理.png</p>
+<p>Redis 源码中 <code>(random()&amp;0xFFFF) &lt; (ZSKIPLIST_P * 0xFFFF)</code>  在功能上等价于我代码中的 <code>Math.random() &lt; SKIPLIST_P</code> ，只不过 Redis 作者 <a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://github.com/antirez">antirez</a> 使用位运算来提高浮点数比较的效率。</p>
+<p>整体思路大家应该明白了，那插入数据时维护索引的时间复杂度是多少呢？**元素插入到单链表的时间复杂度为 O(1)**，我们索引的高度最多为 logn，当插入一个元素 x 时，最坏的情况就是元素 x 需要插入到每层索引中，所以插入数据到各层索引中，最坏时间复杂度是 O(logn)。</p>
+<p>过程大概理解了，再通过一个例子描述一下跳表插入数据的全流程。现在我们要插入数据 6 到跳表中，首先 randomLevel() 返回 3，表示<strong>需要建二级索引</strong>，即：一级索引和二级索引需要增加元素 6。该跳表目前最高三级索引，首先找到三级索引的 1，发现 6 比 1大比 13小，所以，从 1 下沉到二级索引。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-d4fce992be91d0b3.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据且维护跳表图示1.jpeg</p>
+<p>下沉到二级索引后，发现 6 比 1 大比 7 小，此时需要在二级索引中 1 和 7 之间加一个元素6 ，并从元素 1 继续下沉到一级索引。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-4ef315fec46639ef.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据且维护跳表图示2.jpeg</p>
+<p>下沉到一级索引后，发现 6 比 1 大比 4 大，所以往后查找，发现 6 比 4 大比 7 小，此时需要在一级索引中 4 和 7 之间加一个元素 6 ，并把二级索引的 6 指向 一级索引的 6，最后，从元素 4 继续下沉到原始链表。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-dd671e793f1e3ffe.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据且维护跳表图示3.jpeg</p>
+<p>下沉到原始链表后，就比较简单了，发现 4、5 比 6小，7比6大，所以将6插入到 5 和 7 之间即可，整个插入过程结束。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-1a7f35e43819c9c4.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>插入数据且维护跳表图示4.jpeg</p>
+<p>整个插入过程的路径与查找元素路径类似， 每层索引中插入元素的时间复杂度 O(1)，所以整个插入的时间复杂度是 O(logn)。</p>
+<h3 id="删除数据"><a href="#删除数据" class="headerlink" title="删除数据"></a>删除数据</h3><p>跳表删除数据时，要把索引中对应节点也要删掉。如下图所示，如果要删除元素 9，需要把原始链表中的 9 和第一级索引的 9 都删除掉。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/19063731-e95c396e6e62bc87.jpeg?imageMogr2/auto-orient/strip%7CimageView2/2/w/1142/format/webp" alt="img"></p>
+<p>删除数据.jpeg</p>
+<p>跳表中，删除元素的时间复杂度是多少呢？</p>
+<p>删除元素的过程跟查找元素的过程类似，只不过在查找的路径上如果发现了要删除的元素 x，则执行删除操作。跳表中，每一层索引其实都是一个有序的单链表，单链表删除元素的时间复杂度为 O(1)，索引层数为 logn 表示最多需要删除 logn 个元素，所以删除元素的总时间包含 <em>查找元素的时间</em> 加 <em>删除 logn个元素的时间</em> 为 O(logn) + O(logn) &#x3D; 2 O(logn)，忽略常数部分，删除元素的时间复杂度为 O(logn)。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>跳表是可以实现二分查找的有序链表；</li>
+<li>每个元素插入时随机生成它的level；</li>
+<li>最底层包含所有的元素；</li>
+<li>如果一个元素出现在level(x)，那么它肯定出现在x以下的level中；</li>
+<li>每个索引节点包含两个指针，一个向下，一个向右；（笔记目前看过的各种跳表源码实现包括Redis 的zset 都没有向下的指针，那怎么从二级索引跳到一级索引呢？留个悬念，看源码吧，文末有跳表实现源码）</li>
+<li>跳表查询、插入、删除的时间复杂度为O(log n)，与平衡二叉树接近；</li>
+</ol>
+<h3 id="为什么Redis选择使用跳表而不是红黑树来实现有序集合？"><a href="#为什么Redis选择使用跳表而不是红黑树来实现有序集合？" class="headerlink" title="为什么Redis选择使用跳表而不是红黑树来实现有序集合？"></a>为什么Redis选择使用跳表而不是红黑树来实现有序集合？</h3><p>Redis 中的有序集合(zset) 支持的操作：</p>
+<ol>
+<li>插入一个元素</li>
+<li>删除一个元素</li>
+<li>查找一个元素</li>
+<li>有序输出所有元素</li>
+<li>按照范围区间查找元素（比如查找值在 [100, 356] 之间的数据）</li>
+</ol>
+<p>其中，前四个操作红黑树也可以完成，且时间复杂度跟跳表是一样的。但是，按照区间来查找数据这个操作，红黑树的效率没有跳表高。按照区间查找数据时，跳表可以做到 O(logn) 的时间复杂度定位区间的起点，然后在原始链表中顺序往后遍历就可以了，非常高效。</p>
+<h3 id="工业上其他使用跳表的场景"><a href="#工业上其他使用跳表的场景" class="headerlink" title="工业上其他使用跳表的场景"></a>工业上其他使用跳表的场景</h3><p>在博客上从来没有见过有同学讲述 HBase MemStore 的数据结构，其实 HBase MemStore 内部存储数据就使用的跳表。为什么呢？HBase 属于 LSM Tree 结构的数据库，LSM Tree 结构的数据库有个特点，实时写入的数据先写入到内存，内存达到阈值往磁盘 flush 的时候，会生成类似于 StoreFile 的<strong>有序文件</strong>，而跳表恰好就是天然有序的，所以在 flush 的时候效率很高，而且跳表查找、插入、删除性能都很高，这应该是 HBase MemStore 内部存储数据使用跳表的原因之一。HBase 使用的是 java.util.concurrent 下的 ConcurrentSkipListMap()。</p>
+<p>Google 开源的 key&#x2F;value 存储引擎 LevelDB 以及 Facebook 基于 LevelDB 优化的 RocksDB 都是 LSM Tree 结构的数据库，他们内部的 MemTable 都是使用了跳表这种数据结构。</p>
+<p>后期笔者还会输出一篇深入剖析 LSM Tree 的博客，到时候再结合场景分析为什么使用跳表。</p>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://github.com/antirez/redis/blob/unstable/src/t_zset.c">Redis zset源码</a></p>
+<p><a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://time.geekbang.org/column/article/42896">极客时间-数据结构与算法之美课程</a></p>
+<ul>
+<li>王争老师的整套课程都很棒，对数据结构与算法想整体提高的同学可以订阅</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://github.com/wangzheng0822/algo/blob/master/java/17_skiplist/SkipList.java">王争老师SkipList 实现</a></p>
+<ul>
+<li>这个跳表实现相对简单，建议初学者参考，整个项目是王争老师极客时间课程配套的代码，其他数据结构实现也可以参考</li>
+<li>笔记在写本博客期间，向该项目提交了 pr，已被merge，模仿 redis 源码重新实现了 randomLevel() 方法，不过为了容易理解没有使用redis的位运算，之前的 randomLevel() 方法会导致索引冗余特别严重，5 级以下的索引中元素个数接近于所有元素的个数，有兴趣的同学可以继续深入研究</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=https://juejin.im/book/5afc2e5f6fb9a07a9b362527/section/5b5ac63d5188256255299d9c">源码 5：凌波微步 —— 探索「跳跃列表」内部结构</a></p>
+<ul>
+<li>老钱的《Redis 深度历险》系列非常推荐</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/dd01e8dc4d1f">拜托，面试别再问我跳表了！</a></p>
+<ul>
+<li>彤哥读源码系列，把 Java java.util.concurrent 包下的大多数集合类从源码层次深入分析了一遍，非常推荐</li>
+</ul>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%85%B6%E4%BB%96/" rel="tag"><i class="fa fa-tag"></i> 其他</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/3a760810/" rel="prev" title="位图原理及实现">
+                  <i class="fa fa-chevron-left"></i> 位图原理及实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/610f283b/" rel="next" title="B-树（B树）详解">
+                  B-树（B树）详解 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"45150aaffec4f85037bf077292790430"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

@@ -28,16 +28,16 @@
 <meta property="og:description" content="一、Zookeeper基础Zookeeper定位分布式系统是同时跨越多个物理主机，独⽴运⾏的多个软件所组成系统，而ZooKeeper主要的使⽤场景，就是作为分布式系统的分布式协同服务。分布式系统的协调⼯作就是通过某种⽅式，让每个节点的信息能够同步和共享，这依赖于服务进程之间的通信。 两种通信方式：通过网络进行信息共享、通过共享储存（Zookeeper）。  Zookeeper基本概念Zookeep">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-d75675da81f6deb6d4b551e45118ac09_720w.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/cecff32374a776223d86ba45cccaa1c8.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-f3b3d487ef2e4d1ef5089df1a38384ce_720w.webp">
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-b8a42e6fb0140cdd33d8cd158f9a2343_720w.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/e7d4a741e3f0e11744f8179b4883b824.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/56bfb824b83b1637c3c6367c6e2c9374.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/b0209bc4f091a2708e4bdf2f290a92ef.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-1def7b696b709aeabd31f71dee1455bd_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-b2a56d460fe5fc09d554baa94683fc11_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-2b220661c6ae3de06a9fd501d668823e_720w.webp">
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-b44d917871121fe5270c941081c0653e_720w.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/5ffa44a74b8409bb1925c82ca34a2ed8.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-c386f183fe4245f441da8de866038b84_720w.webp">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-a254c8c41249ce1c944295e545a4e80d_720w.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/7b57651ea4e65f5ce57d68716372d449.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/26268/assets/7ee0b7751eeb1ae4de7317ce40eb97df.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-b3e7bb1d5e65c62a63b9bbbb1e7c2827_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/26268/asset/v2-4ee7dbc1adb69148b0690a0cad4c76e0_720w.webp">
 <meta property="article:published_time" content="2023-06-17T10:58:01.000Z">
 <meta property="article:modified_time" content="2023-06-17T10:58:35.000Z">
 <meta property="article:author" content="itingyu">
@@ -54,7 +54,7 @@
 <script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/26268/","path":"posts/26268/","title":"zookeeper相关知识"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>zookeeper相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+<title>zookeeper相关知识 | itingyu的博客 - 随便写写'</title>
   
 
   <script src="/js/third-party/analytics/baidu-analytics.js"></script>
@@ -94,7 +94,7 @@
       <p class="site-title">itingyu的博客</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
   </div>
 
   <div class="site-nav-right">
@@ -107,7 +107,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -173,18 +173,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -296,7 +296,7 @@
 <p><img src="https://pic2.zhimg.com/80/v2-d75675da81f6deb6d4b551e45118ac09_720w.webp" alt="img"></p>
 <h3 id="Zookeeper基本概念"><a href="#Zookeeper基本概念" class="headerlink" title="Zookeeper基本概念"></a>Zookeeper基本概念</h3><p>Zookeeper是⼀个典型的分布式数据⼀致性的解决⽅案，分布式应⽤程序可以基于它实现诸如数据订阅&#x2F;发布、负载均衡、命名服务、集群管理、分布式锁和分布式队列等功能。</p>
 <p><strong>集群角色</strong>：Zookeeper没用传统的主备模式，即Master&#x2F;Slave模式，而是引⼊了Leader、Follower、Observer三种⻆⾊，Leader通过选举产生，所有机子都可能成为Leader，Follower就是跟随者，Observer也相当于跟随者，但是没有投票权，Observer的意义在于不参与选举，减低投票压力，因为投票者越少，选出Leader越快，并且不参与写操作的过半写策略，提高集群性能。</p>
-<p><img src="/posts/26268/assets/cecff32374a776223d86ba45cccaa1c8.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-f3b3d487ef2e4d1ef5089df1a38384ce_720w.webp" alt="img"></p>
 <p><strong>会话</strong>：Session指客户端会话，⼀个客户端连接是指客户端和服务端之间的⼀个TCP⻓连接，通过心跳机制来保持有效会话。</p>
 <p><strong>数据节点</strong>（Znode）: 构成集群的机器，我们称之为机器节点，数据模型中的数据单元，数据节点——ZNode，他是一颗树状的数据模型。</p>
 <p><strong>版本</strong>：每个ZNode，Zookeeper都会为其维护⼀个叫作Stat的数据结构，Stat记录了这个ZNode的三个数据版本，分别是version（当前ZNode的版本）、cversion（当前ZNode⼦节点的版本）、aversion（当前ZNode的ACL版本）。</p>
@@ -308,15 +308,15 @@
 <p>4）DELETE：删除⼦节点的权限。</p>
 <p>5）ADMIN：设置节点ACL的权限。</p>
 <h3 id="Zookeeper环境搭建"><a href="#Zookeeper环境搭建" class="headerlink" title="Zookeeper环境搭建"></a>Zookeeper环境搭建</h3><p><img src="https://pic4.zhimg.com/80/v2-b8a42e6fb0140cdd33d8cd158f9a2343_720w.webp" alt="img"></p>
-<p><img src="/posts/26268/assets/e7d4a741e3f0e11744f8179b4883b824.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-1def7b696b709aeabd31f71dee1455bd_720w.webp" alt="img"></p>
 <p>伪集群搭建注意事项，当前zookeeper的节点配置不能写ip地址，要写成0.0.0.0</p>
 <h3 id="Znode系统模型"><a href="#Znode系统模型" class="headerlink" title="Znode系统模型"></a>Znode系统模型</h3><p>ZNode 是Zookeeper 中最⼩数据单位，在 ZNode 下面又可以再挂 ZNode，这样⼀层层下去就形成了⼀个层次化</p>
 <p>命名空间 ZNode 树，我们称为 ZNode Tree，它采用类似⽂件系统的层级树状结构进行管理。</p>
-<p><img src="/posts/26268/assets/56bfb824b83b1637c3c6367c6e2c9374.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-b2a56d460fe5fc09d554baa94683fc11_720w.webp" alt="img"></p>
 <p>Znode类型：持久性节点（创建后一直存在，除非主动删除）、临时性节点（会自动被清理）、顺序性节点（带顺序的持久或者临时节点）</p>
 <p>事务：每个事务请求，ZooKeeper都会为其分配⼀个全局唯⼀的事务ID，⽤ZXID来表示，通常是⼀个64位的数字，</p>
 <p>每⼀个ZXID对应⼀次更新操作，通过他来知道执行顺序，从而保证事务执行。</p>
-<p><img src="/posts/26268/assets/b0209bc4f091a2708e4bdf2f290a92ef.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-2b220661c6ae3de06a9fd501d668823e_720w.webp" alt="img"></p>
 <h3 id="Watcher系统模型"><a href="#Watcher系统模型" class="headerlink" title="Watcher系统模型"></a>Watcher系统模型</h3><p>ZooKeeper 允许客户端向服务端注册⼀个 Watcher 监听，当服务端的⼀些指定事件触发了这个 Watcher，那么就会向指定客户端发送⼀个事件通知来实现分布式的通知功能。</p>
 <p>Watcher机制：客户端线程、客户端WatcherManager、Zookeeper服务器。</p>
 <p><img src="https://pic3.zhimg.com/80/v2-b44d917871121fe5270c941081c0653e_720w.webp" alt="img"></p>
@@ -355,7 +355,7 @@
 <p>1） 定义锁：定义一个lock锁节点</p>
 <p>2） 获取锁：所有客户端都尝试在这个lock节点下创建临时子节点，当谁成功创建临时子节点，就是谁持有了排他锁，其他机器在lock注册监听，监听临时子节点变化。</p>
 <p>3） 释放锁：当临时子节点被删除，也就是当前获取锁客户端宕机或者已经完成操作，其他机器监听到了子节点状态变化，过来争抢创建临时子节点，进行锁的获取。</p>
-<p><img src="/posts/26268/assets/5ffa44a74b8409bb1925c82ca34a2ed8.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-c386f183fe4245f441da8de866038b84_720w.webp" alt="img"></p>
 <p><strong>共享锁</strong></p>
 <p>共享锁又称为读锁，同样是一种基本锁类型，和排他锁不一样，事务1对资源1加了共享锁，但是资源1对其他事务也可见，资源1是共享的，如果是读，资源2也可以加共享锁获取数据，也就是可以并行读，如果是写，就需要排斥。</p>
 <p>Zookeeper中共享锁实现：</p>
@@ -393,10 +393,10 @@
 <p>6、基于jetty创建zk的admin服务</p>
 <p>7、创建连接对象cnxnFactory和secureCnxnFactory（安全连接才创建该对象），⽤于处理客户端的请求</p>
 <p>8、创建定时清除容器节点管理器，⽤于处理容器节点下不存在⼦节点的清理容器节点⼯作等</p>
-<p><img src="/posts/26268/assets/7b57651ea4e65f5ce57d68716372d449.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-b3e7bb1d5e65c62a63b9bbbb1e7c2827_720w.webp" alt="img"></p>
 <p><strong>集群模式</strong></p>
 <p>集群模式执行流程跟单机也是差不多的，只是在单机集群判断不同而已。</p>
-<p><img src="/posts/26268/assets/7ee0b7751eeb1ae4de7317ce40eb97df.webp" alt="img"></p>
+<p><img src="/posts/26268/asset/v2-4ee7dbc1adb69148b0690a0cad4c76e0_720w.webp" alt="img"></p>
 
        <div>
             

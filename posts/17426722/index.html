@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="B+树看这一篇就够了（B+树查找、插入、删除全上）基本概念为了实现动态多层索引，通常采用 B-树 和 B+树。但是，用于索引的 B-树 存在缺陷，它的所有中间结点均存储的是数据指针（指向包含键值的磁盘文件块的指针），与该键值一起存储在B-树的结点中。这就会导致可以存储在 B-树中的结点目数极大地减少了，从而增加 B-树的层数，进而增加了记录的搜索时间。 B+树通过仅在树的叶子结点中存储数据指针而消">
+<meta property="og:type" content="article">
+<meta property="og:title" content="B+树">
+<meta property="og:url" content="https://itingyu.github.io/posts/17426722/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="B+树看这一篇就够了（B+树查找、插入、删除全上）基本概念为了实现动态多层索引，通常采用 B-树 和 B+树。但是，用于索引的 B-树 存在缺陷，它的所有中间结点均存储的是数据指针（指向包含键值的磁盘文件块的指针），与该键值一起存储在B-树的结点中。这就会导致可以存储在 B-树中的结点目数极大地减少了，从而增加 B-树的层数，进而增加了记录的搜索时间。 B+树通过仅在树的叶子结点中存储数据指针而消">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-705cee41307cbf12d84d2dc9c9c1dae7_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e623d8c85e5dde67eb9948484d4305f9_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-7a83d0068331c5fe82ae2557b97e52d8_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-8133213bd9817012f8a8e95b079c6817_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-25c1c0b8a4ea8c300e180e3d87339bfb_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-efa3f8f327b9e55930e8a772f8183ab7_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-8133213bd9817012f8a8e95b079c6817_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-efc68940b3f85ba0b6f6a2352df43bff_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-54282f355f16664a05863e764135ace0_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-65789684f319ca8675040ee7044e365c_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-7a83d0068331c5fe82ae2557b97e52d8_720w-1682999964107.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-fdafe8150dd643e9cddaf2baa0620d2e_720w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-fdafe8150dd643e9cddaf2baa0620d2e_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-f321ea715713688814de6c8321bf2e9f_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-041d9222310de902358977058addfe71_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-c31896690180841d853bec194d1967b7_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-8133213bd9817012f8a8e95b079c6817_720w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-efc68940b3f85ba0b6f6a2352df43bff_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-8983cbb9d66810682c09a9569889b365_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-3a8747b104851276e92ecd3c26284db0_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-8133213bd9817012f8a8e95b079c6817_720w-1683000051786.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-386cefe3c3c93b726387ee2abc577691_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-4e621ab9044dcb42643066f6031226b0_b.jpg">
+<meta property="og:image" content="https://pic4.zhimg.com/v2-467b2c27f41bad29b01be13e1e5cd1bb_b.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/v2-85fb69b1f6d5134f45808fc884ad2e4a_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-7607b34265b14b3527101d53ce9c2b70_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-3aee225a4ba3e3a1b428e3f30e312637_b.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/v2-8dae05b8aa006d6d1fc6bb54c24169a5_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-909e556bc9375489e5f975f90b25dfa8_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-c33a70c8eaa38e96c3052a6bddc9d0d4_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-ae4011609fdf74e80d10fefb9e47dbb8_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-db2875f18aac102d3ea9304d9d7d5350_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-477ea4abe5a04efdd14d4700f23e05d9_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/17426722/asset/v2-32b20d2fbeaa405a5b425833d9455184_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-e386d9b46e21e3c5b88c796acf3ec9e1_720w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-afd9b8fa08fa80a9f5dc8827d422ccc1_720w.webp">
+<meta property="article:published_time" content="2023-06-27T17:15:28.000Z">
+<meta property="article:modified_time" content="2023-07-05T12:58:27.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic4.zhimg.com/80/v2-705cee41307cbf12d84d2dc9c9c1dae7_720w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/17426722/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/17426722/","path":"posts/17426722/","title":"B+树"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>B+树 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#B-%E6%A0%91%E7%9C%8B%E8%BF%99%E4%B8%80%E7%AF%87%E5%B0%B1%E5%A4%9F%E4%BA%86%EF%BC%88B-%E6%A0%91%E6%9F%A5%E6%89%BE%E3%80%81%E6%8F%92%E5%85%A5%E3%80%81%E5%88%A0%E9%99%A4%E5%85%A8%E4%B8%8A%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">B+树看这一篇就够了（B+树查找、插入、删除全上）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E4%B8%BA-a-%E7%9A%84-B-%E6%A0%91%E5%86%85%E9%83%A8%E7%BB%93%E7%82%B9%E7%9A%84%E7%BB%93%E6%9E%84%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">阶为 a 的 B+树内部结点的结构如下：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%B6%E4%B8%BA-b-%E7%9A%84-B-%E6%A0%91%E5%8F%B6%E5%AD%90%E7%BB%93%E7%82%B9%E7%9A%84%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">1.1.2.</span> <span class="nav-text">阶为 b 的 B+树叶子结点的结构：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#B-%E6%A0%91%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">1.1.3.</span> <span class="nav-text">B+树的优点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E6%89%BE%E6%93%8D%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">查找操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2%E5%8D%95%E4%B8%AA%E5%85%83%E7%B4%A0"><span class="nav-number">1.3.</span> <span class="nav-text">查询单个元素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.4.</span> <span class="nav-text">区间查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E5%92%8C%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C"><span class="nav-number">1.5.</span> <span class="nav-text">插入和删除操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-%E6%A0%91%E7%9A%84%E6%8F%92%E5%85%A5%E6%93%8D%E4%BD%9C"><span class="nav-number">1.6.</span> <span class="nav-text">B+树的插入操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-%E6%A0%91%E7%9A%84%E5%88%A0%E9%99%A4%E6%93%8D%E4%BD%9C"><span class="nav-number">1.7.</span> <span class="nav-text">B+树的删除操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-%E6%A0%91%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-number">1.8.</span> <span class="nav-text">B+树复杂度分析</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/17426722/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="B+树 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          B+树
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 01:15:28" itemprop="dateCreated datePublished" datetime="2023-06-28T01:15:28+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="B-树看这一篇就够了（B-树查找、插入、删除全上）"><a href="#B-树看这一篇就够了（B-树查找、插入、删除全上）" class="headerlink" title="B+树看这一篇就够了（B+树查找、插入、删除全上）"></a>B+树看这一篇就够了（B+树查找、插入、删除全上）</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a><strong>基本概念</strong></h2><p>为了实现动态多层索引，通常采用 B-树 和 B+树。但是，用于索引的 B-树 存在缺陷，它的所有中间结点均存储的是数据指针（指向包含键值的磁盘文件块的指针），与该键值一起存储在B-树的结点中。这就会导致可以存储在 B-树中的结点目数极大地减少了，从而增加 B-树的层数，进而增加了记录的搜索时间。</p>
+<p>B+树通过仅在树的叶子结点中存储数据指针而消除了上述缺陷。因此，B+树的叶结点的结构与 B-树的内部结点的结构完全不同。在这里应该注意，由于数据指针仅存在于叶子结点中，因此叶子结点必须将所有键值及其对应的数据指针存储到磁盘文件块以便访问。此外，叶子结点被链接磁盘的某个位置，以提供对记录的有序访问。因此，叶子结点形成第一级索引，而内部结点形成多层索引的其他层。叶子结点的某些关键字 key 也出现在内部结点中，充当控制搜索记录的媒介。</p>
+<p>与 B-树不同，B+树中的结点存在两个阶（order）：对于阶 “a” 和 “ b”，一个用于内部结点，另一个用于外部（或叶）结点。</p>
+<h3 id="阶为-a-的-B-树内部结点的结构如下："><a href="#阶为-a-的-B-树内部结点的结构如下：" class="headerlink" title="阶为 a 的 B+树内部结点的结构如下："></a><strong>阶为 a 的 B+树内部结点的结构如下：</strong></h3><p><img src="https://pic4.zhimg.com/80/v2-705cee41307cbf12d84d2dc9c9c1dae7_720w.webp" alt="img"></p>
+<ol>
+<li>对于每一个形如：&lt;P1,K1,P2,K2,……,Pc−1,Kc−1,Pc&gt;的内部结点，其中 c≤a ，每一个 Pi 表示指向子树根结点的指针，Ki 表示关键字值</li>
+<li>对于每一个内部结点中的关键字值均满足：K1&lt;K2&lt;…&lt;Kc−1.(内部结点的关键字由小到大有序排列)</li>
+<li>对于一个位于 Pi 所指向的子树中的结点 X 而言，满足：<br>当 1&lt;i&lt;c 时，均有 Ki−1&lt;X&lt;&#x3D;Ki.<br>当 i&#x3D;c 时，X&gt;Kc−1 .<br>当 i&#x3D;1 时， X&lt;&#x3D;K1 .</li>
+<li>每一个内部结点最多有 <code>a</code> 个指向子树的指针，即 <code>c</code> 最大取 <code>a</code> .</li>
+<li>根结点至少包含两个指向子树的结点指针，即对于根结点而言 2≥c≤a ; 除了根之外的每个结点都包含最少 ceil(a&#x2F;2) 个指向子树的指针。</li>
+<li>如果任意一个内部结点包含 <code>c</code> 个指向孩子结点的指针且 c≤a ，则该结点包含 c−1 的关键字。</li>
+</ol>
+<h3 id="阶为-b-的-B-树叶子结点的结构："><a href="#阶为-b-的-B-树叶子结点的结构：" class="headerlink" title="阶为 b 的 B+树叶子结点的结构："></a><strong>阶为 b 的 B+树叶子结点的结构：</strong></h3><p><img src="https://pic2.zhimg.com/80/v2-e623d8c85e5dde67eb9948484d4305f9_720w.webp" alt="img"></p>
+<ol>
+<li>对于每一个形如：，&lt;&lt;K1,D1&gt;,&lt;K2,D2&gt;,……,&lt;Kc−1，Dc−1&gt;,Pnext&gt;的叶子结点，其中 c≤b ， Di 是一个数据指针（指向磁盘上的值等于 Ki 的真实记录的指针，或者包含记录 Ki 的磁盘文件块）， Ki 是一个关键字，Pnext 表示 B+树中指向下一个叶子结点的指针。</li>
+<li>对任意一个叶子结点均有：K1&lt;K2&lt;…&lt;Kc−1，c≤b .</li>
+<li>每一个叶子结点至少包含 ceil(a&#x2F;2) 个值.</li>
+<li>所有的叶子结点在同一层。</li>
+</ol>
+<p>使用 Pnext 指针可以遍历所有的叶子结点，就和单链表一样，从而实现对磁盘上记录的有序访问。</p>
+<p>下图为一颗完整的 B+树的结构示例：</p>
+<p><img src="/posts/17426722/asset/v2-7a83d0068331c5fe82ae2557b97e52d8_720w.webp" alt="img"></p>
+<h3 id="B-树的优点"><a href="#B-树的优点" class="headerlink" title="B+树的优点"></a><strong>B+树的优点</strong></h3><p>同为 h 层的 B-树和 B+树，B+树可以存储更多的结点元素，更加 ”矮胖“。这也是 B+树最大的优势坐在，极大地改善了 B-树的查找效率。对于同样多的记录，B+树的高度会更矮，并且 Pnext 指针的出现可以帮助 B+树快速访问磁盘记录且效率非常高。总之，就是 B+树比 B-树更加好，B+树的磁盘 I &#x2F; O 会更少，相比于 B-树的中序遍历，B+树只需要像遍历单链表一样扫描一遍叶子结点。</p>
+<h2 id="查找操作"><a href="#查找操作" class="headerlink" title="查找操作"></a><strong>查找操作</strong></h2><p>前面谈了 B+树的基本概念，今日主要说一下 B+树的查找操作。</p>
+<p><img src="/posts/17426722/asset/v2-8133213bd9817012f8a8e95b079c6817_720w.webp" alt="img"></p>
+<p>下面所有的查找操作都是在上面这颗 B+树上进行了，为此，我们先仔细观察一下这颗B+树（毫不隐瞒，这颗 B+树出自于严蔚敏老师的数据结构教材）。</p>
+<p>第一点：B+树中的所有数据均保存在叶子结点，且根结点和内部结点均只是充当控制查找记录的媒介，并不代表数据本身，所有的内部结点元素都同时存在于子结点中，是子节点元素中是最大（或最小）元素。</p>
+<p><img src="/posts/17426722/asset/v2-25c1c0b8a4ea8c300e180e3d87339bfb_720w.webp" alt="img"></p>
+<p>比如 B+ 树中的结点 <code>59</code> （结点 <code>15、44、97、72</code> 类似），是其子结点 <code>[15、44、59]</code> 中的最大元素，也是叶子结点 <code>[51、59]</code> 中的最大元素。所有的数据 <code>[10、15、21、37、44、51、59、63、72、85、91、97]</code> 均保存在叶子结点之中，而根结点 <code>[59、97]</code> 及内部结点 <code>[15、44、59]</code> 与 <code>[72、97]</code> 均不是数据本身，只是充当控制查找记录的媒介。</p>
+<p>需要注意的是，根结点的最大元素 <code>97</code> 是整颗 B+树当中最大的元素，无论之后在叶子结点中插入或删除多少元素，始终要保证最大元素在根结点当中，这个讲插入和删除时还会看到。</p>
+<p>第二点：每一个叶子结点都有指向下一个叶子结点的 Pnext 指针，便捷之处就在于之后我们将看到的区间查找。</p>
+<p><img src="/posts/17426722/asset/v2-efa3f8f327b9e55930e8a772f8183ab7_720w.webp" alt="img"></p>
+<h2 id="查询单个元素"><a href="#查询单个元素" class="headerlink" title="查询单个元素"></a><strong>查询单个元素</strong></h2><p><img src="https://pic4.zhimg.com/80/v2-8133213bd9817012f8a8e95b079c6817_720w.webp" alt="img"></p>
+<p>我们以查询 <code>59</code> 为例进行说明。</p>
+<p>第一次磁盘 I&#x2F;O ：访问根结点 <code>[59、97]</code> ，发现 <code>59</code> 小于等于 <code>[59、97]</code> 中的 <code>59</code> ，则访问根结点的第一个孩子结点。</p>
+<p><img src="/posts/17426722/asset/v2-efc68940b3f85ba0b6f6a2352df43bff_720w.webp" alt="img"></p>
+<p>第二次磁盘 I&#x2F;O : 访问结点 <code>[15、44、59]</code> ，发现 <code>59</code> 大于 <code>44</code> 且小于等于 <code>59</code> ，则访问当前结点的第三个孩子结点 <code>[51、59]</code> .</p>
+<p><img src="/posts/17426722/asset/v2-54282f355f16664a05863e764135ace0_720w.webp" alt="img"></p>
+<p>第三次磁盘 I&#x2F;O ：访问叶子结点 <code>[51、59]</code> ，顺序遍历结点内部，找到要查找的元素 <code>59</code> .</p>
+<p><img src="/posts/17426722/asset/v2-65789684f319ca8675040ee7044e365c_720w.webp" alt="img"></p>
+<p>我想你已经注意到了和 B-树的区别，对于 B+树中单个元素的查找而言，每一个元素都有相同的磁盘 I&#x2F;O操作次数，即使查询的元素出现在根结点中，但那只是一个充当控制查找记录的媒介，并不是数据本身，数据真正存在于叶子结点当中，所以 B+树中查找任何一个元素都要从根结点一直走到叶子结点才可以。</p>
+<p><img src="/posts/17426722/asset/v2-7a83d0068331c5fe82ae2557b97e52d8_720w-1682999964107.webp" alt="img"></p>
+<p>B+树的非叶子结点均不存储 <code>Data</code> (即 Di ，官方将其称为卫星数据) ，所以与 B-树相比，同样大小的磁盘页，B+树的非叶子结点可以存储更多的索引（关键字），这也就意味着在数据量相同的情况下，B+树的结构比 B-树更加 “矮胖”，查询时磁盘 I&#x2F;O 次数会更少。</p>
+<p><strong>注意：</strong> B-树的查询性能并不稳定，对于根结点中关键字可能只有一次磁盘 I&#x2F;O，而对于叶子结点中的关键字需要树的高度次磁盘 I&#x2F;O 操作。</p>
+<p><img src="/posts/17426722/asset/v2-fdafe8150dd643e9cddaf2baa0620d2e_720w.webp" alt="img"></p>
+<p>比如查找上图 B-树中的关键字 <code>59</code> 仅需要一次磁盘 I&#x2F;O 操作，关键字 <code>21</code> 需要 3 次磁盘 I&#x2F;O，关键字 <code>72</code> 需要 2 次磁盘 I&#x2F;O.</p>
+<p>B+树所有查询所有关键字的磁盘 I&#x2F;O 的次数都是树的高度。</p>
+<h2 id="区间查询"><a href="#区间查询" class="headerlink" title="区间查询"></a><strong>区间查询</strong></h2><p>为了更清楚地看到 B+树进行区间查询的优势，我们以查询下面的 B-树中大于等于21 ，小于等于63的关键字为例进行说明。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-fdafe8150dd643e9cddaf2baa0620d2e_720w.webp" alt="img"></p>
+<p>第一步：访问 B-树的根结点 <code>[59]</code> ，发现 <code>21</code> 比 <code>59</code> 小，则访问根结点的第一个孩子 <code>[15、44]</code> .</p>
+<p><img src="https://pic4.zhimg.com/80/v2-f321ea715713688814de6c8321bf2e9f_720w.webp" alt="img"></p>
+<p>第二步：访问结点 <code>[15、44]</code> ，发现 <code>21</code> 大于 <code>15</code> 且小于 <code>44</code> ，则访问当前结点的第二个孩子结点 <code>[21、37]</code> 。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-041d9222310de902358977058addfe71_720w.webp" alt="img"></p>
+<p>第三步：访问结点 <code>[21、37]</code> , 找到区间的左端点 <code>21</code> ，然后从该关键字 <code>21</code> 开始，进行中序遍历，依次为关键字 <code>37 、44、51、59</code>，直到遍历到区间的右端点 <code>63</code> 为止， 不考虑中序遍历过程的压栈和入栈操作，光磁盘 I&#x2F;O 次数就多了 2次，即访问结点 <code>72</code> 和结点 <code>63</code> .</p>
+<p><img src="https://pic4.zhimg.com/80/v2-c31896690180841d853bec194d1967b7_720w.webp" alt="img"></p>
+<p>而 B+树进行区间查找，简直要舒服的不要不要的。同样是查找区间 <code>[21,63]</code> 之间的关键字。</p>
+<p><img src="https://pic4.zhimg.com/80/v2-8133213bd9817012f8a8e95b079c6817_720w.webp" alt="img"></p>
+<p>第一步：访问根结点 <code>[59、97]</code> , 发现区间的左端点 <code>21</code> 小于 <code>59</code>， 则访问第一个左孩子 <code>[15、44、59]</code> .</p>
+<p><img src="https://pic4.zhimg.com/80/v2-efc68940b3f85ba0b6f6a2352df43bff_720w.webp" alt="img"></p>
+<p>第二步：访问结点 <code>[15、44、59]</code> ，发现 <code>21</code> 大于 <code>15</code> 且小于 <code>44</code> ，则访问第二个孩子结点 <code>[21、37，44]</code> .</p>
+<p><img src="/posts/17426722/asset/v2-8983cbb9d66810682c09a9569889b365_720w.webp" alt="img"></p>
+<p>第三步：访问结点 <code>[21、37，44]</code> ，找到了左端点 <code>21</code> ，此时 B+树的优越性就出来了，不再需要中序遍历，而是相当于单链表的遍历，直接从左端点 <code>21</code> 开始一直遍历到左端点 <code>63</code> 即可，没有任何额外的磁盘 I&#x2F;O 操作。</p>
+<p><img src="/posts/17426722/asset/v2-3a8747b104851276e92ecd3c26284db0_720w.webp" alt="img"></p>
+<p>综合来看 B+树的优势就是：</p>
+<ol>
+<li>查找时磁盘 I&#x2F;O 次数更少，因为 B+树的非叶子结点可以存储更多的关键字，数据量相同的情况下，B+树更加 “矮胖” ，效率更高。</li>
+<li>B+树查询所有关键字的磁盘 I&#x2F;O 次数都一样，查询效率稳定。</li>
+<li>B+树进行区间查找时更加简便实用。</li>
+</ol>
+<p>此外给大家推荐一篇博文 <strong><a href="https://link.zhihu.com/?target=http://blog.codinglabs.org/articles/theory-of-mysql-index.html">MySQL索引背后的数据结构及算法原理</a></strong> ，其中对于MySQL 索引为什么采用 B+树，以及InnoDB表为什么必须有主键，并且为什么推荐使用自增主键都有解释，需要的朋友可以自提，我就不再造轮子了。</p>
+<h2 id="插入和删除操作"><a href="#插入和删除操作" class="headerlink" title="插入和删除操作"></a><strong>插入和删除操作</strong></h2><p>大部分教材和分享中都会将 B+树的插入和删除操作一笔带过，但这并不意味着你真的懂了或者说是不重要，因为我觉得有些朋友可能都没有看过 B-树，一句 “<strong>B+树的插入和删除操作与 B-树的插入和删除操作类似</strong>“ 又怎么说的过去，相信你看完这篇 B+树的插入和删除操作一定会有收获，一起加油呀~</p>
+<h2 id="B-树的插入操作"><a href="#B-树的插入操作" class="headerlink" title="B+树的插入操作"></a><strong>B+树的插入操作</strong></h2><p>在B+树中插入关键字时，需要注意以下几点：</p>
+<ul>
+<li>插入的操作全部都在叶子结点上进行，且不能破坏关键字自小而大的顺序；</li>
+<li>由于 B+树中各结点中存储的关键字的个数有明确的范围，做插入操作可能会出现结点中关键字个数超过阶数的情况，此时需要将该结点进行 “分裂”；</li>
+</ul>
+<p>我们依旧以之前介绍查找操作时使用的图对插入操作进行说明，需要注意的是，B+树的阶数 <code>M = 3</code> ，且 <code>⌈M/2⌉ = 2（取上限）</code> 、<code>⌊M/2⌋ = 1（取下限）</code> ：</p>
+<p><img src="/posts/17426722/asset/v2-8133213bd9817012f8a8e95b079c6817_720w-1683000051786.webp" alt="img"></p>
+<p>B+树中做插入关键字的操作，有以下 3 种情况：</p>
+<p>1、 若被插入关键字所在的结点，其含有关键字数目小于阶数 M，则直接插入；</p>
+<p>比如插入关键字 <code>12</code> ，插入关键字所在的结点的 <code>[10，15]</code> 包含两个关键字，小于 <code>M</code> ，则直接插入关键字 <code>12</code> 。</p>
+<p> <img src="/posts/17426722/asset/v2-386cefe3c3c93b726387ee2abc577691_b.webp" alt="动图"> </p>
+<p>2、 若被插入关键字所在的结点，其含有关键字数目等于阶数 M，则需要将该结点分裂为两个结点，一个结点包含 <code>⌊M/2⌋</code> ，另一个结点包含 <code>⌈M/2⌉</code> 。同时，将<code>⌈M/2⌉</code>的关键字上移至其双亲结点。假设其双亲结点中包含的关键字个数小于 M，则插入操作完成。</p>
+<p>插入关键字 <code>95</code> ，插入关键字所在结点 <code>[85、91、97]</code> 包含 3 个关键字，等于阶数 <code>M</code> ，则将 <code>[85、91、97]</code> 分裂为两个结点 <code>[85、91]</code> 和结点 <code>[97]</code> , 关键字 <code>95</code> 插入到结点 <code>[95、97]</code> 中，并将关键字 <code>91</code> 上移至其双亲结点中，发现其双亲结点 <code>[72、97]</code> 中包含的关键字的个数 2 小于阶数 <code>M</code> ，插入操作完成。</p>
+<p><img src="/posts/17426722/asset/v2-4e621ab9044dcb42643066f6031226b0_b.jpg" alt="动图封面"></p>
+<p>3、在第 2 情况中，如果上移操作导致其双亲结点中关键字个数大于 M，则应继续分裂其双亲结点。</p>
+<p>插入关键字 <code>40</code> ，按照第 2 种情况将结点分裂，并将关键字 <code>37</code> 上移到父结点，发现父结点 <code>[15、37、44、59]</code> 包含的关键字的个数大于 <code>M</code> ，所以将结点 <code>[15、37、44、59]</code> 分裂为两个结点 <code>[15、37]</code> 和结点 <code>[44、59]</code> ，并将关键字 <code>37</code> 上移到父结点中 <code>[37、59、97]</code> . 父结点包含关键字个数没有超过 <code>M</code> ，插入结束。</p>
+<p><img src="https://pic4.zhimg.com/v2-467b2c27f41bad29b01be13e1e5cd1bb_b.webp" alt="动图"></p>
+<p>4、若插入的关键字比当前结点中的最大值还大，破坏了B+树中从根结点到当前结点的所有索引值，此时需要及时修正后，再做其他操作。</p>
+<p>插入关键字 <code>100</code>，由于其值比最大值 <code>97</code> 还大，插入之后，从根结点到该结点经过的所有结点中的所有值都要由 <code>97</code> 改为 <code>100</code>。改完之后再做分裂操作。</p>
+<p> <img src="https://pic3.zhimg.com/v2-85fb69b1f6d5134f45808fc884ad2e4a_b.webp" alt="动图"> </p>
+<h2 id="B-树的删除操作"><a href="#B-树的删除操作" class="headerlink" title="B+树的删除操作"></a><strong>B+树的删除操作</strong></h2><p>“对于 B+的删除操作而言，与 B-树类似”，我想你笑了，那我们接着看，哈哈！</p>
+<p>在 B+树中删除关键字时，有以下几种情况：</p>
+<p>1、 找到存储有该关键字所在的结点时，由于该结点中关键字个数大于<code>⌈M/2⌉</code>，做删除操作不会破坏 B+树，则可以直接删除。</p>
+<p>删除关键字 <code>91</code>，包含关键字 <code>91</code> 的结点 <code>[85、91、97]</code> 中关键字的个数 3 大于 <code>⌈M/2⌉ = 2</code> ，做删除操作不会破坏 B+树的特性，直接删除。</p>
+<p> <img src="/posts/17426722/asset/v2-7607b34265b14b3527101d53ce9c2b70_b.webp" alt="动图"> </p>
+<p>2、 当删除某结点中最大或者最小的关键字，就会涉及到更改其双亲结点一直到根结点中所有索引值的更改。</p>
+<p>以删除整颗 B+树中最大的关键字 <code>97</code> 为例，查找并删除关键字 <code>97</code> ， 然后向上回溯，将所有关键字 <code>97</code> 替换为次最大的关键字 <code>91</code> :</p>
+<p> <img src="/posts/17426722/asset/v2-3aee225a4ba3e3a1b428e3f30e312637_b.webp" alt="动图"> </p>
+<p>3、 当删除该关键字，导致当前结点中关键字个数小于 <code>⌈M/2⌉</code>，若其兄弟结点中含有多余的关键字，可以从兄弟结点中借关键字完成删除操作。</p>
+<p>当删除某个关键字之后，结点中关键字个数小于 <code>⌈M/2⌉</code> ，则不符合 B+树的特性，则需要按照 3 he 4 两种情况分别处理。以删除关键字 <code>51</code> 为例，由于其兄弟结点 <code>[21、37、44]</code> 中含有 3 个关键字，所以可以选择借一个关键字 <code>44</code>，同时将双亲结点中的索引值 <code>44</code> 修改 <code>37</code> ，删除过程如下图所示：</p>
+<p> <img src="https://pic2.zhimg.com/v2-8dae05b8aa006d6d1fc6bb54c24169a5_b.webp" alt="动图"> </p>
+<p>4、 第 3 种情况中，如果其兄弟结点没有多余的关键字，则需要同其兄弟结点进行合并。</p>
+<p>为了说明这种情况，我们在第 3 种情况最终得到的 B+树之上进行删除操作。第 3 种情况删除关键字 <code>51</code> 之后得到如下所示 B+树：</p>
+<p> <img src="/posts/17426722/asset/v2-909e556bc9375489e5f975f90b25dfa8_720w.webp" alt="img"> </p>
+<p>我们以删除上面这个 B+树中的关键字 <code>59</code> 说明第 4 种情况，首先查找到关键 <code>59</code> 所在结点 <code>[44、59]</code> ，发现该结点的兄弟结点 <code>[21、37]</code> 包含的关键字的个数 2 等于 <code>⌈M/2⌉</code>， 所以删除关键字 <code>59</code> ，并将结点 <code>[21、37]</code> 和 <code>[44]</code> 进行合并 <code>[21、37、44]</code> ，然后向上回溯，将所有关键字 <code>59</code> 替换为次最大的关键字 <code>44</code> :</p>
+<p><img src="/posts/17426722/asset/v2-c33a70c8eaa38e96c3052a6bddc9d0d4_b.webp" alt="动图"></p>
+<p>5、 当进行合并时，可能会产生因合并使其双亲结点破坏 B+树的结构，需要依照以上规律处理其双亲结点。</p>
+<p>删除关键字 <code>63</code>，当删除关键字后，该结点中只剩关键字 <code>72</code>，且其兄弟结点 <code>[85、91]</code> 中只有 2 个关键字，所以将 <code>[72]</code> 和 <code>[85、91]</code> 进行合并，向上回溯，删除结点 <code>[72、91]</code> 当中的关键字 <code>72</code> ，此时结点中只有关键 <code>91</code> ，不满足 B+树中结点关键字个数要求，但其兄弟结点 <code>[15、44、59]</code> 中包含的 3 个关键字，所以从其兄弟结点当中借一个关键字 <code>59</code> , 再对其兄弟结点的父结点中的关键字进行调整，将关键字 <code>59</code> 替换为 <code>44</code> .</p>
+<p> <img src="/posts/17426722/asset/v2-ae4011609fdf74e80d10fefb9e47dbb8_b.webp" alt="动图"> </p>
+<p>总之，在 B+树中做删除关键字的操作，采取如下的步骤：</p>
+<ol>
+<li>删除该关键字，如果不破坏 B+树本身的性质，直接完成删除操作（情况 1）；</li>
+<li>如果删除操作导致其该结点中最大（或最小）值改变，则应相应改动其父结点中的索引值（情况 2）；</li>
+<li>在删除关键字后，如果导致其结点中关键字个数不足，有两种方法：一种是向兄弟结点去借，另外一种是同兄弟结点合并（情况 3、4 和 5）。（注意这两种方式有时需要更改其父结点中的索引值。）</li>
+</ol>
+<h2 id="B-树复杂度分析"><a href="#B-树复杂度分析" class="headerlink" title="B+树复杂度分析"></a><strong>B+树复杂度分析</strong></h2><p>B+树 是 B-树的一个升级版本，在存储结构上的变化，由于磁盘页的大小限制，只能读取少量的B-树结点到内存中（因为B-树结点就带有数据，占用更多空间，所以说是 <strong>少量</strong>）；而B+树就不一样了。因为非叶子结点不带数据，能够一次性读取更多结点进去处理，所以对于同样的数据量， B+树更加 “矮胖”， 性能更好。但是两者在查找、插入和删除等操作的时间复杂度的量级是一致的，均为 O(log⁡n) 。</p>
+<p>这个量级是如何得来的呢？我们一起来看看 1970 年计算机的先驱们是如何计算的。</p>
+<p>首先假定 h≥0 的整数（事实上就是树高），k 是一个自然数（也就是B-树当中提到的最小度数，这里不懂的可以回头看看之前的文章 <strong><a href="https://link.zhihu.com/?target=https://mp.weixin.qq.com/s/Q29CgcnnudePQ0l2UyshUw">图解：什么是B树（心中有 B树，做人要谦虚）？</a></strong> ).</p>
+<p>一颗最小度为 k ，高度为 h 的 B-树 T ，或为空树，或者满足下面三个特性：</p>
+<ol>
+<li>从根结点到任意一个叶子结点有着相同的长度 h , 也称为树的高度。</li>
+<li>除根结点和叶子节点外，每一个内部结点至少有 k+1 个孩子结点。根结点要么为叶子，要么至少包含两个孩子。</li>
+<li>每个结点至多有 2k+1 个孩子结点。</li>
+</ol>
+<p>设 Nmin 和 Nmax 分别表示 B-树中可以最少包含与最多包含的结点数目，则：</p>
+<p><img src="/posts/17426722/asset/v2-db2875f18aac102d3ea9304d9d7d5350_720w.webp" alt="img"></p>
+<p>其中 h≥2 ，当 h&#x3D;1 依然成立， Nmin 至少包含一个结点，即根结点，之后每一层所包含的结点数目则为 (k+1)h−2 ，其中 k+1 表示每一个内部结点最少拥有的孩子结点数。类似的：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-477ea4abe5a04efdd14d4700f23e05d9_720w.webp" alt="img"></p>
+<p>则对于一颗 B-树所能包含的结点数目的上下限为：</p>
+<p><img src="/posts/17426722/asset/v2-32b20d2fbeaa405a5b425833d9455184_720w.webp" alt="img"></p>
+<p>则对于一颗 B-树所能包含的关键字的最大数目和最小数目分别为 Imax 和 Imin :</p>
+<p><img src="https://pic2.zhimg.com/80/v2-e386d9b46e21e3c5b88c796acf3ec9e1_720w.webp" alt="img"></p>
+<p>则可以得到 B-树高度的一个上下限：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-afd9b8fa08fa80a9f5dc8827d422ccc1_720w.webp" alt="img"></p>
+<p>这也就是我们所期待的对数级别的时间复杂度。对于上面的这个过程不清楚的可以跳过看下面。</p>
+<p>对于一颗结束为 m 的B-树而言，每一个结点最多可以存储 m 个关键字，假设总共有 N 个关键字，树的高度为 h ，且这颗树完全填满，则 N&#x3D;mh ，继而得到 h&#x3D;logm⁡(N) ，也就是树的高度为 logm(N) ，可能有的人又会问，那一个结点中包含 m 个关键字，这 m 个关键字只有进行顺序遍历才能知道接着选择哪一个孩子结点，需要 O(m) 的时间，你说的对也不对，对是因为一个结点内的关键字的遍历确实是需要 O(m) 的时间复杂度，但是这个遍历是在内存当中进行的，时间一般可以忽略。我们通常更加关注的是磁盘 I&#x2F;O 的次数，也就是 logm(N) ，所以 B-树或者 B+树的时间复杂度就是 O(logm(N)) 。</p>
+<p>对于 B+树而言，树的高度一般不超过 4 层，就 MySQL 的 InnoDB 存储引擎而言，一个结点默认的存储空间为 16Kb ( 可以通过这个命令查看<code>SHOW GLOBAL STATUS like &#39;Innodb_page_size&#39;;</code> )， MySQL 的 InnoDB 存储引擎的索引一般用 bigint 存储，占用 8 个 byte，一个索引又会关联一个指向孩子结点的指针，这个指针占用 6 个 byte，也就是说结点中的一个关键字大概要用 14 byte 的空间，而一个结点的默认大小为 16kb ，那么一个结点可以存储关键的个数最多为 16384&#x2F;14&#x3D;1170 , 就相当于阶数 m&#x3D;1170 ，那么对于一颗高度为 3 的 B+树而言保守估计可以存储 1170×1170×16&#x3D;21902400 个关键字，也就是两千多万条记录，其中的 16 为假定每一个叶子结点包含的关键字的个数（由于包含 Data 指针，所以叶子结点可以容纳的关键字的个数会少一些），就这样我想你也看到了 B+树的强大了。3层的 B+树就可以存储两千多万的数据，牛逼不？</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/149287061">https://zhuanlan.zhihu.com/p/149287061</a></p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%85%B6%E4%BB%96/" rel="tag"><i class="fa fa-tag"></i> 其他</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/53802/" rel="prev" title="Nocas配置注册中心和Sentinel分布式流量防卫兵相关知识总结">
+                  <i class="fa fa-chevron-left"></i> Nocas配置注册中心和Sentinel分布式流量防卫兵相关知识总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/95304e2e/" rel="next" title="线段树详解">
+                  线段树详解 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"48e0709350e7dbcdbe0c2611382979ad"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

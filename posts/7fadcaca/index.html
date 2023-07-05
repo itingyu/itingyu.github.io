@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="霍夫曼树 给定N个权值作为N个叶子结点，构造一棵二叉树，若该树的带权路径长度达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树(Huffman Tree)。哈夫曼树是带权路径长度最短的树，权值较大的结点离根较近。  路径和路径长度在一棵树中，从一个结点往下可以达到的孩子或孙子结点之间的通路，称为路径。 通路中分支的数目称为路径长度。若规定根结点的层数为1，则从根结点到第L层结点的路径长度为L-1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15.霍夫曼树">
+<meta property="og:url" content="https://itingyu.github.io/posts/7fadcaca/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="霍夫曼树 给定N个权值作为N个叶子结点，构造一棵二叉树，若该树的带权路径长度达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树(Huffman Tree)。哈夫曼树是带权路径长度最短的树，权值较大的结点离根较近。  路径和路径长度在一棵树中，从一个结点往下可以达到的孩子或孙子结点之间的通路，称为路径。 通路中分支的数目称为路径长度。若规定根结点的层数为1，则从根结点到第L层结点的路径长度为L-1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-f07e3b68c7798559e664eeb6cf20ba3c_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-561bb507a8adcbbed29281abac1d3485_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-5c5bdbcdbfbacf4565bb5e99445b964a_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-6d884a6ee86b5ab861826a07779cb5fc_1440w.webp">
+<meta property="og:image" content="https://pic2.zhimg.com/80/v2-94b73b86126b3331c789df2298557169_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-36e021cba0c7adbd190bd1346d833ac1_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-eeacd39cfb0ad14dea90967a6d998210_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-0184f2ac6280fdbb8297a9e91abc54b6_1440w.webp">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-48e3cdd3fbd1e25ce40a4205a753e24e_1440w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-82b9db088f6babb04754a98f22978433_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/1688140692331.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/20200519152808107.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/20200519152817958.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/20200519154053906.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/20200519162728184.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/20200519162735557.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/7fadcaca/asset/1688141574030.png">
+<meta property="article:published_time" content="2023-06-30T15:25:36.000Z">
+<meta property="article:modified_time" content="2023-06-30T16:12:56.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="基本算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/7fadcaca/asset/v2-f07e3b68c7798559e664eeb6cf20ba3c_1440w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/7fadcaca/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/7fadcaca/","path":"posts/7fadcaca/","title":"15.霍夫曼树"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>15.霍夫曼树 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%8D%E5%A4%AB%E6%9B%BC%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">霍夫曼树</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%AF%E5%BE%84%E5%92%8C%E8%B7%AF%E5%BE%84%E9%95%BF%E5%BA%A6"><span class="nav-number">1.1.</span> <span class="nav-text">路径和路径长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%82%E7%82%B9%E7%9A%84%E6%9D%83%E5%92%8C%E5%B8%A6%E6%9D%83%E8%B7%AF%E5%BE%84%E9%95%BF%E5%BA%A6"><span class="nav-number">1.2.</span> <span class="nav-text">节点的权和带权路径长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%91%E7%9A%84%E5%B8%A6%E6%9D%83%E8%B7%AF%E5%BE%84%E9%95%BF%E5%BA%A6"><span class="nav-number">1.3.</span> <span class="nav-text">树的带权路径长度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91%E7%9A%84%E5%BA%94%E7%94%A8%EF%BC%9A%E5%93%88%E5%A4%AB%E6%9B%BC%E7%BC%96%E7%A0%81"><span class="nav-number">2.</span> <span class="nav-text">哈夫曼树的应用：哈夫曼编码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%9F%E8%AE%A1%E9%A2%91%E7%8E%87"><span class="nav-number">2.1.</span> <span class="nav-text">统计频率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E5%93%88%E5%A4%AB%E6%9B%BC%E6%A0%91"><span class="nav-number">2.2.</span> <span class="nav-text">构建哈夫曼树</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E5%B0%8F%E9%A1%B6%E5%A0%86%E6%9E%84%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">用小顶堆构建</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/7fadcaca/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="15.霍夫曼树 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          15.霍夫曼树
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-30 23:25:36" itemprop="dateCreated datePublished" datetime="2023-06-30T23:25:36+08:00">2023-06-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">基本算法</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.8k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="霍夫曼树"><a href="#霍夫曼树" class="headerlink" title="霍夫曼树"></a>霍夫曼树</h2><p> 给定N个权值作为N个叶子结点，构造一棵二叉树，若该树的带权路径长度达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树(Huffman Tree)。哈夫曼树是带权路径长度最短的树，权值较大的结点离根较近。 </p>
+<h3 id="路径和路径长度"><a href="#路径和路径长度" class="headerlink" title="路径和路径长度"></a>路径和路径长度</h3><p>在一棵树中，从一个结点往下可以达到的孩子或孙子结点之间的通路，称为路径。</p>
+<p>通路中分支的数目称为路径长度。若规定根结点的层数为1，则从根结点到第L层结点的路径长度为L-1。</p>
+<p><img src="/posts/7fadcaca/asset/v2-f07e3b68c7798559e664eeb6cf20ba3c_1440w.webp" alt="img"></p>
+<h3 id="节点的权和带权路径长度"><a href="#节点的权和带权路径长度" class="headerlink" title="节点的权和带权路径长度"></a>节点的权和带权路径长度</h3><p> 若将树中结点赋给一个有着某种含义的数值，则这个数值称为该结点的权。结点的带权路径长度为：从根结点到该结点之间的路径长度与该结点的权的乘积。 </p>
+<p><img src="/posts/7fadcaca/asset/v2-561bb507a8adcbbed29281abac1d3485_1440w.webp" alt="img"></p>
+<h3 id="树的带权路径长度"><a href="#树的带权路径长度" class="headerlink" title="树的带权路径长度"></a>树的带权路径长度</h3><p> 树的带权路径长度规定为所有叶子结点的带权路径长度之和，记为WPL。 </p>
+<p>如上图：数的带权路径长度为：</p>
+<p>WPL &#x3D; (2+3) * 3 + 4 * 2 + 6 * 1 &#x3D; 29</p>
+<p>假设有n个权值，则构造出的哈夫曼树有n个叶子结点。 n个权值分别设为 w1、w2、…、wn，则哈夫曼树的构造规则为：</p>
+<p>(1) 将w1、w2、…，wn看成是有n 棵树的森林(每棵树仅有一个结点)；</p>
+<p>(2) 在森林中选出两个根结点的权值最小的树合并，作为一棵新树的左、右子树，且新树的根结点权值为其左、右子树根结点权值之和；</p>
+<p>(3)从森林中删除选取的两棵树，并将新树加入森林；</p>
+<p>(4)重复(2)、(3)步，直到森林中只剩一棵树为止，该树即为所求得的哈夫曼树。</p>
+<p> 例如：对 2，3，4，6 这四个数进行构造 </p>
+<p><img src="https://pic3.zhimg.com/80/v2-5c5bdbcdbfbacf4565bb5e99445b964a_1440w.webp" alt="img"></p>
+<h2 id="哈夫曼树的应用：哈夫曼编码"><a href="#哈夫曼树的应用：哈夫曼编码" class="headerlink" title="哈夫曼树的应用：哈夫曼编码"></a>哈夫曼树的应用：哈夫曼编码</h2><p>哈夫曼编码是一种压缩编码的编码算法，是基于哈夫曼树的一种编码方式。哈夫曼树又称为带权路径长度最短的二叉树。</p>
+<p>哈夫曼编码跟 ASCII 编码有什么区别？ASCII 编码是对照ASCII 表进行的编码，每一个字符符号都有对应的编码，其编码长度是固定的。而哈夫曼编码对于不同字符的出现频率其使用的编码是不一样的。其会对频率较高的字符使用较短的编码，频率低的字符使用较高的编码。这样保证总体使用的编码长度会更少，从而实现到了数据压缩的目的。</p>
+<p> 举一个例子：对字符串“aaa bb cccc dd e”使用 ASCII 进行编码得到的结果为：97 97 97 32 98 98 32 99 99 99 99 32 100 100 32 101 （十进制）需要 16 个字节，如果使用二进制表示的话需要 128位的内存空间去存储。 </p>
+<p>而如果使用 Unicode 的话会更多，因为 Unicode 又称为万国码，内容更多，因此使用的空间也需要更大。</p>
+<p>接下来使用哈夫曼编码对上面的字符串进行编码。看看需要多大的空间</p>
+<h3 id="统计频率"><a href="#统计频率" class="headerlink" title="统计频率"></a>统计频率</h3><p>上面的介绍已经说明了哈夫曼编码会根据字符出现的频率从而条件字符使用的编码长度。因此要先求出这个字符串中每个字符出现的频率</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>c</th>
+<th>‘ ‘ 空</th>
+<th>a</th>
+<th>b</th>
+<th>d</th>
+<th>e</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>频率</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<h3 id="构建哈夫曼树"><a href="#构建哈夫曼树" class="headerlink" title="构建哈夫曼树"></a>构建哈夫曼树</h3><blockquote>
+<p>排序</p>
+</blockquote>
+<p>哈夫曼树是一个带权的二叉树，而在哈夫曼编码中，字符的出现频率就是字符的权重。因此要根据字符的频率放入优先队列中进行排序。然后根据这些字符构建一棵哈夫曼树</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>e</th>
+<th>d</th>
+<th>b</th>
+<th>a</th>
+<th>‘ ‘ 空</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>频率</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+</tr>
+</tbody></table>
+<p>将队列中的每一个元素（字符）都看成一棵树。</p>
+<blockquote>
+<p>合并</p>
+</blockquote>
+<p>进行迭代，每次都去除队列中的前面两个元素，也就是权值最小的两棵子树进行合并成一棵子树。直到最终所有的元素合并成一棵树。这棵树就是哈夫曼树。</p>
+<p>合并步骤</p>
+<p>合并 1、2 权值为 3：</p>
+<p><img src="/posts/7fadcaca/asset/v2-6d884a6ee86b5ab861826a07779cb5fc_1440w.webp" alt="img"></p>
+<p>将 3这棵树重新插入队列：</p>
+<p><img src="https://pic2.zhimg.com/80/v2-94b73b86126b3331c789df2298557169_1440w.webp" alt="img"></p>
+<p>合并 2、3 生成 5 的树，并插入队列：</p>
+<p><img src="/posts/7fadcaca/asset/v2-36e021cba0c7adbd190bd1346d833ac1_1440w.webp" alt="img"></p>
+<p>合并 3、4 生成 7 的树，并插入队列：</p>
+<p><img src="/posts/7fadcaca/asset/v2-eeacd39cfb0ad14dea90967a6d998210_1440w.webp" alt="img"></p>
+<p>合并 4、5 生成 9 的数，并插入队列：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-0184f2ac6280fdbb8297a9e91abc54b6_1440w.webp" alt="img"></p>
+<p>合并 7、9 生成 16 的树，最终只有一棵树，该树便是这个字符串所生成的哈夫曼树：</p>
+<p><img src="https://pic3.zhimg.com/80/v2-48e3cdd3fbd1e25ce40a4205a753e24e_1440w.webp" alt="img"></p>
+<p> 为哈夫曼树进行编码</p>
+<p>将二叉树分支中的左分支编为 0，右分支编为 1：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-82b9db088f6babb04754a98f22978433_1440w.webp" alt="img"></p>
+<p>可以发现每个字符都在树的叶子节点上，因此要获取每个字符的哈夫曼编码，就通过根节点遍历到对应的子节点所经历的路径就是这个字符的编码：</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>e</th>
+<th>d</th>
+<th>b</th>
+<th>a</th>
+<th>‘ ‘</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>编码</td>
+<td>1110</td>
+<td>1111</td>
+<td>110</td>
+<td>00</td>
+<td>01</td>
+<td>10</td>
+</tr>
+</tbody></table>
+<p> 可以发现使用频率高的字符<code>e</code> 其编码长度是比出现频率低的字符<code>c</code> 编码长度要少。最后计算使用哈夫曼编码的字符串“aaa bb cccc dd e”要使用多少位的内存空间进行存储：出现次数 * 编码长度。结果为 4 * 3 + 3 * 2 + 11 * 2 &#x3D; 40位，与 ASCII 对应的 128位，少了2&#x2F;3的存储空间。 </p>
+<h2 id="用小顶堆构建"><a href="#用小顶堆构建" class="headerlink" title="用小顶堆构建"></a>用小顶堆构建</h2><p><img src="/posts/7fadcaca/asset/1688140692331.png" alt="1688140692331"></p>
+<p><img src="/posts/7fadcaca/asset/20200519152808107.png" alt="在这里插入图片描述"></p>
+<p><img src="/posts/7fadcaca/asset/20200519152817958.png" alt="1688140732234"></p>
+<p><img src="/posts/7fadcaca/asset/20200519154053906.png" alt="在这里插入图片描述"></p>
+<p>题目很长，但其实就是一个求k叉的Huffman字典树，让出现次数多的最短，最短，也就意味着离根节点最近，看上去就是一颗trie树（字典树）<img src="/posts/7fadcaca/asset/20200519162728184.png" alt="在这里插入图片描述"></p>
+<p><img src="/posts/7fadcaca/asset/20200519162735557.png" alt="在这里插入图片描述"></p>
+<p><img src="/posts/7fadcaca/asset/1688141574030.png" alt="1688141574030"></p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 基本算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/8d66b5f2/" rel="prev" title="栈和队列">
+                  <i class="fa fa-chevron-left"></i> 栈和队列
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/449b1d94/" rel="next" title="16.树与图的遍历">
+                  16.树与图的遍历 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"0879bda00b005c55eb331bc65d0cfd52"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

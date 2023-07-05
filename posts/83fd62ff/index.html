@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="定义所谓最短路径问题是指：如果从图中某一顶点（源点）到达另一顶点（终点）的路径可能不止一条，如何找到一条路径使得沿此路径上各边的权值总和（称为路径长度）达到最小。 下面我们介绍两种比较常用的求最短路径算法： Dijkstra（迪杰斯特拉）算法他的算法思想是按路径长度递增的次序一步一步并入来求取，是贪心算法的一个应用，用来解决单源点到其余顶点的最短路径问题。 算法思想首先，我们引入一个辅助向量D，它">
+<meta property="og:type" content="article">
+<meta property="og:title" content="23.图最短路">
+<meta property="og:url" content="https://itingyu.github.io/posts/83fd62ff/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="定义所谓最短路径问题是指：如果从图中某一顶点（源点）到达另一顶点（终点）的路径可能不止一条，如何找到一条路径使得沿此路径上各边的权值总和（称为路径长度）达到最小。 下面我们介绍两种比较常用的求最短路径算法： Dijkstra（迪杰斯特拉）算法他的算法思想是按路径长度递增的次序一步一步并入来求取，是贪心算法的一个应用，用来解决单源点到其余顶点的最短路径问题。 算法思想首先，我们引入一个辅助向量D，它">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2295192-b54b0c630ff6dada.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/621/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2295192-c10b4a16958cd4e4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/479/format/webp">
+<meta property="og:image" content="https://upload-images.jianshu.io/upload_images/2295192-c1d3d0588d4f05fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/290/format/webp">
+<meta property="article:published_time" content="2023-07-01T14:42:00.000Z">
+<meta property="article:modified_time" content="2023-07-01T14:49:11.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="基本算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://upload-images.jianshu.io/upload_images/2295192-b54b0c630ff6dada.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/621/format/webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/83fd62ff/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/83fd62ff/","path":"posts/83fd62ff/","title":"23.图最短路"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>23.图最短路 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dijkstra%EF%BC%88%E8%BF%AA%E6%9D%B0%E6%96%AF%E7%89%B9%E6%8B%89%EF%BC%89%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">Dijkstra（迪杰斯特拉）算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%80%9D%E6%83%B3"><span class="nav-number">2.0.1.</span> <span class="nav-text">算法思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%8F%8F%E8%BF%B0"><span class="nav-number">2.0.2.</span> <span class="nav-text">算法描述</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Floyd%EF%BC%88%E5%BC%97%E6%B4%9B%E4%BC%8A%E5%BE%B7%EF%BC%89%E7%AE%97%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">Floyd（弗洛伊德）算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E6%80%9D%E6%83%B3-1"><span class="nav-number">3.0.1.</span> <span class="nav-text">算法思想</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90%E5%8F%8A%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.0.2.</span> <span class="nav-text">算法分析及描述</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/83fd62ff/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="23.图最短路 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          23.图最短路
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-01 22:42:00" itemprop="dateCreated datePublished" datetime="2023-07-01T22:42:00+08:00">2023-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">基本算法</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.9k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>所谓最短路径问题是指：如果从图中某一顶点（源点）到达另一顶点（终点）的路径可能不止一条，如何找到一条路径使得沿此路径上各边的权值总和（称为路径长度）达到最小。</p>
+<p>下面我们介绍两种比较常用的求最短路径算法：</p>
+<h2 id="Dijkstra（迪杰斯特拉）算法"><a href="#Dijkstra（迪杰斯特拉）算法" class="headerlink" title="Dijkstra（迪杰斯特拉）算法"></a>Dijkstra（迪杰斯特拉）算法</h2><p>他的算法思想是按路径长度递增的次序一步一步并入来求取，是贪心算法的一个应用，用来解决单源点到其余顶点的最短路径问题。</p>
+<h4 id="算法思想"><a href="#算法思想" class="headerlink" title="算法思想"></a>算法思想</h4><p>首先，我们引入一个辅助向量D，它的每个分量D[i]表示当前找到的从起始节点v到终点节点vi的最短路径的长度。它的初始态为：若从节点v到节点vi有弧，则D[i]为弧上的权值，否则D[i]为∞，显然，长度为**D[j] &#x3D; Min{D[i] | vi ∈V}**的路径就是从v出发最短的一条路径，路径为(v, vi)。<br> 那么，下一条长度次短的最短路径是哪一条呢？假设次短路径的终点是vk，则可想而知，这条路径或者是(v, vk)或者是(v, vj, vk)。它的长度或者是从v到vk的弧上的权值，或者是D[j]和从vj到vk的权值之和。</p>
+<p>一般情况下，假设S为已知求得的最短路径的终点集合，则可证明：一下条最短路径（设其终点为x）或者是弧(v, x)或者是中间只经过S中的顶点而最后到达顶点x的路径。这可用反证法来证明，假设此路径上有一个顶点不在S中，则说明存在一条终点不在S中而长度比此路径短的路径。但是这是不可能的。因为，我们是按路径常度的递增次序来产生个最短路径的，故长度比此路径端的所有路径均已产生，他们的终点必定在S集合中，即假设不成立。</p>
+<p>因此下一条次短的最短路径的长度是：**D[j] &#x3D; Min{D[i] | vi ∈ V - S}**，其中，D[i]或者是弧(v, vi)的权值，或者是D[k](vk ∈ S)和弧(vk, vi)上权值之和。</p>
+<h4 id="算法描述"><a href="#算法描述" class="headerlink" title="算法描述"></a>算法描述</h4><p>假设现要求取如下示例图所示的顶点V0与其余各顶点的最短路径：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2295192-b54b0c630ff6dada.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/621/format/webp" alt="img"></p>
+<p>Dijkstra算法示例图</p>
+<p>我们使用Guava的ValueGraph作为该图的数据结构，每个顶点对应一个visited变量来表示节点是在V中还是在S中，初始时S中只有顶点V0。然后从nodes集合中遍历找出从V0出发到各节点路径最短的节点，并将该节点并入S中（即修改该节点的visited属性为true），此时就找到了一个顶点的最短路径。然后，<strong>我们看看新加入的顶点是否可以到达其他顶点，并且看看通过该顶点到达其他点的路径长度是否比从V0直接到达更短,如果是，则修改这些顶点的权值</strong>(即<code>if (D[j] + arcs[j][k] &lt; D[k]) then D[k] = D[j] + arcs[j][k]</code>)。然后又从{V - S}中找最小值，重复上述动作，直到所有顶点都并入S中。</p>
+<p>第一步，我们通过<code>ValueGraphBuilder</code>构造图的实例，并输入边集：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">MutableValueGraph&lt;String, Integer&gt; graph = ValueGraphBuilder.directed()</span><br><span class="line">        .nodeOrder(ElementOrder.insertion())</span><br><span class="line">        .expectedNodeCount(<span class="number">10</span>)</span><br><span class="line">        .build();</span><br><span class="line">graph.putEdgeValue(V0, V2, <span class="number">10</span>);</span><br><span class="line">graph.putEdgeValue(V0, V4, <span class="number">30</span>);</span><br><span class="line">graph.putEdgeValue(V0, V5, <span class="number">100</span>);</span><br><span class="line">graph.putEdgeValue(V1, V2, <span class="number">5</span>);</span><br><span class="line">graph.putEdgeValue(V2, V3, <span class="number">50</span>);</span><br><span class="line">graph.putEdgeValue(V3, V5, <span class="number">10</span>);</span><br><span class="line">graph.putEdgeValue(V4, V3, <span class="number">20</span>);</span><br><span class="line">graph.putEdgeValue(V4, V5, <span class="number">60</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> graph;</span><br></pre></td></tr></table></figure>
+
+<p>初始输出结果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">nodes: [v0, v2, v4, v5, v1, v3], </span><br><span class="line">edges: &#123;&lt;v0 -&gt; v5&gt;=<span class="number">100</span>, &lt;v0 -&gt; v4&gt;=<span class="number">30</span>, &lt;v0 -&gt; v2&gt;=<span class="number">10</span>, </span><br><span class="line">&lt;v2 -&gt; v3&gt;=<span class="number">50</span>, &lt;v4 -&gt; v5&gt;=<span class="number">60</span>, &lt;v4 -&gt; v3&gt;=<span class="number">20</span>, &lt;v1 -&gt; v2&gt;=<span class="number">5</span>, </span><br><span class="line">&lt;v3 -&gt; v5&gt;=<span class="number">10</span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了不破坏<code>graph</code>的状态，我们引入一个临时结构来记录每个节点运算的中间结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">NodeExtra</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String nodeName; <span class="comment">//当前的节点名称</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> distance; <span class="comment">//开始点到当前节点的最短路径</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> visited; <span class="comment">//当前节点是否已经求的最短路径（S集合）</span></span><br><span class="line">    <span class="keyword">public</span> String preNode; <span class="comment">//前一个节点名称</span></span><br><span class="line">    <span class="keyword">public</span> String path; <span class="comment">//路径的所有途径点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步，我们首先将起始点V0并入集合S中，因为他的最短路径已知为0：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">startNode = V0;</span><br><span class="line"><span class="type">NodeExtra</span> <span class="variable">current</span> <span class="operator">=</span> nodeExtras.get(startNode);</span><br><span class="line">current.distance = <span class="number">0</span>; <span class="comment">//一开始可设置开始节点的最短路径为0</span></span><br><span class="line">current.visited = <span class="literal">true</span>; <span class="comment">//并入S集合</span></span><br><span class="line">current.path = startNode;</span><br><span class="line">current.preNode = startNode;</span><br></pre></td></tr></table></figure>
+
+<p>第三步，在当前状态下找出起始点V0开始到其他节点路径最短的节点：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">NodeExtra</span> <span class="variable">minExtra</span> <span class="operator">=</span> <span class="literal">null</span>; <span class="comment">//路径最短的节点信息</span></span><br><span class="line"><span class="type">int</span> <span class="variable">min</span> <span class="operator">=</span> Integer.MAX_VALUE;</span><br><span class="line"><span class="keyword">for</span> (String notVisitedNode : nodes) &#123;</span><br><span class="line">    <span class="comment">//获取节点的辅助信息</span></span><br><span class="line">    <span class="type">NodeExtra</span> <span class="variable">extra</span> <span class="operator">=</span> nodeExtras.get(notVisitedNode); </span><br><span class="line">    </span><br><span class="line">    <span class="comment">//不在S集合中，且路径较短</span></span><br><span class="line">    <span class="keyword">if</span> (!extra.visited &amp;&amp; extra.distance &lt; min) &#123;</span><br><span class="line">        min = extra.distance;</span><br><span class="line">        minExtra = extra;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第四步，将最短路径的节点并入集合S中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (minExtra != <span class="literal">null</span>) &#123; <span class="comment">//找到了路径最短的节点</span></span><br><span class="line">    minExtra.visited = <span class="literal">true</span>; <span class="comment">//并入集合S中</span></span><br><span class="line">    <span class="comment">//更新其中转节点路径</span></span><br><span class="line">    minExtra.path = nodeExtras.get(minExtra.preNode).path + <span class="string">&quot; -&gt; &quot;</span> + minExtra.nodeName; </span><br><span class="line">    current = minExtra; <span class="comment">//标识当前并入的最短路径节点</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第五步，更新与其相关节点的最短路径中间结果：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 并入新查找到的节点后，更新与其相关节点的最短路径中间结果</span></span><br><span class="line"><span class="comment"> * if (D[j] + arcs[j][k] &lt; D[k]) D[k] = D[j] + arcs[j][k]</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">//只需循环当前节点的后继列表即可(优化)</span></span><br><span class="line">Set&lt;String&gt; successors = graph.successors(current.nodeName); </span><br><span class="line"><span class="keyword">for</span> (String notVisitedNode : successors) &#123;</span><br><span class="line">    <span class="type">NodeExtra</span> <span class="variable">extra</span> <span class="operator">=</span> nodeExtras.get(notVisitedNode);</span><br><span class="line">    <span class="keyword">if</span> (!extra.visited) &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">int</span> <span class="variable">value</span> <span class="operator">=</span> current.distance </span><br><span class="line">            + graph.edgeValueOrDefault(current.nodeName,</span><br><span class="line">                notVisitedNode, <span class="number">0</span>); <span class="comment">//D[j] + arcs[j][k]</span></span><br><span class="line">        <span class="keyword">if</span> (value &lt; extra.distance) &#123; <span class="comment">//D[j] + arcs[j][k] &lt; D[k]</span></span><br><span class="line">            extra.distance = value;</span><br><span class="line">            extra.preNode = current.nodeName;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第六步，输出起始节点V0到每个节点的最短路径以及路径的途径点信息</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Set&lt;String&gt; keys = nodeExtras.keySet();</span><br><span class="line"><span class="keyword">for</span> (String node : keys) &#123;</span><br><span class="line">    <span class="type">NodeExtra</span> <span class="variable">extra</span> <span class="operator">=</span> nodeExtras.get(node);</span><br><span class="line">    <span class="keyword">if</span> (extra.distance &lt; Integer.MAX_VALUE) &#123;</span><br><span class="line">        Log.i(TAG, startNode + <span class="string">&quot; -&gt; &quot;</span> + node + <span class="string">&quot;: min: &quot;</span> + extra.distance</span><br><span class="line">                + <span class="string">&quot;, path: &quot;</span> + extra.path); <span class="comment">//path在运算过程中更新</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实例图的输出结果为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">v0 -&gt; v0: min: <span class="number">0</span>, path: v0</span><br><span class="line">v0 -&gt; v2: min: <span class="number">10</span>, path: v0 -&gt; v2</span><br><span class="line">v0 -&gt; v3: min: <span class="number">50</span>, path: v0 -&gt; v4 -&gt; v3</span><br><span class="line">v0 -&gt; v4: min: <span class="number">30</span>, path: v0 -&gt; v4</span><br><span class="line">v0 -&gt; v5: min: <span class="number">60</span>, path: v0 -&gt; v4 -&gt; v3 -&gt; v5</span><br></pre></td></tr></table></figure>
+
+<p>具体Dijkstra算法的示例demo实现，请参考：<a target="_blank" rel="noopener" href="https://github.com/Jarrywell/GH-Demo/blob/master/app/src/main/java/com/android/test/demo/graph/Dijkstra.java">https://github.com/Jarrywell/GH-Demo/blob/master/app/src/main/java/com/android/test/demo/graph/Dijkstra.java</a></p>
+<h2 id="Floyd（弗洛伊德）算法"><a href="#Floyd（弗洛伊德）算法" class="headerlink" title="Floyd（弗洛伊德）算法"></a>Floyd（弗洛伊德）算法</h2><p>Floyd算法是一个经典的<strong>动态规划</strong>算法。是解决<strong>任意两点间的最短路径</strong>(称为多源最短路径问题)的一种算法，可以正确处理有向图或负权的最短路径问题。（动态规划算法是通过拆分问题规模，并定义问题状态与状态的关系，使得问题能够以递推（分治）的方式去解决，最终合并各个拆分的小问题的解为整个问题的解。）</p>
+<h4 id="算法思想-1"><a href="#算法思想-1" class="headerlink" title="算法思想"></a>算法思想</h4><p>从任意节点i到任意节点j的最短路径不外乎2种可能：<strong>1)直接从节点i到节点j，2)从节点i经过若干个节点k到节点j</strong>。所以，我们假设arcs(i,j)为节点i到节点j的最短路径的距离，对于每一个节点k，我们检查arcs(i,k) + arcs(k,j) &lt; arcs(i,j)是否成立，如果成立，证明从节点i到节点k再到节点j的路径比节点i直接到节点j的路径短，我们便设置arcs(i,j) &#x3D; arcs(i,k) + arcs(k,j)，这样一来，当我们遍历完所有节点k，arcs(i,j)中记录的便是节点i到节点j的最短路径的距离。（由于动态规划算法在执行过程中，需要保存大量的临时状态（即小问题的解），因此它天生适用于用矩阵来作为其数据结构，因此在本算法中，我们将不使用Guava-Graph结构，而采用邻接矩阵来作为本例的数据结构）</p>
+<h4 id="算法分析及描述"><a href="#算法分析及描述" class="headerlink" title="算法分析及描述"></a>算法分析及描述</h4><p>假设现要求取如下示例图所示任意两点之间的最短路径：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2295192-c10b4a16958cd4e4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/479/format/webp" alt="img"></p>
+<p>最短路径示例图</p>
+<p>我们以一个4x4的邻接矩阵（二维数组arcs[ ][ ]）作为图的数据结构。比如1号节点到2号节点的路径的权值为2，则arcs[1][2] &#x3D; 2，2号节点无法直接到达4号节点，则arcs[2][4] &#x3D; ∞(Integer.MAX_VALUE)，则可构造如下矩阵：</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/2295192-c1d3d0588d4f05fe.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/290/format/webp" alt="img"></p>
+<p>有向图的初始邻接矩阵</p>
+<p>根据以往的经验，如果要让任意两个顶点（假设从顶点a到顶点b）之间的距离变得更短，唯一的选择就是引入第三个顶点（顶点k），并通过顶点k中转（a -&gt; k -&gt;b）才可能缩短顶点a到顶点b之间的距离。于是，现在的问题便分解为：求取某一个点k，使得经过中转节点k后，使得两点之间的距离可能变短，且还可能需要中转两个或者多个节点才能使两点之间的距离变短。比如图中的4号节点到3号节点（4 -&gt; 3）的距离原本是12（arcs[4][3] &#x3D; 12），如果在只通过1号节点时中转时（4 -&gt; 1 -&gt;3），距离将缩短为11（arcs[4][1] + arcs[1][3] &#x3D; 5 + 6 &#x3D; 11）。其实1号节点到3号节点也可以通过2号节点中转，使得1号到3号节点的路程缩短为5（arcs[1][2] + arcs[2][3] &#x3D; 2 + 3 &#x3D; 5），所以如果同时经过1号和2号两个节点中转的话，从4号节点到3号节点的距离会进一步缩短为10。于是，延伸到一般问题：<br> 1、当不经过任意第三节点时，其最短路径为初始路径，即上图中的邻接矩阵所示。<br> 2、当只允许经过1号节点时，求两点之间的最短路径该如何求呢？<strong>只需判断arcs[i][1]+arcs[1][j]是否比arcs[i][j]要小即可。</strong>arcs[i][j]表示的是从i号顶点到j号顶点之间的距离，arcs[i][1] + arcs[1][j]表示的是从i号顶点先到1号顶点，再从1号顶点到j号顶点的路程之和。循环遍历一遍二维数组，便可以获取在仅仅经过1号节点时的最短距离，实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= vexCount; i++) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt; vexCount; j++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (arcs[i][<span class="number">1</span>] + arcs[<span class="number">1</span>][j] &lt; arcs[i][j]) &#123;</span><br><span class="line">            arcs[i][j] = arcs[i][<span class="number">1</span>] + arcs[<span class="number">1</span>][j]; </span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于上述代码更新了两点之间经过1号节点的最短距离arcs[i][j]，因此，数组中每两个节点之间对应距离都是最短的。由于此时arcs[i][j]的结果已经保存了中转1号节点的最短路径，此时如果继续并入2号节点为中转节点，则是任意两个节点都经过中转节点1号节点和2号节点的最短路径，因为运算完中转1号节点时，arcs[i][j]的结果已经更新为中转1号节点的最短路径了。更一般的，继续并入下一个中转节点一直到vexCount个时，arcs[i][j]的结果保存的就是整个图中两点之间的最短路径了。这就是Floyd算法的描述，变成代码就是下面几行行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">1</span>; k &lt;= vexCount; k++) &#123; <span class="comment">//并入中转节点1,2,...vexCount</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= vexCount; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt; vexCount; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arcs[i][k] + arcs[k][j] &lt; arcs[i][j]) &#123;</span><br><span class="line">                arcs[i][j] = arcs[i][k] + arcs[k][j];</span><br><span class="line">                path[i][j] = path[i][k]; <span class="comment">//这里保存当前是中转的是哪个节点的信息</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>对应到示例图的中间运算结果如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">print array step of <span class="number">1</span>: <span class="comment">//并入1号节点的结果</span></span><br><span class="line">    <span class="number">0</span>     <span class="number">2</span>     <span class="number">6</span>     <span class="number">4</span> </span><br><span class="line">    ∞     <span class="number">0</span>     <span class="number">3</span>     ∞ </span><br><span class="line">    <span class="number">7</span>     <span class="number">9</span>     <span class="number">0</span>     <span class="number">1</span> </span><br><span class="line">    <span class="number">5</span>     <span class="number">7</span>    <span class="number">11</span>     <span class="number">0</span> </span><br><span class="line"></span><br><span class="line">print array step of <span class="number">2</span>: <span class="comment">//并入2号节点的结果</span></span><br><span class="line">    <span class="number">0</span>     <span class="number">2</span>     <span class="number">5</span>     <span class="number">4</span> </span><br><span class="line">    ∞     <span class="number">0</span>     <span class="number">3</span>     ∞ </span><br><span class="line">    <span class="number">7</span>     <span class="number">9</span>     <span class="number">0</span>     <span class="number">1</span> </span><br><span class="line">    <span class="number">5</span>     <span class="number">7</span>    <span class="number">10</span>     <span class="number">0</span> </span><br><span class="line"></span><br><span class="line">print array step of <span class="number">3</span>: <span class="comment">//并入3号节点的结果</span></span><br><span class="line">    <span class="number">0</span>     <span class="number">2</span>     <span class="number">5</span>     <span class="number">4</span> </span><br><span class="line">   <span class="number">10</span>     <span class="number">0</span>     <span class="number">3</span>     <span class="number">4</span> </span><br><span class="line">    <span class="number">7</span>     <span class="number">9</span>     <span class="number">0</span>     <span class="number">1</span> </span><br><span class="line">    <span class="number">5</span>     <span class="number">7</span>    <span class="number">10</span>     <span class="number">0</span> </span><br><span class="line"></span><br><span class="line">print array step of <span class="number">4</span>: <span class="comment">//并入4号节点（图最终两两节点之间的最短路径值）</span></span><br><span class="line">    <span class="number">0</span>     <span class="number">2</span>     <span class="number">5</span>     <span class="number">4</span> </span><br><span class="line">    <span class="number">9</span>     <span class="number">0</span>     <span class="number">3</span>     <span class="number">4</span> </span><br><span class="line">    <span class="number">6</span>     <span class="number">8</span>     <span class="number">0</span>     <span class="number">1</span> </span><br><span class="line">    <span class="number">5</span>     <span class="number">7</span>    <span class="number">10</span>     <span class="number">0</span> </span><br></pre></td></tr></table></figure>
+
+<p>虽然此时已求得了节点的最短路径，但结果却不能明显的表达最终最短路径是中转了哪些节点，因此这里对应到动态规划算法中的强项——算法过程中可以完全记录所有的中间结果。我们再定义一个二位数组path[][]，其大小规模对应arcs[][]，初始结果path[i][j] &#x3D; j，表示节点i到节点j最后的中转节点是j。在运算中是在判断arcs[i][k]+arcs[k][j]比arcs[i][j]要小时，我们进一步更新为：path[i][j] &#x3D; path[i][k]，即当前最短路径的最后中转节点是path[i][k]对应的节点（如果只允许中专一个节点时即为k，但中转多个节点时，需要对应上一步的中转节点，因此这里要指明是path[i][k]而不是k）。<br> 于是我们通过向前递推path[][]数组，直到path[i][j]是目标节点。则可输出其中转节点，输出函数实现如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">printPath</span><span class="params">(<span class="type">int</span> arcs[][], <span class="type">int</span> path[][], <span class="type">int</span> vexCount)</span> &#123;</span><br><span class="line">    <span class="type">int</span> temp;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= vexCount; i++) &#123;</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">builder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">1</span>; j &lt;= vexCount; j++) &#123; <span class="comment">//遍历打印任意亮点的路径</span></span><br><span class="line">            builder.append(i).append(<span class="string">&quot;-&gt;&quot;</span>).append(j)</span><br><span class="line">                .append(<span class="string">&quot;, weight: &quot;</span>). append(arcs[i][j])</span><br><span class="line">                    .append(<span class="string">&quot;:&quot;</span>).append(i);</span><br><span class="line">            temp = path[i][j];</span><br><span class="line">            <span class="keyword">while</span>(temp != j) &#123;</span><br><span class="line">                builder.append(<span class="string">&quot;-&gt;&quot;</span>).append(temp);</span><br><span class="line">                temp = path[temp][j];</span><br><span class="line">            &#125;</span><br><span class="line">            builder.append(<span class="string">&quot;-&gt;&quot;</span>).append(j).append(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Log.i(TAG, builder.toString());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对应示例图的最短路径的中转节点结果输出如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>-&gt;<span class="number">1</span>, weight: <span class="number">0</span>, path: <span class="number">1</span>-&gt;<span class="number">1</span></span><br><span class="line"><span class="number">1</span>-&gt;<span class="number">2</span>, weight: <span class="number">2</span>, path: <span class="number">1</span>-&gt;<span class="number">2</span></span><br><span class="line"><span class="number">1</span>-&gt;<span class="number">3</span>, weight: <span class="number">5</span>, path: <span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span></span><br><span class="line"><span class="number">1</span>-&gt;<span class="number">4</span>, weight: <span class="number">4</span>, path: <span class="number">1</span>-&gt;<span class="number">4</span></span><br><span class="line"><span class="number">2</span>-&gt;<span class="number">1</span>, weight: <span class="number">9</span>, path: <span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">1</span></span><br><span class="line"><span class="number">2</span>-&gt;<span class="number">2</span>, weight: <span class="number">0</span>, path: <span class="number">2</span>-&gt;<span class="number">2</span></span><br><span class="line"><span class="number">2</span>-&gt;<span class="number">3</span>, weight: <span class="number">3</span>, path: <span class="number">2</span>-&gt;<span class="number">3</span></span><br><span class="line"><span class="number">2</span>-&gt;<span class="number">4</span>, weight: <span class="number">4</span>, path: <span class="number">2</span>-&gt;<span class="number">3</span>-&gt;<span class="number">4</span></span><br><span class="line"><span class="number">3</span>-&gt;<span class="number">1</span>, weight: <span class="number">6</span>, path: <span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">1</span></span><br><span class="line"><span class="number">3</span>-&gt;<span class="number">2</span>, weight: <span class="number">8</span>, path: <span class="number">3</span>-&gt;<span class="number">4</span>-&gt;<span class="number">1</span>-&gt;<span class="number">2</span></span><br><span class="line"><span class="number">3</span>-&gt;<span class="number">3</span>, weight: <span class="number">0</span>, path: <span class="number">3</span>-&gt;<span class="number">3</span></span><br><span class="line"><span class="number">3</span>-&gt;<span class="number">4</span>, weight: <span class="number">1</span>, path: <span class="number">3</span>-&gt;<span class="number">4</span></span><br><span class="line"><span class="number">4</span>-&gt;<span class="number">1</span>, weight: <span class="number">5</span>, path: <span class="number">4</span>-&gt;<span class="number">1</span></span><br><span class="line"><span class="number">4</span>-&gt;<span class="number">2</span>, weight: <span class="number">7</span>, path: <span class="number">4</span>-&gt;<span class="number">1</span>-&gt;<span class="number">2</span></span><br><span class="line"><span class="number">4</span>-&gt;<span class="number">3</span>, weight: <span class="number">10</span>, path: <span class="number">4</span>-&gt;<span class="number">1</span>-&gt;<span class="number">2</span>-&gt;<span class="number">3</span></span><br><span class="line"><span class="number">4</span>-&gt;<span class="number">4</span>, weight: <span class="number">0</span>, path: <span class="number">4</span>-&gt;<span class="number">4</span></span><br></pre></td></tr></table></figure>
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 基本算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/2a37d8a5/" rel="prev" title="8.数据结构优化dp">
+                  <i class="fa fa-chevron-left"></i> 8.数据结构优化dp
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/21751e2c/" rel="next" title="24.最小生成树">
+                  24.最小生成树 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"46579279fdad7109160d7013d02f0126"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

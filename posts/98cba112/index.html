@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="这个问题题意很简单，给定一棵树，并不一定是二叉树，树上的树枝带有权重，可以看成是长度。要求树上最长的链路的长度是多少？  比如我们随手画一棵树，可能丑了点，勿怪：   如果让我们用肉眼来看，稍微尝试一下就能找到答案，最长的路径应该是下图当中红色的这条：   但是如果让我们用算法来算，应该怎么办呢？ 这道题其实有一个非常巧妙的办法，我们先不讲，先来看看动态规划怎么解决这个问题 树形DP动态规划并不只">
+<meta property="og:type" content="article">
+<meta property="og:title" content="4.树形dp">
+<meta property="og:url" content="https://itingyu.github.io/posts/98cba112/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="这个问题题意很简单，给定一棵树，并不一定是二叉树，树上的树枝带有权重，可以看成是长度。要求树上最长的链路的长度是多少？  比如我们随手画一棵树，可能丑了点，勿怪：   如果让我们用肉眼来看，稍微尝试一下就能找到答案，最长的路径应该是下图当中红色的这条：   但是如果让我们用算法来算，应该怎么办呢？ 这道题其实有一个非常巧妙的办法，我们先不讲，先来看看动态规划怎么解决这个问题 树形DP动态规划并不只">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-b8b2b698382daee440168234cb59c0f6_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-9829a07678c3c9bc2456962adb877953_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-d70dbc834050ba333b2bdca7cf6809c1_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-7c2149458b7bddbbdb880d4acfe82cb6_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-9829a07678c3c9bc2456962adb877953_1440w-1688205596574.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-b920fb2891f5549b4f25609329079f37_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-29a1499d40198eef38300cccd2500403_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/1688206027548.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/98cba112/asset/1688211975350.png">
+<meta property="article:published_time" content="2023-07-01T09:49:56.000Z">
+<meta property="article:modified_time" content="2023-07-01T12:58:31.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="动态规划">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/98cba112/asset/v2-b8b2b698382daee440168234cb59c0f6_1440w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/98cba112/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/98cba112/","path":"posts/98cba112/","title":"4.树形dp"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>4.树形dp | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%91%E5%BD%A2DP"><span class="nav-number">1.</span> <span class="nav-text">树形DP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AC%E7%A7%BB%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">转移过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B2%A1%E6%9C%89%E4%B8%8A%E5%8F%B8%E7%9A%84%E8%88%9E%E4%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">没有上司的舞会</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/98cba112/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="4.树形dp | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          4.树形dp
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-01 17:49:56" itemprop="dateCreated datePublished" datetime="2023-07-01T17:49:56+08:00">2023-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" itemprop="url" rel="index"><span itemprop="name">动态规划</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.2k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这个问题题意很简单，给定一棵树，并不一定是二叉树，树上的树枝带有权重，可以看成是长度。要求树上最长的链路的长度是多少？</p>
+<p> 比如我们随手画一棵树，可能丑了点，勿怪： <img src="/posts/98cba112/asset/v2-b8b2b698382daee440168234cb59c0f6_1440w.webp" alt="img"></p>
+<p> 如果让我们用肉眼来看，稍微尝试一下就能找到答案，最长的路径应该是下图当中红色的这条： </p>
+<p><img src="/posts/98cba112/asset/v2-9829a07678c3c9bc2456962adb877953_1440w.webp" alt="img"></p>
+<p>但是如果让我们用算法来算，应该怎么办呢？</p>
+<p>这道题其实有一个非常巧妙的办法，我们先不讲，先来看看动态规划怎么解决这个问题</p>
+<h2 id="树形DP"><a href="#树形DP" class="headerlink" title="树形DP"></a><strong>树形DP</strong></h2><p>动态规划并不只是可以在数组当中运行，实际上只要满足动态规划的<strong>状态转移的条件和无后效性</strong>就可以使用动态规划，无论在什么数据结构当中。树上也是一样的，明白了这点之后，就只剩下了两个问题，第一个是状态是什么，第二个问题是状态之间怎么转移？</p>
+<p> 在之前的背包问题当中，状态就是背包当前用的体积，转移呢就是我们新拿一个物品的决策。但是这一次我们要在树上进行动态规划，相对来说状态和对应的转移会隐蔽一些。没有关系，我会从头开始整理思路，一点一点将推导和思考的过程讲解清楚。 </p>
+<p>首先，我们都知道，状态之间转移其实<strong>本质上是一个由局部计算整体的过程</strong>。我们通过相对容易的子状态进行转移，得到整体的结果。这个是动态规划的精髓，某种程度上来说它和分治法也比较接近，都存在大问题和小问题之间逻辑上的关系。所以当我们面临一个大问题一筹莫展的时候，可以借鉴一下分治法，思考一下从小问题入手。</p>
+<p>所以，我们从小到大，由微观到宏观，来看看最简单的情况：</p>
+<p><img src="/posts/98cba112/asset/v2-d70dbc834050ba333b2bdca7cf6809c1_1440w.webp" alt="img"></p>
+<p> 这种情况很明显，链路只有一条，所以长度自然是5 + 6 &#x3D; 11，这显然也是最长的长度。这种情况都没有问题，下面我们来把情况稍微再变得复杂一些，我们在树上多加入一层： <img src="/posts/98cba112/asset/v2-7c2149458b7bddbbdb880d4acfe82cb6_1440w.webp" alt="img"></p>
+<p> 这张图稍微复杂了一些，但是路径也不难找到，应该是<strong>E-B-F-H</strong>。路径的总长度为12： </p>
+<p> 但是如果我们变更一下路径长度呢，比如我们把FG和FH的路径加长，会得到什么结果呢？ </p>
+<p> 举这个例子只为了说明一个很简单的问题，即<strong>对于一棵树而言它上面的最长路径并不一定经过根节点</strong>。比如刚才的例子当中，如果路径必须要经过B的话，最长只能构造出4+2+16&#x3D;22的长度，但是如果可以不用经过B的话，可以得到最长的长度是31。 </p>
+<p>得出这个结论看似好像没有用，但其实对于我们理清思路很有帮助。既然我们不能保证最长路径一定会经过树根，所以我们就不能直接转移答案。那我们应该怎么办呢？</p>
+<p>回答这个问题光想是不够的，依然需要我们来观察问题和深入思考。</p>
+<h2 id="转移过程"><a href="#转移过程" class="headerlink" title="转移过程"></a><strong>转移过程</strong></h2><p>我们再观察一下下面这两张图：</p>
+<p><img src="/posts/98cba112/asset/v2-9829a07678c3c9bc2456962adb877953_1440w-1688205596574.webp" alt="img"></p>
+<p>有没有发现什么规律？</p>
+<p>由于我们的数据结构就是树形的，所以这个最长路径不管它连通的哪两个节点，<strong>一定可以保证，它会经过某一棵子树的根节点</strong>。不要小看这个不起眼的结论，实际上它非常重要。有了这个结论之后，我们将整条路径在根节点处切开。</p>
+<p><img src="/posts/98cba112/asset/v2-b920fb2891f5549b4f25609329079f37_1440w.webp" alt="img"></p>
+<p> 切开之后我们<strong>得到了两条通往叶子节点的链路</strong>，问题来了，根节点通往叶子节点的链路有很多条，为什么是这两条呢？ </p>
+<p> 很简单，因为这两条链路最长。所以这样<strong>加起来之后就可以保证得到的链路最长</strong>。这两条链路都是从叶子节点通往A的，所以我们得到的最长链路就是以A为根节点的子树的最长路径。 </p>
+<p> 我们前面的分析说了，最长路径是不能转移的，但是<strong>到叶子的最长距离是可以转移的</strong>。我们举个例子：  F到叶子的最长距离显然就是5和6中较大的那个，B稍微复杂一些，D和E都是叶子节点，这个容易理解。它还有一个子节点F，对于F来说它并不是叶子节点，但是我们前面算到了F到叶子节点的最长距离是6，所以B通过F到叶子节点的最长距离就是2 + 6 &#x3D; 8。这样我们就得到了状态转移方程，不过我们转移的不是要求的答案而是<strong>从当前节点到叶子节点的最长距离和次长距离</strong>。 </p>
+<p> 因为只有最长距离是不够的，因为我们要将根节点的最长距离加上次长距离得到经过根节点的最长路径，由于我们之前说过，所有的路径必然经过某棵子树的根节点。这个想明白了是废话，但是这个条件的确很重要。既然所有的链路都至少经过某一个子树的根节点，那么我们<strong>算出所有子树经过根节点的最长路径</strong>，其中最长的那个不就是答案么？ </p>
+<p><img src="/posts/98cba112/asset/v2-29a1499d40198eef38300cccd2500403_1440w.webp" alt="img"></p>
+<p> 上图当中用<strong>粉色笔标出的就是转移的过程</strong>，对于叶子节点来说最长距离和次长距离都是0，主要的转移过程发生在中间节点上。 </p>
+<p>转移的过程也很容易想通，对于中间节点i，我们遍历它所有的子节点j，然后维护最大值和次大值，我们写下状态转移方程：</p>
+<p><img src="/posts/98cba112/asset/1688206027548.png" alt="1688206027548"></p>
+<p> 状态转移想明白了，剩下的就是编码的问题了。可能在树上尤其是递归的时候做状态转移有些违反我们的直觉，但实际上并不难，我们写出代码来看下，我们首先来看建树的这个部分。为了简化操作，我们可以<strong>把树上所有的节点序号看成是int</strong>，对于每一个节点，都会有一个数组存储所有与这个节点连接的边，包括父亲节点。 </p>
+<p> 由于我们只关注树上的链路的长度，并不关心树的结构，树建好了之后，<strong>不管以哪一个点为整体的树根结果都是一样的</strong>。所以我们随便找一个节点作为整棵树的根节点进行递归即可。强调一下，这个是一个很重要的性质，因为本质上来说，树是一个无向无环全连通图。所以不管以哪个节点为根节点都可以连通整棵子树。 </p>
+<h2 id="没有上司的舞会"><a href="#没有上司的舞会" class="headerlink" title="没有上司的舞会"></a>没有上司的舞会</h2><p><img src="/posts/98cba112/asset/1688211975350.png" alt="1688211975350"></p>
+<p> f(x,0&#x2F;1) 代表以 x为根的子树的最优解（第二维的值为 0 代表 x 不参加舞会的情况，1 代表 ix参加舞会的情况） </p>
+<p>状态转移方程:</p>
+<p>$$<br>\begin{cases}<br>f(x,0) &#x3D; \sum\max{f(i,1),f(i,0)} \text{   上司没来，直接下属可能回来} \<br>f(x,1) &#x3D; \sum f(i,0)  \text{   上司来，直接下属一定不来}<br>\end{cases}<br>$$</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag"><i class="fa fa-tag"></i> 动态规划</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/833a660c/" rel="prev" title="3.区间dp">
+                  <i class="fa fa-chevron-left"></i> 3.区间dp
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/a2cf036c/" rel="next" title="5.环形结构dp">
+                  5.环形结构dp <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"0d8d5e1161c1b702c956a9fa934c5e98"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

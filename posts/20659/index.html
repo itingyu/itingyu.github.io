@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="itingyu的博客">
 <meta property="og:description" content="springboot热部署原理   基本原理就是我们在编辑器上启动项目，然后改动相关的代码，然后编辑器自动触发编译，替换掉历史的.class文件后，项目检测到有文件变更后会重启srpring-boot项目。内部主要是通过引入的插件对我们的classpath资源变化进行监听，当classpath有变化，才会触发重启。      从官方文档可以得知，其实这里对类加载采用了两种类加载器，对于第三方ja">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://itingyu.github.io/posts/20659/assets/362ec7243faaaf6bcf560bb1dd3ac3ee.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/20659/asset/v2-14d162040ff1c4f5475f2c2cab0de8b3_720w.webp">
 <meta property="article:published_time" content="2023-06-14T18:19:00.000Z">
 <meta property="article:modified_time" content="2023-06-14T18:20:28.000Z">
 <meta property="article:author" content="itingyu">
 <meta property="article:tag" content="基础知识">
 <meta property="article:tag" content="springboot">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://itingyu.github.io/posts/20659/assets/362ec7243faaaf6bcf560bb1dd3ac3ee.webp">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/20659/asset/v2-14d162040ff1c4f5475f2c2cab0de8b3_720w.webp">
 
 
 <link rel="canonical" href="https://itingyu.github.io/posts/20659/">
@@ -44,7 +44,7 @@
 <script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/20659/","path":"posts/20659/","title":"热部署原理"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>热部署原理 | itingyu的博客 - 记录一些琐事罢了</title>
+<title>热部署原理 | itingyu的博客 - 随便写写'</title>
   
 
   <script src="/js/third-party/analytics/baidu-analytics.js"></script>
@@ -84,7 +84,7 @@
       <p class="site-title">itingyu的博客</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
   </div>
 
   <div class="site-nav-right">
@@ -97,7 +97,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -162,18 +162,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -282,7 +282,7 @@
     
     <div class="post-body" itemprop="articleBody"><p> <strong>springboot热部署原理</strong> </p>
 <p> 基本原理就是我们在编辑器上启动项目，然后改动相关的代码，然后编辑器自动触发编译，替换掉历史的.class文件后，项目检测到有文件变更后会重启srpring-boot项目。内部主要是通过引入的插件对我们的classpath资源变化进行监听，当classpath有变化，才会触发重启。 </p>
-<p> <img src="/posts/20659/assets/362ec7243faaaf6bcf560bb1dd3ac3ee.webp" alt="img"> </p>
+<p> <img src="/posts/20659/asset/v2-14d162040ff1c4f5475f2c2cab0de8b3_720w.webp" alt="img"> </p>
 <p> 从官方文档可以得知，其实这里对类加载采用了两种类加载器，对于第三方jar包采用baseclassloader来加载，对于开发人员自己开发的代码则使用restartClassLoader来进行加载，这使得比停掉服务重启要快的多，因为使用插件只是重启开发人员编写的代码部分。 </p>
 
        <div>

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="redis入门指南简介特性存储结构Redis是REmote DIctionary Server（远程字典服务器）的缩写，它以字典结构存储数据，并允许其他应用通过TCP协议读写字典中的内容。同大多数脚本语言中的字典一样，Redis字典中的键值除了可以是字符串，还可以是其他数据类型。到目前为止 Redis 支持的键值数据类型如下 ● 字符串类型        ● 散列类型        ● 列表类型">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis入门指南">
+<meta property="og:url" content="https://itingyu.github.io/posts/2075dfe/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="redis入门指南简介特性存储结构Redis是REmote DIctionary Server（远程字典服务器）的缩写，它以字典结构存储数据，并允许其他应用通过TCP协议读写字典中的内容。同大多数脚本语言中的字典一样，Redis字典中的键值除了可以是字符串，还可以是其他数据类型。到目前为止 Redis 支持的键值数据类型如下 ● 字符串类型        ● 散列类型        ● 列表类型">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/2075dfe/asset/1687750554062.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/2075dfe/asset/1687751433210.png">
+<meta property="article:published_time" content="2023-06-27T18:05:44.000Z">
+<meta property="article:modified_time" content="2023-07-05T12:27:22.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="读书笔记">
+<meta property="article:tag" content="redis入门指南">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/2075dfe/asset/1687750554062.png">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/2075dfe/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/2075dfe/","path":"posts/2075dfe/","title":"redis入门指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>redis入门指南 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#redis%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97"><span class="nav-number">1.</span> <span class="nav-text">redis入门指南</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.1.</span> <span class="nav-text">简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.1.</span> <span class="nav-text">特性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%AD%98%E5%82%A8%E4%B8%8E%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">内存存储与持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8A%9F%E8%83%BD%E4%B8%B0%E5%AF%8C"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">功能丰富</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E7%A8%B3%E5%AE%9A"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">简单稳定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%86%E5%A4%87"><span class="nav-number">1.2.</span> <span class="nav-text">准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A5%E9%97%A8"><span class="nav-number">1.3.</span> <span class="nav-text">入门</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.1.</span> <span class="nav-text">基本命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">字符串类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.2.1.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%A3%E5%88%97"><span class="nav-number">1.3.3.</span> <span class="nav-text">散列</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4-1"><span class="nav-number">1.3.3.1.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%97%E8%A1%A8"><span class="nav-number">1.3.4.</span> <span class="nav-text">列表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4-2"><span class="nav-number">1.3.4.1.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.5.</span> <span class="nav-text">集合类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4-3"><span class="nav-number">1.3.5.1.</span> <span class="nav-text">命令</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%89%E5%BA%8F%E9%9B%86%E5%90%88"><span class="nav-number">1.3.6.</span> <span class="nav-text">有序集合</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6"><span class="nav-number">1.4.</span> <span class="nav-text">进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8B%E5%8A%A1"><span class="nav-number">1.4.1.</span> <span class="nav-text">事务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">错误处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#watch%E5%91%BD%E4%BB%A4%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.4.3.</span> <span class="nav-text">watch命令介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%9C%9F%E6%97%B6%E9%97%B4"><span class="nav-number">1.5.</span> <span class="nav-text">过期时间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.5.1.</span> <span class="nav-text">命令介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E8%AE%BF%E9%97%AE%E9%80%9F%E7%8E%87%E9%99%90%E5%88%B6"><span class="nav-number">1.5.2.</span> <span class="nav-text">实现访问速率限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E7%BC%93%E5%AD%98"><span class="nav-number">1.5.3.</span> <span class="nav-text">实现缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%92%E5%BA%8F"><span class="nav-number">1.6.</span> <span class="nav-text">排序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SORT%E5%91%BD%E4%BB%A4"><span class="nav-number">1.6.1.</span> <span class="nav-text">SORT命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#by%E5%8F%82%E6%95%B0"><span class="nav-number">1.6.2.</span> <span class="nav-text">by参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Get%E5%8F%82%E6%95%B0"><span class="nav-number">1.6.3.</span> <span class="nav-text">Get参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#store%E5%8F%82%E6%95%B0"><span class="nav-number">1.6.4.</span> <span class="nav-text">store参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="nav-number">1.6.5.</span> <span class="nav-text">性能优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E9%80%9A%E7%9F%A5"><span class="nav-number">1.7.</span> <span class="nav-text">消息通知</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97"><span class="nav-number">1.7.1.</span> <span class="nav-text">任务队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8redis%E5%AE%9E%E7%8E%B0%E4%BB%BB%E5%8A%A1%E9%98%9F%E5%88%97"><span class="nav-number">1.7.2.</span> <span class="nav-text">使用redis实现任务队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.7.3.</span> <span class="nav-text">发布订阅模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E7%85%A7%E8%A7%84%E5%88%99%E8%AE%A2%E9%98%85"><span class="nav-number">1.7.4.</span> <span class="nav-text">按照规则订阅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E9%81%93"><span class="nav-number">1.7.5.</span> <span class="nav-text">管道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8A%82%E7%9C%81%E7%A9%BA%E9%97%B4"><span class="nav-number">1.8.</span> <span class="nav-text">节省空间</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B2%BE%E7%AE%80%E9%94%AE%E5%90%8D%E5%92%8C%E9%94%AE%E5%80%BC"><span class="nav-number">1.8.1.</span> <span class="nav-text">精简键名和键值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E7%BC%96%E7%A0%81%E4%BC%98%E5%8C%96"><span class="nav-number">1.8.2.</span> <span class="nav-text">内部编码优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#java-%E4%B8%8Eredis"><span class="nav-number">1.9.</span> <span class="nav-text">java 与redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC"><span class="nav-number">1.10.</span> <span class="nav-text">脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E9%80%9F%E7%8E%87%E6%8E%A7%E5%88%B6"><span class="nav-number">1.10.1.</span> <span class="nav-text">访问速率控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#redis%E4%B8%8Elua"><span class="nav-number">1.10.2.</span> <span class="nav-text">redis与lua</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9C%A8%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%B0%83%E7%94%A8redis%E5%91%BD%E4%BB%A4"><span class="nav-number">1.10.2.1.</span> <span class="nav-text">在脚本中调用redis命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E8%84%9A%E6%9C%AC%E4%B8%AD%E8%BF%94%E5%9B%9E%E5%80%BC"><span class="nav-number">1.10.2.2.</span> <span class="nav-text">从脚本中返回值</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%84%9A%E6%9C%AC%E7%9B%B8%E5%85%B3%E5%91%BD%E4%BB%A4"><span class="nav-number">1.10.2.3.</span> <span class="nav-text">脚本相关命令</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.11.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RDB%E6%96%B9%E5%BC%8F"><span class="nav-number">1.11.1.</span> <span class="nav-text">RDB方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E6%8D%AE%E9%85%8D%E7%BD%AE%E8%A7%84%E5%88%99%E8%BF%9B%E8%A1%8C%E8%87%AA%E5%8A%A8%E5%BF%AB%E7%85%A7"><span class="nav-number">1.11.1.1.</span> <span class="nav-text">根据配置规则进行自动快照</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E6%88%B7%E6%89%A7%E8%A1%8Csave%E6%88%96bgsave%E5%91%BD%E4%BB%A4"><span class="nav-number">1.11.1.2.</span> <span class="nav-text">用户执行save或bgsave命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8Cflushall%E5%91%BD%E4%BB%A4"><span class="nav-number">1.11.1.3.</span> <span class="nav-text">执行flushall命令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%A4%8D%E5%88%B6%E6%97%B6"><span class="nav-number">1.11.1.4.</span> <span class="nav-text">执行复制时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BF%AB%E7%85%A7%E5%8E%9F%E7%90%86"><span class="nav-number">1.11.1.5.</span> <span class="nav-text">快照原理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF%E6%96%B9%E5%BC%8F"><span class="nav-number">1.12.</span> <span class="nav-text">AOF方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E7%A1%AC%E7%9B%98%E6%95%B0%E6%8D%AE"><span class="nav-number">1.12.1.</span> <span class="nav-text">同步硬盘数据</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4"><span class="nav-number">1.13.</span> <span class="nav-text">集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E5%88%B6"><span class="nav-number">1.13.1.</span> <span class="nav-text">复制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">1.13.1.1.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.13.1.2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9B%BE%E7%BB%93%E6%9E%84"><span class="nav-number">1.13.1.3.</span> <span class="nav-text">图结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7"><span class="nav-number">1.13.1.4.</span> <span class="nav-text">读写分离与一致性</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.13.1.5.</span> <span class="nav-text">从数据库持久化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E7%A1%AC%E7%9B%98%E5%A4%8D%E5%88%B6"><span class="nav-number">1.13.1.6.</span> <span class="nav-text">无硬盘复制</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A2%9E%E9%87%8F%E5%A4%8D%E5%88%B6"><span class="nav-number">1.13.1.7.</span> <span class="nav-text">增量复制</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%A8%E5%85%B5"><span class="nav-number">1.13.2.</span> <span class="nav-text">哨兵</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">1.13.2.1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%A8%E5%85%B5%E7%9A%84%E9%83%A8%E7%BD%B2"><span class="nav-number">1.13.2.2.</span> <span class="nav-text">哨兵的部署</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E7%BE%A4-1"><span class="nav-number">1.13.3.</span> <span class="nav-text">集群</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%9B%86%E7%BE%A4"><span class="nav-number">1.13.3.1.</span> <span class="nav-text">配置集群</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%A1%E7%90%86"><span class="nav-number">1.14.</span> <span class="nav-text">管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E5%85%A8"><span class="nav-number">1.14.1.</span> <span class="nav-text">安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%A1%E7%90%86%E5%B7%A5%E5%85%B7"><span class="nav-number">1.14.2.</span> <span class="nav-text">管理工具</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%80%97%E6%97%B6%E6%97%A5%E5%BF%97"><span class="nav-number">1.14.2.1.</span> <span class="nav-text">耗时日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E7%9B%91%E6%8E%A7"><span class="nav-number">1.14.2.2.</span> <span class="nav-text">命令监控</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/2075dfe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="redis入门指南 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          redis入门指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 02:05:44" itemprop="dateCreated datePublished" datetime="2023-06-28T02:05:44+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/redis%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" itemprop="url" rel="index"><span itemprop="name">redis入门指南</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>33k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="redis入门指南"><a href="#redis入门指南" class="headerlink" title="redis入门指南"></a>redis入门指南</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><h3 id="特性"><a href="#特性" class="headerlink" title="特性"></a>特性</h3><h4 id="存储结构"><a href="#存储结构" class="headerlink" title="存储结构"></a>存储结构</h4><p>Redis是REmote DIctionary Server（远程字典服务器）的缩写，它以字典结构存储数<br>据，并允许其他应用通过TCP协议读写字典中的内容。同大多数脚本语言中的字典一样，<br>Redis字典中的键值除了可以是字符串，还可以是其他数据类型。到目前为止 Redis 支持的键<br>值数据类型如下</p>
+<p>● 字符串类型<br>        ● 散列类型<br>        ● 列表类型<br>        ● 集合类型<br>        ● 有序集合类型</p>
+<h4 id="内存存储与持久化"><a href="#内存存储与持久化" class="headerlink" title="内存存储与持久化"></a>内存存储与持久化</h4><p>Redis 数据库中的所有数据都存储在内存中。</p>
+<p>由于内存的读写速度远快于硬盘，因此Redis在性能上对比其他基于硬盘存储的数据库有非常明显的优势，在一台普通的笔记本电脑上，Redis可以在一秒内读写超过10万个键值。</p>
+<h4 id="功能丰富"><a href="#功能丰富" class="headerlink" title="功能丰富"></a>功能丰富</h4><p>Redis 虽然是作为数据库开发的，但由于其提供了丰富的功能，越来越多的人将其用作<br>缓存、队列系统等。Redis可谓是名副其实的多面手。</p>
+<p>Redis 可以为每个键设置生存时间（Time To Live，TTL），生存时间到期后键会自动被<br>删除。这一功能配合出色的性能让Redis可以作为缓存系统来使用，而且由于Redis支持持久<br>化和丰富的数据类型，使其成为了另一个非常流行的缓存系统Memcached的有力竞争者。</p>
+<p>在性能上 Redis是单线程模型，而Memcached支持多线程，所以在多核服务器上后者的性能理论上相对更高一些。然而，前面已经介绍过，Redis的性能已经足够优异，在绝大部分场合下其性能都不会成为瓶颈，所以在使用时更应该关心的是二者在功能上的区别。随着Redis 3.0 的推出，标志着<br>Memcached几乎所有功能都成为了Redis的子集。同时，Redis对集群的支持使得Memcached<br>原有的第三方集群工具不再成为优势。因此，在新项目中使用Redis代替Memcached将会是<br>非常好的选择。</p>
+<p>作为缓存系统，Redis 还可以限定数据占用的最大内存空间，在数据达到空间限制后可<br>以按照一定的规则自动淘汰不需要的键。</p>
+<p>Redis 的列表类型键可以用来实现队列，并且支持阻塞式读取，可以很容易<br>地实现一个高性能的优先级队列。同时在更高层面上，Redis 还支持“发布&#x2F;订阅”的消息模<br>式，可以基于此构建聊天室[6] 等系统。</p>
+<h4 id="简单稳定"><a href="#简单稳定" class="headerlink" title="简单稳定"></a>简单稳定</h4><p>Redis 直观的存储结构使得通过程序与Redis交互十分简单。在Redis中使用命令来读写数据，命令语句之于Redis就相当于SQL语言之于关系数据库。</p>
+<p>Redis提供了几十种不同编程语言的客户端库，这些库都很好地封装了Redis的命令，使<br>得在程序中与 Redis 进行交互变得更容易。有些库还提供了可以将编程语言中的数据类型直<br>接以相应的形式存储到Redis中（如将数组直接以列表类型存入Redis）的简单方法，使用起<br>来非常方便。</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>Redis服务器默认会使用6379端口 ，通过–port参数可以自定义端口号</p>
+<p>考虑到 Redis 有可能正在将内存中的数据同步到硬盘中，强行终止 Redis 进程可能会导<br>致数据丢失。正确停止Redis的方式应该是向Redis发送SHUTDOWN命令</p>
+<p>当Redis收到SHUTDOWN命令后，会先断开所有客户端连接，然后根据配置执行持久<br>化，最后完成退出。</p>
+<p>Redis可以妥善处理 SIGTERM信号，所以使用 kill Redis 进程的 PID也可以正常结束<br>Redis，效果与发送SHUTDOWN命令一样。</p>
+<p>Redis是一个字典结构的存储服务器，而实际上一个Redis实例提供了多个用<br>来存储数据的字典，客户端可以指定将数据存储在哪个字典中。这与我们熟知的在一个关系<br>数据库实例中可以创建多个数据库类似，所以可以将其中的每个字典都理解成一个独立的数<br>据库。</p>
+<p>每个数据库对外都是以一个从0开始的递增数字命名，Redis默认支持16个数据库，可以<br>通过配置参数databases来修改这一数字。客户端与Redis建立连接后会自动选择0号数据库，<br>不过可以随时使用SELECT命令更换数据库，</p>
+<p>然而这些以数字命名的数据库又与我们理解的数据库有所区别。首先 Redis 不支持自定<br>义数据库的名字，每个数据库都以编号命名，开发者必须自己记录哪些数据库存储了哪些数<br>据。另外 Redis 也不支持为每个数据库设置不同的访问密码，所以一个客户端要么可以访问<br>全部数据库，要么连一个数据库也没有权限访问。最重要的一点是多个数据库之间并不是完<br>全隔离的，比如FLUSHALL命令可以清空一个Redis实例中所有数据库中的数据。</p>
+<h2 id="入门"><a href="#入门" class="headerlink" title="入门"></a>入门</h2><h3 id="基本命令"><a href="#基本命令" class="headerlink" title="基本命令"></a>基本命令</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">keys pattern        pattern支持glob风格通配符格式</span><br><span class="line">exists key          如果键存在则返回整数类型1，否则返回0</span><br><span class="line">del key	[key ...]	可以删除一个或多个键，返回值是删除的键的个数。</span><br><span class="line">type key             TYPE命令用来获得键值的数据类型，返回值可能是string,（字符串类型            hash（散列类型）、list（列表类型）、set（集合类型）、zset（有序集合类型）。</span><br></pre></td></tr></table></figure>
+
+<h3 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h3><p>字符串类型是 Redis 中最基本的数据类型，它能存储任何形式的字符串，包括二进制数<br>据。你可以用其存储用户的邮箱、JSON 化的对象甚至是一张图片。一个字符串类型键允许<br>存储的数据的最大容量是512 MB</p>
+<p>字符串类型是其他4种数据类型的基础，其他数据类型和字符串类型的差别从某种角度<br>来说只是组织字符串的形式不同。</p>
+<h4 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">set key value     赋值</span><br><span class="line">get key           取值</span><br><span class="line">incr key          让当前键值递增并返回递增的值</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">incrby key increment  递增一个数值</span><br><span class="line">decr   key         递减</span><br><span class="line">decrby key decrement  减少某个值</span><br><span class="line">incrbyfloat key increment  递增一个双精度浮点数</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">append key value    向键值的末尾追加value，若键不存在，相当于set key value</span><br><span class="line">strlen key          返回键值的长度，如果不存在返回0</span><br><span class="line">mget key [key ...]  同时获得多个键值</span><br><span class="line">mset key value [key value ...]   同时设置多个键值,MGET/MSET 与GET/SET 相似，不过								MGET/MSET 可以同时获得/设置多个键的键值。</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">一个字节由8个二进制位组成，Redis提供了4个命令可以直接对二进制位进行操作:            getbit key offset                获得一个字符串类型键指定位置的二进制位的值（0或1）</span><br><span class="line">setbit key offset value          设置字符串类型键指定位置的二进制位的值,返回旧值</span><br><span class="line">bitcount key offset [start][end] 获得字符串类型键中值是1的二进制位个数</span><br><span class="line">bitop operation destkey key [key...]     BITOP命令可以对多个字符串类型键进行位运									算，并将结果存储在destkey参数指定的键中。BITOP命令								   支持的运算操作有AND、OR、XOR和NOT</span><br></pre></td></tr></table></figure>
+
+<h3 id="散列"><a href="#散列" class="headerlink" title="散列"></a>散列</h3><p>Redis 是采用字典结构以键值对的形式存储数据的，而散列类型（hash）的键值也是一种字典结构，其存储了字段（field）和字段值的映射，但字段值只能是字符串，不支持其他数据类型，换句话说，散列类型不能嵌套其他的数据类型。一个散列类型键可以包含至多232−1个字段。提示 除了散列类型，Redis 的其他数据类型同样不支持数据类型嵌套。比如集合类型的每个元素都只能是字符串，不能是另一个集合或散列表等。</p>
+<p>散列类型适合存储对象：使用对象类别和 ID 构成键名，使用字段表示对象的属性，而<br>字段值则存储属性值。</p>
+<h4 id="命令-1"><a href="#命令-1" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">hset key field value                   给字段赋值</span><br><span class="line">hget key field                         获得字段的值</span><br><span class="line">hmset key field value [field value ...] 同时设置多个字段的值</span><br><span class="line">hmget key field [field ...]             同时获得多个字段的值</span><br><span class="line">hgetall key                             获取键中所有字段和字段值</span><br></pre></td></tr></table></figure>
+
+<p>HSET 命令的方便之处在于不区分插入和更新操作，这意味着修改数据时不用事先判断<br>字段是否存在来决定要执行的是插入操作（update）还是更新操作（insert）当执行的是插<br>入操作时（即之前字段不存在）HSET命令会返回1，当执行的是更新操作时（即之前字段已<br>经存在）HSET命令会返回0。</p>
+<p>提示 在Redis中每个键都属于一个明确的数据类型，如通过 HSET命令建立的键是散列类<br>型，通过SET命令建立的键是字符串类型等等。使用一种数据类型的命令操作另一种数据类<br>型的键会提示错误：”ERR Operation against a key holding the wrong kind of value”</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">hexists key field   判断一个字段是否存在。如果存在则返回1，否则返回0（如果键不存在也会返回0）。</span><br><span class="line"></span><br><span class="line">hsetnx key field value  与HSET命令类似，区别在于如果字段已经存在，HSETNX命令将不</span><br><span class="line">执行任何操作。</span><br><span class="line"></span><br><span class="line">hincrby key field increment   可以使字段值增加指定的整数,散列类型没有 HINCR 命令</span><br><span class="line"></span><br><span class="line">hdel key field [field ...]   删除一个或多个字段，返回值是被删除的字段个数</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hkeys key               需要获取键中所有字段的名字而不需要字段值  </span><br><span class="line">hvals key               获得键中所有字段值</span><br><span class="line">hlen key                获得字段数量</span><br></pre></td></tr></table></figure>
+
+<h3 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h3><p>列表类型（list）可以存储一个有序的字符串列表，常用的操作是向列表两端添加元素，<br>或者获得列表的某一个片段。</p>
+<p>列表类型内部是使用双向链表（double linked list）实现的，所以向列表两端添加元素的<br>时间复杂度为O(1)，获取越接近两端的元素速度就越快。这意味着即使是一个有几千万个元<br>素的列表，获取头部或尾部的10条记录也是极快的（和从只有20个元素的列表中获取头部或<br>尾部的10条记录的速度是一样的）。</p>
+<p>不过使用链表的代价是通过索引访问元素比较慢。</p>
+<p>这种特性使列表类型能非常快速地完成关系数据库难以应付的场景：如社交网站的新鲜<br>事，我们关心的只是最新的内容，使用列表类型存储，即使新鲜事的总数达到几千万个，获<br>取其中最新的100条数据也是极快的。同样因为在两端插入记录的时间复杂度是O(1)，列表<br>类型也适合用来记录日志，可以保证加入新日志的速度不会受到已有日志数量的影响。</p>
+<p>借助列表类型，Redis还可以作为队列使用</p>
+<p>与散列类型键最多能容纳的字段数量相同，一个列表类型键最多能容纳232−1个元素。</p>
+<h4 id="命令-2"><a href="#命令-2" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lpush key value [value]     向列表左边增加元素，返回值表示增加元素后列表的长度。</span><br><span class="line">rpush key value [value]     向列表右边增加元素</span><br><span class="line">lpop key    从列表左边弹出一个元素,第一步是将列表左边的元素从列表中移除，第二步是返回被移             除的元素值。</span><br><span class="line">rpop key    从列表右边弹出一个元素</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">llen key    获取列表中元素的个数,当键不存在时LLEN会返回0：</span><br><span class="line">lrange key start stop    返回索引从 start到 stop之间的所有元素（包含两端的元素）</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">lrem key count value    删除列表中前count个值为value的元素，返回值是实际删除的元素个数。</span><br><span class="line">（1）当 count &gt; 0时 LREM 命令会从列表左边开始删除前 count 个值为 value的元素。</span><br><span class="line">（2）当 count &lt; 0时 LREM 命令会从列表右边开始删除前|count|个值为 value 的元素。</span><br><span class="line">（3）当 count = 0是 LREM命令会删除所有值为 value的元素。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">lindex key index          返回指定索引的元素，索引从0开始,如果index是负数则表示从右边开始计算的索引，最右边元素的索引是−1</span><br><span class="line">lset key index value  将索引为index的元素赋值为value</span><br><span class="line">ltrim key start end   删除指定索引范围之外的所有元素</span><br><span class="line">linsert key before|after pivot value  在列表中从左到右查找值为 pivot 的元素，然后根据第二个参数是</span><br><span class="line">BEFORE还是AFTER来决定将value插入到该元素的前面还是后面。</span><br><span class="line"></span><br><span class="line">rpoplpush source destination    将元素从一个列表转到另一个列表</span><br></pre></td></tr></table></figure>
+
+<h3 id="集合类型"><a href="#集合类型" class="headerlink" title="集合类型"></a>集合类型</h3><p>在集合中的每个元素都是不同的，且没有顺序。一个集合类型（set）键可以存储至多232 −1个（相信这个数字对大家来说已经很熟悉了）字符串。</p>
+<p>集合类型的常用操作是向集合中加入或删除元素、判断某个元素是否存在等，由于集合<br>类型在Redis内部是使用值为空的散列表（hash table）实现的所以这些操作的时间复杂度都<br>是O(1)。最方便的是多个集合类型键之间还可以进行并集、交集和差集运算，稍后就会看到<br>灵活运用这一特性带来的便利。</p>
+<h4 id="命令-3"><a href="#命令-3" class="headerlink" title="命令"></a>命令</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sadd key member [member ...]   向集合中增加一个或多个元素，如果键不存在则会自动创建。</span><br><span class="line">srem key member [member ...]   从集合中删除一个或多个元素，并返回删除成功的个数</span><br><span class="line">smembers key                   返回集合中的所有元素</span><br><span class="line">sismember key member     判断一个元素是否在集合中是一个时间复杂度为O(1)的操作</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sdiff key [key ...]            对多个集合执行差集运算</span><br><span class="line">sinter key [key ...]           对多个集合执行交集运算</span><br><span class="line">sunion key [key ...]           对多个集合执行并集运算</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">scard key         获得集合中的元素个数</span><br><span class="line">sdiffstore destination key [key ...]   不会直接返回运算结果，</span><br><span class="line">而是将结果存储在destination键中。</span><br><span class="line">sinterstore destination key [key ...]</span><br><span class="line">sunionstore destination key [key ...]</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">srandmember key [count]   随机获得集合中的元素</span><br><span class="line">还可以传递count参数来一次随机获得多个元素，根据count的正负不同，具体表现也不同。</span><br><span class="line">1）当count为正数时，SRANDMEMBER会随机从集合里获得count个不重复的元素。</span><br><span class="line">如果count的值大于集合中的元素个数，则SRANDMEMBER会返回集合中的全部元素。</span><br><span class="line">2）当count为负数时，SRANDMEMBER会随机从集合里获得|count|个的元素，这些元</span><br><span class="line">素有可能相同。</span><br><span class="line">SRANDMEMBER 命令返回的数据似乎并不是非常的随机出现这种情况是由集合类型采用的存储结构（散列表）造成的。散列表使用散列函数将元素映射到不同的存储位置（桶）上以实现O(1)时间复杂度的元素查找，举个例子，当使用散列表存储元素b时，使用散列函数计算出b的散列值是0，所以将b存入编号为0的桶（bucket）中，下次要查找b时就可以用同样的散列函数再次计算b的散列值并直接到相</span><br><span class="line">应的桶中找到 b。当两个不同的元素的散列值相同时会出现冲突，Redis 使用拉链法来解决冲</span><br><span class="line">突，即将散列值冲突的元素以链表的形式存入同一桶中，查找元素时先找到元素对应的桶，</span><br><span class="line">然后再从桶中的链表中找到对应的元素。使用SRANDMEMBER命令从集合中获得一个随机</span><br><span class="line">元素时，Redis首先会从所有桶中随机选择一个桶，然后再从桶中的所有元素中随机选择一个</span><br><span class="line">元素，所以元素所在的桶中的元素数量越少，其被随机选中的可能性就越大，</span><br></pre></td></tr></table></figure>
+
+<h3 id="有序集合"><a href="#有序集合" class="headerlink" title="有序集合"></a>有序集合</h3><p>在集合类型的基础上有序集合类型为集合中的每个元素都关联了一个分数，这使得我们<br>不仅可以完成插入、删除和判断元素是否存在等集合类型支持的操作，还能够获得分数最高<br>（或最低）的前N个元素、获得指定分数范围内的元素等与分数有关的操作。虽然集合中每<br>个元素都是不同的，但是它们的分数却可以相同。</p>
+<p>有序集合类型在某些方面和列表类型有些相似。<br>（1）二者都是有序的。（2）二者都可以获得某一范围的元素。</p>
+<p>但是二者有着很大的区别，这使得它们的应用场景也是不同的。<br>（1）列表类型是通过链表实现的，获取靠近两端的数据速度极快，而当元素增多后，<br>访问中间数据的速度会较慢，所以它更加适合实现如“新鲜事”或“日志”这样很少访问中间元<br>素的应用。（2）有序集合类型是使用散列表和跳跃表（Skip list）实现的，所以即使读取位于中间<br>部分的数据速度也很快（时间复杂度是O(log(N))）（3）列表中不能简单地调整某个元素的位置，但是有序集合可以（通过更改这个元素的分数）。（4）有序集合要比列表类型更耗费内存。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">zadd key score member [score member ...] 加入一个元素和该元素的分数,如果该元素已经存在则会用新的分数替换原有的分数</span><br><span class="line">zscore key member获得元素的分数</span><br><span class="line">zrange key start stop [withscores]  按照元素分数从小到大的顺序返回索引从 start到stop之间的所有元素,如果需要同时获得元素的分数的话可以在 ZRANGE 命令的尾部加上 WITHSCORES 参数，如果两个元素的分数相同，Redis会按照字典顺序（即&quot;0&quot;&lt;&quot;9&quot;&lt;&quot;A&quot;&lt;&quot;Z&quot;&lt;&quot;a&quot;&lt;&quot;z&quot;这样的顺序）来进行排列。再进一步，如果元素的值是中文怎么处理呢？答案是取决于中文的编码方</span><br><span class="line">式，如使用UTF-8编码</span><br><span class="line">zrevrange key start stop [withscores]  按照元素分数从大到小的顺序给出结果</span><br><span class="line"></span><br><span class="line">zrangebyscore min max [withscores][limit offset count] 该命令按照元素分数从小到大</span><br><span class="line">的顺序返回分数在min和max之间（包含min和max）的元素,</span><br><span class="line">如果希望分数范围不包含端点值，可以在分数前加上“(”符号</span><br><span class="line">min和max还支持无穷大，同ZADD命令一样，-inf和+inf分别表示负无穷和正无穷。比如你希望得到所有分数高于80分（不包含80分）的人的名单，但你却不知道最高分是多少,（虽然有些背离现实，但是为了叙述方便，这里假设可以获得的分数是无上限的），这时就可以用上+inf了</span><br><span class="line"> LIMIT offset count</span><br><span class="line">与 SQL 中的用法基本相同，即在获得的元素列表的基础上向后偏移offset个元素，并且只获</span><br><span class="line">取前count个元素。</span><br><span class="line">ZINCRBY key increment member   命令可以增加一个元素的分数，返回值是更改后的分数。</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">zcard key 获得集合中元素的数量</span><br><span class="line">zcount key min max 获得指定分数范围内的元素个数</span><br><span class="line">zrem key member[member ...] 删除一个或多个元素</span><br><span class="line">zremrangebyrank key start stop 按照元素分数从小到大的顺序（即索引 0表示最小的值）</span><br><span class="line">删除处在指定排名范围内的所有元素，并返回删除的元素数量。</span><br><span class="line">zremrangebyscore key min max  删除指定分数范围内的所有元素</span><br><span class="line">zrank key member  按照元素分数从小到大的顺序获得指定的元素的排名（从0开始，即分数</span><br><span class="line">最小的元素排名为0）。</span><br><span class="line">zinterstore</span><br></pre></td></tr></table></figure>
+
+<h2 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h2><h3 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h3><p>Redis中的事务（transaction）是一组命令的集合。事务同命令一样都是 Redis 的最小执<br>行单位，一个事务中的命令要么都执行，要么都不执行。</p>
+<p>事务的原理是先将属于一个事务的命令发送给Redis，然后再让Redis依次执行这些命<br>令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; multi</span><br><span class="line">ok</span><br><span class="line">redis&gt; sadd &quot;user:1:following&quot; 2</span><br><span class="line">queued</span><br><span class="line">redis&gt; sadd &quot;user:2:followers&quot; 1</span><br><span class="line">queued</span><br><span class="line">redis&gt; exec</span><br><span class="line">1)(integer) 1</span><br><span class="line">2)(integer) 1</span><br><span class="line">首先使用MULTI命令告诉Redis：“下面我发给你的命令属于同一个事务，你先不要执行，而是把它们暂时存起来。”Redis回答：“OK。”</span><br><span class="line">而后我们发送了两个 SADD命令来实现关注和被关注操作，可以看到 Redis 遵守了承诺，没有执行这些命令，而是返回QUEUED表示这两条命令已经进入等待执行的事务队列中了。</span><br><span class="line">当把所有要在同一个事务中执行的命令都发给 Redis 后，我们使用 EXEC 命令告诉Redis</span><br><span class="line">将等待执行的事务队列中的所有命令（即刚才所有返回QUEUED的命令）按照发送顺序依次执行。EXEC 命令的返回值就是这些命令的返回值组成的列表，返回值顺序和命令的顺序相同。</span><br><span class="line"></span><br><span class="line">Redis保证一个事务中的所有命令要么都执行，要么都不执行。如果在发送EXEC命令前客户端断线了，则 Redis 会清空事务队列，事务中的所有命令都不会执行。而一旦客户端发送了EXEC命令，所有的命令就都会被执行，即使此后客户端断线也没关系，因为Redis中已经记录了所有要执行的命令。</span><br><span class="line">除此之外，Redis 的事务还能保证一个事务内的命令依次执行而不被其他命令插入。试想客户端A需要执行几条命令，同时客户端B发送了一条命令，如果不使用事务，则客户端B的命令可能会插入到客户端A的几条命令中执行。如果不希望发生这种情况，也可以使用事务。</span><br></pre></td></tr></table></figure>
+
+<h3 id="错误处理"><a href="#错误处理" class="headerlink" title="错误处理"></a>错误处理</h3><p>如果一个事务中的某个命令执行出错，Redis 会怎样处理呢？要回答这个问题，首先需要知道什么原因会导致命令执行出错。</p>
+<p>（1）语法错误。语法错误指命令不存在或者命令参数的个数不对。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set name itingyu</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; set age</span><br><span class="line">(error) ERR wrong number of arguments for &#x27;set&#x27; command</span><br><span class="line">127.0.0.1:6379&gt; errorcommand age</span><br><span class="line">(error) ERR unknown command &#x27;errorcommand&#x27;</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">(error) EXECABORT Transaction discarded because of previous errors.</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>跟在MULTI命令后执行了3个命令：一个是正确的命令，成功地加入事务队列；其余两<br>个命令都有语法错误。而只要有一个命令有语法错误，执行 EXEC 命令后 Redis 就会直接返<br>回错误，连语法正确的命令也不会执行。</p>
+<p>（2）运行错误。运行错误指在命令执行时出现的错误，比如使用散列类型的命令操作<br>集合类型的键，这种错误在实际执行之前 Redis 是无法发现的，所以在事务里这样的命令是<br>会被 Redis 接受并执行的。如果事务里的一条命令出现了运行错误，事务里其他的命令依然<br>会继续执行（包括出错命令之后的命令）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set key 1</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; sadd key 2</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; set key 3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">1) OK</span><br><span class="line">2) (error) WRONGTYPE Operation against a key holding the wrong kind of value</span><br><span class="line">3) OK</span><br><span class="line">127.0.0.1:6379&gt; get key</span><br><span class="line">&quot;3&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可见虽然 SADD key 2出现了错误，但是 SET key 3依然执行了。<br>Redis的事务没有关系数据库事务提供的回滚（rollback）[1] 功能。为此开发者必须在事<br>务执行出错后自己收拾剩下的摊子（将数据库复原回事务执行前的状态等）。</p>
+<p>不过由于 Redis 不支持回滚功能，也使得 Redis 在事务上可以保持简洁和快速。另外回<br>顾刚才提到的会导致事务执行失败的两种错误，其中语法错误完全可以在开发时找出并解<br>决，另外如果能够很好地规划数据库（保证键名规范等）的使用，是不会出现如命令与数据<br>类型不匹配这样的运行错误的。</p>
+<h3 id="watch命令介绍"><a href="#watch命令介绍" class="headerlink" title="watch命令介绍"></a>watch命令介绍</h3><p>我们已经知道在一个事务中只有当所有命令都依次执行完后才能得到每个结果的返回<br>值，可是有些情况下需要先获得一条命令的返回值，然后再根据这个值执行下一条命令。例<br>如介绍INCR命令时曾经说过使用GET和SET命令自己实现incr函数会出现竞态条件，</p>
+<p>肯定会有很多读者想到可以用事务来实现incr函数以防止竞态条件，可是因为事务中的<br>每个命令的执行结果都是最后一起返回的，所以无法将前一条命令的结果作为下一条命令的<br>参数，即在执行SET命令时无法获得GET命令的返回值，也就无法做到增1的功能了。</p>
+<p>我们需要换一种思路。即在GET获得键值后保证该键值不被其他客户端修改，直到函数执行完成后才允许其他客户端修改该键键值，这样也可以防止竞态条件。要实现这一思路需要请出事务家族的另一位成员：WATCH。</p>
+<p>WATCH 命令可以监控一个或多个键，一旦其中有一个键被修改（或删除），之后的事务就不会执行。监控一直持续到EXEC 命令（事务中的命令是在 EXEC 之后才执行的，所以在 MULTI 命令后可以修改WATCH监控的键值）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set key 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; watch key</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set key 2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; multi</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; set key 3</span><br><span class="line">QUEUED</span><br><span class="line">127.0.0.1:6379&gt; exec</span><br><span class="line">(nil)</span><br><span class="line">127.0.0.1:6379&gt; get key</span><br><span class="line">&quot;2&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上例中在执行 WATCH命令后、事务执行前修改了key的值（即 SET key 2），所以最后<br>事务中的命令 SET key 3没有执行，EXEC命令返回空结果。</p>
+<p>学会了WATCH命令就可以通过事务自己实现incr函数了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">def incr($key)</span><br><span class="line">	WATCH $key</span><br><span class="line">	$value = GET $key</span><br><span class="line">	if not $value</span><br><span class="line">	$value = 0</span><br><span class="line">	$value = $value + 1</span><br><span class="line">	MULTI</span><br><span class="line">	SET $key, $value</span><br><span class="line">	result = EXEC</span><br><span class="line">	return result[0]</span><br></pre></td></tr></table></figure>
+
+<p>因为EXEC命令返回值是多行字符串类型，所以代码中使用result[0]来获得其中第一个结<br>果。</p>
+<p>提示 由于WATCH命令的作用只是当被监控的键值被修改后阻止之后一个事务的执行，<br>而不能保证其他客户端不修改这一键值，所以我们需要在EXEC执行失败后重新执行整个函<br>数。</p>
+<p><strong>执行 EXEC 命令后会取消对所有键的监控，如果不想执行事务中的命令也可以使用</strong><br><strong>UNWATCH命令来取消监控。</strong></p>
+<p>在代码中会判断要赋值的字段是否存在，如果字段不存在的话就不执行事务中的命令，<br>但需要使用UNWATCH命令来保证下一个事务的执行不会受到影响。</p>
+<h2 id="过期时间"><a href="#过期时间" class="headerlink" title="过期时间"></a>过期时间</h2><p>在实际的开发中经常会遇到一些有时效的数据，比如限时优惠活动、缓存或验证码等，<br>过了一定的时间就需要删除这些数据。在关系数据库中一般需要额外的一个字段记录到期时<br>间，然后定期检测删除过期数据。而在Redis中可以使用 EXPIRE命令设置一个键的过期时<br>间，到时间后Redis会自动删除它。</p>
+<h3 id="命令介绍"><a href="#命令介绍" class="headerlink" title="命令介绍"></a>命令介绍</h3><p>EXPIRE 命令的使用方法为 <strong>EXPIRE key seconds</strong>，其中 seconds 参数表示键的过期时<br>间，单位是秒。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) &quot;mylist&quot;</span><br><span class="line">127.0.0.1:6379&gt; expire mylist 1</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果想知道一个键还有多久的时间会被删除，可以使用<strong>TTL命令。返回值是键的剩余时</strong><br><strong>间（单位是秒）,</strong></p>
+<p><strong>当键不存在时TTL命令会返回−2。</strong></p>
+<p>那么<strong>没有为键设置过期时间（即永久存在</strong>，这是建立一个键后的默认情况）的情况下会<br>返回什么呢？答案是<strong>返回−1</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or set)</span><br><span class="line">127.0.0.1:6379&gt; set key 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; expire key 10</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 7</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 5</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 4</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 3</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) -2</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果想取消键的过期时间设置（即将键恢复成永久的），则可以使用PERSIST命令。如<br>果过期时间被成功清除则返回1；否则返回0（因为键不存在或键本来就是永久的）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set key 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; expire key 20</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) 17</span><br><span class="line">127.0.0.1:6379&gt; persist key</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; ttl key</span><br><span class="line">(integer) -1</span><br><span class="line">127.0.0.1:6379&gt; persist key</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; persist key1</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>除了PERSIST命令之外，使用SET或GETSET命令为键赋值也会同时清除键的过期时间</p>
+<p>其他只对键值进行操作的命令（如INCR、LPUSH、HSET、ZREM）均不会影响键的过期时间。EXPIRE命令的seconds参数必须是整数，所以最小单位是1秒。如果想要更精确的控制键的过期时间应该使用 PEXPIRE命令，PEXPIRE命令与 EXPIRE的唯一区别是前者的时间单位是毫秒，即 PEXPIRE key 1000 与 EXPIRE key 1 等价。对应地可以用 PTTL命令以毫秒为单位返回键的剩余时间。</p>
+<p><strong>提示 如果使用 WATCH命令监测了一个拥有过期时间的键，该键时间到期自动删除并不</strong><br><strong>会被WATCH命令认为该键被改变。</strong></p>
+<p>另外还有两个相对不太常用的命令：EXPIREAT和PEXPIREAT。EXPIREAT命令与EXPIRE命令的差别在于前者使用Unix时间作为第二个参数表示键的过期时刻。PEXPIREAT命令与EXPIREAT命令的区别是前者的时间单位是毫秒。</p>
+<h3 id="实现访问速率限制"><a href="#实现访问速率限制" class="headerlink" title="实现访问速率限制"></a>实现访问速率限制</h3><p>为了减轻服务器的压力，需要限制每个用户（以IP计）一段时间的最大访问量。与时间有关的操作很容易想到EXPIRE命令。</p>
+<p>例如要限制每分钟每个用户最多只能访问100个页面，思路是对每个用户使用一个名为<br>rate.limiting:用户 IP的字符串类型键，每次用户访问则使用 INCR命令递增该键的键值，如果<br>递增后的值是1（第一次访问页面），则同时还要设置该键的过期时间为1分钟。这样每次用<br>户访问页面时都读取该键的键值，如果超过了100就表明该用户的访问频率超过了限制，需<br>要提示用户稍后访问。该键每分钟会自动被删除，所以下一分钟用户的访问次数又会重新计<br>算，也就达到了限制访问频率的目的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$isKeyExists = EXISTS rate.limiting:$IP</span><br><span class="line">if $isKeyExists is 1</span><br><span class="line">	$times = INCR rate.limiting:$IP</span><br><span class="line">	if $times &gt; 100</span><br><span class="line">	print 访问频率超过了限制，请稍后再试。</span><br><span class="line">	exit</span><br><span class="line">else</span><br><span class="line">	MULTI</span><br><span class="line">	INCR rate.limiting:$IP</span><br><span class="line">	EXPIRE $keyName, 60</span><br><span class="line">	EXEC</span><br></pre></td></tr></table></figure>
+
+<p>事实上，4.2.2节中的代码仍然有个问题：如果一个用户在一分钟的第一秒访问了一次博<br>客，在同一分钟的最后一秒访问了9次，又在下一分钟的第一秒访问了10次，这样的访问是<br>可以通过现在的访问频率限制的，但实际上该用户在2秒内访问了19次博客，这与每个用户<br>每分钟只能访问10次的限制差距较大。尽管这种情况比较极端，但是在一些场合中还是需要<br>粒度更小的控制方案。如果要精确地保证每分钟最多访问10次，需要记录下用户每次访问的<br>时间。因此对每个用户，我们使用一个列表类型的键来记录他最近10次访问博客的时间。一<br>旦键中的元素超过 10 个，就判断时间最早的元素距现在的时间是否小于 1分钟。如果是则表<br>示用户最近1分钟的访问次数超过了10次；如果不是就将现在的时间加入到列表中，同时把<br>最早的元素删除。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$listLength = LLEN rate.limiting:$IP</span><br><span class="line">if $listLength &lt; 10</span><br><span class="line">	LPUSH rate.limiting:$IP, now()</span><br><span class="line">else</span><br><span class="line">	$time = LINDEX rate.limiting:$IP, -1</span><br><span class="line">	if now() - $time &lt; 60</span><br><span class="line">	print 访问频率超过了限制，请稍后再试。</span><br><span class="line">	else</span><br><span class="line">	LPUSH rate.limiting:$IP, now()</span><br><span class="line">	LTRIM rate.limiting:$IP, 0, 9</span><br></pre></td></tr></table></figure>
+
+<p>代码中 now()的功能是获得当前的 Unix 时间。由于需要记录每次访问的时间，所以当要<br>限制“A时间最多访问B次”时，如果“B”的数值较大，此方法会占用较多的存储空间，实际使<br>用时还需要开发者自己去权衡。除此之外该方法也会出现竞态条件，同样可以通过脚本功能<br>避免，具体在第6章会介绍到。</p>
+<h3 id="实现缓存"><a href="#实现缓存" class="headerlink" title="实现缓存"></a>实现缓存</h3><p>为了提高网站的负载能力，常常需要将一些访问频率较高但是对CPU或IO资源消耗较大的操作的结果缓存起来，并希望让这些缓存过一段时间自动过期。</p>
+<p>比如教务网站要对全校所有学生的各个科目的成绩汇总排名，并在首页上显示前10名的学生姓名，由于计算过程较耗资源，所以可以将结果使用一个 Redis 的字符串键缓存起来。由于学生成绩总在不断地变化，需要每隔两个小时就重新计算一次排名，这可以通过给键设置过期时间的方式实现。每次用户访问首页时程序先查询缓存键是否存在，如果存在则直接使用缓存的值；否则重新计算排名并将计算结果赋值给该键并同时设置该键的过期时间为两个小时。</p>
+<p>当服务器内存有限时，如果大量地使用缓存键且过期时间设置得过长就会导致 Redis 占满内存；另一方面如果为了防止 Redis 占用内存过大而将缓存键的过期时间设得太短，就可能导致缓存命中率过低并且大量内存白白地闲置。实际开发中会发现很难为缓存键设置合理的过期时间，为此可以限制 Redis 能够使用的最大内存，并让Redis按照一定的规则淘汰不需要的缓存键，这种方式在只将Redis用作缓存系统时非常实用。</p>
+<p>具体的设置方法为：修改配置文件的maxmemory参数，限制Redis最大可用内存大小（单位是字节），当超出了这个限制时Redis会依据maxmemory-policy参数指定的策略来删除不需要的键直到Redis占用的内存小于指定内存。maxmemory-policy支持的规则如表4-1所示。其中的LRU（Least Recently Used）算法即“最近最少使用”，其认为最近最少使用的键在未来一段时间内也不会被用到，即当需要空间时这些键是可以被删除的。如当maxmemory-policy设为allkeys-lru时，一旦Redis占用的内存超过了限制值，Redis会不断地删除数据库中最近最少使用的键[2] ，直到占用的内存小于限制值。</p>
+<h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><p>有序集合常见的使用场景是大数据排序，如游戏的玩家排行榜，所以很少会需要获得键中的全部数据。同样 Redis 认为开发者在做完交集、并集运算后不需要直接获得全部结果，而是会希望将结果存入新的键中以便后续处理。这解释了为什么有序集合只有ZINTERSTORE和ZUNIONSTORE命令而没有ZINTER和ZUNION命令。</p>
+<h3 id="SORT命令"><a href="#SORT命令" class="headerlink" title="SORT命令"></a>SORT命令</h3><p>SORT命令可以对列表类型、集合类型和有序集合类型键进行排序，并且可以完成与关系数据库中的连接查询相类似的任务。除了集合类型，SORT 命令还可以对列表类型和有序集合类型进行排序，在对有序集合类型排序时会忽略元素的分数，只针对元素自身的值进行排序。</p>
+<p>SORT 命令默认是按照从小到大的顺序排列，SORT命令的DESC参数可以实现<br>将元素按照从大到小的顺序排列。</p>
+<p>SORT命令还支持LIMIT参数来返回指定范围的结果。用法和 SQL 语句一样，LIMIT offset count，表示跳过前 offset 个元素并获取之后的count个元素。</p>
+<h3 id="by参数"><a href="#by参数" class="headerlink" title="by参数"></a>by参数</h3><p>BY参数的语法为BY参考键。其中参考键可以是字符串类型键或者是散列类型键的某个<br>字段（表示为键名-&gt;字段名）。如果提供了 BY 参数，SORT 命令将不再依据元素自身的值<br>进行排序，而是对每个元素使用元素的值替换参考键中的第一个“*”并获取其值，然后依据<br>该值对元素排序。</p>
+<h3 id="Get参数"><a href="#Get参数" class="headerlink" title="Get参数"></a>Get参数</h3><p>GET参数不影响排序，它的作用是使 SORT命令的返回结果不再是元素自身的值，而是<br>GET参数中指定的键值。</p>
+<p>GET参数的规则和BY参数一样，GET参数也支持字符串类型和散列<br>类型的键，并使用“*”作为占位符。</p>
+<p>在一个SORT命令中可以有多个GET参数（而BY参数只能有一个）</p>
+<p>可见有N个GET参数，每个元素返回的结果就有N行。这时有个问题：如果还需要返回<br>文章ID 该怎么办？答案是使用 GET #。也就是说，GET #会返回元素本身的值。</p>
+<h3 id="store参数"><a href="#store参数" class="headerlink" title="store参数"></a>store参数</h3><p>默认情况下SORT会直接返回排序结果，如果希望保存排序结果，可以使用STORE参<br>数。</p>
+<p>保存后的键的类型为列表类型，如果键已经存在则会覆盖它。加上STORE参数后SORT<br>命令的返回值为结果的个数。</p>
+<p>STORE参数常用来结合EXPIRE命令缓存排序结果</p>
+<h3 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h3><p>SORT是Redis中最强大最复杂的命令之一，如果使用不好很容易成为性能瓶颈。SORT命<br>令的时间复杂度是O(n+mlog(m))，其中n表示要排序的列表（集合或有序集合）中的元素个<br>数，m表示要返回的元素个数。当n较大的时候SORT命令的性能相对较低，并且Redis在排序<br>前会建立一个长度为n[4] 的容器来存储待排序的元素，虽然是一个临时的过程，但如果同时<br>进行较多的大数据量排序操作则会严重影响性能。</p>
+<p>所以开发中使用SORT命令时需要注意以下几点。<br>（1）尽可能减少待排序键中元素的数量（使N尽可能小）。<br>（2）使用LIMIT参数只获取需要的数据（使M尽可能小）。<br>（3）如果要排序的数据数量较大，尽可能使用STORE参数将结果缓存。</p>
+<h2 id="消息通知"><a href="#消息通知" class="headerlink" title="消息通知"></a>消息通知</h2><h3 id="任务队列"><a href="#任务队列" class="headerlink" title="任务队列"></a>任务队列</h3><p>当页面需要进行如发送邮件、复杂数据运算等耗时较长的操作时会阻塞页面的渲染。为了避免用户等待太久，应该使用独立的线程来完成这类操作。不过一些编程语言或框架不易实现多线程，这时很容易就会想到通过其他进程来实现。就小白的例子来说，设想有一个进程能够完成发邮件的功能，那么在页面中只需要想办法通知这个进程向指定的地址发送邮件就可以了。</p>
+<p>通知的过程可以借助任务队列来实现。任务队列顾名思义，就是“传递任务的队列”。与<br>任务队列进行交互的实体有两类，一类是生产者（producer），另一类是消费者<br>（consumer）。生产者会将需要处理的任务放入任务队列中，而消费者则不断地从任务队列<br>中读入任务信息并执行。</p>
+<p>对于发邮件这个操作来说页面程序就是生产者，而发邮件的进程就是消费者。当需要发<br>送邮件时，页面程序会将收件地址、邮件主题和邮件正文组装成一个任务后存入任务队列<br>中。同时发邮件的进程会不断检查任务队列，一旦发现有新的任务便会将其从队列中取出并<br>执行。由此实现了进程间的通信。</p>
+<p>使用任务队列有如下好处。</p>
+<p>1．松耦合<br>        生产者和消费者无需知道彼此的实现细节，只需要约定好任务的描述格式。这使得生产<br>者和消费者可以由不同的团队使用不同的编程语言编写。</p>
+<p>2．易于扩展<br>        消费者可以有多个，而且可以分布在不同的服务器中，如图4-1所示。借此可以轻易地降低单台服务器的负载。</p>
+<h3 id="使用redis实现任务队列"><a href="#使用redis实现任务队列" class="headerlink" title="使用redis实现任务队列"></a>使用redis实现任务队列</h3><p>说到队列很自然就能想到Redis的列表类型，如果要实现任务队列，只需要让生产者将任务使用LPUSH命令加入到某个键中，另一边让消费者不断地使用RPOP命令从该键中取出任务即可。</p>
+<p>BRPOP命令和RPOP命令相似，唯一的区别是当列表中没有元素时BRPOP命令会一直阻<br>塞住连接，直到有新元素加入。</p>
+<p>BRPOP命令接收两个参数，第一个是键名，第二个是超时时间，单位是秒。当超过了此<br>时间仍然没有获得新元素的话就会返回 nil。上例中超时时间为”0”，表示不限制等待的时<br>间，即如果没有新元素加入列表就会永远阻塞下去。</p>
+<p>除了 BRPOP命令外，Redis 还提供了 BLPOP，和 BRPOP的区别在与从队列取元素时<br>BLPOP会从队列左边取。</p>
+<h3 id="发布订阅模式"><a href="#发布订阅模式" class="headerlink" title="发布订阅模式"></a>发布订阅模式</h3><p>发布者发布消息的命令是 PUBLISH，用法是 PUBLISH channel message，PUBLISH 命令的返回值表示接收到这条消息的订阅者数量。因为此时没有客户端订阅channel.1，所以返回0。发出去的消息不会被持久化，也就是说当有客户端订阅channel.1后只能收到后续发布到该频道的消息，之前发送的就收不到了。</p>
+<p>订阅频道的命令是 SUBSCRIBE，可以同时订阅多个频道，用法是 SUBSCRIBE channel<br>[channel …]。执行 SUBSCRIBE 命令后客户端会进入订阅状态，处于此状态下客户端不能使用除<br>SUBSCRIBE、UNSUBSCRIBE、PSUBSCRIBE和PUNSUBSCRIBE这4个属于“发布&#x2F;订阅”模式<br>的命令之外的命令（后面3个命令会在下面介绍），否则会报错。</p>
+<p>进入订阅状态后客户端可能收到3种类型的回复。每种类型的回复都包含 3 个值，第一<br>个值是消息的类型，根据消息类型的不同，第二、三个值的含义也不同。消息类型可能的取<br>值有以下3个。<br>（1）subscribe。表示订阅成功的反馈信息。第二个值是订阅成功的频道名称，第三个值<br>是当前客户端订阅的频道数量。<br>（2）message。这个类型的回复是我们最关心的，它表示接收到的消息。第二个值表示<br>产生消息的频道名称，第三个值是消息的内容。<br>（3）unsubscribe。表示成功取消订阅某个频道。第二个值是对应的频道名称，第三个值<br>是当前客户端订阅的频道数量，当此值为0时客户端会退出订阅状态，之后就可以执行其他<br>非“发布&#x2F;订阅”模式的命令了。</p>
+<p>使用 UNSUBSCRIBE 命令可以取消订阅指定的频道，用法为 UNSUBSCRIBE [channel<br>[channel …]]，如果不指定频道则会取消订阅所有频道</p>
+<h3 id="按照规则订阅"><a href="#按照规则订阅" class="headerlink" title="按照规则订阅"></a>按照规则订阅</h3><p>除了可以使用SUBSCRIBE命令订阅指定名称的频道外，还可以使用PSUBSCRIBE命令订<br>阅指定的规则。规则支持glob风格通配符格式</p>
+<p>PUNSUBSCRIBE 命令可以退订指定的规则，用法是 PUNSUBSCRIBE [pattern [pattern<br>…]]，如果没有参数则会退订所有规则。</p>
+<h3 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h3><p>在执行多个命令时每条命令都需要等待上一条命令执行完（即收到Redis的返回结果）才<br>能执行，即使命令不需要上一条命令的执行结果。如要获得post:1、post:2和post:3这3个键中<br>的title字段，需要执行3条命令，</p>
+<p>Redis 的底层通信协议对管道（pipelining）提供了支持。通过管道可以一次性发送多条<br>命令并在执行完后一次性将结果返回，当一组命令中每条命令都不依赖于之前命令的执行结<br>果时就可以将这组命令一起通过管道发出。管道通过减少客户端与 Redis 的通信次数来实现<br>降低往返时延累计值的目的，</p>
+<h2 id="节省空间"><a href="#节省空间" class="headerlink" title="节省空间"></a>节省空间</h2><h3 id="精简键名和键值"><a href="#精简键名和键值" class="headerlink" title="精简键名和键值"></a>精简键名和键值</h3><p>精简键名和键值是最直观的减少内存占用的方式，如将键名very.important.person:20改成<br>VIP:20。</p>
+<p>又比如一个存储用户性别的字符串类型键的取值是male和female，我们可以将其修改成m和f来为每条记录节约几个字节的空间（更好的方法是使用0和1来表示性别，稍后会详细介绍原因）</p>
+<h3 id="内部编码优化"><a href="#内部编码优化" class="headerlink" title="内部编码优化"></a>内部编码优化</h3><p>有时候仅凭精简键名和键值所减少的空间并不足以满足需求，这时就需要根据 Redis内<br>部编码规则来节省更多的空间。</p>
+<p>Redis为每种数据类型都提供了两种内部编码方式，以散列类型为例，散列类型是通过散列表实现的，这样就可以实现O(1)时间复杂度的查找、赋值操作，然而当键中元素很少的时候，O(1)的操作并不会比O(n)有明显的性能提高，所以这种情况下Redis会采用一种更为紧凑但性能稍差（获取元素的时间复杂度为O(n)）的内部编码方式。</p>
+<p>内部编码方式的选择对于开发者来说是透明的，Redis会根据实际情况自动调整。当键中<br>元素变多时Redis会自动将该键的内部编码方式转换成散列表。如果想查看一个键的内部编码<br>方式可以使用 OBJECT ENCODING 命令，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set foo bar</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; object encoding foo</span><br><span class="line">&quot;embstr&quot;</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/2075dfe/asset/1687750554062.png" alt="1687750554062"></p>
+<h2 id="java-与redis"><a href="#java-与redis" class="headerlink" title="java 与redis"></a>java 与redis</h2><h2 id="脚本"><a href="#脚本" class="headerlink" title="脚本"></a>脚本</h2><p>Redis在2.6版推出了脚本功能，允许开发者使用Lua语言编写脚本传到Redis中执行。在<br>Lua脚本中可以调用大部分的Redis命令，使用脚本的好处如下。<br>      （1）减少网络开销：使用脚本功能完成同样的操作只需要发送一个请求即可，减少了网络往返时延。</p>
+<p>（2）原子操作：Redis 会将整个脚本作为一个整体执行，中间不会被其他命令插入。换<br>句话说在编写脚本的过程中无需担心会出现竞态条件，也就无需使用事务。事务可以完成的<br>所有功能都可以用脚本来实现。</p>
+<p>（3）复用：客户端发送的脚本会永久存储在 Redis 中，这就意味着其他客户端（可以是<br>其他语言开发的项目）可以复用这一脚本而不需要使用代码完成同样的逻辑。</p>
+<h3 id="访问速率控制"><a href="#访问速率控制" class="headerlink" title="访问速率控制"></a>访问速率控制</h3><p>因为无需考虑事务，使用Redis脚本实现访问频率限制非常简单。Lua代码如下：</p>
+<figure class="highlight lua"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">local</span> times = redis.call(<span class="string">&#x27;incr&#x27;</span>, KEYS[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">if</span> times == <span class="number">1</span> <span class="keyword">then</span></span><br><span class="line">	<span class="comment">-- KEYS[1]键刚创建，所以为其设置生存时间</span></span><br><span class="line">	redis.call(<span class="string">&#x27;expire&#x27;</span>, KEYS[<span class="number">1</span>], ARGV[<span class="number">1</span>])</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">if</span> times &gt; <span class="built_in">tonumber</span>(ARGV[<span class="number">2</span>]) <span class="keyword">then</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="keyword">return</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>那么，如何测试这个脚本呢？首先把这段代码存为ratelimiting.lua，然后在命名行中输<br>入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --eval ratelimiting.lua </span><br></pre></td></tr></table></figure>
+
+<h3 id="redis与lua"><a href="#redis与lua" class="headerlink" title="redis与lua"></a>redis与lua</h3><h4 id="在脚本中调用redis命令"><a href="#在脚本中调用redis命令" class="headerlink" title="在脚本中调用redis命令"></a>在脚本中调用redis命令</h4><p>在脚本中可以使用redis.call函数调用Redis命令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis.call(&#x27;set&#x27;,&#x27;foo&#x27;,&#x27;bar&#x27;)</span><br><span class="line">local value = redis.call(&#x27;get&#x27;,&#x27;foo&#x27;)</span><br></pre></td></tr></table></figure>
+
+<p>redis.call函数的返回值就是Redis命令的执行结果。Redis命令的返回值有5种类型，redis.call函数会将这5种类型的回复转换成对应的Lua的数据类型，空结果比较特殊，其对应Lua的false</p>
+<p><img src="/posts/2075dfe/asset/1687751433210.png" alt="1687751433210"></p>
+<p>Redis还提供了redis.pcall函数，功能与redis.call相同，唯一的区别是当命令执行出错时<br>redis.pcall会记录错误并继续执行，而redis.call会直接返回错误，不会继续执行。</p>
+<h4 id="从脚本中返回值"><a href="#从脚本中返回值" class="headerlink" title="从脚本中返回值"></a>从脚本中返回值</h4><p>在很多情况下都需要脚本可以返回值，比如前面的访问频率限制脚本会返回访问频率是<br>否超限。在脚本中可以使用return语句将值返回给客户端，如果没有执行return语句则默认返<br>回nil。因为我们可以像调用其他Redis内置命令一样调用我们自己写的脚本，所以同样Redis<br>会自动将脚本返回值的Lua数据类型转换成Redis的返回值类型。</p>
+<h4 id="脚本相关命令"><a href="#脚本相关命令" class="headerlink" title="脚本相关命令"></a>脚本相关命令</h4><p>eval 命令</p>
+<p>evalsha命令</p>
+<p>考虑到在脚本比较长的情况下，如果每次调用脚本都需要将整个脚本传给 Redis 会占用<br>较多的带宽。为了解决这个问题，Redis 提供了 EVALSHA命令允许开发者通过脚本内容的<br>SHA1 摘要来执行脚本，该命令的用法和 EVAL 一样，只不过是将脚本内容替换成脚本内容<br>的 SHA1 摘要。</p>
+<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><h3 id="RDB方式"><a href="#RDB方式" class="headerlink" title="RDB方式"></a>RDB方式</h3><p>RDB方式的持久化是通过快照（snapshotting）完成的，当符合一定条件时Redis会自动将<br>内存中的所有数据生成一份副本并存储在硬盘上，这个过程即为“快照”。</p>
+<p>Redis会在以下几种情况下对数据进行快照：</p>
+<ul>
+<li><p>根据配置规则进行自动快照；</p>
+</li>
+<li><p>执行 FLUSHALL命令；</p>
+</li>
+<li><p>执行复制（replication）时。</p>
+<h4 id="根据配置规则进行自动快照"><a href="#根据配置规则进行自动快照" class="headerlink" title="根据配置规则进行自动快照"></a>根据配置规则进行自动快照</h4></li>
+</ul>
+<p>Redis允许用户自定义快照条件，当符合快照条件时，Redis会自动执行快照操作。进行<br>快照的条件可以由用户在配置文件中自定义，由两个参数构成：时间窗口M和改动的键的个<br>数N。每当时间M内被更改的键的个数大于N时，即符合自动快照条件。</p>
+<p>例如Redis安装目录中包含的样例配置文件中预置的3个条件：</p>
+<p>sava 900 1</p>
+<p>save 300 10</p>
+<p>save 60 10000</p>
+<p>每条快照条件占一行，并且以 save 参数开头。同时可以存在多个条件，条件之间<br>是“或”的关系。</p>
+<h4 id="用户执行save或bgsave命令"><a href="#用户执行save或bgsave命令" class="headerlink" title="用户执行save或bgsave命令"></a>用户执行save或bgsave命令</h4><p>除了让 Redis 自动进行快照外，当进行服务重启、手动迁移以及备份时我们也会需要手<br>动执行快照操作。</p>
+<p>save 命令</p>
+<p>当执行SAVE命令时，Redis同步地进行快照操作，在快照执行的过程中会阻塞所有来自<br>客户端的请求。当数据库中的数据比较多时，这一过程会导致 Redis 较长时间不响应，所以<br>要尽量避免在生产环境中使用这一命令。</p>
+<p>bgsave 命令</p>
+<p>需要手动执行快照时推荐使用 BGSAVE 命令。BGSAVE 命令可以在后台异步地进行快<br>照操作，快照的同时服务器还可以继续响应来自客户端的请求。如果想知道快照是否完成，可以通过 LASTSAVE命令获取最近一次成功执行快照的时间，返回结果是一个Unix时间戳，</p>
+<h4 id="执行flushall命令"><a href="#执行flushall命令" class="headerlink" title="执行flushall命令"></a>执行flushall命令</h4><p>当执行 FLUSHALL 命令时，Redis 会清除数据库中的所有数据。需要注意的是，不论清<br>空数据库的过程是否触发了自动快照条件，只要自动快照条件不为空，Redis就会执行一次快<br>照操作。当没有定义自动快照条件时，执行FLUSHALL则不会进行快照。</p>
+<h4 id="执行复制时"><a href="#执行复制时" class="headerlink" title="执行复制时"></a>执行复制时</h4><p>当设置了主从模式时，Redis 会在复制初始化时进行自动快照。即使没有定义自动快照条<br>件，并且没有手动执行过快照操作，也会生成RDB快照文件。</p>
+<h4 id="快照原理"><a href="#快照原理" class="headerlink" title="快照原理"></a>快照原理</h4><p>理清Redis实现快照的过程对我们了解快照文件的特性有很大的帮助。Redis默认会将快<br>照文件存储在Redis当前进程的工作目录中的dump.rdb文件中，可以通过配置dir和dbfilename<br>两个参数分别指定快照文件的存储路径和文件名。快照的过程如下。</p>
+<p>1）Redis使用fork函数复制一份当前进程（父进程）的副本（子进程）；</p>
+<p>2）父进程继续接收并处理客户端发来的命令，而子进程开始将内存中的数据写入硬<br>盘中的临时文件；</p>
+<p>3）当子进程写入完所有数据后会用该临时文件替换旧的 RDB 文件，至此一次快照操<br>作完成。</p>
+<p> 在执行 fork 的时候操作系统（类 Unix 操作系统）会使用写时复制（copy-on-<br>write）策略，即fork函数发生的一刻父子进程共享同一内存数据，当父进程要更改其中某片<br>数据时（如执行一个写命令），操作系统会将该片数据复制一份以保证子进程的数据不受影<br>响，所以新的RDB文件存储的是执行fork一刻的内存数据。</p>
+<p>写时复制策略也保证了在 fork 的时刻虽然看上去生成了两份内存副本，但实际上内存的<br>占用量并不会增加一倍。这就意味着当系统内存只有2 GB，而Redis数据库的内存有1.5 GB<br>时，执行 fork后内存使用量并不会增加到3 GB（超出物理内存）。</p>
+<p>通过上述过程可以发现Redis在进行快照的过程中不会修改RDB文件，只有快照结束后才<br>会将旧的文件替换成新的，也就是说任何时候 RDB 文件都是完整的。这使得我们可以通过<br>定时备份 RDB 文件来实现 Redis 数据库备份。</p>
+<p>Redis启动后会读取RDB快照文件，将数据从硬盘载入到内存。根据数据量大小与结构和<br>服务器性能不同，这个时间也不同。通常将一个记录1000万个字符串类型键、大小为1 GB 的<br>快照文件载入到内存中需要花费20～30秒。</p>
+<p>通过RDB方式实现持久化，一旦Redis异常退出，就会丢失最后一次快照以后更改的所有<br>数据。这就需要开发者根据具体的应用场合，通过组合设置自动快照条件的方式来将可能发<br>生的数据损失控制在能够接受的范围。例如，使用Redis存储缓存数据时，丢失最近几秒的数<br>据或者丢失最近更新的几十个键并不会有很大的影响。如果数据相对重要，希望将损失降到<br>最小，则可以使用AOF方式进行持久化。</p>
+<h2 id="AOF方式"><a href="#AOF方式" class="headerlink" title="AOF方式"></a>AOF方式</h2><p>当使用Redis存储非临时数据时，一般需要打开AOF持久化来降低进程中止导致的数据丢<br>失。AOF可以将Redis执行的每一条写命令追加到硬盘文件中，这一过程显然会降低Redis 的<br>性能，但是大部分情况下这个影响是可以接受的，另外使用较快的硬盘可以提高AOF的性<br>能。</p>
+<p>默认情况下Redis没有开启AOF（append only file）方式的持久化，可以通过 appendonly<br>参数启用：appendonly yes</p>
+<p>开启AOF持久化后每执行一条会更改Redis中的数据的命令，Redis就会将该命令写入硬<br>盘中的AOF文件。AOF文件的保存位置和RDB文件的位置相同，都是通过dir参数设置的，默<br>认的文件名是appendonly.aof，可以通过appendfilename参数修改：</p>
+<p>appendfilename appendonly.aof</p>
+<p>每当达到一定条件时Redis就会自动重写AOF文件，这个条件可以在配置文件中设置：<br>auto-aof-rewrite-percentage 100<br>auto-aof-rewrite-min-size 64mb</p>
+<p>auto-aof-rewrite-percentage参数的意义是当目前的AOF文件大小超过上一次重写时的<br>AOF文件大小的百分之多少时会再次进行重写，如果之前没有重写过，则以启动时的AOF文<br>件大小为依据。auto-aof-rewrite-min-size参数限制了允许重写的最小AOF文件大小，通常在<br>AOF文件很小的情况下即使其中有很多冗余的命令我们也并不太关心。除了让Redis自动执行<br>重写外，我们还可以主动使用BGREWRITEAOF命令手动执行AOF重写。</p>
+<p>在启动时Redis会逐个执行AOF文件中的命令来将硬盘中的数据载入到内存中，载入的速<br>度相较RDB会慢一些。</p>
+<h3 id="同步硬盘数据"><a href="#同步硬盘数据" class="headerlink" title="同步硬盘数据"></a>同步硬盘数据</h3><p>虽然每次执行更改数据库内容的操作时，AOF都会将命令记录在AOF文件中，但是事实<br>上，由于操作系统的缓存机制，数据并没有真正地写入硬盘，而是进入了系统的硬盘缓存。</p>
+<p>在默认情况下系统每30秒会执行一次同步操作，以便将硬盘缓存中的内容真正地写入硬盘，<br>在这30秒的过程中如果系统异常退出则会导致硬盘缓存中的数据丢失。一般来讲启用AOF持<br>久化的应用都无法容忍这样的损失，这就需要Redis在写入AOF文件后主动要求系统将缓存内<br>容同步到硬盘中。在 Redis 中我们可以通过 appendfsync 参数设置同步的时机：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># appendfsync always</span><br><span class="line">appendfsync everysec</span><br><span class="line"># appendfsync no</span><br></pre></td></tr></table></figure>
+
+<p>默认情况下Redis采用everysec规则，即每秒执行一次同步操作。always表示每次执行写<br>入都会执行同步，这是最安全也是最慢的方式。no表示不主动进行同步操作，而是完全交由<br>操作系统来做（即每30秒一次），这是最快但最不安全的方式。一般情况下使用默认值<br>everysec就足够了，既兼顾了性能又保证了安全。</p>
+<p>Redis 允许同时开启 AOF 和 RDB，既保证了数据安全又使得进行备份等操作十分容易。<br>此时重新启动Redis后Redis会使用AOF文件来恢复数据，因为AOF方式的持久化可能丢失的<br>数据更少。</p>
+<h2 id="集群"><a href="#集群" class="headerlink" title="集群"></a>集群</h2><p>现实中的项目通常需要若干台Redis服务器的支持：</p>
+<p>（1）从结构上，单个 Redis 服务器会发生单点故障，同时一台服务器需要承受所有的请<br>求负载。这就需要为数据生成多个副本并分配在不同的服务器上；<br>        （2）从容量上，单个 Redis 服务器的内存非常容易成为存储瓶颈，所以需要进行数据分<br>片。</p>
+<p>同时拥有多个 Redis 服务器后就会面临如何管理集群的问题，包括如何增加节点、故障<br>恢复等操作</p>
+<h3 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h3><p>Redis提供了复制（replication）功能，可以实现当一台数据库中的数据更新后，自动将更新的数据同步到其他数据库上。</p>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><p>在复制的概念中，数据库分为两类，一类是主数据库（master），另一类是从数据库[1]<br>（slave）。主数据库可以进行读写操作，当写操作导致数据变化时会自动将数据同步给从数<br>据库。而从数据库一般是只读的，并接受主数据库同步过来的数据。一个主数据库可以拥有<br>多个从数据库，而一个从数据库只能拥有一个主数据库，</p>
+<p>在 Redis 中使用复制功能非常容易，只需要在从数据库的配置文件中加入“slaveof 主数<br>据库地址 主数据库端口”即可，主数据库无需进行任何配置</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server --port 6380 --slaveof 127.0.0.1 6379</span><br></pre></td></tr></table></figure>
+
+<p>连接6379</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; info replication</span><br><span class="line"># Replication</span><br><span class="line">role:master</span><br><span class="line">connected_slaves:1</span><br><span class="line">slave0:ip=127.0.0.1,port=6380,state=online,offset=43,lag=0</span><br><span class="line">master_repl_offset:43</span><br><span class="line">repl_backlog_active:1</span><br><span class="line">repl_backlog_size:1048576</span><br><span class="line">repl_backlog_first_byte_offset:2</span><br><span class="line">repl_backlog_histlen:42</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>连接6380</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\cy&gt;redis-cli -p 6380</span><br><span class="line">127.0.0.1:6380&gt; info replication</span><br><span class="line"># Replication</span><br><span class="line">role:slave</span><br><span class="line">master_host:127.0.0.1</span><br><span class="line">master_port:6379</span><br><span class="line">master_link_status:up</span><br><span class="line">master_last_io_seconds_ago:6</span><br><span class="line">master_sync_in_progress:0</span><br><span class="line">slave_repl_offset:169</span><br><span class="line">slave_priority:100</span><br><span class="line">slave_read_only:1</span><br><span class="line">connected_slaves:0</span><br><span class="line">master_repl_offset:0</span><br><span class="line">repl_backlog_active:0</span><br><span class="line">repl_backlog_size:1048576</span><br><span class="line">repl_backlog_first_byte_offset:0</span><br><span class="line">repl_backlog_histlen:0</span><br><span class="line">127.0.0.1:6380&gt;</span><br></pre></td></tr></table></figure>
+
+<p>6379 设置键值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; set foo bar</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<p>6380获取</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6380&gt; get foo</span><br><span class="line">&quot;bar&quot;</span><br><span class="line">127.0.0.1:6380&gt; set key1 ww</span><br><span class="line">(error) READONLY You can&#x27;t write against a read only slave.</span><br><span class="line">127.0.0.1:6380&gt;</span><br></pre></td></tr></table></figure>
+
+<p>可以通过设置从数据库的配置文件中的 slave-read-only 为 no 以使从数据库可写，但是<br>因为对从数据库的任何更改都不会同步给任何其他数据库，并且一旦主数据库中更新了对应<br>的数据就会覆盖从数据库中的改动，所以通常的场景下不应该设置从数据库可写，以免导致<br>易被忽略的潜在应用逻辑错误。</p>
+<p>配置多台从数据库的方法也一样，在所有的从数据库的配置文件中都加上 slaveof参数指<br>向同一个主数据库即可。除了通过配置文件或命令行参数设置 slaveof参数，还可以在运行时使用 SLAVEOF命令修改：</p>
+<p>redis&gt; SLAVEOF 127.0.0.1 6379</p>
+<p>如果该数据库已经是其他主数据库的从数据库了，SLAVEOF命令会停止和原来数据库的<br>同步转而和新数据库同步。此外对于从数据库来说，还可以使用 SLAVEOF NO ONE命令来<br>使当前数据库停止接收其他数据库的同步并转换成为主数据库。</p>
+<h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>当一个从数据库启动后，会向主数据库发送 SYNC 命令。同时主数据库接收到 SYNC命<br>令后会开始在后台保存快照（即RDB持久化的过程），并将保存快照期间接收到的命令缓存<br>起来。当快照完成后，Redis会将快照文件和所有缓存的命令发送给从数据库。从数据库收到<br>后，会载入快照文件并执行收到的缓存的命令。以上过程称为复制初始化。复制初始化结束<br>后，主数据库每当收到写命令时就会将命令同步给从数据库，从而保证主从数据库数据一<br>致。</p>
+<p>当主从数据库之间的连接断开重连后，Redis 2.6以及之前的版本会重新进行复制初始化<br>（即主数据库重新保存快照并传送给从数据库），即使从数据库可以仅有几条命令没有收<br>到，主数据库也必须要将数据库里的所有数据重新传送给从数据库。这使得主从数据库断线<br>重连后的数据恢复过程效率很低下，在网络环境不好的时候这一问题尤其明显。Redis 2.8版<br>的一个重要改进就是断线重连能够支持有条件的增量数据传输，当从数据库重新连接上主数<br>据库后，主数据库只需要将断线期间执行的命令传送给从数据库，从而大大提高Redis复制的<br>实用性。</p>
+<h4 id="图结构"><a href="#图结构" class="headerlink" title="图结构"></a>图结构</h4><p>从数据库不仅可以接收主数据库的同步数据，自己也可以同时作为主数据库存在，形成<br>类似图的结构，</p>
+<h4 id="读写分离与一致性"><a href="#读写分离与一致性" class="headerlink" title="读写分离与一致性"></a>读写分离与一致性</h4><p>通过复制可以实现读写分离，以提高服务器的负载能力。在常见的场景中（如电子商务<br>网站），读的频率大于写，当单机的Redis无法应付大量的读请求时（尤其是较耗资源的请<br>求，如 SORT 命令等）可以通过复制功能建立多个从数据库节点，主数据库只进行写操作，<br>而从数据库负责读操作。这种一主多从的结构很适合读多写少的场景，</p>
+<h4 id="从数据库持久化"><a href="#从数据库持久化" class="headerlink" title="从数据库持久化"></a>从数据库持久化</h4><p>另一个相对耗时的操作是持久化，为了提高性能，可以通过复制功能建立一个（或若干<br>个）从数据库，并在从数据库中启用持久化，同时在主数据库禁用持久化。当从数据库崩溃<br>重启后主数据库会自动将数据同步过来，所以无需担心数据丢失。</p>
+<p>然而当主数据库崩溃时，情况就稍显复杂了。手工通过从数据库数据恢复主数据库数据<br>时，需要严格按照以下两步进行。</p>
+<p>1）在从数据库中使用 SLAVEOF NO ONE命令将从数据库提升成主数据库继续服务。<br>        2）启动之前崩溃的主数据库，然后使用SLAVEOF命令将其设置成新的主数据库的从<br>数据库，即可将数据同步回来。</p>
+<p>注意 当开启复制且主数据库关闭持久化功能时，一定不要使用 Supervisor 以及类似的进<br>程管理工具令主数据库崩溃后自动重启。同样当主数据库所在的服务器因故关闭时，也要避<br>免直接重新启动。这是因为当主数据库重新启动后，因为没有开启持久化功能，所以数据库<br>中所有数据都被清空，这时从数据库依然会从主数据库中接收数据，使得所有从数据库也被<br>清空，导致从数据库的持久化失去意义。</p>
+<p>无论哪种情况，手工维护从数据库或主数据库的重启以及数据恢复都相对麻烦，好在<br>Redis提供了一种自动化方案哨兵来实现这一过程，避免了手工维护的麻烦和容易出错的问<br>题</p>
+<h4 id="无硬盘复制"><a href="#无硬盘复制" class="headerlink" title="无硬盘复制"></a>无硬盘复制</h4><p>复制是基于RDB方式的持久化实现的，即主数据库端在后台保存 RDB 快照，从数据库端则接收并载入快照文件。这样的实现优点是可以显著地简化逻辑，复用已有的代码，但是缺点也很明显。</p>
+<p>1）当主数据库禁用RDB快照时（即删除了所有的配置文件中的save语句），如果执行<br>了复制初始化操作，Redis依然会生成RDB快照，所以下次启动后主数据库会以该快照恢复数<br>据。因为复制发生的时间不能确定，这使得恢复的数据可能是任何时间点的。</p>
+<p>2）因为复制初始化时需要在硬盘中创建RDB快照文件，所以如果硬盘性能很慢（如<br>网络硬盘）时这一过程会对性能产生影响。举例来说，当使用 Redis 做缓存系统时，因为不<br>需要持久化，所以服务器的硬盘读写速度可能较差。但是当该缓存系统使用一主多从的集群<br>架构时，每次和从数据库同步，Redis都会执行一次快照，同时对硬盘进行读写，导致性能降<br>低。repl-diskless-sync yes</p>
+<h4 id="增量复制"><a href="#增量复制" class="headerlink" title="增量复制"></a>增量复制</h4><p>当主从数据库连接断开后，从数据库会发送SYNC命令来重新进行一次完整复制操作。这样即使断开期间数据库的变化很小（甚至没有），也需要将数据库中的所有数据重新快照并传送一次。在正常的网络应用环境中，这种实现方式显然不太理想。</p>
+<p>增量复制是基于如下3点实现的。</p>
+<p>（1）从数据库会存储主数据库的运行ID（run id）。每个Redis 运行实例均会拥有一个<br>唯一的运行ID，每当实例重启后，就会自动生成一个新的运行ID。</p>
+<p>（2）在复制同步阶段，主数据库每将一个命令传送给从数据库时，都会同时把该命令<br>存放到一个积压队列（backlog）中，并记录下当前积压队列中存放的命令的偏移量范围。</p>
+<p>（3）同时，从数据库接收到主数据库传来的命令时，会记录下该命令的偏移量。</p>
+<p>不再发送 SYNC命令，取而代之的是发送 PSYNC，格式为“PSYNC主数<br>据库的运行 ID 断开前最新的命令偏移量”。主数据库收到 PSYNC命令后，会执行以下判断<br>来决定此次重连是否可以执行增量复制。</p>
+<p>1）首先主数据库会判断从数据库传送来的运行ID是否和自己的运行ID相同。这一步<br>骤的意义在于确保从数据库之前确实是和自己同步的，以免从数据库拿到错误的数据（比如<br>主数据库在断线期间重启过，会造成数据的不一致）。</p>
+<p>2）然后判断从数据库最后同步成功的命令偏移量是否在积压队列中，如果在则可以<br>执行增量复制，并将积压队列中相应的命令发送给从数据库。</p>
+<p>如果此次重连不满足增量复制的条件，主数据库会进行一次全部同步（</p>
+<h3 id="哨兵"><a href="#哨兵" class="headerlink" title="哨兵"></a>哨兵</h3><p>在一个典型的一主多从的Redis系统中，从数据库在整个系统中起到了数据冗余备份和读写分离的作用。当主数据库遇到异常中断服务后，开发者可以通过手动的方式选择一个从数据库来升格为主数据库，以使得系统能够继续提供服务。然而整个过程相对麻烦且需要人工介入，难以实现自动化。</p>
+<p>哨兵的作用就是监控Redis系统的运行状况。它的功能包括以下两个</p>
+<ul>
+<li>监控主数据库和从数据库是否正常运行。</li>
+<li>主数据库出现故障时自动将从数据库转换为主数据库。</li>
+</ul>
+<p>在一个一主多从的Redis系统中，可以使用多个哨兵进行监控任务以保证系统足够稳健，注意，此时不仅哨兵会同时监控主数据库和从数据库，哨兵之间也会互相监控。</p>
+<p>配置哨兵。建立一个配置文件，如sentinel.conf，内容为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor mymaster 127.0.0.1 6379 1</span><br></pre></td></tr></table></figure>
+
+<p>mymaster表示要监控的主数据库的名字，可以自己定义一个.最后的1表示最低通过票数</p>
+<p>需要注意的是，配置哨兵监控一个系统时，只需要配置其监控主数据库即可，哨兵会自<br>动发现所有复制该主数据库的从数据库</p>
+<h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4><p>一个哨兵进程启动时会读取配置文件的内容，通过如下的配置找出需要监控的主数据<br>库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sentinel monitor master-name ip redis-port quorum</span><br></pre></td></tr></table></figure>
+
+<p>其中 master-name 是一个由大小写字母、数字和“.-_”组成的主数据库的名字，因为考虑<br>到故障恢复后当前监控的系统的主数据库的地址和端口会产生变化，所以哨兵提供了命令可<br>以通过主数据库的名字获取当前系统的主数据库的地址和端口号。</p>
+<p>ip表示当前系统中主数据库的地址，而redis-port则表示端口号。</p>
+<p>quorum用来表示执行故障恢复操作前至少需要几个哨兵节点同意，</p>
+<p>一个哨兵节点可以同时监控多个Redis主从系统，只需要提供多个sentinel monitor配置即<br>可，同时多个哨兵节点也可以同时监控同一个 Redis 主从系统，从而形成网状结构。</p>
+<p>哨兵启动后，会与要监控的主数据库建立两条连接，这两个连接的建立方式与普通的<br>Redis客户端无异。其中一条连接用来订阅该主数据的__sentinel__:hello频道以获取其他同样<br>监控该数据库的哨兵节点的信息，另外哨兵也需要定期向主数据库发送 INFO 等命令来获取<br>主数据库本身的信息，因为4.4.4节介绍过当客户端的连接进入订阅模式时就不能再执行其他<br>命令了，所以这时哨兵会使用另外一条连接来发送这些命令。</p>
+<p>和主数据库的连接建立完成后，哨兵会定时执行下面3个操作。<br>（1）每10秒哨兵会向主数据库和从数据库发送INFO命令。<br>（2）每 2 秒哨兵会向主数据库和从数据库的__sentinel__:hello 频道发送自己的信息。<br>（3）每1秒哨兵会向主数据库、从数据库和其他哨兵节点发送PING命令。</p>
+<p>这3个操作贯穿哨兵进程的整个生命周期中，非常重要，可以说了解了这3个操作的意义<br>就能够了解哨兵工作原理的一半内容了。下面分别详细介绍。</p>
+<p>首先，发送INFO命令使得哨兵可以获得当前数据库的相关信息（包括运行ID、复制信<br>息等）从而实现新节点的自动发现。前面说配置哨兵监控 Redis 主从系统时只需要指定主数<br>据库的信息即可，因为哨兵正是借助 INFO 命令来获取所有复制该主数据库的从数据库信息<br>的。启动后，哨兵向主数据库发送 INFO 命令，通过解析返回结果来得知从数据库列表，而<br>后对每个从数据库同样建立两个连接，两个连接的作用和前文介绍的与主数据库建立的两个<br>连接完全一致。在此之后，哨兵会每 10 秒定时向已知的所有主从数据库发送INFO命令来获<br>取信息更新并进行相应操作，比如对新增的从数据库建立连接并加入监控列表，对主从数据<br>库的角色变化（由故障恢复操作引起）进行信息更新等。</p>
+<p>接下来哨兵向主从数据库的__sentinel__:hello 频道发送信息来与同样监控该数据库的哨<br>兵分享自己的信息。发送的消息内容为：</p>
+<p>&lt;哨兵的地址&gt;, &lt;哨兵的端口&gt;, &lt;哨兵的运行 ID&gt;, &lt;哨兵的配臵版本&gt;, &lt;主数据库的名字&gt;, &lt;主数据库的地址&gt;, &lt;主数据库的端口&gt;, &lt;主数据库的配臵版本&gt;</p>
+<p>可以看到消息包括的哨兵的基本信息，以及其监控的主数据库的信息。前文介绍过，哨<br>兵会订阅每个其监控的数据库的__sentinel__:hello频道，所以当其他哨兵收到消息后，会判断<br>发消息的哨兵是不是新发现的哨兵。如果是则将其加入已发现的哨兵列表中并创建一个到其<br>的连接（与数据库不同，哨兵与哨兵之间只会创建一条连接用来发送 PING命令，而不需要<br>创建另外一条连接来订阅频道，因为哨兵只需要订阅数据库的频道即可实现自动发现其他哨<br>兵）。同时哨兵会判断信息中主数据库的配置版本，如果该版本比当前记录的主数据库的版<br>本高，则更新主数据库的数据。配置版本的作用会在后面详细介绍。</p>
+<p>实现了自动发现从数据库和其他哨兵节点后，哨兵要做的就是定时监控这些数据库和节<br>点有没有停止服务。这是通过每隔一定时间向这些节点发送PING命令实现的。时间间隔与<br>down-after-milliseconds选项有关，当down-after-milliseconds的值小于1秒时，哨兵会每隔<br>down-after-milliseconds指定的时间发送一次PING命令，当down-after-milliseconds的值大于1<br>秒时，哨兵会每隔1秒发送一次PING命令。</p>
+<p>当超过down-after-milliseconds选项指定时间后，如果被PING的数据库或节点仍然未进<br>行回复，则哨兵认为其主观下线（subjectively down）。主观下线表示从当前的哨兵进程看<br>来，该节点已经下线。如果该节点是主数据库，则哨兵会进一步判断是否需要对其进行故障<br>恢复：哨兵发送 SENTINEL is-master-down-by-addr命令询问其他哨兵节点以了解他们是否<br>也认为该主数据库主观下线，如果达到指定数量时，哨兵会认为其客观下线（objectively<br>down），并选举领头的哨兵节点对主从系统发起故障恢复。这个指定数量即为前文介绍的<br>quorum参数。</p>
+<p>虽然当前哨兵节点发现了主数据库客观下线，需要故障恢复，但是故障恢复需要由领头<br>的哨兵来完成，这样可以保证同一时间只有一个哨兵节点来执行故障恢复。选举领头哨兵的<br>过程使用了Raft算法，具体过程如下。</p>
+<p>（1）发现主数据库客观下线的哨兵节点（下面称作A）向每个哨兵节点发送命令，要求<br>对方选自己成为领头哨兵。<br>        （2）如果目标哨兵节点没有选过其他人，则会同意将A设置成领头哨兵。<br>        （3）如果A发现有超过半数且超过quorum参数值的哨兵节点同意选自己成为领头哨<br>兵，则A成功成为领头哨兵。<br>        （4）当有多个哨兵节点同时参选领头哨兵，则会出现没有任何节点当选的可能。此时<br>每个参选节点将等待一个随机时间重新发起参选请求，进行下一轮选举，直到选举成功。</p>
+<p>因为要成为领头哨兵必须有超过半数的哨兵节点支持，所以每次选举最多只会选出一个领头哨兵。</p>
+<p>选出领头哨兵后，领头哨兵将会开始对主数据库进行故障恢复。故障恢复的过程相对简<br>单，具体如下。</p>
+<p>首先领头哨兵将从停止服务的主数据库的从数据库中挑选一个来充当新的主数据库。挑<br>选的依据如下。<br>        （1）所有在线的从数据库中，选择优先级最高的从数据库。优先级可以通过slave-<br>priority选项来设置。<br>        （2）如果有多个最高优先级的从数据库，则复制的命令偏移量（见8.1.7节）越大（即<br>复制越完整）越优先。</p>
+<p>（3）如果以上条件都一样，则选择运行ID较小的从数据库。</p>
+<p>选出一个从数据库后，领头哨兵将向从数据库发送 SLAVEOF NO ONE命令使其升格为<br>主数据库。而后领头哨兵向其他从数据库发送SLAVEOF命令来使其成为新主数据库的从数据<br>库。最后一步则是更新内部的记录，将已经停止服务的旧的主数据库更新为新的主数据库的<br>从数据库，使得当其恢复服务时自动以从数据库的身份继续服务。</p>
+<h4 id="哨兵的部署"><a href="#哨兵的部署" class="headerlink" title="哨兵的部署"></a>哨兵的部署</h4><p>如果一个主从系统中配置的哨兵较少，哨兵对整个系统的判断的可靠性就<br>会降低。极端情况下，当只有一个哨兵时，哨兵本身就可能会发生单点故障。整体来讲，相<br>对稳妥的哨兵部署方案是使得哨兵的视角尽可能地与每个节点的视角一致，</p>
+<p>（1）为每个节点（无论是主数据库还是从数据库）部署一个哨兵；</p>
+<p>（2）使每个哨兵与其对应的节点的网络环境相同或相近。</p>
+<p>这样的部署方案可以保证哨兵的视角拥有较高的代表性和可靠性。举例一个例子：当网<br>络分区后，如果哨兵认为某个分区是主要分区，即意味着从每个节点观察，该分区均为主分<br>区。</p>
+<p>同时设置 quorum 的值为 N&#x2F;2 + 1（其中 N 为哨兵节点数量），这样使得只有当大部分哨<br>兵节点同意后才会进行故障恢复。</p>
+<p>当系统中的节点较多时，考虑到每个哨兵都会和系统中的所有节点建立连接，为每个节<br>点分配一个哨兵会产生较多连接，尤其是当进行客户端分片时使用多个哨兵节点监控多个主<br>数据库会因为 Redis 不支持连接复用而产生大量冗余连接，同时如果Redis节点负载较高，会在一定程度上影响其对哨兵的回复以及与其同机的哨兵与其他节点的通信。所以配置哨兵时还需要根据实际的生产环境情况进行选择。</p>
+<h3 id="集群-1"><a href="#集群-1" class="headerlink" title="集群"></a>集群</h3><p>即使使用哨兵，此时的 Redis 集群的每个数据库依然存有集群中的所有数据，从而导致<br>集群的总数据存储量受限于可用存储内存最小的数据库节点，形成木桶效应。由于Redis中的<br>所有数据都是基于内存存储，这一问题就尤为突出了，尤其是当使用 Redis 做持久化存储服<br>务使用时。</p>
+<p>客户端分片终归是有非常多的缺点，比如维护成本高，增加、移除节点较繁琐等。</p>
+<p>集群的特点在于拥有和单机实例同样的性能，同时在网络分区后能够提供一定<br>的可访问性以及对主数据库故障恢复的支持。另外集群支持几乎所有的单机实例支持的命<br>令，对于涉及多键的命令（如MGET），如果每个键都位于同一个节点中，则可以正常支<br>持，否则会提示错误。除此之外集群还有一个限制是只能使用默认的0号数据库，如果执行<br>SELECT切换数据库则会提示错误。</p>
+<p>哨兵与集群是两个独立的功能，但从特性来看哨兵可以视为集群的子集，当不需要数据<br>分片或者已经在客户端进行分片的场景下哨兵就足够使用了，但如果需要进行水平扩容，则<br>集群是一个非常好的选择。</p>
+<h4 id="配置集群"><a href="#配置集群" class="headerlink" title="配置集群"></a>配置集群</h4><p>用集群，只需要将每个数据库节点的cluster-enabled配置选项打开即可。每个集群中至<br>少需要3个主数据库才能正常运行。</p>
+<p>集群会将当前节点记录的集群状态持久化地存储在指定文件中，这个文件默认为当前工作目录下的nodes.conf文件。每个节点对应的文件必须不同，否则会造成启动失败，所以启动节点时要注意最后为每个节点使用不同的工作目录，或者通过cluster-config-file选项修改持久化文件的名称：cluster-config-file nodes.conf</p>
+<p>启动后，可以使用Redis命令行客户端连接任意一个节点使用 INFO 命令来判断集群是否<br>正常启用了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis&gt; INFO cluster</span><br><span class="line"># Cluster</span><br><span class="line">cluster_enabled:1</span><br></pre></td></tr></table></figure>
+
+<p>其中cluster_enabled为1表示集群正常启用了。现在每个节点都是完全独立的，要将它们<br>加入同一个集群里还需要几个步骤。</p>
+<p>Redis源代码中提供了一个辅助工具redis-trib.rb可以非常方便地完成这一任务。因为<br>redis-trib.rb是用Ruby语言编写的，所以运行前需要在服务器上安装Ruby程序，</p>
+<p>使用redis-trib.rb来初始化集群，只需要执行：<br>$ &#x2F;path&#x2F;to&#x2F;redis-trib.rb create –replicas 1 127.0.0.1:6380 127.0.0.1:6381<br>127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384 127.0.0.1:6385</p>
+<p>其中 create参数表示要初始化集群，–replicas 1表示每个主数据库拥有的从数据库个数<br>为1，所以整个集群共有3（6&#x2F;2）个主数据库以及3个从数据库。</p>
+<h2 id="管理"><a href="#管理" class="headerlink" title="管理"></a>管理</h2><h3 id="安全"><a href="#安全" class="headerlink" title="安全"></a>安全</h3><p>Redis的默认配置会接受来自任何地址发送来的请求，即在任何一个拥有公网IP的服务器<br>上启动 Redis 服务器，都可以被外界直接访问到。要更改这一设置，在配置文件中修改bind<br>参数，如只允许本机应用连接Redis，可以将bind参数改成：bind 127.0.0.1</p>
+<p>bind参数只能绑定一个地址[2] ，如果想更自由地设置访问规则需要通过防火墙来完成</p>
+<p>除此之外，还可以通过配置文件中的requirepass参数为Redis设置一个密码。客户端每次连接到 Redis 时都需要发送密码，否则 Redis 会拒绝执行客户端发来的命令。发送密码需要使用AUTH命令，由于Redis的性能极高，并且输入错误密码后Redis并不会进行主动延迟</p>
+<p>提示 配置 Redis 复制的时候如果主数据库设置了密码，需要在从数据库的配置文件中通过masterauth参数设置主数据库的密码，以使从数据库连接主数据库时自动使用AUTH命令认证。</p>
+<p>Redis 支持在配置文件中将命令重命名，比如将 FLUSHALL 命令重命名成一个比较复杂的名字，以保证只有自己的应用可以使用该命令。</p>
+<p>rename-command FLUSHALL oyfekmjvmwxq5a9c8usofuo369x0it2k</p>
+<p>如果希望直接禁用某个命令可以将命令重命名成空字符串。</p>
+<h3 id="管理工具"><a href="#管理工具" class="headerlink" title="管理工具"></a>管理工具</h3><p>当一条命令执行时间超过限制时，Redis会将该命令的执行时间等信息加入耗时命令日志<br>（slow log）以供开发者查看。可以通过配置文件的 slowlog-log-slower-than参数设置这一限<br>制，要注意单位是微秒（1 000 000 微秒相当于1秒），默认值是10 000。耗时命令日志存储<br>在内存中，可以通过配置文件的 slowlog-max-len 参数来限制记录的条数。</p>
+<h4 id="耗时日志"><a href="#耗时日志" class="headerlink" title="耗时日志"></a>耗时日志</h4><p>使用 SLOWLOG GET命令来获得当前的耗时命令日志</p>
+<p>每条日志都由以下4个部分组成：<br>（1）该日志唯一ID；<br>（2）该命令执行的Unix时间；<br>（3）该命令的耗时时间，单位是微秒；<br>（4）命令及其参数。</p>
+<h4 id="命令监控"><a href="#命令监控" class="headerlink" title="命令监控"></a>命令监控</h4><p>Redis提供了MONITOR命令来监控Redis执行的所有命令，redis-cli同样支持这个命令，<br>如在redis-cli中执行MONITOR：</p>
+<p>这时 Redis 执行的任何命令都会在 redis-cli 中打印出来，</p>
+<p>MONITOR命令非常影响Redis的性能，一个客户端使用MONITOR命令会降低Redis将近<br>一半的负载能力。所以MONITOR命令只适合用来调试和纠错。</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" rel="tag"><i class="fa fa-tag"></i> 读书笔记</a>
+              <a href="/tags/redis%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/" rel="tag"><i class="fa fa-tag"></i> redis入门指南</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/67d01b1e/" rel="prev" title="思考">
+                  <i class="fa fa-chevron-left"></i> 思考
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/115d16e7/" rel="next" title="mysql王者晋级之路">
+                  mysql王者晋级之路 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"992aaaa619848d23dbc525bbbe78f203"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Topological sort 又称 Topological order，这个名字有点迷惑性，因为拓扑排序并不是一个纯粹的排序算法，它只是针对某一类图，找到一个可以执行的线性顺序。  有向无环图刚刚我们提到，拓扑排序只是针对特定的一类图，那么是针对哪类图的呢？ 答：Directed acyclic graph (DAG)，有向无环图。即：  这个图的边必须是有方向的； 图内无环。  那么什么是方">
+<meta property="og:type" content="article">
+<meta property="og:title" content="17.拓扑排序">
+<meta property="og:url" content="https://itingyu.github.io/posts/a599f945/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="Topological sort 又称 Topological order，这个名字有点迷惑性，因为拓扑排序并不是一个纯粹的排序算法，它只是针对某一类图，找到一个可以执行的线性顺序。  有向无环图刚刚我们提到，拓扑排序只是针对特定的一类图，那么是针对哪类图的呢？ 答：Directed acyclic graph (DAG)，有向无环图。即：  这个图的边必须是有方向的； 图内无环。  那么什么是方">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-1e72742f8cc825e716ab74f68a3d38f6_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/a599f945/asset/v2-f09acb4f50bb4ecd4cefd635172cc8d9_1440w.webp">
+<meta property="og:image" content="https://pic4.zhimg.com/80/v2-49a86090444ba413a1d11e09715d1283_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/a599f945/asset/v2-82ac3e9c57fcab366d635bc65b9b43d4_b.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/a599f945/asset/v2-f0129fff3bb7e3d5ec6b2828ce53c761_b.webp">
+<meta property="article:published_time" content="2023-06-30T17:15:06.000Z">
+<meta property="article:modified_time" content="2023-06-30T17:53:04.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="基本算法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-1e72742f8cc825e716ab74f68a3d38f6_1440w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/a599f945/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/a599f945/","path":"posts/a599f945/","title":"17.拓扑排序"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>17.拓扑排序 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%89%E5%90%91%E6%97%A0%E7%8E%AF%E5%9B%BE"><span class="nav-number">1.</span> <span class="nav-text">有向无环图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">总结：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8B%93%E6%89%91%E6%8E%92%E5%BA%8F"><span class="nav-number">2.</span> <span class="nav-text">拓扑排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">算法详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Step0-%E9%A2%84%E5%A4%84%E7%90%86%E5%BE%97%E5%88%B0%E6%AF%8F%E4%B8%AA%E7%82%B9%E7%9A%84%E5%85%A5%E5%BA%A6"><span class="nav-number">3.1.</span> <span class="nav-text">Step0: 预处理得到每个点的入度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step1"><span class="nav-number">3.2.</span> <span class="nav-text">Step1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step2"><span class="nav-number">3.3.</span> <span class="nav-text">Step2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/a599f945/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="17.拓扑排序 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          17.拓扑排序
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-01 01:15:06" itemprop="dateCreated datePublished" datetime="2023-07-01T01:15:06+08:00">2023-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">基本算法</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.9k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Topological sort 又称 Topological order，这个名字有点迷惑性，因为拓扑排序并不是一个纯粹的排序算法，它只是针对<strong>某一类图</strong>，找到一个可以执行的线性顺序。 </p>
+<h2 id="有向无环图"><a href="#有向无环图" class="headerlink" title="有向无环图"></a>有向无环图</h2><p>刚刚我们提到，拓扑排序只是针对特定的一类图，那么是针对哪类图的呢？</p>
+<p>答：Directed acyclic graph (DAG)，有向无环图。即：</p>
+<ol>
+<li>这个图的边必须是有方向的；</li>
+<li>图内无环。</li>
+</ol>
+<p>那么什么是方向呢？</p>
+<p>比如微信好友就是有向的，你加了他好友他可能把你删了你却不知道。。。那这个朋友关系就是单向的。。</p>
+<p>什么是环？环是和方向有关的，从一个点出发能回到自己，这是环。</p>
+<p>所以下图左边不是环，右边是。</p>
+<p><img src="https://pic3.zhimg.com/80/v2-1e72742f8cc825e716ab74f68a3d38f6_1440w.webp" alt="img"></p>
+<p> 那么如果一个图里有环，比如右图，想执行1就要先执行3，想执行3就要先执行2，想执行2就要先执行1，这成了个死循环，无法找到正确的打开方式，所以找不到它的一个拓扑序。 </p>
+<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a><strong>总结：</strong></h3><ul>
+<li>如果这个图不是 DAG，那么它是没有拓扑序的；</li>
+<li>如果是 DAG，那么它至少有一个拓扑序；</li>
+<li>反之，如果它存在一个拓扑序，那么这个图必定是 DGA.</li>
+</ul>
+<p> 所以这是一个<strong>充分必要条件</strong>。 <img src="/posts/a599f945/asset/v2-f09acb4f50bb4ecd4cefd635172cc8d9_1440w.webp" alt="img"></p>
+<h2 id="拓扑排序"><a href="#拓扑排序" class="headerlink" title="拓扑排序"></a><strong>拓扑排序</strong></h2><p> 那么这么一个图的<code>「拓扑序」</code>是什么意思呢？ </p>
+<p> 9 门课程，有些课程是有先修课程的要求的，就是你要先学了「最右侧这一栏要求的这个课」才能再去选「高阶」的课程。 </p>
+<p> 那么这个例子中拓扑排序的意思就是：<br><strong>就是求解一种可行的顺序，能够让我把所有课都学了。</strong> </p>
+<p>那怎么做呢？</p>
+<p>首先我们可以用<code>图</code>来描述它，<br>图的两个要素是<code>顶点和边</code>，<br>那么在这里：</p>
+<ul>
+<li>顶点：每门课</li>
+<li>边：起点的课程是终点的课程的先修课</li>
+</ul>
+<p>画出来长这个样：</p>
+<p><img src="https://pic4.zhimg.com/80/v2-49a86090444ba413a1d11e09715d1283_1440w.webp" alt="img"></p>
+<p>这种图叫 <strong>AOV</strong> (Activity On Vertex) 网络，在这种图里：</p>
+<ul>
+<li>顶点：表示活动；</li>
+<li>边：表示活动间的先后关系</li>
+</ul>
+<p><strong>所以一个 AOV 网应该是一个 DAG，即有向无环图，否则某些活动会无法进行。</strong><br><strong>那么所有活动可以排成一个可行线性序列，这个序列就是<code>拓扑序列</code>。</strong></p>
+<p> 那么这个序列的<code>实际意义</code>是：<br><strong>按照这个顺序，在每个项目开始时，能够保证它的前驱活动都已完成，从而使整个工程顺利进行。</strong> </p>
+<p>回到我们这个例子中：</p>
+<ol>
+<li>我们一眼可以看出来要先学 C1, C2，因为这两门课没有任何要求嘛，大一的时候就学呗；</li>
+<li>大二就可以学第二行的 C3, C5, C8 了，因为这三门课的先修课程就是 C1, C2，我们都学完了；</li>
+<li>大三可以学第三行的 C4, C9；</li>
+<li>最后一年选剩下的 C6, C7。</li>
+</ol>
+<p>这样，我们就把所有课程学完了，也就得到了这个图的<strong>一个</strong><code>拓扑排序</code>。</p>
+<p> <strong>注意，有时候拓扑序并不是唯一的，比如在这个例子中，先学 C1 再学 C2，和先 C2 后 C1 都行，都是这个图的正确的拓扑序，但这是两个顺序了。</strong> </p>
+<p>我们总结一下，</p>
+<p>**在这个图里的<code>边</code>表示的是一种<code>依赖关系</code>**，如果要修下一门课，就要先把前一门课修了。</p>
+<p>这和打游戏里一样一样的嘛，要拿到一个道具，就要先做 A 任务，再完成 B 任务，最终终于能到达目的地了。</p>
+<h2 id="算法详解"><a href="#算法详解" class="headerlink" title="算法详解"></a><strong>算法详解</strong></h2><p>在上面的图里，大家很容易就看出来了它的拓扑序，但当工程越来越庞大时，依赖关系也会变得错综复杂，那就需要用一种系统性的方式方法来求解了。</p>
+<p> 那么我们回想一下刚刚自己找拓扑序的过程，为什么我们先看上了 C1, C2? </p>
+<p>*<strong>因为它们没有依赖别人啊，也就是它的<code>入度为 0</code>.</strong> </p>
+<p> 所以我们先执行入度为 0 的那些点，那也就是要记录每个顶点的入度。因为<strong>只有当它的 <code>入度 = 0</code> 的时候，我们才能执行它。</strong> </p>
+<p> 那在这个算法里第一步就是得到每个顶点的入度。 </p>
+<h3 id="Step0-预处理得到每个点的入度"><a href="#Step0-预处理得到每个点的入度" class="headerlink" title="Step0: 预处理得到每个点的入度"></a><strong>Step0: 预处理得到每个点的入度</strong></h3><p>我们可以用一个 HashMap 来存放这个信息，或者用一个<code>数组</code>会更精巧。</p>
+<h3 id="Step1"><a href="#Step1" class="headerlink" title="Step1"></a><strong>Step1</strong></h3><p>拿到了这个之后，就可以执行入度为 0 的这些点了，也就是 C1, C2.</p>
+<p> 那我们把可以被执行的这些点，放入一个<code>待执行的容器</code>里，这样之后我们一个个的从这个容器里取顶点就好了。 </p>
+<p> 至于这个<code>容器</code>究竟选哪种<code>数据结构</code>，这取决于我们需要做哪些<code>操作</code>，再看哪种数据结构可以为之服务。 </p>
+<p> 那么首先可以把<code>[C1, C2]</code>放入<code>容器</code>中， </p>
+<p>然后想想我们需要哪些操作吧！</p>
+<p>我们最常做的操作无非就是<code>把点放进来</code>，<code>把点拿出去</code>执行了，也就是需要一个 <code>offer</code> 和 <code>poll</code> 操作比较高效的数据结构，那么 <code>queue</code> 就够用了。</p>
+<p> （其他的也行，放进来这个容器里的顶点的地位都是一样的，都是可以执行的，和进来的顺序无关，但何必非得给自己找麻烦呢？一个常规顺序的简简单单的 queue 就够用了。） </p>
+<p>然后就需要把某些点拿出去执行了。</p>
+<blockquote>
+<p>【划重点】当我们把 C1 拿出来执行，那这意味这什么？</p>
+</blockquote>
+<p>答：意味着「以 C1 为顶点」的「指向其他点」的「边」都消失了，也就是 C1 的出度变成了 0.</p>
+<p> 如下图，也就是这两条边可以消失了。 </p>
+<p><img src="/posts/a599f945/asset/v2-82ac3e9c57fcab366d635bc65b9b43d4_b.webp" alt="动图"></p>
+<p> 那么此时我们就可以更新 <code>C1 所指向的那些点</code>也就是 <code>C3 和 C8</code> 的 <code>入度</code> 了，</p>
+<p><strong>那我们这里看到很关键的一步，C8 的入度变成了 0！</strong></p>
+<p><strong>也就意味着 C8 此时没有了任何依赖，可以放到我们的 queue 里等待执行了。</strong></p>
+<h3 id="Step2"><a href="#Step2" class="headerlink" title="Step2"></a><strong>Step2</strong></h3><p>下一个我们再执行 C2，</p>
+<p> <img src="/posts/a599f945/asset/v2-f0129fff3bb7e3d5ec6b2828ce53c761_b.webp" alt="动图"> </p>
+<p> 那么 <code>C2 所指向的</code> <code>C3, C5</code> 的 <code>入度-1</code>， </p>
+<p>。。。以此类推直到。。。</p>
+<p><strong>C6C7</strong>入度<strong>00</strong></p>
+<p>C6 和 C7 的入度都变成 0 啦！！把它们放入 queue，继续执行到直到 queue 为空即可。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h3><p>好了，那我们梳理一下这个算法：</p>
+<p><strong>数据结构</strong></p>
+<p> 这里我们的入度表格可以用 map 来存放， </p>
+<p> Map: &lt;key &#x3D; Vertex, value &#x3D; 入度&gt; </p>
+<p> 但实际代码中，我们用一个 <strong>int array</strong> 来存储也就够了，graph node 可以用数组的 index 来表示，value 就用数组里的数值来表示，这样比 Map 更精巧。 </p>
+<p> 然后用了一个普通的 queue，用来存放可以被执行的那些 node. </p>
+<p><strong>过程</strong></p>
+<p>我们把入度为 0 的那些顶点放入 queue 中，然后通过每次执行 queue 中的顶点，就可以让依赖这个被执行的顶点的那些点的 <code>入度-1</code>，如果有顶点的入度变成了 0，就可以放入 queue 了，直到 queue 为空。</p>
+<p><strong>细节</strong></p>
+<p>这里有几点实现上的细节：</p>
+<p><strong>当我们 check 是否有新的顶点的 入度 &#x3D;&#x3D; 0 时，没必要过一遍整个 map 或者数组，只需要 check 刚刚改动过的就好了。</strong></p>
+<p> 另一个是如果题目没有给这个图是 DAG 的条件的话，那么有可能是不存在可行解的，那怎么判断呢？很简单的一个方法就是比较一下最后结果中的顶点的个数和图中所有顶点的个数是否相等，或者加个计数器，如果不相等，说明就不存在有效解。所以这个算法也可以用来<strong>判断一个图是不是有向无环图</strong>。 </p>
+<p> 很多题目给的条件可能是给这个图的 <code>edge list</code>，也是表示图的一种常用的方式。那么给的这个 <code>list</code> 就是表示图中的<code>边</code>。这里要注意审题哦，看清楚是谁 depends on 谁。其实图的题一般都不会直接给你这个图，而是给一个场景，需要你把它变回一个图。 </p>
+<p><strong>时间复杂度</strong></p>
+<p>注意⚠️：对于图的时间复杂度分析一定是两个参数，面试的时候很多同学张口就是 O(n)…</p>
+<p>对于有 v 个顶点和 e 条边的图来说，</p>
+<p>第一步，预处理得到 map 或者 array，需要过一遍所有的边才行，所以是 O(e)；</p>
+<p>第二步，把 入度 &#x3D;&#x3D; 0 的点入队出队的操作是 O(v)，如果是一个 DAG，那所有的点都需要入队出队一次；</p>
+<p>第三步，每次执行一个顶点的时候，要把它指向的那条边消除了，这个总共执行 e 次；</p>
+<p><strong>总：O(v + e)</strong></p>
+<p><strong>空间复杂度</strong></p>
+<p>用了一个数组来存所有点的 indegree，之后的 queue 也是最多把所有的点放进去，所以是 O(v).</p>
+<p>###输出所有拓扑排序</p>
+<p> <a target="_blank" rel="noopener" href="https://blog.csdn.net/u013480600/article/details/30315289/">POJ 1270 Following Orders(拓扑排序:输出所有可能</a> </p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%9F%BA%E6%9C%AC%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 基本算法</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/449b1d94/" rel="prev" title="16.树与图的遍历">
+                  <i class="fa fa-chevron-left"></i> 16.树与图的遍历
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/f6fb8bbc/" rel="next" title="18.深度优先遍历">
+                  18.深度优先遍历 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"ca9a6424b525d9680e74a057f958818b"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

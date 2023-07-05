@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="线段树详解 （原理，实现与应用）https:&#x2F;&#x2F;www.cnblogs.com&#x2F;AC-King&#x2F;p&#x2F;7789013.html 目录： 一：综述 二：原理 三：递归实现 四：非递归原理 五：非递归实现 六：线段树解题模型 七：扫描线 八：可持久化 (主席树) 九：练习题 一：综述假设有编号从1到n的n个点，每个点都存了一些信息，用[L,R]表示下标从L到R的这些点。 线段树的用处就是，对编号连续的一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="线段树详解">
+<meta property="og:url" content="https://itingyu.github.io/posts/95304e2e/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="线段树详解 （原理，实现与应用）https:&#x2F;&#x2F;www.cnblogs.com&#x2F;AC-King&#x2F;p&#x2F;7789013.html 目录： 一：综述 二：原理 三：递归实现 四：非递归原理 五：非递归实现 六：线段树解题模型 七：扫描线 八：可持久化 (主席树) 九：练习题 一：综述假设有编号从1到n的n个点，每个点都存了一些信息，用[L,R]表示下标从L到R的这些点。 线段树的用处就是，对编号连续的一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150908231214395.bmp">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908232141714">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908233339347">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909172357585.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908233339347">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909175521708.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20150909175955762">
+<meta property="og:image" content="https://img-blog.csdn.net/20150909175955762">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909002033412.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909010827440.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909220210622.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150909222744247.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20150909220210622?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="https://img-blog.csdn.net/20150909222740550?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150915173357612.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150910075556358.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150910075603559.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150910075607860.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150910134955319.png">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908232141714">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908232141714">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908232141714">
+<meta property="og:image" content="https://img-blog.csdn.net/20150908232141714">
+<meta property="article:published_time" content="2023-06-27T18:05:28.000Z">
+<meta property="article:modified_time" content="2023-07-05T13:12:50.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="其他">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/95304e2e/asset/20150908231214395.bmp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/95304e2e/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/95304e2e/","path":"posts/95304e2e/","title":"线段树详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>线段树详解 | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E6%AE%B5%E6%A0%91%E8%AF%A6%E8%A7%A3-%EF%BC%88%E5%8E%9F%E7%90%86%EF%BC%8C%E5%AE%9E%E7%8E%B0%E4%B8%8E%E5%BA%94%E7%94%A8%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">线段树详解 （原理，实现与应用）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%EF%BC%9A%E7%BB%BC%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">一：综述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%EF%BC%9A%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">二：原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E7%BA%BF%E6%AE%B5%E6%A0%91%E7%9A%84%E7%82%B9%E4%BF%AE%E6%94%B9%EF%BC%9A"><span class="nav-number">3.1.</span> <span class="nav-text">(1)线段树的点修改：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%BA%BF%E6%AE%B5%E6%A0%91%E7%9A%84%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="nav-number">3.2.</span> <span class="nav-text">(2)线段树的区间查询：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E7%BA%BF%E6%AE%B5%E6%A0%91%E7%9A%84%E5%8C%BA%E9%97%B4%E4%BF%AE%E6%94%B9%EF%BC%9A"><span class="nav-number">3.3.</span> <span class="nav-text">(3)线段树的区间修改：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%BA%BF%E6%AE%B5%E6%A0%91%E7%9A%84%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%EF%BC%9A"><span class="nav-number">3.4.</span> <span class="nav-text">(4)线段树的存储结构：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%EF%BC%9A%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">三：递归实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%EF%BC%9A%E9%9D%9E%E9%80%92%E5%BD%92%E5%8E%9F%E7%90%86"><span class="nav-number">5.</span> <span class="nav-text">四：非递归原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%82%B9%E4%BF%AE%E6%94%B9%EF%BC%9A"><span class="nav-number">5.1.</span> <span class="nav-text">点修改：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%82%B9%E4%BF%AE%E6%94%B9%E4%B8%8B%E7%9A%84%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="nav-number">5.2.</span> <span class="nav-text">点修改下的区间查询：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E9%97%B4%E4%BF%AE%E6%94%B9%E4%B8%8B%E7%9A%84%E5%8C%BA%E9%97%B4%E6%9F%A5%E8%AF%A2%EF%BC%9A"><span class="nav-number">5.3.</span> <span class="nav-text">区间修改下的区间查询：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%BA%E9%97%B4%E4%BF%AE%E6%94%B9%EF%BC%9A"><span class="nav-number">5.4.</span> <span class="nav-text">区间修改：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%EF%BC%9A%E9%9D%9E%E9%80%92%E5%BD%92%E5%AE%9E%E7%8E%B0"><span class="nav-number">6.</span> <span class="nav-text">五：非递归实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AD%EF%BC%9A%E7%BA%BF%E6%AE%B5%E6%A0%91%E8%A7%A3%E9%A2%98%E6%A8%A1%E5%9E%8B"><span class="nav-number">7.</span> <span class="nav-text">六：线段树解题模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%EF%BC%9A%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%93%88%E5%B8%8C"><span class="nav-number">7.1.</span> <span class="nav-text">（1）：字符串哈希</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%EF%BC%9A%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E9%9B%B6"><span class="nav-number">7.2.</span> <span class="nav-text">（2）：最长连续零</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%EF%BC%9A%E8%AE%A1%E6%95%B0%E6%8E%92%E5%BA%8F"><span class="nav-number">7.3.</span> <span class="nav-text">（3）：计数排序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">7.4.</span> <span class="nav-text">（4）总结：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%83%EF%BC%9A%E6%89%AB%E6%8F%8F%E7%BA%BF"><span class="nav-number">8.</span> <span class="nav-text">七：扫描线</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%BA%BF%E6%B1%82%E9%87%8D%E5%8F%A0%E7%9F%A9%E5%BD%A2%E9%9D%A2%E7%A7%AF%EF%BC%9A"><span class="nav-number">8.1.</span> <span class="nav-text">扫描线求重叠矩形面积：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E8%A6%81%E8%A7%A3%E5%86%B3%E7%9A%84%E5%87%A0%E4%B8%AA%E9%97%AE%E9%A2%98%EF%BC%9A"><span class="nav-number">8.2.</span> <span class="nav-text">需要解决的几个问题：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%EF%BC%9A%E7%BA%BF%E6%AE%B5%E6%A0%91%E4%B8%AD%E7%82%B9%E7%9A%84%E5%90%AB%E4%B9%89"><span class="nav-number">8.2.1.</span> <span class="nav-text">（1）：线段树中点的含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8A%A4%E8%A6%86%E7%9B%96%E7%BA%BF%E6%AE%B5%E9%95%BF%E5%BA%A6"><span class="nav-number">8.2.2.</span> <span class="nav-text">（2）：如何维护覆盖线段长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E7%BB%B4%E6%8A%A4%E6%89%AB%E6%8F%8F%E7%BA%BF%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%BA%BF%E6%AE%B5%E7%9A%84%E6%95%B0%E9%87%8F"><span class="nav-number">8.2.3.</span> <span class="nav-text">（3）：如何维护扫描线过程中线段的数量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%BA%BF%E6%B1%82%E9%87%8D%E5%8F%A0%E7%9F%A9%E5%BD%A2%E5%91%A8%E9%95%BF%EF%BC%9A"><span class="nav-number">8.3.</span> <span class="nav-text">扫描线求重叠矩形周长：</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%AB%EF%BC%9A%E5%8F%AF%E6%8C%81%E4%B9%85%E5%8C%96-%E4%B8%BB%E5%B8%AD%E6%A0%91"><span class="nav-number">9.</span> <span class="nav-text">八：可持久化 (主席树)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B9%9D%EF%BC%9A%E7%BB%83%E4%B9%A0%E9%A2%98"><span class="nav-number">10.</span> <span class="nav-text">九：练习题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E5%90%88%E9%9D%9E%E9%80%92%E5%BD%92%E7%BA%BF%E6%AE%B5%E6%A0%91%E7%9A%84%E9%A2%98%E7%9B%AE%EF%BC%9A"><span class="nav-number">10.1.</span> <span class="nav-text">适合非递归线段树的题目：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E7%BA%BF%E9%A2%98%E7%9B%AE%EF%BC%9A"><span class="nav-number">10.2.</span> <span class="nav-text">扫描线题目：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%92%E5%BD%92%E7%BA%BF%E6%AE%B5%E6%A0%91%E9%A2%98%E7%9B%AE%EF%BC%9A"><span class="nav-number">10.3.</span> <span class="nav-text">递归线段树题目：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%91%E5%A5%97%E6%A0%91%E9%A2%98%E7%9B%AE%EF%BC%9A"><span class="nav-number">10.4.</span> <span class="nav-text">树套树题目：</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/95304e2e/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="线段树详解 | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          线段树详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-06-28 02:05:28" itemprop="dateCreated datePublished" datetime="2023-06-28T02:05:28+08:00">2023-06-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%85%B6%E4%BB%96/" itemprop="url" rel="index"><span itemprop="name">其他</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>25k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="线段树详解-（原理，实现与应用）"><a href="#线段树详解-（原理，实现与应用）" class="headerlink" title="线段树详解 （原理，实现与应用）"></a>线段树详解 （原理，实现与应用）</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/AC-King/p/7789013.html">https://www.cnblogs.com/AC-King/p/7789013.html</a></p>
+<p>目录：</p>
+<p>一：综述</p>
+<p>二：原理</p>
+<p>三：递归实现</p>
+<p>四：非递归原理</p>
+<p>五：非递归实现</p>
+<p>六：线段树解题模型</p>
+<p>七：扫描线</p>
+<p>八：可持久化 (主席树)</p>
+<p>九：练习题</p>
+<h1 id="一：综述"><a href="#一：综述" class="headerlink" title="一：综述"></a><strong>一：综述</strong></h1><p>假设有编号从1到n的n个点，每个点都存了一些信息，用[L,R]表示下标从L到R的这些点。</p>
+<p>线段树的用处就是，对编号连续的一些点进行修改或者统计操作，修改和统计的复杂度都是O(log2(n)).</p>
+<p>线段树的原理，就是，将[1,n]分解成若干特定的子区间(数量不超过4*n),然后，将每个区间[L,R]都分解为</p>
+<p>少量特定的子区间，通过对这些少量子区间的修改或者统计，来实现快速对[L,R]的修改或者统计。</p>
+<p>由此看出，用线段树统计的东西，必须符合<strong>区间加法</strong>，否则，不可能通过分成的子区间来得到[L,R]的统计结果。</p>
+<p><strong>符合区间加法的例子：</strong></p>
+<p>数字之和——总数字之和 &#x3D; 左区间数字之和 + 右区间数字之和</p>
+<p>最大公因数(GCD)——总GCD &#x3D; gcd( 左区间GCD , 右区间GCD );</p>
+<p>最大值——总最大值&#x3D;max(左区间最大值，右区间最大值)</p>
+<p><strong>不符合区间加法的例子：</strong></p>
+<p>众数——只知道左右区间的众数，没法求总区间的众数</p>
+<p>01序列的最长连续零——只知道左右区间的最长连续零，没法知道总的最长连续零</p>
+<p>一个问题，只要能化成对一些连续点的修改和统计问题，基本就可以用线段树来解决了，具体怎么转化在第六节会讲。</p>
+<p>由于点的信息可以千变万化，所以线段树是一种非常灵活的数据结构，可以做的题的类型特别多，只要会转化。</p>
+<p>线段树当然是可以维护线段信息的，因为线段信息也是可以转换成用点来表达的（每个点代表一条线段）。</p>
+<p>所以在以下对结构的讨论中，都是对点的讨论，线段和点的对应关系在第七节扫描线中会讲。</p>
+<p>本文二到五节是讲对线段树操作的原理和实现。</p>
+<p>六到八节介绍了线段树解题模型，以及一些例题。</p>
+<p>初学者可以先看这篇文章： <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/52280189">线段树从零开始</a></p>
+<h1 id="二：原理"><a href="#二：原理" class="headerlink" title="二：原理"></a><strong>二：原理</strong></h1><p>**<em>*（注：由于线段树的每个节点代表一个区间，以下叙述中不区分节点和区间，只是根据语境需要，选择合适的词）*</em><br>**</p>
+<p>线段树本质上是维护下标为1,2,..,n的n个按顺序排列的数的信息，所以，其实是“点树”，是维护n的点的信息，至于每个点的数据的含义可以有很多，</p>
+<p>在对线段操作的线段树中，每个点代表一条线段，在用线段树维护数列信息的时候，每个点代表一个数，但本质上都是每个点代表一个数。以下，在讨论线段树的时候，区间[L,R]指的是下标从L到R的这(R-L+1)个数，而不是指一条连续的线段。只是有时候这些数代表实际上一条线段的统计结果而已。</p>
+<p>线段树是将每个区间[L,R]分解成[L,M]和[M+1,R] (其中M&#x3D;(L+R)&#x2F;2 这里的除法是整数除法，即对结果下取整)直到 L&#x3D;&#x3D;R 为止。 </p>
+<p>开始时是区间[1,n] ,通过递归来逐步分解，假设根的高度为1的话，树的最大高度为</p>
+<p>线段树对于每个n的分解是唯一的，所以n相同的线段树结构相同，这也是实现可持久化线段树的基础。</p>
+<p>下图展示了区间[1,13]的分解过程：</p>
+<p><img src="/posts/95304e2e/asset/20150908231214395.bmp" alt="img"></p>
+<p>上图中，每个区间都是一个节点，每个节点存自己对应的区间的统计信息。</p>
+<h2 id="1-线段树的点修改："><a href="#1-线段树的点修改：" class="headerlink" title="(1)线段树的点修改："></a><strong>(1)线段树的点修改：</strong></h2><p>假设要修改[5]的值，可以发现，每层只有一个节点包含[5],所以修改了[5]之后，只需要每层更新一个节点就可以线段树每个节点的信息都是正确的，所以修改次数的最大值为层数<img src="https://img-blog.csdn.net/20150908232141714" alt="img">。</p>
+<p>复杂度O(log2(n))</p>
+<h2 id="2-线段树的区间查询："><a href="#2-线段树的区间查询：" class="headerlink" title="(2)线段树的区间查询："></a><strong>(2)线段树的区间查询：</strong></h2><p>线段树能快速进行区间查询的基础是下面的定理：</p>
+<p><strong>定理：n&gt;&#x3D;3时，一个[1,n]的线段树可以将[1,n]的任意子区间[L,R]分解为不超过个子区间。</strong></p>
+<p>这样，在查询[L,R]的统计值的时候，只需要访问不超过<img src="https://img-blog.csdn.net/20150908233339347" alt="img">个节点，就可以获得[L,R]的统计信息，实现了O(log2(n))的区间查询。</p>
+<p>下面给出证明：</p>
+<p>**(2.1)**先给出一个粗略的证明（结合下图）：</p>
+<p>先考虑树的最下层，将所有在区间[L,R]内的点选中，然后，若相邻的点的直接父节点是同一个，那么就用这个父节点代替这两个节点（父节点在上一层）。这样操作之后，本层最多剩下两个节点。若最左侧被选中的节点是它父节点的右子树，那么这个节点会被剩下。若最右侧被选中的节点是它的父节点的左子树，那么这个节点会被剩下。中间的所有节点都被父节点取代。</p>
+<p>对最下层处理完之后，考虑它的上一层，继续进行同样的处理，可以发现，每一层最多留下2个节点，其余的节点升往上一层，这样可以说明分割成的区间（节点）个数是大概是树高的两倍左右。</p>
+<p>下图为n&#x3D;13的线段树，区间[2,12]，按照上面的叙述进行操作的过程图：</p>
+<p><img src="/posts/95304e2e/asset/20150909172357585.png" alt="img"></p>
+<p>由图可以看出：在n&#x3D;13的线段树中，[2,12]&#x3D;[2] + [3,4] + [5,7] + [8,10] + [11,12] 。</p>
+<p>**(2.2)**然后给出正式一点的证明：</p>
+<p><strong>定理：n&gt;&#x3D;3时，一个[1,n]的线段树可以将[1,n]的任意子区间[L,R]分解为不超过<img src="https://img-blog.csdn.net/20150908233339347" alt="img">个子区间。</strong></p>
+<p>用数学归纳法，证明上面的定理：</p>
+<p>首先,n&#x3D;3,4,5时，用穷举法不难证明定理成立。</p>
+<p>假设对于n&#x3D; 3,4,5,…,k-1上式都成立，下面来证明对于n&#x3D;k ( k&gt;&#x3D;6 )成立：</p>
+<p>分为4种情况来证明：</p>
+<p><strong>情况一：</strong>[L,R]包含根节点(L&#x3D;1且R&#x3D;n)，此时，[L,R]被分解为了一个节点，定理成立。</p>
+<p><strong>情况二：</strong>[L,R]包含根节点的左子节点，此时[L,R]一定不包含根的右子节点（因为如果包含，就可以合并左右子节点，</p>
+<p>用根节点替代，此时就是情况一）。这时，以右子节点为根的这个树的元素个数为。</p>
+<p>[L,R]分成的子区间由两部分组成：</p>
+<p>一：根的左子结点，区间数为1 </p>
+<p>二：以根的右子节点为根的树中，进行区间查询，这个可以递归使用本定理。</p>
+<p>由归纳假设可得，[L,R]一共被分成了个区间。</p>
+<p><strong>情况三</strong>：跟情况二对称，不一样的是，以根的左子节点为根的树的元素个数为。</p>
+<p>[L,R]一共被分成了个区间。</p>
+<p>从公式可以看出，情况二的区间数小于等于情况三的区间数，于是只需要证明情况三的区间数符合条件就行了。</p>
+<p><img src="/posts/95304e2e/asset/20150909175521708.png" alt="img"></p>
+<p>于是，情况二和情况三定理成立。</p>
+<p><strong>情况四：</strong>[L,R]不包括根节点以及根节点的左右子节点。</p>
+<p>于是，剩下的层，每层最多两个节点（参考粗略证明中的内容)。</p>
+<p>于是[L,R]最多被分解成了个区间，定理成立。</p>
+<p>上面只证明了<img src="https://img-blog.csdn.net/20150909175955762" alt="img">是上界，但是，其实它是最小上界。</p>
+<p>n&#x3D;3,4时，有很多组区间的分解可以达到最小上界。</p>
+<p>当n&gt;4时，当且仅当n&#x3D;2^t (t&gt;&#x3D;3),L&#x3D;2,R&#x3D;2^t -1 时，区间[L,R]的分解可以达到最小上界<img src="https://img-blog.csdn.net/20150909175955762" alt="img">。</p>
+<p>就不证明了，有兴趣可以自己去证明。</p>
+<p>下图是n&#x3D;16 , L&#x3D;2 , R&#x3D;15 时的操作图，此图展示了达到最小上界的树的结构。</p>
+<p><img src="/posts/95304e2e/asset/20150909002033412.png" alt="img"></p>
+<h2 id="3-线段树的区间修改："><a href="#3-线段树的区间修改：" class="headerlink" title="(3)线段树的区间修改："></a><strong>(3)线段树的区间修改：</strong></h2><p>线段树的区间修改也是将区间分成子区间，但是要加一个标记，称作懒惰标记。</p>
+<p><strong>标记的含义：</strong></p>
+<p><strong>本节点的统计信息已经根据标记更新过了，但是本节点的子节点仍需要进行更新。</strong></p>
+<p>即，如果要给一个区间的所有值都加上1，那么，实际上并没有给这个区间的所有值都加上1，而是打个标记，记下来，这个节点所包含的区间需要加1.打上标记后，要根据标记更新本节点的统计信息，比如，如果本节点维护的是区间和，而本节点包含5个数，那么，打上+1的标记之后，要给本节点维护的和+5。这是向下延迟修改，但是向上显示的信息是修改以后的信息，所以查询的时候可以得到正确的结果。有的标记之间会相互影响，所以比较简单的做法是，每递归到一个区间，首先下推标记（若本节点有标记，就下推标记），然后再打上新的标记，这样仍然每个区间操作的复杂度是O(log2(n))。</p>
+<p>标记有<strong>相对标记</strong>和<strong>绝对标记</strong>之分：</p>
+<p><strong>相对标记</strong>是将区间的所有数+a之类的操作，标记之间可以共存，跟打标记的顺序无关（跟顺序无关才是重点）。</p>
+<p>所以，可以在区间修改的时候不下推标记，留到查询的时候再下推。</p>
+<p>   <strong>注意：</strong>如果区间修改时不下推标记，那么PushUp函数中，必须考虑本节点的标记。</p>
+<p>​         而如果所有操作都下推标记，那么PushUp函数可以不考虑本节点的标记，因为本节点的标记一定已经被下推了（也就是对本节点无效了）</p>
+<p><strong>绝对标记</strong>是将区间的所有数变成a之类的操作，打标记的顺序直接影响结果，</p>
+<p>所以这种标记在区间修改的时候必须下推旧标记，不然会出错。</p>
+<p>注意，有多个标记的时候，标记下推的顺序也很重要，错误的下推顺序可能会导致错误。</p>
+<p>之所以要区分两种标记，是因为<strong>非递归线段树</strong>只能维护相对标记。</p>
+<p>因为非递归线段树是自底向上直接修改分成的每个子区间，所以根本做不到在区间修改的时候下推标记。</p>
+<p>非递归线段树一般不下推标记，而是自下而上求答案的过程中，根据标记更新答案。</p>
+<h2 id="4-线段树的存储结构："><a href="#4-线段树的存储结构：" class="headerlink" title="(4)线段树的存储结构："></a><strong>(4)线段树的存储结构：</strong></h2><p>线段树是用数组来模拟树形结构，对于每一个节点R ,左子节点为 2<em>R (一般写作R&lt;&lt;1)右子节点为 2</em>R+1（一般写作R&lt;&lt;1|1）</p>
+<p>然后以1为根节点，所以，整体的统计信息是存在节点1中的。</p>
+<p>这么表示的原因看下图就很明白了，左子树的节点标号都是根节点的两倍，右子树的节点标号都是左子树+1：</p>
+<p><img src="/posts/95304e2e/asset/20150909010827440.png" alt="img"></p>
+<p>线段树需要的数组元素个数是：,一般都开4倍空间，比如： int A[n&lt;&lt;2];</p>
+<h1 id="三：递归实现"><a href="#三：递归实现" class="headerlink" title="三：递归实现"></a><strong>三：递归实现</strong></h1><p>以下以维护数列区间和的线段树为例，演示最基本的线段树代码。</p>
+<p><strong>(0)定义：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> maxn 100007  <span class="comment">//元素总个数  </span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> ls l,m,rt&lt;&lt;1  </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> rs m+1,r,rt&lt;&lt;1|1  </span></span><br><span class="line"><span class="type">int</span> Sum[maxn&lt;&lt;<span class="number">2</span>],Add[maxn&lt;&lt;<span class="number">2</span>];<span class="comment">//Sum求和，Add为懒惰标记   </span></span><br><span class="line"><span class="type">int</span> A[maxn],n;<span class="comment">//存原数组数据下标[1,n]   </span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>(1)建树：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//PushUp函数更新节点信息 ，这里是求和  </span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushUp</span><span class="params">(<span class="type">int</span> rt)</span></span>&#123;Sum[rt]=Sum[rt&lt;&lt;<span class="number">1</span>]+Sum[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>];&#125;  </span><br><span class="line"><span class="comment">//Build函数建树   </span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Build</span><span class="params">(<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> rt)</span></span>&#123; <span class="comment">//l,r表示当前节点区间，rt表示当前节点编号  </span></span><br><span class="line">    <span class="keyword">if</span>(l==r) &#123;<span class="comment">//若到达叶节点   </span></span><br><span class="line">        Sum[rt]=A[l];<span class="comment">//储存数组值   </span></span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//左右递归   </span></span><br><span class="line">    <span class="built_in">Build</span>(l,m,rt&lt;&lt;<span class="number">1</span>);  </span><br><span class="line">    <span class="built_in">Build</span>(m+<span class="number">1</span>,r,rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>);  </span><br><span class="line">    <span class="comment">//更新信息   </span></span><br><span class="line">    <span class="built_in">PushUp</span>(rt);  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<p><strong>(2)点修改：</strong></p>
+<p>假设A[L]+&#x3D;C:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Update</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> C,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> rt)</span></span>&#123;<span class="comment">//l,r表示当前节点区间，rt表示当前节点编号  </span></span><br><span class="line">    <span class="keyword">if</span>(l==r)&#123;<span class="comment">//到叶节点，修改   </span></span><br><span class="line">        Sum[rt]+=C;  </span><br><span class="line">        <span class="keyword">return</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//根据条件判断往左子树调用还是往右   </span></span><br><span class="line">    <span class="keyword">if</span>(L &lt;= m) <span class="built_in">Update</span>(L,C,l,m,rt&lt;&lt;<span class="number">1</span>);  </span><br><span class="line">    <span class="keyword">else</span>       <span class="built_in">Update</span>(L,C,m+<span class="number">1</span>,r,rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>);  </span><br><span class="line">    <span class="built_in">PushUp</span>(rt);<span class="comment">//子节点更新了，所以本节点也需要更新信息   </span></span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(3)区间修改：</strong></p>
+<p>假设A[L,R]+&#x3D;C</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">Update</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R,<span class="type">int</span> C,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> rt)</span></span>&#123;<span class="comment">//L,R表示操作区间，l,r表示当前节点区间，rt表示当前节点编号   </span></span><br><span class="line">    <span class="keyword">if</span>(L &lt;= l &amp;&amp; r &lt;= R)&#123;<span class="comment">//如果本区间完全在操作区间[L,R]以内   </span></span><br><span class="line">        Sum[rt]+=C*(r-l+<span class="number">1</span>);<span class="comment">//更新数字和，向上保持正确  </span></span><br><span class="line">        Add[rt]+=C;<span class="comment">//增加Add标记，表示本区间的Sum正确，子区间的Sum仍需要根据Add的值来调整  </span></span><br><span class="line">        <span class="keyword">return</span> ;   </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">    <span class="built_in">PushDown</span>(rt,m-l+<span class="number">1</span>,r-m);<span class="comment">//下推标记  </span></span><br><span class="line">    <span class="comment">//这里判断左右子树跟[L,R]有无交集，有交集才递归   </span></span><br><span class="line">    <span class="keyword">if</span>(L &lt;= m) <span class="built_in">Update</span>(L,R,C,l,m,rt&lt;&lt;<span class="number">1</span>);  </span><br><span class="line">    <span class="keyword">if</span>(R &gt;  m) <span class="built_in">Update</span>(L,R,C,m+<span class="number">1</span>,r,rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>);   </span><br><span class="line">    <span class="built_in">PushUp</span>(rt);<span class="comment">//更新本节点信息   </span></span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>(4)区间查询：</strong></p>
+<p>询问A[L,R]的和</p>
+<p>首先是下推标记的函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushDown</span><span class="params">(<span class="type">int</span> rt,<span class="type">int</span> ln,<span class="type">int</span> rn)</span></span>&#123;  </span><br><span class="line">    <span class="comment">//ln,rn为左子树，右子树的数字数量。   </span></span><br><span class="line">    <span class="keyword">if</span>(Add[rt])&#123;  </span><br><span class="line">        <span class="comment">//下推标记   </span></span><br><span class="line">        Add[rt&lt;&lt;<span class="number">1</span>]+=Add[rt];  </span><br><span class="line">        Add[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>]+=Add[rt];  </span><br><span class="line">        <span class="comment">//修改子节点的Sum使之与对应的Add相对应   </span></span><br><span class="line">        Sum[rt&lt;&lt;<span class="number">1</span>]+=Add[rt]*ln;  </span><br><span class="line">        Sum[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>]+=Add[rt]*rn;  </span><br><span class="line">        <span class="comment">//清除本节点标记   </span></span><br><span class="line">        Add[rt]=<span class="number">0</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>然后是区间查询的函数：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">Query</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> rt)</span></span>&#123;<span class="comment">//L,R表示操作区间，l,r表示当前节点区间，rt表示当前节点编号  </span></span><br><span class="line">    <span class="keyword">if</span>(L &lt;= l &amp;&amp; r &lt;= R)&#123;  </span><br><span class="line">        <span class="comment">//在区间内，直接返回   </span></span><br><span class="line">        <span class="keyword">return</span> Sum[rt];  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//下推标记，否则Sum可能不正确  </span></span><br><span class="line">    <span class="built_in">PushDown</span>(rt,m-l+<span class="number">1</span>,r-m);   </span><br><span class="line">      </span><br><span class="line">    <span class="comment">//累计答案  </span></span><br><span class="line">    <span class="type">int</span> ANS=<span class="number">0</span>;  </span><br><span class="line">    <span class="keyword">if</span>(L &lt;= m) ANS+=<span class="built_in">Query</span>(L,R,l,m,rt&lt;&lt;<span class="number">1</span>);  </span><br><span class="line">    <span class="keyword">if</span>(R &gt;  m) ANS+=<span class="built_in">Query</span>(L,R,m+<span class="number">1</span>,r,rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>);  </span><br><span class="line">    <span class="keyword">return</span> ANS;  </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(5)函数调用:</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//建树   </span></span><br><span class="line"><span class="built_in">Build</span>(<span class="number">1</span>,n,<span class="number">1</span>);   </span><br><span class="line"><span class="comment">//点修改  </span></span><br><span class="line"><span class="built_in">Update</span>(L,C,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br><span class="line"><span class="comment">//区间修改   </span></span><br><span class="line"><span class="built_in">Update</span>(L,R,C,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br><span class="line"><span class="comment">//区间查询   </span></span><br><span class="line"><span class="type">int</span> ANS=<span class="built_in">Query</span>(L,R,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br></pre></td></tr></table></figure>
+
+
+
+<p>感谢几位网友指出了我的错误。</p>
+<p>我说相对标记在Update时可以不下推，这一点是对的，但是原来的代码是错误的。</p>
+<p>因为原来的代码中，PushUP函数是没有考虑本节点的Add值的，如果Update时下推标记，那么PushUp的时候，节点的Add值一定为零，所以不需要考虑Add。</p>
+<p>但是，如果Update时暂时不下推标记的话，那么PushUp函数就必须考虑本节点的Add值，否则会导致错误。</p>
+<p>为了简便，上面函数中，PushUp函数没有考虑Add标记。所以无论是相对标记还是绝对标记，在更新信息的时候，</p>
+<p>到达的每个节点都必须调用PushDown函数来下推标记，另外，代码中，点修改函数中没有PushDown函数，因为这里假设只有点修改一种操作，</p>
+<p>如果题目中是点修改和区间修改混合的话，那么点修改中也需要PushDown。</p>
+<h1 id="四：非递归原理"><a href="#四：非递归原理" class="headerlink" title="四：非递归原理"></a><strong>四：非递归原理</strong></h1><p>非递归的思路很巧妙，思路以及部分代码实现 来自  清华大学 张昆玮 《统计的力量》 ，有兴趣可以去找来看。</p>
+<p>非递归的实现，代码简单（尤其是点修改和区间查询），速度快，建树简单，遍历元素简单。总之能非递归就非递归吧。</p>
+<p>不过，要支持区间修改的话，代码会变得复杂，所以区间修改的时候还是要取舍。有个特例，如果区间修改，但是只需要</p>
+<p>在所有操作结束之后，一次性下推所有标记，然后求结果，这样的话，非递归写起来也是很方便的。</p>
+<p>下面先讲思路，再讲实现。</p>
+<h2 id="点修改："><a href="#点修改：" class="headerlink" title="点修改："></a><strong>点修改：</strong></h2><p>非递归的思想总的来说就是自底向上进行各种操作。回忆递归线段树的点修改，首先由根节点1向下递归，找到对应的叶</p>
+<p>节点，然后，修改叶节点的值，再向上返回，在函数返回的过程中，更新路径上的节点的统计信息。而非递归线段树的思路是，</p>
+<p>如果可以直接找到叶节点，那么就可以直接从叶节点向上更新，而一个节点找父节点是很容易的，编号除以2再下取整就行了。</p>
+<p>那么，如何可以直接找到叶节点呢？非递归线段树扩充了普通线段树(假设元素数量为n)，使得所有非叶结点都有两个子结点且叶子结点都在同一层。</p>
+<p>来观察一下扩充后的性质：</p>
+<p><img src="/posts/95304e2e/asset/20150909220210622.png" alt="img"></p>
+<p>可以注意到红色和黑色数字的差是固定的，如果事先算出这个差值，就可以直接找到叶节点。</p>
+<p><strong>注意：区分3个概念：原数组下标，线段树中的下标和存储下标。</strong></p>
+<p><strong>原数组下标</strong>，是指，需要维护统计信息（比如区间求和）的数组的下标，这里都默认下标从1开始（一般用A数组表示）</p>
+<p><strong>线段树下标</strong>，是指，加入线段树中某个位置的下标，比如，原数组中的第一个数，一般会加入到线段树中的第二个位置，</p>
+<p>为什么要这么做，后面会讲。</p>
+<p><strong>存储下标</strong>，是指该元素所在的叶节点的编号，即实际存储的位置。</p>
+<p><strong>【在上面的图片中，红色为原数组下标，黑色为存储下标】</strong></p>
+<p>有了这3个概念，下面开始讲区间查询。</p>
+<h2 id="点修改下的区间查询："><a href="#点修改下的区间查询：" class="headerlink" title="点修改下的区间查询："></a><strong>点修改下的区间查询：</strong></h2><p>首先，区间的划分没有变，现在关键是如何直接找到被分成的区间。原来是递归查找，判断左右子区间跟[L,R]是否有交点，</p>
+<p>若有交点则向下递归。现在要非递归实现，这就是巧妙之处，见下图，以查询[3,11]为例子。</p>
+<p><img src="/posts/95304e2e/asset/20150909222744247.png" alt="img"></p>
+<p>其实，容易发现，紫色部分的变化，跟原来分析线段树的区间分解的时候是一样的规则，图中多的蓝色是什么意思呢？</p>
+<p>首先注意到，蓝色节点刚好在紫色节点的两端。</p>
+<p>回忆一下，原来线段树在区间逐层被替代的过程中，哪些节点被留了下来？最左侧的节点，若为其父节点的右子节点，则留下。</p>
+<p>最右侧的节点，若为其父节点的左子节点则留下。那么对于包裹着紫色的蓝色节点来看，刚好相反。</p>
+<p>比如，以左侧的的蓝色为例，若该节点是其父节点的右子节点，就证明它右侧的那个紫色节点不会留下，会被其父替代，所以没必要在这一步计算，若该节点是其父节点的左子节点，就证明它右侧的那个紫色节点会留在这一层，所以必须在此刻计算，否则以后都不会再计算这个节点了。这样逐层上去，容易发现，对于左侧的蓝色节点来说，只要它是左子节点，那么就要计算对应的右子节点。同理，对于右侧的蓝色节点，只要它是右子节点，就需要计算它对应的左子节点。这个计算一直持续到左右蓝色节点的父亲为同一个的时候，才停止。于是，区间查询，其实就是两个蓝色节点一路向上走，在路径上更新答案。这样，区间修改就变成了两条同时向根走的链，明显复杂度O(log2(n))。并且可以非递归实现。</p>
+<p>至此，区间查询也解决了，可以直接找到所有分解成的区间。</p>
+<p>但是有一个问题，如果要查询[1,5]怎么办？[1]左边可是没地方可以放置蓝色节点了。</p>
+<p>问题的解决办法简单粗暴，原数组的1到n就不存在线段树的1到n了，而是存在线段树的2到n+1,</p>
+<p>而开始要建立一颗有n+2个元素的树，空出第一个和最后一个元素的空间。</p>
+<p>现在来讲如何对线段树进行扩充。</p>
+<p><img src="https://img-blog.csdn.net/20150909220210622?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
+<p>再来看这个二叉树，令N&#x3D;8;注意到，该树可以存8个元素，并且[1..7]是非叶节点，[8..15]是叶节点。</p>
+<p>也就是说，左下角为N的二叉树，可以存N个元素，并且[1..N-1]是非叶节点,[N..2N-1]是叶节点。</p>
+<p>并且，<strong>线段树下标+N-1&#x3D;存储下标</strong> （还记不记得原来对三个下标的定义）</p>
+<p>这时，这个线段树存在两段坐标映射：</p>
+<p><strong>原数组下标+1&#x3D;线段树下标</strong></p>
+<p><strong>线段树下标+N-1&#x3D;存储下标</strong> </p>
+<p>联立方程得到：<strong>原数组下标+N&#x3D;存储下标</strong></p>
+<p>于是从原数组下标到存储下标的转换及其简单。</p>
+<p>下一个问题：N怎么确定？</p>
+<p>上面提到了，N的含义之一是，这棵树可以存N个元素，也就是说N必须大于等于n+2</p>
+<p>于是，N的定义，N是大于等于n+2的，某个2的次方。</p>
+<h2 id="区间修改下的区间查询："><a href="#区间修改下的区间查询：" class="headerlink" title="区间修改下的区间查询："></a><strong>区间修改下的区间查询：</strong></h2><p>方法之一：如果题目许可，可以直接打上标记，最后一次下推所有标记，然后就可以遍历叶节点来获取信息。</p>
+<p>方法之二：如果题目查询跟修改混在一起，那么，采用<strong>标记永久化</strong>思想。也就是，不下推标记。</p>
+<p>递归线段树是在查询区间的时候下推标记，使得到达每个子区间的时候，Sum已经是正确值。</p>
+<p>非递归没法这么做，非递归是从下往上，遇到标记就更新答案。</p>
+<p>这题是Add标记，一个区间Add标记表示这个区间所有元素都需要增加Add</p>
+<p>Add含义不变，Add仍然表示本节点的Sum已经更新完毕，但是子节点的Sum仍需要更新.</p>
+<p>现在就是如何在<strong>查询</strong>的时候根据标记更新答案。</p>
+<p>观察下图：</p>
+<p><img src="https://img-blog.csdn.net/20150909222740550?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQv/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="img"></p>
+<p>左边的蓝色节点从下往上走，在蓝色节点到达[1,4]时，注意到，左边蓝色节点之前计算过的所有节点（即[3,4]）都是目前蓝色节点的子节点也就是说，当前蓝色节点的Add是要影响这个节点已经计算过的所有数。多用一个变量来记录这个蓝色节点已经计算过多少个数，根据个数以及当前蓝色节点的Add，来更新最终答案。</p>
+<p>更新完答案之后，再加上[5,8]的答案，同时当前蓝色节点计算过的个数要+4(因为[5,8]里有4个数)</p>
+<p>然后当这个节点到达[1,8]节点时，可以更新[1,8]的Add.</p>
+<p>这里，本来左右蓝色节点相遇之后就不再需要计算了，但是由于有了Add标记，左右蓝色节点的公共祖先上的Add标记会影响目前的所有数，所以还需要一路向上查询到根，沿路根据Add更新答案。</p>
+<h2 id="区间修改："><a href="#区间修改：" class="headerlink" title="区间修改："></a><strong>区间修改：</strong></h2><p>这里讲完了查询，再来讲讲<strong>修改</strong>，</p>
+<p>修改的时候，给某个区间的Add加上了C，这个区间的子区间向上查询时，会经过这个节点，也就是会计算这个Add,但是</p>
+<p>如果路径经过这个区间的父节点，就不会计算这个节点的Add,也就会出错。这里其实跟递归线段树一样，改了某个区间的Add</p>
+<p>仍需要向上更新所有包含这个区间的Sum，来保持上面所有节点的正确性。</p>
+<h1 id="五：非递归实现"><a href="#五：非递归实现" class="headerlink" title="五：非递归实现"></a><strong>五：非递归实现</strong></h1><p>以下以维护数列区间和的线段树为例，演示最基本的非递归线段树代码。</p>
+<p><strong>(0)定义</strong>：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> maxn 100007  </span></span><br><span class="line"><span class="type">int</span> A[maxn],n,N;<span class="comment">//原数组,n为原数组元素个数 ,N为扩充元素个数   </span></span><br><span class="line"><span class="type">int</span> Sum[maxn&lt;&lt;<span class="number">2</span>];<span class="comment">//区间和   </span></span><br><span class="line"><span class="type">int</span> Add[maxn&lt;&lt;<span class="number">2</span>];<span class="comment">//懒惰标记   </span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(1)建树:</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Build</span><span class="params">(<span class="type">int</span> n)</span></span>&#123;  </span><br><span class="line">    <span class="comment">//计算N的值   </span></span><br><span class="line">    N=<span class="number">1</span>;<span class="keyword">while</span>(N &lt; n+<span class="number">2</span>) N &lt;&lt;= <span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//更新叶节点   </span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;++i) Sum[N+i]=A[i];<span class="comment">//原数组下标+N=存储下标  </span></span><br><span class="line">    <span class="comment">//更新非叶节点   </span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=N<span class="number">-1</span>;i&gt;<span class="number">0</span>;--i)&#123;  </span><br><span class="line">        <span class="comment">//更新所有非叶节点的统计信息   </span></span><br><span class="line">        Sum[i]=Sum[i&lt;&lt;<span class="number">1</span>]+Sum[i&lt;&lt;<span class="number">1</span>|<span class="number">1</span>];  </span><br><span class="line">        <span class="comment">//清空所有非叶节点的Add标记   </span></span><br><span class="line">        Add[i]=<span class="number">0</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(2)点修改：</strong></p>
+<p>A[L]+&#x3D;C</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Update</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> C)</span></span>&#123;  </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> s=N+L;s;s&gt;&gt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        Sum[s]+=C;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(3)点修改下的区间查询：</strong></p>
+<p>求A[L..R]的和（点修改没有使用Add所以不需要考虑）</p>
+<p>代码非常简洁，也不难理解,</p>
+<p>s和t分别代表之前的论述中的左右蓝色节点，其余的代码根据之前的论述应该很容易看懂了。</p>
+<p>s^t^1 在s和t的父亲相同时值为0，终止循环。</p>
+<p>两个if是判断s和t分别是左子节点还是右子节点，根据需要来计算Sum</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Query</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R)</span></span>&#123;  </span><br><span class="line">    <span class="type">int</span> ANS=<span class="number">0</span>;  </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> s=N+L<span class="number">-1</span>,t=N+R+<span class="number">1</span>;s^t^<span class="number">1</span>;s&gt;&gt;=<span class="number">1</span>,t&gt;&gt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        <span class="keyword">if</span>(~s&amp;<span class="number">1</span>) ANS+=Sum[s^<span class="number">1</span>];  </span><br><span class="line">        <span class="keyword">if</span>( t&amp;<span class="number">1</span>) ANS+=Sum[t^<span class="number">1</span>];  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> ANS;  </span><br><span class="line">&#125;   </span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>(4)区间修改：</strong></p>
+<p>A[L..R]+&#x3D;C</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&lt;span style=<span class="string">&quot;font-size:14px;&quot;</span>&gt;<span class="comment">//  </span></span><br><span class="line"><span class="type">void</span> <span class="built_in">Update</span>(<span class="type">int</span> L,<span class="type">int</span> R,<span class="type">int</span> C)&#123;  </span><br><span class="line">    <span class="type">int</span> s,t,Ln=<span class="number">0</span>,Rn=<span class="number">0</span>,x=<span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//Ln:  s一路走来已经包含了几个数  </span></span><br><span class="line">    <span class="comment">//Rn:  t一路走来已经包含了几个数  </span></span><br><span class="line">    <span class="comment">//x:   本层每个节点包含几个数  </span></span><br><span class="line">    <span class="keyword">for</span>(s=N+L<span class="number">-1</span>,t=N+R+<span class="number">1</span>;s^t^<span class="number">1</span>;s&gt;&gt;=<span class="number">1</span>,t&gt;&gt;=<span class="number">1</span>,x&lt;&lt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        <span class="comment">//更新Sum  </span></span><br><span class="line">        Sum[s]+=C*Ln;  </span><br><span class="line">        Sum[t]+=C*Rn;  </span><br><span class="line">        <span class="comment">//处理Add  </span></span><br><span class="line">        <span class="keyword">if</span>(~s&amp;<span class="number">1</span>) Add[s^<span class="number">1</span>]+=C,Sum[s^<span class="number">1</span>]+=C*x,Ln+=x;  </span><br><span class="line">        <span class="keyword">if</span>( t&amp;<span class="number">1</span>) Add[t^<span class="number">1</span>]+=C,Sum[t^<span class="number">1</span>]+=C*x,Rn+=x;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">//更新上层Sum  </span></span><br><span class="line">    <span class="keyword">for</span>(;s;s&gt;&gt;=<span class="number">1</span>,t&gt;&gt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        Sum[s]+=C*Ln;  </span><br><span class="line">        Sum[t]+=C*Rn;  </span><br><span class="line">    &#125;   </span><br><span class="line">&#125; &lt;/span&gt;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<p><strong>(5)区间修改下的区间查询：</strong></p>
+<p>求A[L..R]的和</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Query</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R)</span></span>&#123;  </span><br><span class="line">    <span class="type">int</span> s,t,Ln=<span class="number">0</span>,Rn=<span class="number">0</span>,x=<span class="number">1</span>;  </span><br><span class="line">    <span class="type">int</span> ANS=<span class="number">0</span>;  </span><br><span class="line">    <span class="keyword">for</span>(s=N+L<span class="number">-1</span>,t=N+R+<span class="number">1</span>;s^t^<span class="number">1</span>;s&gt;&gt;=<span class="number">1</span>,t&gt;&gt;=<span class="number">1</span>,x&lt;&lt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        <span class="comment">//根据标记更新   </span></span><br><span class="line">        <span class="keyword">if</span>(Add[s]) ANS+=Add[s]*Ln;  </span><br><span class="line">        <span class="keyword">if</span>(Add[t]) ANS+=Add[t]*Rn;  </span><br><span class="line">        <span class="comment">//常规求和   </span></span><br><span class="line">        <span class="keyword">if</span>(~s&amp;<span class="number">1</span>) ANS+=Sum[s^<span class="number">1</span>],Ln+=x;  </span><br><span class="line">        <span class="keyword">if</span>( t&amp;<span class="number">1</span>) ANS+=Sum[t^<span class="number">1</span>],Rn+=x;   </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="comment">//处理上层标记  </span></span><br><span class="line">    <span class="keyword">for</span>(;s;s&gt;&gt;=<span class="number">1</span>,t&gt;&gt;=<span class="number">1</span>)&#123;  </span><br><span class="line">        ANS+=Add[s]*Ln;  </span><br><span class="line">        ANS+=Add[t]*Rn;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> ANS;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+<h1 id="六：线段树解题模型"><a href="#六：线段树解题模型" class="headerlink" title="六：线段树解题模型"></a>六：线段树解题模型</h1><p>给出线段树解题模型以及一些例题。</p>
+<p><img src="/posts/95304e2e/asset/20150915173357612.png" alt="img"></p>
+<p>先对图中各个名字给出定义：</p>
+<p><strong>问题</strong>：可能可以用线段树解决的问题</p>
+<p><strong>目标信息</strong>：由问题转换而成的，为了解决问题而需要统计的信息（可能不满足区间加法）。</p>
+<p><strong>点信息</strong>：每个点储存的信息</p>
+<p><strong>区间信息</strong>：每个区间维护的信息（线段树节点定义） （必须满足区间加法）</p>
+<p>区间信息包括 <strong>统计信息</strong>和<strong>标记</strong></p>
+<p><strong>——–统计信息：</strong>统计节点代表的区间的信息，一般自下而上更新</p>
+<p><strong>——–标记：</strong>对操作进行标记（在区间修改时需要），一般自上而下传递，或者不传递</p>
+<p><strong>区间加法</strong>：实现区间加法的代码</p>
+<p><strong>查询</strong>：实现查询操作的代码</p>
+<p><strong>修改</strong>：实现修改操作的代码</p>
+<p>图中紫线右边是实际线段树的实现，左边是对问题的分析以及转换。</p>
+<p>一个问题，若能转换成对一些连续点的修改或者统计，就可以考虑用线段树解决。</p>
+<p>首先确定<strong>目标信息</strong>和<strong>点信息</strong>，然后将<strong>目标信息</strong>转换成<strong>区间信息</strong>（必要时，增加信息，使之符合区间加法）。</p>
+<p>之后就是线段树的代码实现了，包括：</p>
+<p>1.区间加法 </p>
+<p>2.建树，点信息到区间信息的转换 </p>
+<p>3.每种操作（包括查询，修改）对区间信息的调用，修改</p>
+<p>这样，点的信息不同，区间信息不同，线段树可以维护很多种类的信息，所以是一种非常实用的数据结构。</p>
+<p>可以解决很多问题，下面给出几个例子来说明。</p>
+<h2 id="（1）：字符串哈希"><a href="#（1）：字符串哈希" class="headerlink" title="（1）：字符串哈希"></a><strong>（1）：字符串哈希</strong></h2><p>题目：URAL1989 Subpalindromes   <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/38921403">题解</a></p>
+<p>给定一个字符串(长度&lt;&#x3D;100000)，有两个操作。  1：改变某个字符。 2：判断某个子串是否构成回文串。 </p>
+<p>直接判断会超时。这个题目，是用线段树维护字符串哈希</p>
+<p>对于一个字符串a[0],a[1],…,a[n-1] 它对应的哈希函数为a[0]+a[1]*K + a[2]*K^2 +…+a[n-1]*K^(n-1)</p>
+<p>再维护一个从右往左的哈希值：a[0]*K^(n-1) + a[1]*K^(n-2) +…+a[n-1]</p>
+<p>若是回文串，则左右的哈希值会相等。而左右哈希值相等，则很大可能这是回文串。</p>
+<p>若出现误判，可以再用一个K2，进行二次哈希判断，可以减小误判概率。</p>
+<p>实现上，哈希值最好对某个质数取余数，这样分布更均匀。</p>
+<p>解题模型：</p>
+<p>问题经过转换之后：</p>
+<p><strong>目标信息：</strong>某个区间的左，右哈希值</p>
+<p><strong>点信息：</strong>一个字符</p>
+<p>目标信息已经符合区间加法，所以<strong>区间信息&#x3D;目标信息</strong>。</p>
+<p>所以线段树的结构为：</p>
+<p><strong>区间信息</strong>：区间哈希值</p>
+<p><strong>点信息</strong>：一个字符</p>
+<p>代码主要需要注意2个部分：</p>
+<p>1.区间加法 ：（PushUp函数,Pow[a]&#x3D;K^a）</p>
+<p>2.点信息-&gt;区间信息：(叶节点上，区间只包含一个点，所以需要将点信息转换成区间信息)</p>
+<p>修改以及查询，在有了区间加法的情况下，没什么难度了。</p>
+<p>可以看出，上述解题过程的核心，就是找到<strong>区间信息</strong>， 写好<strong>区间加法</strong>。</p>
+<p>下面是维护区间和的部分，下面的代码没有取余，也就是实际上是对2^32取余数，这样其实分布不均匀，容易出现误判：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> K 137  </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> maxn 100001   </span></span><br><span class="line"><span class="type">char</span> str[maxn];  </span><br><span class="line"><span class="type">int</span> Pow[maxn];<span class="comment">//K的各个次方   </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span>&#123;  </span><br><span class="line">    <span class="type">int</span> KeyL,KeyR;  </span><br><span class="line">    <span class="built_in">Node</span>():<span class="built_in">KeyL</span>(<span class="number">0</span>),<span class="built_in">KeyR</span>(<span class="number">0</span>)&#123;&#125;  </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">init</span><span class="params">()</span></span>&#123;KeyL=KeyR=<span class="number">0</span>;&#125;  </span><br><span class="line">&#125;node[maxn&lt;&lt;<span class="number">2</span>];  </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushUp</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R,<span class="type">int</span> rt)</span></span>&#123;  </span><br><span class="line">    node[rt].KeyL=node[rt&lt;&lt;<span class="number">1</span>].KeyL+node[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>].KeyL*Pow[L];  </span><br><span class="line">    node[rt].KeyR=node[rt&lt;&lt;<span class="number">1</span>].KeyR*Pow[R]+node[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>].KeyR;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="（2）：最长连续零"><a href="#（2）：最长连续零" class="headerlink" title="（2）：最长连续零"></a><strong>（2）：最长连续零</strong></h2><p>题目：Codeforces 527C Glass Carving  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/44759437">题解</a></p>
+<p>题意是给定一个矩形，不停地纵向或横向切割，问每次切割后，最大的矩形面积是多少。</p>
+<p>最大矩形面积&#x3D;最长的长*最宽的宽</p>
+<p>这题，长宽都是10^5，所以，用01序列表示每个点是否被切割，然后，</p>
+<p>最长的长就是长的最长连续0的数量+1</p>
+<p>最长的宽就是宽的最长连续0的数量+1</p>
+<p>于是用线段树维护最长连续零</p>
+<p>问题转换成：</p>
+<p><strong>目标信息</strong>：区间最长连续零的个数</p>
+<p><strong>点信息</strong>：0 或 1</p>
+<p>由于目标信息不符合区间加法，所以要扩充目标信息。</p>
+<p>转换后的<strong>线段树结构</strong>：</p>
+<p><strong>区间信息</strong>：从左，右开始的最长连续零，本区间是否全零，本区间最长连续零。</p>
+<p><strong>点信息</strong>：0 或 1</p>
+<p>然后还是那2个问题：</p>
+<p>1.区间加法：</p>
+<p>这里，一个区间的最长连续零，需要考虑3部分：</p>
+<p>-（1）：左子区间最长连续零</p>
+<p>-（2）：右子区间最长连续零</p>
+<p>-（3）：左右子区间拼起来，而在中间生成的连续零（可能长于两个子区间的最长连续零）</p>
+<p>而中间拼起来的部分长度，其实是左区间从右开始的最长连续零+右区间从左开始的最长连续零。</p>
+<p>所以每个节点需要多两个量，来存从左右开始的最长连续零。</p>
+<p>然而，左开始的最长连续零分两种情况，</p>
+<p>–（1）：左区间不是全零，那么等于左区间的左最长连续零</p>
+<p>–（2）：左区间全零，那么等于左区间0的个数加上右区间的左最长连续零</p>
+<p>于是，需要知道左区间是否全零，于是再多加一个变量。</p>
+<p>最终，通过维护4个值，达到了维护区间最长连续零的效果。</p>
+<p>2.点信息-&gt;区间信息 ： </p>
+<p>如果是0，那么  最长连续零&#x3D;左最长连续零&#x3D;右最长连续零&#x3D;1 ，全零&#x3D;true。</p>
+<p>如果是1，那么  最长连续零&#x3D;左最长连续零&#x3D;右最长连续零&#x3D;0， 全零&#x3D;false。</p>
+<p>至于修改和查询，有了区间加法之后，机械地写一下就好了。</p>
+<p>由于这里其实只有对整个区间的查询，所以查询函数是不用写的，直接找根的统计信息就行了。</p>
+<p>代码如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> maxn 200001  </span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;  </span><br><span class="line"><span class="type">int</span> L[maxn&lt;&lt;<span class="number">2</span>][<span class="number">2</span>];<span class="comment">//从左开始连续零个数   </span></span><br><span class="line"><span class="type">int</span> R[maxn&lt;&lt;<span class="number">2</span>][<span class="number">2</span>];<span class="comment">//从右   </span></span><br><span class="line"><span class="type">int</span> Max[maxn&lt;&lt;<span class="number">2</span>][<span class="number">2</span>];<span class="comment">//区间最大连续零   </span></span><br><span class="line"><span class="type">bool</span> Pure[maxn&lt;&lt;<span class="number">2</span>][<span class="number">2</span>];<span class="comment">//是否全零   </span></span><br><span class="line"><span class="type">int</span> M[<span class="number">2</span>];  </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushUp</span><span class="params">(<span class="type">int</span> rt,<span class="type">int</span> k)</span></span>&#123;<span class="comment">//更新rt节点的四个数据  k来选择两棵线段树  </span></span><br><span class="line">    Pure[rt][k]=Pure[rt&lt;&lt;<span class="number">1</span>][k]&amp;&amp;Pure[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k];   </span><br><span class="line">    Max[rt][k]=<span class="built_in">max</span>(R[rt&lt;&lt;<span class="number">1</span>][k]+L[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k],<span class="built_in">max</span>(Max[rt&lt;&lt;<span class="number">1</span>][k],Max[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k]));  </span><br><span class="line">    L[rt][k]=Pure[rt&lt;&lt;<span class="number">1</span>][k]?L[rt&lt;&lt;<span class="number">1</span>][k]+L[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k]:L[rt&lt;&lt;<span class="number">1</span>][k];  </span><br><span class="line">    R[rt][k]=Pure[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k]?R[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k]+R[rt&lt;&lt;<span class="number">1</span>][k]:R[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>][k];  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="（3）：计数排序"><a href="#（3）：计数排序" class="headerlink" title="（3）：计数排序"></a><strong>（3）：计数排序</strong></h2><p>题目：Codeforces 558E A Simple Task  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48048559">题解</a></p>
+<p>给定一个长度不超过10^5的字符串（小写英文字母），和不超过5000个操作。</p>
+<p>每个操作 L R K 表示给区间[L,R]的字符串排序，K&#x3D;1为升序，K&#x3D;0为降序。</p>
+<p>最后输出最终的字符串。</p>
+<p>题目转换成：</p>
+<p><strong>目标信息</strong>：区间的计数排序结果</p>
+<p><strong>点信息</strong>：一个字符</p>
+<p>这里，目标信息是符合区间加法的，但是为了支持区间操作，还是需要扩充信息。</p>
+<p>转换后的<strong>线段树结构</strong>：</p>
+<p><strong>区间信息</strong>：区间的计数排序结果，排序标记，排序种类（升，降）</p>
+<p><strong>点信息</strong>：一个字符</p>
+<p>代码中需要解决的四个问题（难点在于标记下推和区间修改）：</p>
+<p>1.区间加法</p>
+<p>对应的字符数量相加即可（注意标记是不上传的，所以区间加法不考虑标记）。</p>
+<p>2.点信息-&gt;区间信息：把对应字符的数量设置成1，其余为0，排序标记为false。</p>
+<p>3.<strong>标记下推</strong></p>
+<p>明显，排序标记是<strong>绝对标记</strong>，也就是说，标记对子节点是覆盖式的效果，一旦被打上标记，下层节点的一切信息都无效。</p>
+<p>下推标记时，根据自己的排序结果，将元素分成对应的部分，分别装入两个子树。</p>
+<p>4.<strong>区间修改</strong></p>
+<p>这个是难点，由于要对某个区间进行排序，首先对各个子区间求和（求和之前一定要下推标记，才能保证求的和是正确的）</p>
+<p>由于使用的计数排序，所以求和之后，新顺序也就出来了。然后按照排序的顺序按照每个子区间的大小来分配字符。</p>
+<p>操作后，每个子区间都被打上了标记。</p>
+<p>最后，在所有操作结束之后，一次下推所有标记，就可以得到最终的字符序列。</p>
+<p>这里只给出节点定义。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span>&#123;  </span><br><span class="line">    <span class="type">int</span> d[<span class="number">26</span>];<span class="comment">//计数排序   </span></span><br><span class="line">    <span class="type">int</span> D;<span class="comment">//总数  </span></span><br><span class="line">    <span class="type">bool</span> sorted;<span class="comment">//是否排好序   </span></span><br><span class="line">    <span class="type">bool</span> Inc;<span class="comment">//是否升序  </span></span><br><span class="line">&#125;;  </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="（4）总结："><a href="#（4）总结：" class="headerlink" title="（4）总结："></a><strong>（4）总结：</strong></h2><p>总结一下，线段树解题步骤。</p>
+<p><strong>一</strong>：将问题转换成<strong>点信息</strong>和<strong>目标信息</strong>。</p>
+<p>即，将问题转换成对一些点的信息的统计问题。</p>
+<p><strong>二</strong>：将<strong>目标信息</strong>根据需要扩充成<strong>区间信息</strong></p>
+<p>1.增加信息符合区间加法。</p>
+<p>2.增加标记支持区间操作。</p>
+<p><strong>三</strong>：代码中的主要模块：</p>
+<p>1.区间加法 </p>
+<p>2.标记下推 </p>
+<p>3.点信息-&gt;区间信息 </p>
+<p>4.操作（各种操作，包括修改和查询）</p>
+<p>完成第一步之后，题目有了可以用线段树解决的可能。</p>
+<p>完成第二步之后，题目可以由线段树解决。</p>
+<p>第三步就是慢慢写代码了。</p>
+<h1 id="七：扫描线"><a href="#七：扫描线" class="headerlink" title="七：扫描线"></a><strong>七：扫描线</strong></h1><p>线段树的一大应用是扫描线。</p>
+<p>先把相关题目给出，有兴趣可以去找来练习：</p>
+<p>POJ 1177 Picture:给定若干矩形求合并之后的图形周长   <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47685361">题解</a></p>
+<p>HDU 1255 覆盖的面积：给定平面上若干矩形,求出被这些矩形覆盖过至少两次的区域的面积.  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47762543"> 题解</a></p>
+<p>HDU 3642 Get The Treasury：给定若干空间立方体，求重叠了3次或以上的体积（这个是扫描面，每个面再扫描线）<a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47763001">题解</a></p>
+<p>再补充一道稍微需要一点模型转换的扫描线题：</p>
+<p>POJ 2482 Stars in your window : 给定一些星星的位置和亮度，求用W*H的矩形能够框住的星星亮度之和最大为多少。</p>
+<p>这题是把星星转换成了矩形，把矩形框转换成了点，然后再扫描线。  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47663851">题解</a></p>
+<h2 id="扫描线求重叠矩形面积："><a href="#扫描线求重叠矩形面积：" class="headerlink" title="扫描线求重叠矩形面积："></a><strong>扫描线求重叠矩形面积：</strong></h2><p>考虑下图中的四个矩形：</p>
+<p><img src="/posts/95304e2e/asset/20150910075556358.png" alt="img"></p>
+<p><img src="/posts/95304e2e/asset/20150910075603559.png" alt="img"></p>
+<p><img src="/posts/95304e2e/asset/20150910075607860.png" alt="img"></p>
+<p>观察第三个图：</p>
+<p>扫描线的思路：使用一条垂直于X轴的直线，从左到右来扫描这个图形，明显，只有在碰到矩形的左边界或者右边界的时候，</p>
+<p>这个线段所扫描到的情况才会改变，所以把所有矩形的入边，出边按X值排序。然后根据X值从小到大去处理，就可以</p>
+<p>用线段树来维护扫描到的情况。如上图，X1到X8是所有矩形的入边，出边的X坐标。</p>
+<p>而红色部分的线段，是这样，如果碰到矩形的入边，就把这条边加入，如果碰到出边，就拿走。红色部分就是有线段覆盖的部分。</p>
+<p>要求面积，只需要知道图中的L1到L8。而线段树就是用来维护这个L1到L8的。</p>
+<p>扫描线算法流程：</p>
+<p>**X1:**首先遇到X1,将第一条线段加入线段树，由线段树统计得到线段长度为L1.</p>
+<p>**X2:**然后继续扫描到X2,此时要进行两个动作：</p>
+<p>1.计算面积，目前扫过的面积&#x3D;L1*(X2-X1)</p>
+<p>2.更新线段。由于X2处仍然是入边，所以往线段树中又加了一条线段，加的这条线段可以参考3幅图中的第一幅。</p>
+<p>然后线段树自动得出此时覆盖的线段长度为L2 （注意两条线段有重叠部分，重叠部分的长度只能算一次）</p>
+<p>**X3:**继续扫描到X3，步骤同X2</p>
+<p>先计算 扫过的面积+&#x3D;L2*(X3-X2)</p>
+<p>再加入线段，得到L3.</p>
+<p>**X4:**扫描到X4有些不一样了。</p>
+<p>首先还是计算  扫过的面积+&#x3D;L3*(X4-X3)</p>
+<p>然后这时遇到了第一个矩形的出边，这时要从线段树中删除一条线段。</p>
+<p>删除之后的结果是线段树中出现了2条线段，线段树自动维护这两条线段的长度之和L4</p>
+<p>讲到这里算法流程应该很清晰了。</p>
+<p>首先将所有矩形的入边，出边都存起来，然后根据X值排序。</p>
+<p>这里用一个结构体，来存这些信息，然后排序。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">LINE</span>&#123;  </span><br><span class="line">    <span class="type">int</span> x;<span class="comment">//横坐标   </span></span><br><span class="line">    <span class="type">int</span> y1,y2;<span class="comment">//矩形纵向线段的左右端点   </span></span><br><span class="line">    <span class="type">bool</span> In;<span class="comment">//标记是入边还是出边   </span></span><br><span class="line">    <span class="type">bool</span> <span class="keyword">operator</span> &lt; (<span class="type">const</span> Line &amp;B)<span class="type">const</span>&#123;<span class="keyword">return</span> x &lt; B.x;&#125;  </span><br><span class="line">&#125;Line[maxn];   </span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>然后扫描的时候，需要两个变量，一个叫PreL，存前一个x的操作结束之后的L值，和X，前一个横坐标。</p>
+<p>假设一共有Ln条线段，线段下标从0开始，已经排好序。</p>
+<p>那么算法大概是这样：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="type">int</span> PreL=<span class="number">0</span>;<span class="comment">//前一个L值,刚开始是0，所以第一次计算时不会引入误差   </span></span><br><span class="line"><span class="type">int</span> X;<span class="comment">//X值   </span></span><br><span class="line"><span class="type">int</span> ANS=<span class="number">0</span>;<span class="comment">//存累计面积  </span></span><br><span class="line"><span class="type">int</span> I=<span class="number">0</span>;<span class="comment">//线段的下标   </span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">while</span>(I &lt; Ln)&#123;  </span><br><span class="line">    <span class="comment">//先计算面积   </span></span><br><span class="line">    ANS+=PreL*(Line[I].x-X);  </span><br><span class="line">    X=Line[I].x;<span class="comment">//更新X值  </span></span><br><span class="line">    <span class="comment">//对所有X相同的线段进行操作   </span></span><br><span class="line">    <span class="keyword">while</span>(I &lt; Ln &amp;&amp; Line[I].x == X)&#123;  </span><br><span class="line">        <span class="comment">//根据入边还是出边来选择加入线段还是移除线段   </span></span><br><span class="line">        <span class="keyword">if</span>(Line[I].In) <span class="built_in">Cover</span>(Line[I].y1,Line[I].y2<span class="number">-1</span>,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br><span class="line">        <span class="keyword">else</span>         <span class="built_in">Uncover</span>(Line[I].y1,Line[I].y2<span class="number">-1</span>,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br><span class="line">        ++I;  </span><br><span class="line">    &#125;   </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<p>无论是求面积还是周长，扫描线的结构大概就是上面的样子。</p>
+<h2 id="需要解决的几个问题："><a href="#需要解决的几个问题：" class="headerlink" title="需要解决的几个问题："></a><strong>需要解决的几个问题：</strong></h2><p>现在有两点需要说明一下。</p>
+<p>（1）：线段树进行线段操作时，每个点的含义（比如为什么Cover函数中，y2后面要-1）。</p>
+<p>（2）：线段树如何维护扫描线过程中的覆盖线段长度。</p>
+<p>（3）：线段树如何维护扫描线过程中线段的数量。</p>
+<h3 id="（1）：线段树中点的含义"><a href="#（1）：线段树中点的含义" class="headerlink" title="（1）：线段树中点的含义"></a><strong>（1）：线段树中点的含义</strong></h3><p>线段树如果没有离散化，那么线段树下标为1，就代表线段[1,2)</p>
+<p>线段树下标为K的时候，代表的线段为[K,K+1) （长度为1）</p>
+<p>所以，将上面的所有线段都化为[y1,y2)就可以理解了，线段[y1,y2)只包括线段树下标中的y1,y1+1,…,y2-1</p>
+<p>当y值的范围是10^9时，就不能再按照上面的办法按值建树了，这时需要离散化。</p>
+<p>下面是<strong>离散化</strong>的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="type">int</span> Rank[maxn],Rn;  </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">SetRank</span><span class="params">()</span></span>&#123;<span class="comment">//调用前，所有y值被无序存入Rank数组，下标为[1..Rn]   </span></span><br><span class="line">    <span class="type">int</span> I=<span class="number">1</span>;  </span><br><span class="line">    <span class="comment">//第一步排序   </span></span><br><span class="line">    <span class="built_in">sort</span>(Rank+<span class="number">1</span>,Rank+<span class="number">1</span>+Rn);   </span><br><span class="line">    <span class="comment">//第二步去除重复值   </span></span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">2</span>;i&lt;=Rn;++i) <span class="keyword">if</span>(Rank[i]!=Rank[i<span class="number">-1</span>]) Rank[++I]=Rank[i];  </span><br><span class="line">    Rn=I;  </span><br><span class="line">    <span class="comment">//此时，所有y值被从小到大无重复地存入Rank数组，下标为[1..Rn]   </span></span><br><span class="line">&#125;   </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">GetRank</span><span class="params">(<span class="type">int</span> x)</span></span>&#123;<span class="comment">//给定x，求x的下标   </span></span><br><span class="line">    <span class="comment">//二分法求下标   </span></span><br><span class="line">    <span class="type">int</span> L=<span class="number">1</span>,R=Rn,M;<span class="comment">//[L,R] first &gt;=x  </span></span><br><span class="line">    <span class="keyword">while</span>(L!=R)&#123;  </span><br><span class="line">        M=(L+R)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">        <span class="keyword">if</span>(Rank[M]&lt;x) L=M+<span class="number">1</span>;  </span><br><span class="line">        <span class="keyword">else</span> R=M;  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> L;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+<p>此时，线段树的下标的含义就变成：如果线段树下标为K,代表线段[ Rank[K] , Rank[K+1] )。</p>
+<p>下标为K的线段长度为Rank[K+1]-Rank[K]</p>
+<p>所以此时叶节点的线段长度不是1了。</p>
+<p>这时，之前的扫描线算法的函数调用部分就稍微的改变了一点：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="keyword">if</span>(Line[I].In) <span class="built_in">Cover</span>(<span class="built_in">GetRank</span>(Line[I].y1),<span class="built_in">GetRank</span>(Line[I].y2)<span class="number">-1</span>,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br><span class="line"><span class="keyword">else</span>         <span class="built_in">Uncover</span>(<span class="built_in">GetRank</span>(Line[I].y1),<span class="built_in">GetRank</span>(Line[I].y2)<span class="number">-1</span>,<span class="number">1</span>,n,<span class="number">1</span>);  </span><br></pre></td></tr></table></figure>
+
+
+
+<p>看着有点长，其实不难理解，只是多了一步从y值到离散之后的下标的转换。</p>
+<p>注意一点，如果下标为K的线段长度为Rank[K+1]-Rank[K]，那么下标为Rn的线段树的长度呢？</p>
+<p>其实这个不用担心，Rank[Rn]作为所有y值中的最大值，它肯定是一个线段的右端点，</p>
+<p>而右端点求完离散之后的下标还要-1，所以上面的线段覆盖永远不会覆盖到Rn。</p>
+<p>所以线段树其实只需要建立Rn-1个元素，因为下标为Rn的无法定义，也不会被访问。</p>
+<p>不过有时候留着也有好处，这个看具体实现时自己取舍。</p>
+<h3 id="（2）：如何维护覆盖线段长度"><a href="#（2）：如何维护覆盖线段长度" class="headerlink" title="（2）：如何维护覆盖线段长度"></a><strong>（2）：如何维护覆盖线段长度</strong></h3><p>先提一个小技巧，一般，利用两个子节点来更新本节点的函数写成PushUp();</p>
+<p>但是，对于比较复杂的子区间合并问题，在区间查询的时候，需要合并若干个子区间。</p>
+<p>而合并子区间是没办法用PushUp函数的。于是，对于比较复杂的问题，把单个节点的信息写成一个结构体。</p>
+<p>在结构体内重载运算符”+”，来实现区间合并。这样，不仅在PushUp函数可以调用这个加法，区间询问时也可以</p>
+<p>调用这个加法，这样更加方便。</p>
+<p>下面给出维护线段覆盖长度的节点定义：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span>&#123;  </span><br><span class="line">    <span class="type">int</span> Cover;<span class="comment">//区间整体被覆盖的次数   </span></span><br><span class="line">    <span class="type">int</span> L;<span class="comment">//Length : 所代表的区间总长度  </span></span><br><span class="line">    <span class="type">int</span> CL;<span class="comment">//Cover Length :实际覆盖长度  </span></span><br><span class="line">    Node <span class="keyword">operator</span> +(<span class="type">const</span> Node &amp;B)<span class="type">const</span>&#123;  </span><br><span class="line">        Node X;  </span><br><span class="line">        X.Cover=<span class="number">0</span>;<span class="comment">//因为若上级的Cover不为0，不会调用子区间加法函数   </span></span><br><span class="line">        X.L=L+B.L;  </span><br><span class="line">        X.CL=CL+B.CL;  </span><br><span class="line">        <span class="keyword">return</span> X;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;K[maxn&lt;&lt;<span class="number">2</span>];  </span><br></pre></td></tr></table></figure>
+
+
+
+<p>若本区间的覆盖次数大于0，那么令CL&#x3D;L,直接为全覆盖，不管下层是怎么覆盖的，反正本区间已经全被覆盖。</p>
+<p>若本区间的覆盖次数等于0，那么调用上面结构体中的加法函数，利用子区间的覆盖来计算。</p>
+<p>加入一条线段就是给每一个分解的子区间的Cover+1,删除线段就-1，每次修改Cover之后，更新区间信息。</p>
+<p>这里完全没有下推标记的过程。</p>
+<p><strong>查询</strong>的代码如下：</p>
+<p>如果不把区间加法定义成结构体内部的函数，而是定义在PushUp函数内，那么这里几乎就要重写一遍区间合并。</p>
+<p>因为PushUp在这里用不上。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="function">Node <span class="title">Query</span><span class="params">(<span class="type">int</span> L,<span class="type">int</span> R,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> rt)</span></span>&#123;  </span><br><span class="line">    <span class="keyword">if</span>(L &lt;= l &amp;&amp; r &lt;= R)&#123;  </span><br><span class="line">        <span class="keyword">return</span> K[rt];  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;  </span><br><span class="line">    Node LANS,RANS;  </span><br><span class="line">    <span class="type">int</span> X=<span class="number">0</span>;  </span><br><span class="line">    <span class="keyword">if</span>(L &lt;= m) LANS=<span class="built_in">Query</span>(L,R,ls),X+=<span class="number">1</span>;  </span><br><span class="line">    <span class="keyword">if</span>(R &gt;  m) RANS=<span class="built_in">Query</span>(L,R,rs),X+=<span class="number">2</span>;  </span><br><span class="line">    <span class="keyword">if</span>(X==<span class="number">1</span>) <span class="keyword">return</span> LANS;  </span><br><span class="line">    <span class="keyword">if</span>(X==<span class="number">2</span>) <span class="keyword">return</span> RANS;  </span><br><span class="line">    <span class="keyword">return</span> LANS+RANS;  </span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+
+
+
+<p><strong>维护线段覆盖3次或以上的长度：</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//  </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Nodes</span>&#123;    </span><br><span class="line">    <span class="type">int</span> C;<span class="comment">//Cover    </span></span><br><span class="line">    <span class="type">int</span> CL[<span class="number">4</span>];<span class="comment">//CoverLength[0~3]    </span></span><br><span class="line">    <span class="comment">//CL[i]表示被覆盖了大于等于i次的线段长度，CL[0]其实就是线段总长   </span></span><br><span class="line">&#125;ST[maxn&lt;&lt;<span class="number">2</span>];    </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushUp</span><span class="params">(<span class="type">int</span> rt)</span></span>&#123;    </span><br><span class="line">    <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=<span class="number">3</span>;++i)&#123;    </span><br><span class="line">        <span class="keyword">if</span>(ST[rt].C &lt; i) ST[rt].CL[i]=ST[rt&lt;&lt;<span class="number">1</span>].CL[i-ST[rt].C]+ST[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>].CL[i-ST[rt].C];    </span><br><span class="line">        <span class="keyword">else</span> ST[rt].CL[i]=ST[rt].CL[<span class="number">0</span>];    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>这里给出节点定义和PushUp().</p>
+<p>更新节点信息的思路大概就是：</p>
+<p>假设要更新CL[3],然后发现本节点被覆盖了2次，那么本节点被覆盖三次或以上的长度就等于子节点被覆盖了1次或以上的长度之和。</p>
+<p>而CL[0]建树时就赋值，之后不需要修改。</p>
+<h3 id="（3）：如何维护扫描线过程中线段的数量"><a href="#（3）：如何维护扫描线过程中线段的数量" class="headerlink" title="（3）：如何维护扫描线过程中线段的数量"></a><strong>（3）：如何维护扫描线过程中线段的数量</strong></h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span>&#123;    </span><br><span class="line">    <span class="type">int</span> cover;<span class="comment">//完全覆盖层数    </span></span><br><span class="line">    <span class="type">int</span> lines;<span class="comment">//分成多少个线段    </span></span><br><span class="line">    <span class="type">bool</span> L,R;<span class="comment">//左右端点是否被覆盖    </span></span><br><span class="line">    Node <span class="keyword">operator</span> +(<span class="type">const</span> Node &amp;B)&#123;<span class="comment">//连续区间的合并     </span></span><br><span class="line">        Node C;    </span><br><span class="line">        C.cover=<span class="number">0</span>;    </span><br><span class="line">        C.lines=lines+B.lines-(R&amp;&amp;B.L);    </span><br><span class="line">        C.L=L;C.R=B.R;    </span><br><span class="line">        <span class="keyword">return</span> C;    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;K[maxn&lt;&lt;<span class="number">2</span>];   </span><br></pre></td></tr></table></figure>
+
+
+
+
+<p>要维护被分成多少个线段，就需要记录左右端点是否被覆盖，知道了这个，就可以合并区间了。</p>
+<p>左右两个区间合并时，若左区间的最右侧有线段且右区间的最左侧也有线段，那么这两个线段会合二为一，于是总线段数量会少1.</p>
+<h2 id="扫描线求重叠矩形周长："><a href="#扫描线求重叠矩形周长：" class="headerlink" title="扫描线求重叠矩形周长："></a><strong>扫描线求重叠矩形周长：</strong></h2><p><img src="/posts/95304e2e/asset/20150910134955319.png" alt="img"></p>
+<p>这个图是在原来的基础上多画了一些东西，这次是要求周长。</p>
+<p>所有的横向边都画了紫色，所有的纵向边画了绿色。</p>
+<p>先考虑<strong>绿色的边</strong>，由图可以观察到，绿色边的长度其实就是L的变化值。</p>
+<p>比如考虑X1,本来L是0,从0变到L1,所以绿色边长为L1.</p>
+<p>再考虑X2,由L1变成了L2,所以绿色边长度为L2-L1,</p>
+<p>于是，绿色边的长度就是L的变化值（注意上图中令L0&#x3D;0,L9&#x3D;0）。</p>
+<p>因为长度是从0开始变化，最终归0.</p>
+<p>再考虑<strong>紫色的边</strong>，要计算紫色边，其实就是计算L的线段是有几个线段组成的，每个线段会贡献两个端点（紫色圆圈）</p>
+<p>而每个端点都会向右延伸出一条紫色边一直到下一个X值。</p>
+<p>所以周长就是以上两部分的和。而两部分怎么维护，前面都讲过了，下面给出代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//   </span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">Node</span>&#123;    </span><br><span class="line">    <span class="type">int</span> cover;<span class="comment">//完全覆盖层数    </span></span><br><span class="line">    <span class="type">int</span> lines;<span class="comment">//分成多少个线段    </span></span><br><span class="line">    <span class="type">bool</span> L,R;<span class="comment">//左右端点是否被覆盖    </span></span><br><span class="line">    <span class="type">int</span> CoverLength;<span class="comment">//覆盖长度     </span></span><br><span class="line">    <span class="type">int</span> Length;<span class="comment">//总长度     </span></span><br><span class="line">    <span class="built_in">Node</span>()&#123;&#125;    </span><br><span class="line">    <span class="built_in">Node</span>(<span class="type">int</span> cover,<span class="type">int</span> lines,<span class="type">bool</span> L,<span class="type">bool</span> R,<span class="type">int</span> CoverLength):<span class="built_in">cover</span>(cover),<span class="built_in">lines</span>(lines),<span class="built_in">L</span>(L),<span class="built_in">R</span>(R),<span class="built_in">CoverLength</span>(CoverLength)&#123;&#125;    </span><br><span class="line">    Node <span class="keyword">operator</span> +(<span class="type">const</span> Node &amp;B)&#123;<span class="comment">//连续区间的合并     </span></span><br><span class="line">        Node C;    </span><br><span class="line">        C.cover=<span class="number">0</span>;    </span><br><span class="line">        C.lines=lines+B.lines-(R&amp;&amp;B.L);    </span><br><span class="line">        C.CoverLength=CoverLength+B.CoverLength;    </span><br><span class="line">        C.L=L;C.R=B.R;    </span><br><span class="line">        C.Length=Length+B.Length;    </span><br><span class="line">        <span class="keyword">return</span> C;    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;K[maxn&lt;&lt;<span class="number">2</span>];    </span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">PushUp</span><span class="params">(<span class="type">int</span> rt)</span></span>&#123;<span class="comment">//更新非叶节点     </span></span><br><span class="line">    <span class="keyword">if</span>(K[rt].cover)&#123;    </span><br><span class="line">        K[rt].CoverLength=K[rt].Length;    </span><br><span class="line">        K[rt].L=K[rt].R=K[rt].lines=<span class="number">1</span>;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="keyword">else</span>&#123;    </span><br><span class="line">        K[rt]=K[rt&lt;&lt;<span class="number">1</span>]+K[rt&lt;&lt;<span class="number">1</span>|<span class="number">1</span>];    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<p>扫描的代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> PreX=L[<span class="number">0</span>].x;<span class="comment">//前X坐标     </span></span><br><span class="line"><span class="type">int</span> ANS=<span class="number">0</span>;<span class="comment">//目前累计答案     </span></span><br><span class="line"><span class="type">int</span> PreLength=<span class="number">0</span>;<span class="comment">//前线段总长    </span></span><br><span class="line"><span class="type">int</span> PreLines=<span class="number">0</span>;<span class="comment">//前线段数量     </span></span><br><span class="line"><span class="built_in">Build</span>(<span class="number">1</span>,<span class="number">20001</span>,<span class="number">1</span>);    </span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;nL;++i)&#123;    </span><br><span class="line">    <span class="comment">//操作     </span></span><br><span class="line">    <span class="keyword">if</span>(L[i].c) <span class="built_in">Cover</span>(L[i].y1,L[i].y2<span class="number">-1</span>,<span class="number">1</span>,<span class="number">20001</span>,<span class="number">1</span>);    </span><br><span class="line">    <span class="keyword">else</span> <span class="built_in">Uncover</span>(L[i].y1,L[i].y2<span class="number">-1</span>,<span class="number">1</span>,<span class="number">20001</span>,<span class="number">1</span>);    </span><br><span class="line">    <span class="comment">//更新横向的边界     </span></span><br><span class="line">    ANS+=<span class="number">2</span>*PreLines*(L[i].x-PreX);    </span><br><span class="line">    PreLines=K[<span class="number">1</span>].lines;    </span><br><span class="line">    PreX=L[i].x;    </span><br><span class="line">    <span class="comment">//更新纵向边界     </span></span><br><span class="line">    ANS+=<span class="built_in">abs</span>(K[<span class="number">1</span>].CoverLength-PreLength);    </span><br><span class="line">    PreLength=K[<span class="number">1</span>].CoverLength;    </span><br><span class="line">&#125;    </span><br><span class="line"><span class="comment">//输出答案     </span></span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>,ANS);  </span><br></pre></td></tr></table></figure>
+
+<p>这个首先扫描面，每个面内求重叠了3次或以上的面积，然后乘以移动距离就是体积。</p>
+<p>面内扫描线，用线段树维护重叠了3次或以上的线段长度，然后用长度乘移动距离就是重叠了3次或以上的面积。</p>
+<p>扫描面基本原理都跟扫描线一样，就是嵌套了一层而已，写的时候细心一点就没问题了。</p>
+<h1 id="八：可持久化-主席树"><a href="#八：可持久化-主席树" class="headerlink" title="八：可持久化 (主席树)"></a><strong>八：可持久化 (主席树)</strong></h1><p>可持久化线段树，也叫主席树。</p>
+<p>可持久化数据结构思想，就是保留整个操作的历史，即，对一个线段树进行操作之后，保留访问操作前的线段树的能力。</p>
+<p>最简单的方法，每操作一次，建立一颗新树。这样对空间的需求会很大。</p>
+<p>而注意到，对于点修改，每次操作最多影响<img src="https://img-blog.csdn.net/20150908232141714" alt="img">个节点，于是，其实操作前后的两个线段树，结构一样，</p>
+<p>而且只有<img src="https://img-blog.csdn.net/20150908232141714" alt="img">个节点不同，其余的节点都一样，于是可以重复利用其余的点。</p>
+<p>这样，每次操作，会增加<img src="https://img-blog.csdn.net/20150908232141714" alt="img">个节点。</p>
+<p>于是，这样的线段树，每次操作需要O(log2(n))的空间。</p>
+<p><strong>题目：HDU 2665 Kth number</strong>    <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/44981711">题解</a></p>
+<p>给定10万个数，10万个询问。</p>
+<p>每个询问，问区间[L,R]中的数，从小到大排列的话，第k个数是什么。</p>
+<p>这个题，首先对十万个数进行离散化，然后用线段树来维护数字出现的次数。</p>
+<p>每个节点都存出现次数，那么查询时，若左节点的数的个数&gt;&#x3D;k，就往左子树递归，否则往右子树递归。</p>
+<p>一直到叶节点，就找到了第k大的数。</p>
+<p>这题的问题是，怎么得到一个区间的每个数出现次数。</p>
+<p>注意到，数字的出现次数是满足区间减法的。</p>
+<p>于是要求区间[L,R]的数，其实就是T[R]-T[L-1]  ，其中T[X]表示区间[1,X]的数形成的线段树。</p>
+<p>现在的问题就是，如何建立这10万个线段树。</p>
+<p>由之前的分析，需要O(n log2(n))的空间</p>
+<p>下面是代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//主席树     </span></span><br><span class="line"><span class="type">int</span> L[maxnn],R[maxnn],Sum[maxnn],T[maxn],TP;<span class="comment">//左右子树，总和，树根，指针     </span></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">Add</span><span class="params">(<span class="type">int</span> &amp;rt,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> x)</span></span>&#123;<span class="comment">//建立新树，l,r是区间， x是新加入的数字的排名  </span></span><br><span class="line">    ++TP;L[TP]=L[rt];R[TP]=R[rt];Sum[TP]=Sum[rt]+<span class="number">1</span>;rt=TP;<span class="comment">//复制&amp;新建    </span></span><br><span class="line">    <span class="keyword">if</span>(l==r) <span class="keyword">return</span>;    </span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;    </span><br><span class="line">    <span class="keyword">if</span>(x &lt;= m) <span class="built_in">Add</span>(L[rt],l,m,x);    </span><br><span class="line">    <span class="keyword">else</span>       <span class="built_in">Add</span>(R[rt],m+<span class="number">1</span>,r,x);    </span><br><span class="line">&#125;    </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">Search</span><span class="params">(<span class="type">int</span> TL,<span class="type">int</span> TR,<span class="type">int</span> l,<span class="type">int</span> r,<span class="type">int</span> k)</span></span>&#123;<span class="comment">//区间查询第k大    </span></span><br><span class="line">    <span class="keyword">if</span>(l==r) <span class="keyword">return</span> l;<span class="comment">//返回第k大的下标    </span></span><br><span class="line">    <span class="type">int</span> m=(l+r)&gt;&gt;<span class="number">1</span>;    </span><br><span class="line">    <span class="keyword">if</span>(Sum[L[TR]]-Sum[L[TL]]&gt;=k) <span class="keyword">return</span> <span class="built_in">Search</span>(L[TL],L[TR],l,m,k);    </span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">return</span> <span class="built_in">Search</span>(R[TL],R[TR],m+<span class="number">1</span>,r,k-Sum[L[TR]]+Sum[L[TL]]);    </span><br><span class="line">&#125;    </span><br></pre></td></tr></table></figure>
+
+
+<p>以上就是主席树部分的代码。</p>
+<p>熟悉SBT的，应该都很熟悉这种表示方法。</p>
+<p>L,R是伪指针，指向左右子节点。</p>
+<p>特殊之处是，0 表示空树，并且 L[0]&#x3D;R[0]&#x3D;0.</p>
+<p>也就是说，空树的左右子树都是空树。</p>
+<p>而本题中，每一颗树其实都是完整的，刚开始有一颗空树。</p>
+<p>但是刚开始的空树，真的需要用空间去存吗？</p>
+<p>其实不需要，刚开始的空树有这些性质：</p>
+<p>1.每个节点的Sum值为0</p>
+<p>2.每个非叶节点的左右子节点的Sum值也是0</p>
+<p>而SBT的空树刚好满足这个性质。而线段树不依赖L,R指针来结束递归。</p>
+<p>线段树是根据区间l,r来结束的，所以不会出现死循环。</p>
+<p>所以只需要把Sum[0]&#x3D;0;那么刚开始就不需要建树了，只有每个操作的<img src="https://img-blog.csdn.net/20150908232141714" alt="img">个节点。</p>
+<p>这个线段树少了表示父节点的int rt，因为不需要（也不能够）通过rt来找子节点了，而是直接根据L,R来找。</p>
+<p>—————————–   补充   ————————————-</p>
+<p>终于又找到一道可以用主席树的题目了：<strong>Codeforces 650D.Zip-line</strong> <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/50857353">题解</a></p>
+<p>做这题之前需要会求普通的LIS问题（最长上升子序列问题）。</p>
+<h1 id="九：练习题"><a href="#九：练习题" class="headerlink" title="九：练习题"></a>九：练习题</h1><h2 id="适合非递归线段树的题目："><a href="#适合非递归线段树的题目：" class="headerlink" title="适合非递归线段树的题目："></a>适合非递归线段树的题目：</h2><p><strong>Codeforces 612D</strong> <strong>The Union of k-Segments :</strong>  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/50422199">题解</a></p>
+<p>题意：线段求交，给定一堆线段，按序输出被覆盖k次或以上的线段和点。</p>
+<p>基础题，先操作，最后一次下推标记，然后输出，</p>
+<p>维护两个线段树，一个线段覆盖，一个点覆盖。</p>
+<p><strong>Codeforces 35E Parade</strong> : <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48247929">题解</a></p>
+<p>题意：给定若干矩形，下端挨着地面，求最后的轮廓形成的折线，要求输出每一点的坐标。</p>
+<p>思路：虽然是区间修改的线段树，但只需要在操作结束后一次下推标记，然后输出，所以适合非递归线段树。</p>
+<p><strong>URAL 1846 GCD2010 ：</strong> <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/38941525"> 题解</a></p>
+<p>题意：总共10万个操作，每次向集合中加入或删除一个数，求集合的最大公因数。（规定空集的最大公因数为1）</p>
+<p><strong>Codeforces 12D Ball :</strong>  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48193087">题解</a></p>
+<p>题意：</p>
+<p>给N (N&lt;&#x3D;500000)个点，每个点有x,y,z ( 0&lt;&#x3D; x,y,z &lt;&#x3D;10^9 )</p>
+<p>对于某点(x,y,z)，若存在一点(x1,y1,z1)使得x1 &gt; x &amp;&amp; y1 &gt; y &amp;&amp; z1 &gt; z 则点(x,y,z)是特殊点。</p>
+<p>问N个点中，有多少个特殊点。</p>
+<p>提示：排序+线段树</p>
+<p><strong>Codeforces 19D Points</strong> : <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48153507">题解</a></p>
+<p>题意：</p>
+<p>给定最多20万个操作，共3种：</p>
+<p>1.add x y     ：加入(x,y)这个点</p>
+<p>2.remove x y  ：删除(x,y)这个点</p>
+<p>3.find x y     ：找到在(x,y)这点右上方的x最小的点，若x相同找y最小的点，输出这点坐标，若没有，则输出-1.</p>
+<p>提示：排序，线段树套平衡树</p>
+<p><strong>Codeforces 633E Startup Funding :</strong> <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/50825559">题解</a></p>
+<p>这题需要用到一点概率论，组合数学知识，和二分法。</p>
+<p>非递归线段树在这题中主要解决RMQ问题（区间最大最小值问题），由于不带修改，这题用Sparse Table求解RMQ是标答。</p>
+<p>因为RMQ询问是在二分法之内求的，而Sparse Table可以做到O(1)查询，所以用Sparse Table比较好，总复杂度O(n*log(n))。</p>
+<p>不过非递归线段树也算比较快的了，虽然复杂度是O(n*log(n)*log(n))，还是勉强过了这题。</p>
+<h2 id="扫描线题目："><a href="#扫描线题目：" class="headerlink" title="扫描线题目："></a>扫描线题目：</h2><p><strong>POJ 1177 Picture</strong>:给定若干矩形求合并之后的图形周长   <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47685361">题解</a></p>
+<p><strong>HDU 1255 覆盖的面积：</strong>给定平面上若干矩形,求出被这些矩形覆盖过至少两次的区域的面积.  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47762543"> 题解</a></p>
+<p><strong>HDU 3642 Get The Treasury：</strong>给定若干空间立方体，求重叠了3次或以上的体积（这个是扫描面，每个面再扫描线）<a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47763001">题解</a></p>
+<p><strong>POJ 2482 Stars in your window :</strong> 给定一些星星的位置和亮度，求用W*H的矩形能够框住的星星亮度之和最大为多少。 <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/47663851">题解</a></p>
+<h2 id="递归线段树题目："><a href="#递归线段树题目：" class="headerlink" title="递归线段树题目："></a>递归线段树题目：</h2><p><strong>Codeforces 558E A Simple Task</strong> <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48048559">题解</a></p>
+<p>给定一个长度不超过10^5的字符串（小写英文字母），和不超过5000个操作。</p>
+<p>每个操作 L R K 表示给区间[L,R]的字符串排序，K&#x3D;1为升序，K&#x3D;0为降序。</p>
+<p>最后输出最终的字符串。</p>
+<p><strong>Codeforces 527C Glass Carving</strong> :  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/44759437">题解</a></p>
+<p>给定一个矩形，不停地纵向或横向切割，问每次切割后，最大的矩形面积是多少。</p>
+<p><strong>URAL1989 Subpalindromes</strong>   <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/38921403">题解</a></p>
+<p>给定一个字符串(长度&lt;&#x3D;100000)，有10万个操作。</p>
+<p>操作有两种：  </p>
+<p>1：改变某个字符。 </p>
+<p>2：判断某个子串是否构成回文串。 </p>
+<p><strong>HDU 4288 Coder</strong> :  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/40538467">题解</a></p>
+<p> 题意：对一个集合进行插入与删除操作。要求询问某个时刻，集合中的元素从小到大排序之后，序号%5 &#x3D;&#x3D;3 的元素值之和。</p>
+<p>这题其实不一定要用线段树去做的，不过线段树还是可以做的。</p>
+<p><strong>HDU 2795 BillBoard</strong> : <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/40538377">题解</a></p>
+<p>题意：有一个板，h行，每行w长度的位置。每次往上面贴一张海报，长度为1*wi .</p>
+<p>每次贴的时候，需要找到最上面的，可以容纳的空间，并且靠边贴。</p>
+<p><strong>Codeforces 374D Inna and Sequence</strong> ：<a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/40515997">题解</a></p>
+<p>题意：给定百万个数a[m]，然后有百万个操作，每次给现有序列加一个字符（0或1），或者删掉已有序列中，第 a[0] 个，第a[1]个,…，第a[m]个。</p>
+<p><strong>Codeforces 482B Interesting Array</strong>:  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/40449455">题解</a></p>
+<p>题意就是，给定n,m.</p>
+<p>满足m个条件的n个数，或说明不存在。</p>
+<p>每个条件的形式是，给定 Li,Ri,Qi ，要求  a[Li]&amp;a[Li+1]&amp;…&amp;a[Ri] &#x3D; Qi ;</p>
+<p><strong>Codeforces 474E Pillar （线段树+动态规划）：</strong> <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/40383479">题解</a></p>
+<p>题意就是，给定10^5 个数（范围10^15）,求最长子序列使得相邻两个数的差大于等于 d。</p>
+<p><strong>POJ 2777  Count Color :</strong>  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/38908579">题解</a></p>
+<p>给线段涂颜色，最多30种颜色，10万个操作。</p>
+<p>每个操作给线段涂色，或问某一段线段有多少种颜色。</p>
+<p>30种颜色用int的最低30位来存，然后线段树解决。</p>
+<p><strong>URAL 1019 Line Painting:</strong> 线段树的区间合并  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/38902843">题解</a></p>
+<p>给一段线段进行黑白涂色，最后问最长的一段白色线段的长度。</p>
+<p><strong>Codeforces 633H Fibonacci-ish II</strong> ：<a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/50850792">题解</a></p>
+<p>这题需要用到莫队算法（Mo’s Algorithm）+线段树区间修改，不过是单边界的区间，写起来挺有趣。</p>
+<p>另一种解法就是暴力，很巧妙的方法，高复杂度+低常数居然就这么给过了。</p>
+<h2 id="树套树题目："><a href="#树套树题目：" class="headerlink" title="树套树题目："></a>树套树题目：</h2><p><strong>ZOJ 2112 Dynamic Rankings</strong> 动态区间第k大  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/44998563">题解</a></p>
+<p>做法：树状数组套主席树 或者 线段树套平衡树</p>
+<p><strong>Codeforces 605D</strong> <strong>Board Game :</strong>  <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/50371308">题解</a></p>
+<p>做法：广度优先搜索(BFS)  +  线段树套平衡树</p>
+<p><strong>Codeforces 19D Points</strong> : <a target="_blank" rel="noopener" href="http://blog.csdn.net/zearot/article/details/48153507">题解</a></p>
+<p>题意：</p>
+<p>给定最多20万个操作，共3种：</p>
+<p>1.add x y     ：加入(x,y)这个点</p>
+<p>2.remove x y  ：删除(x,y)这个点</p>
+<p>3.find x y     ：找到在(x,y)这点右上方的x最小的点，若x相同找y最小的点，输出这点坐标，若没有，则输出-1.</p>
+<p>提示：排序，线段树套平衡树</p>
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%85%B6%E4%BB%96/" rel="tag"><i class="fa fa-tag"></i> 其他</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/17426722/" rel="prev" title="B+树">
+                  <i class="fa fa-chevron-left"></i> B+树
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/f89cb603/" rel="next" title="红黑树">
+                  红黑树 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"e56322bb7ba5a95cf92a7f11f737d1eb"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>

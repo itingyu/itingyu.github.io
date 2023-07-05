@@ -2,11 +2,11 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>itingyu的博客</title>
   <icon>https://itingyu.github.io/icon.png</icon>
-  <subtitle>记录一些琐事罢了</subtitle>
+  <subtitle>随便写写&#39;</subtitle>
   <link href="https://itingyu.github.io/atom.xml" rel="self"/>
   
   <link href="https://itingyu.github.io/"/>
-  <updated>2023-06-25T10:43:14.000Z</updated>
+  <updated>2023-07-02T13:38:10.000Z</updated>
   <id>https://itingyu.github.io/</id>
   
   <author>
@@ -17,586 +17,573 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>redis入门指南</title>
-    <link href="https://itingyu.github.io/posts/44832/"/>
-    <id>https://itingyu.github.io/posts/44832/</id>
-    <published>2023-06-19T08:37:37.000Z</published>
-    <updated>2023-06-25T10:43:14.000Z</updated>
+    <title>排序树对比</title>
+    <link href="https://itingyu.github.io/posts/b29d54b0/"/>
+    <id>https://itingyu.github.io/posts/b29d54b0/</id>
+    <published>2023-07-02T13:36:30.000Z</published>
+    <updated>2023-07-02T13:38:10.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h1 id=&quot;redis入门指南&quot;&gt;&lt;a href=&quot;#redis入门指南&quot; class=&quot;headerlink&quot; title=&quot;redis入门指南&quot;&gt;&lt;/a&gt;redis入门指南&lt;/h1&gt;&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;h2 id=&quot;问题：有了二叉查找树、平衡树（AVL），为啥还需要红黑树？&quot;&gt;&lt;a href=&quot;#问题：有了二叉查找树、平衡树（AVL），为啥还需要红黑树？&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
     
-    <category term="读书笔记" scheme="https://itingyu.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="redis入门指南" scheme="https://itingyu.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/redis%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="读书笔记" scheme="https://itingyu.github.io/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="redis入门指南" scheme="https://itingyu.github.io/tags/redis%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>Nocas配置注册中心和Sentinel分布式流量防卫兵相关知识总结</title>
-    <link href="https://itingyu.github.io/posts/53802/"/>
-    <id>https://itingyu.github.io/posts/53802/</id>
-    <published>2023-06-17T12:12:54.000Z</published>
-    <updated>2023-06-17T12:13:35.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;一、Nocas配置注册中心&quot;&gt;&lt;a href=&quot;#一、Nocas配置注册中心&quot; class=&quot;headerlink&quot;</summary>
-        
-      
+    <title>6.B星树</title>
+    <link href="https://itingyu.github.io/posts/c4626f57/"/>
+    <id>https://itingyu.github.io/posts/c4626f57/</id>
+    <published>2023-07-02T13:33:57.000Z</published>
+    <updated>2023-07-02T13:33:57.000Z</updated>
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring-cloud/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/tags/spring-cloud/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>Sleuth+Zipkin链路追踪和OAuth2统一认证相关知识</title>
-    <link href="https://itingyu.github.io/posts/24605/"/>
-    <id>https://itingyu.github.io/posts/24605/</id>
-    <published>2023-06-17T12:11:23.000Z</published>
-    <updated>2023-06-17T12:12:26.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h2 id=&quot;Sleuth-Zipkin链路追踪&quot;&gt;&lt;a href=&quot;#Sleuth-Zipkin链路追踪&quot; class=&quot;headerlink&quot; title=&quot;Sleuth+Zipkin链路追踪&quot;&gt;&lt;/a&gt;Sleuth+Zipkin链路追踪&lt;/h2&gt;&lt;p&gt;&lt;img</summary>
-        
-      
+    <title>5.B+树</title>
+    <link href="https://itingyu.github.io/posts/8bf1a1f2/"/>
+    <id>https://itingyu.github.io/posts/8bf1a1f2/</id>
+    <published>2023-07-02T13:28:22.000Z</published>
+    <updated>2023-07-05T12:50:27.000Z</updated>
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring-cloud/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/tags/spring-cloud/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>spring如何解决循环依赖</title>
-    <link href="https://itingyu.github.io/posts/42455/"/>
-    <id>https://itingyu.github.io/posts/42455/</id>
-    <published>2023-06-17T12:01:37.000Z</published>
-    <updated>2023-06-17T12:07:59.000Z</updated>
+    <title>4.B树</title>
+    <link href="https://itingyu.github.io/posts/e5a556e2/"/>
+    <id>https://itingyu.github.io/posts/e5a556e2/</id>
+    <published>2023-07-02T13:28:06.000Z</published>
+    <updated>2023-07-02T13:33:21.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;p&gt;Spring通过三级缓存和提前暴露的方式来解决了循环依赖这个问题，举个例，A对象和B对象互相依&lt;/p&gt;
-&lt;p&gt;赖，Spring解决循环依赖过程如下：&lt;/p&gt;
-&lt;p&gt;1.通过反射实例化创建A对象并把A对象的工厂对象放入三级缓存；&lt;/p&gt;
-&lt;p&gt;2.按照Bean对象生命周期，下</summary>
+    <summary type="html">&lt;p&gt;前面讲的BST、AVL、红黑树都是典型的&lt;strong&gt;二叉&lt;/strong&gt;查找树结构，其查找的时间复杂度与树高相关。那么降低树高自然对查找效率是有所帮助的。另外还有一个比较实际的问题：就是在大量数据存储中实现查询的场景下，平衡二叉树由于树深度过大而造成磁盘IO读写过于频</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring" scheme="https://itingyu.github.io/tags/spring/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>kafaka相关知识</title>
-    <link href="https://itingyu.github.io/posts/4542/"/>
-    <id>https://itingyu.github.io/posts/4542/</id>
-    <published>2023-06-17T11:59:07.000Z</published>
-    <updated>2023-06-17T12:00:46.000Z</updated>
+    <title>3.红黑树</title>
+    <link href="https://itingyu.github.io/posts/950e0d3f/"/>
+    <id>https://itingyu.github.io/posts/950e0d3f/</id>
+    <published>2023-07-02T13:27:54.000Z</published>
+    <updated>2023-07-02T13:32:55.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;一、kafka架构&quot;&gt;&lt;a href=&quot;#一、kafka架构&quot; class=&quot;headerlink&quot; title=&quot;一、kafka架构&quot;&gt;&lt;/a&gt;&lt;strong&gt;一、kafka架构&lt;/strong&gt;&lt;/h3&gt;&lt;h3 id=&quot;Kafka基础知识&quot;&gt;&lt;a</summary>
+    <summary type="html">&lt;h3 id=&quot;2-红黑树-Red-Black-Tree&quot;&gt;&lt;a href=&quot;#2-红黑树-Red-Black-Tree&quot; class=&quot;headerlink&quot; title=&quot;2.红黑树(Red-Black Tree)&quot;&gt;&lt;/a&gt;2.红黑树(Red-Black</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="kafaka" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/kafaka/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="kafaka" scheme="https://itingyu.github.io/tags/kafaka/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>rabbitmq相关知识</title>
-    <link href="https://itingyu.github.io/posts/16292/"/>
-    <id>https://itingyu.github.io/posts/16292/</id>
-    <published>2023-06-17T11:48:04.000Z</published>
-    <updated>2023-06-17T11:58:51.000Z</updated>
+    <title>2.平衡二叉树(AVL)</title>
+    <link href="https://itingyu.github.io/posts/6afedc17/"/>
+    <id>https://itingyu.github.io/posts/6afedc17/</id>
+    <published>2023-07-02T13:26:53.000Z</published>
+    <updated>2023-07-02T13:32:32.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;一、消息中间件基础知识&quot;&gt;&lt;a href=&quot;#一、消息中间件基础知识&quot; class=&quot;headerlink&quot; title=&quot;一、消息中间件基础知识&quot;&gt;&lt;/a&gt;&lt;strong&gt;一、消息中间件基础知识&lt;/strong&gt;&lt;/h3&gt;&lt;h3</summary>
+    <summary type="html">&lt;p&gt;为了保证不退化成线性查找，就要维持树的平衡。这个平衡条件要容易保持，从而保证树的深度为O(logN)，很容易想到两种平衡条件：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;最简单的是要求左右子树具有相同的高度。&lt;/li&gt;
+&lt;li&gt;另一种是要求每个节点都必须有相同高度的左子树和右子树。&lt;/li</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="rabbitmq" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/rabbitmq/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="rabbitmq" scheme="https://itingyu.github.io/tags/rabbitmq/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>redis数据库知识</title>
-    <link href="https://itingyu.github.io/posts/40341/"/>
-    <id>https://itingyu.github.io/posts/40341/</id>
-    <published>2023-06-17T11:44:43.000Z</published>
-    <updated>2023-06-20T08:57:56.000Z</updated>
+    <title>1.二叉排序树(BST)</title>
+    <link href="https://itingyu.github.io/posts/da40e879/"/>
+    <id>https://itingyu.github.io/posts/da40e879/</id>
+    <published>2023-07-02T13:25:08.000Z</published>
+    <updated>2023-07-02T13:31:26.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;一、-Redis基础知识&quot;&gt;&lt;a href=&quot;#一、-Redis基础知识&quot; class=&quot;headerlink&quot; title=&quot;一、 Redis基础知识&quot;&gt;&lt;/a&gt;&lt;strong&gt;一、&lt;/strong&gt;</summary>
+    <summary type="html">&lt;p&gt;二叉排序树，又叫二叉搜索树、有序二叉树（ordered binary tree）或排序二叉树（sorted binary tree）。&lt;/p&gt;
+&lt;h3 id=&quot;1-BST树的特点&quot;&gt;&lt;a href=&quot;#1-BST树的特点&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="redis" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/redis/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="redis" scheme="https://itingyu.github.io/tags/redis/"/>
+    <category term="排序树" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E6%A0%91/"/>
     
   </entry>
   
   <entry>
-    <title>MongoDB</title>
-    <link href="https://itingyu.github.io/posts/51937/"/>
-    <id>https://itingyu.github.io/posts/51937/</id>
-    <published>2023-06-17T11:40:25.000Z</published>
-    <updated>2023-06-17T11:42:59.000Z</updated>
+    <title>二分搜索</title>
+    <link href="https://itingyu.github.io/posts/98b35abd/"/>
+    <id>https://itingyu.github.io/posts/98b35abd/</id>
+    <published>2023-07-02T13:23:42.000Z</published>
+    <updated>2023-07-02T13:24:52.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;一、-MongoDB概念与结构&quot;&gt;&lt;a href=&quot;#一、-MongoDB概念与结构&quot; class=&quot;headerlink&quot; title=&quot;一、 MongoDB概念与结构&quot;&gt;&lt;/a&gt;&lt;strong&gt;一、&lt;/strong&gt;</summary>
+    <summary type="html">&lt;h3 id=&quot;递归实现&quot;&gt;&lt;a href=&quot;#递归实现&quot; class=&quot;headerlink&quot; title=&quot;递归实现&quot;&gt;&lt;/a&gt;递归实现&lt;/h3&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mongoDB" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mongoDB/"/>
+    <category term="搜索" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%90%9C%E7%B4%A2/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mongoDB" scheme="https://itingyu.github.io/tags/mongoDB/"/>
+    <category term="搜索" scheme="https://itingyu.github.io/tags/%E6%90%9C%E7%B4%A2/"/>
     
   </entry>
   
   <entry>
-    <title>分库分表</title>
-    <link href="https://itingyu.github.io/posts/18707/"/>
-    <id>https://itingyu.github.io/posts/18707/</id>
-    <published>2023-06-17T11:30:44.000Z</published>
-    <updated>2023-06-17T11:32:10.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;分库分表背景及解决方案&quot;&gt;&lt;a href=&quot;#分库分表背景及解决方案&quot; class=&quot;headerlink&quot;</summary>
-        
-      
+    <title>桶排序</title>
+    <link href="https://itingyu.github.io/posts/9fe164cc/"/>
+    <id>https://itingyu.github.io/posts/9fe164cc/</id>
+    <published>2023-07-01T15:13:44.000Z</published>
+    <updated>2023-07-01T15:13:44.000Z</updated>
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>mysql集群架构</title>
-    <link href="https://itingyu.github.io/posts/38076/"/>
-    <id>https://itingyu.github.io/posts/38076/</id>
-    <published>2023-06-17T11:10:42.000Z</published>
-    <updated>2023-06-17T11:13:16.000Z</updated>
-    
-    
-      
-      
-        
-        
-    <summary type="html">&lt;h3 id=&quot;集群架构设计&quot;&gt;&lt;a href=&quot;#集群架构设计&quot; class=&quot;headerlink&quot;</summary>
-        
-      
+    <title>BigInteger</title>
+    <link href="https://itingyu.github.io/posts/5bf56c5f/"/>
+    <id>https://itingyu.github.io/posts/5bf56c5f/</id>
+    <published>2023-07-01T15:05:18.000Z</published>
+    <updated>2023-07-01T15:05:18.000Z</updated>
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/tags/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
   </entry>
   
   <entry>
-    <title>mysql事务和锁相关知识</title>
-    <link href="https://itingyu.github.io/posts/33988/"/>
-    <id>https://itingyu.github.io/posts/33988/</id>
-    <published>2023-06-17T11:09:49.000Z</published>
-    <updated>2023-06-17T11:10:24.000Z</updated>
+    <title>BigDecimal类</title>
+    <link href="https://itingyu.github.io/posts/b3564305/"/>
+    <id>https://itingyu.github.io/posts/b3564305/</id>
+    <published>2023-07-01T15:02:53.000Z</published>
+    <updated>2023-07-01T15:04:14.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;ACID特性&quot;&gt;&lt;a href=&quot;#ACID特性&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;h2 id=&quot;1、BigDecimal简介&quot;&gt;&lt;a href=&quot;#1、BigDecimal简介&quot; class=&quot;headerlink&quot; title=&quot;1、BigDecimal简介&quot;&gt;&lt;/a&gt;1、BigDecimal简介&lt;/h2&gt;&lt;p&gt;借用《Effactive</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/tags/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
   </entry>
   
   <entry>
-    <title>mysql索引原理相关知识</title>
-    <link href="https://itingyu.github.io/posts/64993/"/>
-    <id>https://itingyu.github.io/posts/64993/</id>
-    <published>2023-06-17T11:08:54.000Z</published>
-    <updated>2023-06-17T11:09:37.000Z</updated>
+    <title>BitSet类</title>
+    <link href="https://itingyu.github.io/posts/f3bbf6f0/"/>
+    <id>https://itingyu.github.io/posts/f3bbf6f0/</id>
+    <published>2023-07-01T15:02:41.000Z</published>
+    <updated>2023-07-02T13:18:05.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;索引类型&quot;&gt;&lt;a href=&quot;#索引类型&quot; class=&quot;headerlink&quot; title=&quot;索引类型&quot;&gt;&lt;/a&gt;&lt;strong&gt;索引类型&lt;/strong&gt;&lt;/h3&gt;&lt;p&gt;索引可以提升查询速度，会影响where查询，以及order by排序，分为B</summary>
+    <summary type="html">&lt;h3 id=&quot;适合场景&quot;&gt;&lt;a href=&quot;#适合场景&quot; class=&quot;headerlink&quot; title=&quot;适合场景&quot;&gt;&lt;/a&gt;适合场景&lt;/h3&gt;&lt;p&gt;整数，无重复；&lt;/p&gt;
+&lt;h3 id=&quot;BitSet基础&quot;&gt;&lt;a href=&quot;#BitSet基础&quot;</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/tags/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
   </entry>
   
   <entry>
-    <title>mysql架构原理相关知识</title>
-    <link href="https://itingyu.github.io/posts/55736/"/>
-    <id>https://itingyu.github.io/posts/55736/</id>
-    <published>2023-06-17T11:07:51.000Z</published>
-    <updated>2023-06-20T07:39:56.000Z</updated>
+    <title>hash表</title>
+    <link href="https://itingyu.github.io/posts/6e9d639a/"/>
+    <id>https://itingyu.github.io/posts/6e9d639a/</id>
+    <published>2023-07-01T15:00:42.000Z</published>
+    <updated>2023-07-02T11:29:16.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;体系架构&quot;&gt;&lt;a href=&quot;#体系架构&quot; class=&quot;headerlink&quot; title=&quot;体系架构&quot;&gt;&lt;/a&gt;体系架构&lt;/h2&gt;&lt;p&gt;MySQL Server架构自顶向下大致可以分网络连接层、服务层、存储引擎层和系统文件层。&lt;/p&gt;
-&lt;p&gt;&lt;img</summary>
+    <summary type="html">&lt;h2 id=&quot;哈希冲突&quot;&gt;&lt;a href=&quot;#哈希冲突&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="java数据结构与高级类型" scheme="https://itingyu.github.io/tags/java%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%B1%BB%E5%9E%8B/"/>
     
   </entry>
   
   <entry>
-    <title>mysql性能优化总结</title>
-    <link href="https://itingyu.github.io/posts/48068/"/>
-    <id>https://itingyu.github.io/posts/48068/</id>
-    <published>2023-06-17T11:07:09.000Z</published>
-    <updated>2023-06-17T11:07:25.000Z</updated>
+    <title>时间复杂度</title>
+    <link href="https://itingyu.github.io/posts/4b6d6bc1/"/>
+    <id>https://itingyu.github.io/posts/4b6d6bc1/</id>
+    <published>2023-07-01T14:58:34.000Z</published>
+    <updated>2023-07-02T04:42:24.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;系统配置优化&quot;&gt;&lt;a href=&quot;#系统配置优化&quot; class=&quot;headerlink&quot;</summary>
+    <summary type="html">&lt;p&gt;&lt;img src=&quot;/posts/4b6d6bc1/asset/196518-584a80a392639ce7.webp&quot; alt=&quot;img&quot;&gt;&lt;/p&gt;
+&lt;p&gt;快排最坏情况:</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/mysql/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="mysql" scheme="https://itingyu.github.io/tags/mysql/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>springcloud组件知识</title>
-    <link href="https://itingyu.github.io/posts/30414/"/>
-    <id>https://itingyu.github.io/posts/30414/</id>
-    <published>2023-06-17T11:01:03.000Z</published>
-    <updated>2023-06-17T11:02:10.000Z</updated>
+    <title>基数排序</title>
+    <link href="https://itingyu.github.io/posts/6367b42a/"/>
+    <id>https://itingyu.github.io/posts/6367b42a/</id>
+    <published>2023-07-01T14:55:10.000Z</published>
+    <updated>2023-07-02T11:13:44.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h3 id=&quot;一、Spring-Cloud基础知识&quot;&gt;&lt;a href=&quot;#一、Spring-Cloud基础知识&quot; class=&quot;headerlink&quot; title=&quot;一、Spring Cloud基础知识&quot;&gt;&lt;/a&gt;一、Spring Cloud基础知识&lt;/h3&gt;&lt;h3</summary>
+    <summary type="html">&lt;h2 id=&quot;基数排序（RadixSort）&quot;&gt;&lt;a href=&quot;#基数排序（RadixSort）&quot; class=&quot;headerlink&quot; title=&quot;基数排序（RadixSort）&quot;&gt;&lt;/a&gt;基数排序（RadixSort）&lt;/h2&gt;&lt;p&gt;基数排序（Radix</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/spring-cloud/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="spring cloud" scheme="https://itingyu.github.io/tags/spring-cloud/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>dubbo框架知识</title>
-    <link href="https://itingyu.github.io/posts/2661b4f7/"/>
-    <id>https://itingyu.github.io/posts/2661b4f7/</id>
-    <published>2023-06-17T10:59:26.000Z</published>
-    <updated>2023-06-17T11:00:40.000Z</updated>
+    <title>堆排序</title>
+    <link href="https://itingyu.github.io/posts/c2a5fdc5/"/>
+    <id>https://itingyu.github.io/posts/c2a5fdc5/</id>
+    <published>2023-07-01T14:54:57.000Z</published>
+    <updated>2023-07-02T06:53:51.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;一、Dubbo架构和实战&quot;&gt;&lt;a href=&quot;#一、Dubbo架构和实战&quot; class=&quot;headerlink&quot; title=&quot;一、Dubbo架构和实战&quot;&gt;&lt;/a&gt;一、Dubbo架构和实战&lt;/h2&gt;&lt;h3 id=&quot;架构演变过程&quot;&gt;&lt;a</summary>
+    <summary type="html">&lt;p&gt; 堆一般指的是二叉堆，顾名思义，二叉堆是完全二叉树或者近似完全二叉树 &lt;/p&gt;
+&lt;h2 id=&quot;堆&quot;&gt;&lt;a href=&quot;#堆&quot; class=&quot;headerlink&quot; title=&quot;堆&quot;&gt;&lt;/a&gt;堆&lt;/h2&gt;&lt;h3 id=&quot;1-堆的性质&quot;&gt;&lt;a href=&quot;#1-堆的性质&quot;</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="dubbo" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/dubbo/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="选择排序" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="dubbo" scheme="https://itingyu.github.io/tags/dubbo/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="选择排序" scheme="https://itingyu.github.io/tags/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
   <entry>
-    <title>zookeeper相关知识</title>
-    <link href="https://itingyu.github.io/posts/26268/"/>
-    <id>https://itingyu.github.io/posts/26268/</id>
-    <published>2023-06-17T10:58:01.000Z</published>
-    <updated>2023-06-17T10:58:35.000Z</updated>
+    <title>直接插入排序</title>
+    <link href="https://itingyu.github.io/posts/2b06d603/"/>
+    <id>https://itingyu.github.io/posts/2b06d603/</id>
+    <published>2023-07-01T14:54:50.000Z</published>
+    <updated>2023-07-02T06:53:56.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;一、Zookeeper基础&quot;&gt;&lt;a href=&quot;#一、Zookeeper基础&quot; class=&quot;headerlink&quot; title=&quot;一、Zookeeper基础&quot;&gt;&lt;/a&gt;一、Zookeeper基础&lt;/h2&gt;&lt;h3 id=&quot;Zookeeper定位&quot;&gt;&lt;a</summary>
+    <summary type="html">&lt;h2 id=&quot;代码实现&quot;&gt;&lt;a href=&quot;#代码实现&quot; class=&quot;headerlink&quot; title=&quot;代码实现&quot;&gt;&lt;/a&gt;代码实现&lt;/h2&gt;&lt;h3 id=&quot;直接插入&quot;&gt;&lt;a href=&quot;#直接插入&quot; class=&quot;headerlink&quot;</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="zookeeper" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/zookeeper/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="插入排序" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="zookeeper" scheme="https://itingyu.github.io/tags/zookeeper/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="插入排序" scheme="https://itingyu.github.io/tags/%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
   <entry>
-    <title>tomcat相关知识</title>
-    <link href="https://itingyu.github.io/posts/2320/"/>
-    <id>https://itingyu.github.io/posts/2320/</id>
-    <published>2023-06-17T10:56:09.000Z</published>
-    <updated>2023-06-17T10:57:22.000Z</updated>
+    <title>直接选择排序</title>
+    <link href="https://itingyu.github.io/posts/fe838328/"/>
+    <id>https://itingyu.github.io/posts/fe838328/</id>
+    <published>2023-07-01T14:54:42.000Z</published>
+    <updated>2023-07-02T08:08:55.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;一、-Tomcat系统架构和原理剖析&quot;&gt;&lt;a href=&quot;#一、-Tomcat系统架构和原理剖析&quot; class=&quot;headerlink&quot; title=&quot;一、 Tomcat系统架构和原理剖析&quot;&gt;&lt;/a&gt;一、 Tomcat系统架构和原理剖析&lt;/h2&gt;&lt;h3</summary>
+    <summary type="html">&lt;h2 id=&quot;代码实现&quot;&gt;&lt;a href=&quot;#代码实现&quot; class=&quot;headerlink&quot; title=&quot;代码实现&quot;&gt;&lt;/a&gt;代码实现&lt;/h2&gt;&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="tomcat" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/tomcat/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="选择排序" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="tomcat" scheme="https://itingyu.github.io/tags/tomcat/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="选择排序" scheme="https://itingyu.github.io/tags/%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   
   <entry>
-    <title>集群模式相关知识</title>
-    <link href="https://itingyu.github.io/posts/45764/"/>
-    <id>https://itingyu.github.io/posts/45764/</id>
-    <published>2023-06-17T10:53:29.000Z</published>
-    <updated>2023-06-17T10:55:34.000Z</updated>
+    <title>归并排序</title>
+    <link href="https://itingyu.github.io/posts/1599bffe/"/>
+    <id>https://itingyu.github.io/posts/1599bffe/</id>
+    <published>2023-07-01T14:54:34.000Z</published>
+    <updated>2023-07-02T04:33:12.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;一、一致性Hash算法&quot;&gt;&lt;a href=&quot;#一、一致性Hash算法&quot; class=&quot;headerlink&quot; title=&quot;一、一致性Hash算法&quot;&gt;&lt;/a&gt;一、一致性Hash算法&lt;/h2&gt;&lt;h3 id=&quot;分布式和集群&quot;&gt;&lt;a href=&quot;#分布式和集群&quot;</summary>
+    <summary type="html">&lt;h2 id=&quot;代码实现&quot;&gt;&lt;a href=&quot;#代码实现&quot; class=&quot;headerlink&quot; title=&quot;代码实现&quot;&gt;&lt;/a&gt;代码实现&lt;/h2&gt;&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="集群模式知识总结" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="集群模式知识总结" scheme="https://itingyu.github.io/tags/%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F%E7%9F%A5%E8%AF%86%E6%80%BB%E7%BB%93/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
   <entry>
-    <title>分布式架构知识总结</title>
-    <link href="https://itingyu.github.io/posts/8228/"/>
-    <id>https://itingyu.github.io/posts/8228/</id>
-    <published>2023-06-17T10:50:55.000Z</published>
-    <updated>2023-06-17T10:52:47.000Z</updated>
+    <title>冒泡排序</title>
+    <link href="https://itingyu.github.io/posts/14e6f1eb/"/>
+    <id>https://itingyu.github.io/posts/14e6f1eb/</id>
+    <published>2023-07-01T14:54:26.000Z</published>
+    <updated>2023-07-02T10:04:22.000Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;h2 id=&quot;一、分布式理论&quot;&gt;&lt;a href=&quot;#一、分布式理论&quot; class=&quot;headerlink&quot; title=&quot;一、分布式理论&quot;&gt;&lt;/a&gt;一、分布式理论&lt;/h2&gt;&lt;h3 id=&quot;分布式系统概念和存在的问题&quot;&gt;&lt;a href=&quot;#分布式系统概念和存在的问题&quot;</summary>
+    <summary type="html">&lt;h2 id=&quot;代码编写&quot;&gt;&lt;a href=&quot;#代码编写&quot; class=&quot;headerlink&quot; title=&quot;代码编写&quot;&gt;&lt;/a&gt;代码编写&lt;/h2&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td</summary>
         
       
     
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="分布式架构设计" scheme="https://itingyu.github.io/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="交换排序" scheme="https://itingyu.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/%E4%BA%A4%E6%8D%A2%E6%8E%92%E5%BA%8F/"/>
     
     
-    <category term="基础知识" scheme="https://itingyu.github.io/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"/>
+    <category term="数据结构与算法" scheme="https://itingyu.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
-    <category term="分布式架构设计" scheme="https://itingyu.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/"/>
+    <category term="排序算法" scheme="https://itingyu.github.io/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="交换排序" scheme="https://itingyu.github.io/tags/%E4%BA%A4%E6%8D%A2%E6%8E%92%E5%BA%8F/"/>
     
   </entry>
   

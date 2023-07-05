@@ -29,11 +29,11 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-71404860e0fc856d6b32c07a85d63973_720w.webp">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-3da7850b5feff0450d0550d6571afa19_720w.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/33988/assets/7975c4777caf188aec2b59efb76c0baa.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/33988/assets/8f328f52741fe0a5dd58cd7a39e809d2.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/33988/assets/d20761f2109e981b631e6cab738b7419.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/33988/assets/ed64d9de2e8e13772fa91fb591d76e9b.webp">
-<meta property="og:image" content="https://itingyu.github.io/posts/33988/assets/2e81b6642ecf30f8803cfbb813f2bba5.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/33988/asset/v2-4f8dd53fe4ec8a99f026271b6b19d2f4_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/33988/asset/v2-dbc06ab99cd63206f8a67501538d336e_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/33988/asset/v2-82f99b6291ccc7c3fbbdf11bf05c4600_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/33988/asset/v2-afcc03f3cbdf336481a01754f97c6bc5_720w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/33988/asset/v2-36833a702f33f8ad0c0e8c0574c35167_720w.webp">
 <meta property="article:published_time" content="2023-06-17T11:09:49.000Z">
 <meta property="article:modified_time" content="2023-06-17T11:10:24.000Z">
 <meta property="article:author" content="itingyu">
@@ -50,7 +50,7 @@
 <script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/33988/","path":"posts/33988/","title":"mysql事务和锁相关知识"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>mysql事务和锁相关知识 | itingyu的博客 - 记录一些琐事罢了</title>
+<title>mysql事务和锁相关知识 | itingyu的博客 - 随便写写'</title>
   
 
   <script src="/js/third-party/analytics/baidu-analytics.js"></script>
@@ -90,7 +90,7 @@
       <p class="site-title">itingyu的博客</p>
       <i class="logo-line"></i>
     </a>
-      <p class="site-subtitle" itemprop="description">记录一些琐事罢了</p>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
   </div>
 
   <div class="site-nav-right">
@@ -103,7 +103,7 @@
 
 
 <nav class="site-nav">
-  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">22</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
       <li class="menu-item menu-item-search">
         <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
         </a>
@@ -169,18 +169,18 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">108</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
           <a href="/categories/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">35</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -305,15 +305,15 @@
 <p><img src="https://pic2.zhimg.com/80/v2-3da7850b5feff0450d0550d6571afa19_720w.webp" alt="img"></p>
 <p><strong>读写锁</strong></p>
 <p>读写锁就是进一步细化锁的颗粒度，区分读操作和写操作，让读和读之间不加锁，读写锁，可以让读和读并行，而读和写、写和读、写和写这几种之间还是要加排他锁。</p>
-<p><img src="/posts/33988/assets/7975c4777caf188aec2b59efb76c0baa.webp" alt="img"></p>
+<p><img src="/posts/33988/asset/v2-4f8dd53fe4ec8a99f026271b6b19d2f4_720w.webp" alt="img"></p>
 <h3 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a><strong>MVCC</strong></h3><p>多版本控制MVCC，也就是Copy on Write的思想。MVCC除了支持读和读并行，还支持读和写、写和读的并行，但为了保证一致性，写和写是无法并行的，写写并行可以用乐观锁和悲观锁。每次事务修改操作之前，都会在Undo日志中记录修改之前的数据状态和事务号，该备份记录可以用于其他事务的读取，也可以进行必要时的数据回滚。</p>
-<p><img src="/posts/33988/assets/8f328f52741fe0a5dd58cd7a39e809d2.webp" alt="img"></p>
+<p><img src="/posts/33988/asset/v2-dbc06ab99cd63206f8a67501538d336e_720w.webp" alt="img"></p>
 <p><strong>实现原理</strong></p>
 <p>MVCC最大的好处是读不加锁，读写不冲突。，读操作可以分为两类: 快照读与当前读，支持可重复读和读已提交。</p>
 <p>快照读：读取的是记录的快照版本（有可能是历史版本），不用加锁。</p>
 <p>当前读：读取的是记录的最新版本，并且当前读返回的记录，都会加锁，保证其他事务不会再并发修改这条记录。</p>
 <h3 id="事务隔离级别"><a href="#事务隔离级别" class="headerlink" title="事务隔离级别"></a><strong>事务隔离级别</strong></h3><p>数据库的事务隔离级别越高，并发问题就越小，但是并发处理能力越差。</p>
-<p><img src="/posts/33988/assets/d20761f2109e981b631e6cab738b7419.webp" alt="img"></p>
+<p><img src="/posts/33988/asset/v2-82f99b6291ccc7c3fbbdf11bf05c4600_720w.webp" alt="img"></p>
 <p>读未提交：解决了回滚覆盖类型的更新丢失，但是可能发生脏读现象，也就是可能读取到其他会话中未提交事务修改的数据。</p>
 <p>已提交读：只能读取到其他会话中已经提交的数据，解决了脏读。但可能发生 不可重复读现象，也就是可能在一个事务中两次查询结果不一致。</p>
 <p>可重复度：解决了不可重复读，它确保同一事务的多个实例在并发读取数据时，会看到同样的数据行。不过可能会出现幻读，当用户读取某一范围的数据行时，另一个事务又在该范围插入了新行，当用户在读取该范围的数据时会发现有新的幻影行。</p>
@@ -326,7 +326,7 @@
 <p>1）表级锁：每次操作锁住整张表。锁定粒度大，发生锁冲突的概率最高，并发度最低。应用在 MyISAM、InnoDB、BDB 等存储引擎中。</p>
 <p>2）行级锁：每次操作锁住一行数据。锁定粒度最小，发生锁冲突的概率最低，并发度最高。应 用在InnoDB 存储引擎中。</p>
 <p>3）页级锁：每次锁定相邻的一组记录，锁定粒度界于表锁和行锁之间，开销和加锁时间界于表锁和行锁之间，并发度一般。应用在BDB 存储引擎中。</p>
-<p><img src="/posts/33988/assets/ed64d9de2e8e13772fa91fb591d76e9b.webp" alt="img"></p>
+<p><img src="/posts/33988/asset/v2-afcc03f3cbdf336481a01754f97c6bc5_720w.webp" alt="img"></p>
 <p><strong>操作的类型可分为读锁和写锁</strong></p>
 <p>读锁（S锁）：共享锁，针对同一份数据，多个读操作可以同时进行而不会互相影响。</p>
 <p>写锁（X锁）：排他锁，当前写操作没有完成前，它会阻断其他写锁和读锁。</p>
@@ -355,7 +355,7 @@
 <p>排他锁（行级锁-写锁）：当前事务可以读取和修改，其他事务不能修改，也不能获取记录锁。</p>
 <h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a><strong>乐观锁</strong></h3><p>在数据库操作时， 想法很乐观，认为这次的操作不会导致冲突，因此在数据库操作时并不做任何的特殊处理，即不加锁，而是在进行事务提交时再去判断是否有冲突了。</p>
 <p>乐观锁实现：使用版本字段（version）、使用时间戳（Timestamp）</p>
-<p><img src="/posts/33988/assets/2e81b6642ecf30f8803cfbb813f2bba5.webp" alt="img"></p>
+<p><img src="/posts/33988/asset/v2-36833a702f33f8ad0c0e8c0574c35167_720w.webp" alt="img"></p>
 <h3 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a><strong>死锁</strong></h3><p><strong>表锁死锁</strong></p>
 <p>用户A–》A表（表锁）–》B表（表锁）</p>
 <p>用户B–》B表（表锁）–》A表（表锁）</p>

@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="https://fonts.lug.ustc.edu.cn/css?family=Noto+Serif+SC:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha256-HtsXJanqjKTc8vVQjO4YMhiqFoXkfBsjBWcX91T1jr8=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" integrity="sha256-Vzbj7sDDS/woiFS3uNKo8eIuni59rjyNGtXfstRzStA=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-center-simple.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous"></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"itingyu.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.17.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":true},"copycode":{"enable":true,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":{"gitalk":{"order":-1}},"activeClass":"gitalk"},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="动态规划算法的过程是随着阶段的增长，在每个状态维度上的分界点组成了DP拓展的轮廓。对于某些问题，我们需要在动态规划的状态中记录一个集合，保存这个轮廓的详细信息，以便于进行状态转移。若集合大小不超过 N NN ，集合中每个元素都是小于 k kk 的自然数，则我们可以把这个集合看做一个 N NN 位 k kk 进制数，以一个 [ 0 , k N − 1 ] [0,k^N-1][0,k N −1] 之">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.状态压缩dp">
+<meta property="og:url" content="https://itingyu.github.io/posts/35a94d42/index.html">
+<meta property="og:site_name" content="itingyu的博客">
+<meta property="og:description" content="动态规划算法的过程是随着阶段的增长，在每个状态维度上的分界点组成了DP拓展的轮廓。对于某些问题，我们需要在动态规划的状态中记录一个集合，保存这个轮廓的详细信息，以便于进行状态转移。若集合大小不超过 N NN ，集合中每个元素都是小于 k kk 的自然数，则我们可以把这个集合看做一个 N NN 位 k kk 进制数，以一个 [ 0 , k N − 1 ] [0,k^N-1][0,k N −1] 之">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://itingyu.github.io/posts/35a94d42/asset/v2-3a97e87651f11c2a4e7d6d0341fcdc35_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/35a94d42/asset/v2-652bfcc2863ca973d2541dfa6e3f720a_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/35a94d42/asset/v2-0af09891a956d1bc9ffe6aa112dbd1a5_1440w.webp">
+<meta property="og:image" content="https://itingyu.github.io/posts/35a94d42/asset/1688221546201.png">
+<meta property="og:image" content="https://itingyu.github.io/posts/35a94d42/asset/1688221568068.png">
+<meta property="article:published_time" content="2023-07-01T13:28:35.000Z">
+<meta property="article:modified_time" content="2023-07-01T14:28:48.000Z">
+<meta property="article:author" content="itingyu">
+<meta property="article:tag" content="数据结构与算法">
+<meta property="article:tag" content="动态规划">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://itingyu.github.io/posts/35a94d42/asset/v2-3a97e87651f11c2a4e7d6d0341fcdc35_1440w.webp">
+
+
+<link rel="canonical" href="https://itingyu.github.io/posts/35a94d42/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://itingyu.github.io/posts/35a94d42/","path":"posts/35a94d42/","title":"6.状态压缩dp"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>6.状态压缩dp | itingyu的博客 - 随便写写'</title>
+  
+
+  <script src="/js/third-party/analytics/baidu-analytics.js"></script>
+  <script async src="https://hm.baidu.com/hm.js?110223c912240ddb52d1b392e8e96073# <app_id>"></script>
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+  <meta name="Robots" contect= "all">
+<link rel="alternate" href="/atom.xml" title="itingyu的博客" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">itingyu的博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">随便写写'</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">35</span></a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">35</span></a></li><li class="menu-item menu-item-links"><a href="/links/" rel="section"><i class="fa fa-link fa-fw"></i>链接</a></li><li class="menu-item menu-item-guestbook"><a href="/guestbook/" rel="section"><i class="fa fa-comment fa-fw"></i>留言板</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9DP%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">状态压缩DP介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BE%8B%E9%A2%98%E8%AE%B2%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">例题讲解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E6%84%8F%E7%90%86%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">题意理解</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">算法分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">5.</span> <span class="nav-text">算法实现</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="itingyu"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">itingyu</p>
+  <div class="site-description" itemprop="description">记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">108</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">35</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/itingyu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;itingyu" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itingyu@163.com" title="E-Mail → mailto:itingyu@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://hexo-next.readthedocs.io/zh_CN/latest/next/" title="https:&#x2F;&#x2F;hexo-next.readthedocs.io&#x2F;zh_CN&#x2F;latest&#x2F;next&#x2F;" rel="noopener" target="_blank">next中文文档</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://itingyu.github.io/posts/35a94d42/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="itingyu">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="itingyu的博客">
+      <meta itemprop="description" content="记录一些编程笔记，比如编程语言java、python、go等语言;redis、rabbitmq等中间件的原理和使用等等">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="6.状态压缩dp | itingyu的博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          6.状态压缩dp
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-07-01 21:28:35" itemprop="dateCreated datePublished" datetime="2023-07-01T21:28:35+08:00">2023-07-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">数据结构与算法</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" itemprop="url" rel="index"><span itemprop="name">动态规划</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.8k</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>动态规划算法的过程是随着阶段的增长，在每个状态维度上的分界点组成了DP拓展的轮廓。对于某些问题，我们需要在动态规划的状态中记录一个集合，保存这个轮廓的详细信息，以便于进行状态转移。若集合大小不超过 N NN ，集合中每个元素都是小于 k kk 的自然数，则我们可以把这个集合看做一个 N NN 位 k kk 进制数，以一个 [ 0 , k N − 1 ] [0,k^N-1][0,k N −1] 之间的十进制整数的形式作为DP状态的一维。这种把集合转化为整数记录在DP状态中的一类算法被称之为状态压缩动态规划算法。</p>
+</blockquote>
+<p>在讲状压dp之前，我们应该清楚dp是<strong>解决多阶段决策最优化问题</strong>的一种思想方法，即利用各个阶段之间的关系，逐个求解，最终求得全局最优解。</p>
+<p>我们通常需要确认原问题与子问题、动态规划状态、边界状态、状态转移方程。</p>
+<p>动态规划多阶段一个重要的特性就是无后效性，即“未来与过去无关”。无后效性就是对于某个给定的阶段状态，它以前各阶段的状态无法直接影响它未来的发展。换句话说，当前的状态是此前历史的一个完整总结，此前的历史只能通过当前的状态去影响过程未来的演变。<img src="/posts/35a94d42/asset/v2-3a97e87651f11c2a4e7d6d0341fcdc35_1440w.webp" alt="img"></p>
+<p> 对于动态规划，如何定义状态是至关重要的，因为状态决定了阶段的划分，阶段的划分保证了无后效性。 </p>
+<p><img src="/posts/35a94d42/asset/v2-652bfcc2863ca973d2541dfa6e3f720a_1440w.webp" alt="img"></p>
+<h3 id="状态压缩DP介绍"><a href="#状态压缩DP介绍" class="headerlink" title="状态压缩DP介绍"></a><strong>状态压缩DP介绍</strong></h3><p>状态压缩DP其实是一种<strong>暴力的算法</strong>，因为它需要遍历每个状态，而每个状态是多个事件的集合，也就是<strong>以集合为状态，一个集合就是一个状态</strong>。集合问题一般是指数复杂度的NP问题，所以状态压缩DP的复杂度仍然是指数的，只能用于小规模问题的求解。</p>
+<p>为了方便地<strong>同时表示一个状态的多个事件</strong>，状态一般用二进制数来表示。<strong>一个数就能表示一个状态</strong>，通常一个状态数据就是一个一串0和1组成的二进制数，每一位二进制数只有两种状态，比如说硬币的正反两面，10枚硬币的结果就可以用10位二进制数完全表示出来，每一个10位二进制数就表示了其中一种结果。 <img src="/posts/35a94d42/asset/v2-0af09891a956d1bc9ffe6aa112dbd1a5_1440w.webp" alt="img"></p>
+<p>使用二进制数表示状态不仅<strong>缩小了数据存储空间</strong>，还能利用二进制数的位运算很方便地<strong>进行状态转移</strong>。</p>
+<p><strong>下面列举了一些常见的二进制位的变换操作。</strong></p>
+<table>
+<thead>
+<tr>
+<th>技巧</th>
+<th>示例</th>
+<th>代码实现</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>去掉最后一位</td>
+<td>(101101-&gt;10110)</td>
+<td>x &gt;&gt; 1</td>
+</tr>
+<tr>
+<td>在最后加一个0</td>
+<td>(101101-&gt;1011010)</td>
+<td>x &lt;&lt; 1</td>
+</tr>
+<tr>
+<td>在最后加一个1</td>
+<td>(101101-&gt;1011011)</td>
+<td>x &lt;&lt; 1 + 1</td>
+</tr>
+<tr>
+<td>把最后一位变成1</td>
+<td>(101100-&gt;101101)</td>
+<td>x | 1</td>
+</tr>
+<tr>
+<td>把最后一位变成0</td>
+<td>(101101-&gt;101100)</td>
+<td>x | 1 - 1</td>
+</tr>
+<tr>
+<td>最后一位取反</td>
+<td>(101101-&gt;101100)</td>
+<td>x ^ 1</td>
+</tr>
+<tr>
+<td>把右数第k位变成1</td>
+<td>(101001-&gt;101101,k&#x3D;3)</td>
+<td>x | (1 &lt;&lt; (k - 1))</td>
+</tr>
+<tr>
+<td>把右数第k位变成0</td>
+<td>(101101-&gt;101001,k&#x3D;3)</td>
+<td>x &amp; ~(1 &lt;&lt; (k - 1))</td>
+</tr>
+<tr>
+<td>右数第k位取反</td>
+<td>(101001-&gt;101101,k&#x3D;3)</td>
+<td>x ^ (1 &lt;&lt; (k - 1))</td>
+</tr>
+<tr>
+<td>取末k位</td>
+<td>(1101101-&gt;1101,k&#x3D;5)</td>
+<td>x &amp; (1 &lt;&lt; k - 1)</td>
+</tr>
+<tr>
+<td>取右数第k位</td>
+<td>(1101101-&gt;1,k&#x3D;4)</td>
+<td>x &gt;&gt; (k - 1) &amp; 1</td>
+</tr>
+<tr>
+<td>把末k位变成1</td>
+<td>(101001-&gt;101111,k&#x3D;4)</td>
+<td>x | (1 &lt;&lt; k - 1)</td>
+</tr>
+<tr>
+<td>末k位取反</td>
+<td>(101001-&gt;100110,k&#x3D;4)</td>
+<td>x ^ (1 &lt;&lt; k - 1)</td>
+</tr>
+<tr>
+<td>把右起第一个0变成1</td>
+<td>(100101111-&gt;100111111)</td>
+<td>x | (x + 1)</td>
+</tr>
+<tr>
+<td>把右起第一个1变成0</td>
+<td>(11011000-&gt;11010000)</td>
+<td>x &amp; (x − 1)</td>
+</tr>
+<tr>
+<td>把右边连续的0变成1</td>
+<td>(11011000-&gt;11011111)</td>
+<td>x | (x - 1)</td>
+</tr>
+<tr>
+<td>把右边连续的1变成0</td>
+<td>(100101111-&gt;100100000)</td>
+<td>x &amp; (x + 1)</td>
+</tr>
+<tr>
+<td>取右边连续的1</td>
+<td>(100101111-&gt;1111)</td>
+<td>(x ^ (x + 1)) &gt;&gt; 1</td>
+</tr>
+</tbody></table>
+<h3 id="例题讲解"><a href="#例题讲解" class="headerlink" title="例题讲解"></a><strong>例题讲解</strong></h3><p>给你一个整数数组 <code>cookies</code> ，其中 <code>cookies[i]</code> 表示在第 <code>i</code> 个零食包中的饼干数量。另给你一个整数 <code>k</code> 表示等待分发零食包的孩子数量，<strong>所有</strong> 零食包都需要分发。在同一个零食包中的所有饼干都必须分发给同一个孩子，不能分开。</p>
+<p>分发的 <strong>不公平程度</strong> 定义为单个孩子在分发过程中能够获得饼干的最大总数。</p>
+<p>返回所有分发的最小不公平程度。</p>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>2 &lt;= cookies.length &lt;= 8</code></li>
+<li><code>1 &lt;= cookies[i] &lt;= 105</code></li>
+<li><code>2 &lt;= k &lt;= cookies.length</code></li>
+</ul>
+<h3 id="题意理解"><a href="#题意理解" class="headerlink" title="题意理解"></a><strong>题意理解</strong></h3><p>将<code>n</code>包具有一定饼干数量的零食分给<code>k</code>位小朋友，为了让能拿到最多饼干的小朋友拿到尽可能少的饼干，可理解为缩小贫富差距，求所有可行的零食分发方案中最多饼干那位小朋友最少的一种，为多少。</p>
+<h3 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a><strong>算法分析</strong></h3><p>如果你想先想出一套可行的零食分发算法再按部就班计算出答案，比如说使用贪心算法等，可能一辈子都解不出这道题来，因为这是一个NP类问题，即是一个<strong>可以在多项式时间内验证解的问题而目前无法在多项式时间内求出解的问题</strong>。</p>
+<p>既然我们无法给出快速求取精确解的算法，但是可以穷举所有可行解，根据题目需要选取最优解。</p>
+<p>由于问题规模较小，我们使用穷举法枚举每一种可能结果。</p>
+<p>对于每一种可能结果，n 包零食的分发状态需要明确，这里使用n位二进制数<code>j</code>来表示，共有<code>（1 &lt;&lt; n）</code>种可能。</p>
+<p>对于已经分好零食的当前 k 位小朋友，设此时 n 包零食状态为<code>j</code>，比方说第 k 位小朋友拿到了其中的 2 包零食，设零食状态为<code>c</code>，那么对于当前 k 位朋友分好零食得到的结果，等价于，已经将前 k 位小朋友分好零食，再将那 2 包零食分给第 k 位小朋友后得到的结果。也就是说，分好 k 位朋友可由分好前 k 位朋友经过决策转移而来。</p>
+<p>对于最优的决策，我们需要比较所有可能的决策来确定，设第 k 位朋友得到的零食状态<code>c</code>，这里使用技巧<code>for(int c=j;c;c=(c-1)&amp;j)</code>枚举所有可能决策。</p>
+<p>对于分好前 k 位朋友的零食状态，我们可以使用位运算轻松表示为<code>j ^ c</code>。</p>
+<h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a><strong>算法实现</strong></h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">distributeCookies</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; cookies, <span class="type">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n=cookies.<span class="built_in">size</span>();</span><br><span class="line">        vector&lt;<span class="type">int</span>&gt;<span class="built_in">s</span>(<span class="number">1</span>&lt;&lt;n); <span class="comment">// 表示所有的零食包分发状态的不公平程度</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123; </span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">0</span>,c=(<span class="number">1</span>&lt;&lt;i);j&lt;c;j++)&#123; <span class="comment">// 将第i个零食包分发到所有子集</span></span><br><span class="line">                s[j|c]=s[j]+cookies[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;<span class="built_in">f</span>(k,<span class="built_in">vector</span>&lt;<span class="type">int</span>&gt;(<span class="number">1</span>&lt;&lt;n,INT_MAX)); <span class="comment">// f[i][j]表示以零食包分发状态j时分给i个小朋友的最优解</span></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;(<span class="number">1</span>&lt;&lt;n);i++)&#123; <span class="comment">// 分给一个小朋友时就是零食包分发状态的不公平程度</span></span><br><span class="line">            f[<span class="number">0</span>][i]=s[i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;k;i++)&#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">1</span>;j&lt;(<span class="number">1</span>&lt;&lt;n);j++)&#123;</span><br><span class="line">                <span class="keyword">for</span>(<span class="type">int</span> c=j;c;c=(c<span class="number">-1</span>)&amp;j)&#123; <span class="comment">// 将零食包分发状态j分给第i位小朋友</span></span><br><span class="line">                    f[i][j]=<span class="built_in">min</span>(f[i][j],<span class="built_in">max</span>(f[i<span class="number">-1</span>][j^c],s[c]));</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f[k<span class="number">-1</span>][(<span class="number">1</span>&lt;&lt;n)<span class="number">-1</span>];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/posts/35a94d42/asset/1688221546201.png" alt="1688221546201"></p>
+<p><img src="/posts/35a94d42/asset/1688221568068.png" alt="1688221568068"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;bits/stdc++.h&gt;</span><br><span class="line">using namespace std;</span><br><span class="line">const int maxn = 21;</span><br><span class="line">int f[1 &lt;&lt; maxn][maxn];</span><br><span class="line">int n, m, s, t, k, ans;</span><br><span class="line">int w[maxn &lt;&lt; 1][maxn &lt;&lt; 1];</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">    cin &gt;&gt; n;</span><br><span class="line">    for (int i = 0; i &lt; n; ++ i) </span><br><span class="line">        for (int j = 0; j &lt; n; ++ j) </span><br><span class="line">            scanf(&quot;%d&quot;, &amp;w[i][j]);</span><br><span class="line">    memset(f, 0x3f, sizeof f);</span><br><span class="line">    f[1][0] = 0;</span><br><span class="line">    for (int i = 0; i &lt;= (1 &lt;&lt; n) - 1; ++ i) &#123;</span><br><span class="line">        for (int j = 0; j &lt; n; ++ j) &#123;</span><br><span class="line">            if ((i &gt;&gt; j) &amp; 1) &#123;</span><br><span class="line">                for (int k = 0; k &lt; n; ++ k) &#123;</span><br><span class="line">                    int now = i ^ (1 &lt;&lt; j);</span><br><span class="line">                    if ((now &gt;&gt; k) &amp; 1)</span><br><span class="line">                        f[i][j] = min(f[i][j], f[now][k] + w[k][j]);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    cout &lt;&lt; f[(1 &lt;&lt; n) - 1][n - 1] &lt;&lt; &#x27;\n&#x27;;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+       <div>
+            
+<div style="text-align:center;color: #ccc;font-size:14px;">
+ ------ 本文结束感谢您的阅读 ------
+</div> 
+
+       </div>
+       <div>
+           <div class="reward-container">
+  <div>请我一杯咖啡吧！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.jpg" alt="itingyu 微信打赏">
+        <span>微信打赏</span>
+      </div>
+
+  </div>
+</div>
+
+       <div/>
+    </div>
+
+    
+    
+    
+    <footer class="post-footer">
+          <div class="followme">
+  <span>欢迎关注我的其它发布渠道</span>
+
+  <div class="social-list">
+
+      <div class="social-item">
+          <span class="social-link">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </span>
+
+          <img class="social-item-img" src="/images/wechatpay.jpg">
+      </div>
+
+      <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+      </div>
+  </div>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i> 数据结构与算法</a>
+              <a href="/tags/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92/" rel="tag"><i class="fa fa-tag"></i> 动态规划</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/posts/a2cf036c/" rel="prev" title="5.环形结构dp">
+                  <i class="fa fa-chevron-left"></i> 5.环形结构dp
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/posts/57b019a2/" rel="next" title="7.倍增优化dp">
+                  7.倍增优化dp <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments gitalk-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">itingyu</span>
+</div>
+
+    </div>
+  </footer>
+
+  
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="https://cdnjs.cloudflare.com/ajax/libs/ribbon.js/1.0.2/ribbon.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js" integrity="sha256-yt2kYMy0w8AbtF89WXb2P1rfjcP/HTHLT7097U8Y5b8=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js"></script>
+
+  <script src="/js/third-party/pace.js"></script>
+
+
+  
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.css" integrity="sha256-AJnUHL7dBv6PGaeyPQJcgQPDjt/Hn/PvYZde1iqfp8U=" crossorigin="anonymous">
+
+<script class="next-config" data-name="gitalk" type="application/json">{"enable":true,"github_id":"itingyu","repo":"itingyu.github.io","client_id":"dfcd313fd692381d6bda","client_secret":"8c36e87fcf362001e3ac75ccbc34898bc8b21ac6","admin_user":"itingyu","distraction_free_mode":true,"proxy":"https://cors-anywhere.azm.workers.dev/https://github.com/login/oauth/access_token","language":"en | es-ES | fr | ru | zh-CN | zh-TW","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js","integrity":"sha256-MVK9MGD/XJaGyIghSVrONSnoXoGh3IFxLw0zfvzpxR4="},"path_md5":"45d97145e60e2512767c7cec6c01be19"}</script>
+<script src="/js/third-party/comments/gitalk.js"></script>
+
+</body>
+
+</html>
