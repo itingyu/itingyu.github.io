@@ -959,3 +959,29 @@ test('build: --check stays green after JSON-LD injection on all 4 page types', (
     assert.deepEqual(drift, [], 'no drift after writing + recomputing');
   } finally { cleanProject(tmp); }
 });
+
+// ----- 40. AIWORK1-38 prism: <pre><code class="language-*"> 经 build 后 class 保留
+
+test('build: <pre><code class="language-bash"> class preserved after npm run build', () => {
+  // minimal-post fixture 已经含 <pre><code class="language-bash"> 块;
+  // 跑完 computeBuild + writeBuild 后,该 class 必须原样保留(prism.js 才能 hook)
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const out = fs.readFileSync(path.join(tmp, 'posts', 'minimal-post', 'index.html'), 'utf8');
+    assert.ok(/<pre[^>]*>\s*<code[^>]*class=["'][^"']*language-bash[^"']*["']/.test(out),
+      'written article page must preserve language-bash class on <code>');
+    assert.ok(/echo hello/.test(out), 'code body must round-trip intact');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: --check stays green when fixture contains <pre><code class="language-bash">', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [], 'no drift after build with prism class in <pre>');
+  } finally { cleanProject(tmp); }
+});

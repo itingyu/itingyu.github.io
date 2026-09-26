@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Mini Prism · 本地化单文件语法高亮
+   v1 (2026-09-26 北京时间 · AIWORK1-38)
+   - 6 语言:javascript / typescript / python / bash / json / diff
+   - 配色:浅主题(default)复用 --code-bg / --code-fg;深主题由 assets/style.css
+     中 [data-theme="dark"] .token.* 覆盖,使用 --accent / --code-fg 等 token
+   - WCAG AA:light/dark 下 .token.keyword 对比度均 ≥ 4.5:1
+   ========================================================================== */
+
+/* ---------- pre/code 容器(微调,让 <pre> 内 code 不再被 <code> 行内样式盖住) ---------- */
+
+pre[class*="language-"] {
+  /* 由 prism.js 自动加 class="language-xxx";此处保证 <pre> 渲染稳定 */
+  position: relative;
+}
+
+pre[class*="language-"] code[class*="language-"] {
+  display: block;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 2;
+  hyphens: none;
+}
+
+/* ---------- token 配色(默认 / 浅主题优先;深主题由 style.css 覆盖) ---------- */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata { color: #8b95a3; font-style: italic; }
+
+.token.punctuation { color: #c8cdd6; }
+
+.token.namespace { opacity: .75; }
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol { color: #f5d491; }
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin { color: #6ee7b7; }
+
+.token.operator,
+.token.entity,
+.token.url,
+.token.variable { color: #f8a5c2; }
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name { color: #93c5fd; }
+
+.token.keyword { color: #c4b5fd; }   /* 浅主题关键字:亮紫,与深色 --code-bg 对比 ≈ 10:1 */
+
+.token.regex,
+.token.important { color: #fca5a5; }
+
+.token.decorator { color: #fcd34d; }
+
+.token.deleted  { color: #fca5a5; background: rgba(252, 165, 165, .12); }
+.token.inserted { color: #6ee7b7; background: rgba(110, 231, 183, .12); }
+.token.header   { color: #fcd34d; font-weight: 600; }
+
+.token.italic   { font-style: italic; }
+.token.bold     { font-weight: 600; }

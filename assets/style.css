@@ -1296,3 +1296,88 @@ article pre:focus-within .copy-btn,
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ==========================================================================
+   v8 · 代码语法高亮 token 覆盖(2026-09-26 北京时间 · AIWORK1-38)
+   - assets/prism.css 提供浅 / 深通用基础色
+   - 本节在深主题下用 design token 覆写,确保与现有色板一致
+   - 浅主题保持 prism.css 的默认值(--code-bg 深色块,token 必须高亮)
+   - 契约:.token.keyword 深 / 浅主题下对比度均 ≥ 4.5:1(WCAG AA)
+     · 浅主题:keyword #c4b5fd on --code-bg #1a1d24 ≈ 10:1
+     · 深主题:keyword --accent #a78bfa on --code-bg #0a0c12 ≈ 8.7:1
+   ========================================================================== */
+
+:root[data-theme="dark"] .token.comment,
+:root[data-theme="dark"] .token.prolog,
+:root[data-theme="dark"] .token.doctype,
+:root[data-theme="dark"] .token.cdata { color: #6b7280; }
+
+:root[data-theme="dark"] .token.punctuation { color: #c8cdd6; }
+
+:root[data-theme="dark"] .token.property,
+:root[data-theme="dark"] .token.tag,
+:root[data-theme="dark"] .token.boolean,
+:root[data-theme="dark"] .token.number,
+:root[data-theme="dark"] .token.constant,
+:root[data-theme="dark"] .token.symbol { color: #f5d491; }
+
+:root[data-theme="dark"] .token.selector,
+:root[data-theme="dark"] .token.attr-name,
+:root[data-theme="dark"] .token.string,
+:root[data-theme="dark"] .token.char,
+:root[data-theme="dark"] .token.builtin { color: #6ee7b7; }
+
+:root[data-theme="dark"] .token.operator,
+:root[data-theme="dark"] .token.entity,
+:root[data-theme="dark"] .token.url,
+:root[data-theme="dark"] .token.variable { color: #f8a5c2; }
+
+:root[data-theme="dark"] .token.atrule,
+:root[data-theme="dark"] .token.attr-value,
+:root[data-theme="dark"] .token.function,
+:root[data-theme="dark"] .token.class-name { color: #93c5fd; }
+
+:root[data-theme="dark"] .token.keyword { color: var(--accent); }
+
+:root[data-theme="dark"] .token.regex,
+:root[data-theme="dark"] .token.important { color: #fca5a5; }
+
+:root[data-theme="dark"] .token.decorator { color: #fcd34d; }
+
+:root[data-theme="dark"] .token.deleted  { color: #fca5a5; background: rgba(252, 165, 165, .12); }
+:root[data-theme="dark"] .token.inserted { color: #6ee7b7; background: rgba(110, 231, 183, .12); }
+:root[data-theme="dark"] .token.header   { color: #fcd34d; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .token.comment,
+  :root:not([data-theme="light"]) .token.prolog,
+  :root:not([data-theme="light"]) .token.doctype,
+  :root:not([data-theme="light"]) .token.cdata { color: #6b7280; }
+  :root:not([data-theme="light"]) .token.punctuation { color: #c8cdd6; }
+  :root:not([data-theme="light"]) .token.property,
+  :root:not([data-theme="light"]) .token.tag,
+  :root:not([data-theme="light"]) .token.boolean,
+  :root:not([data-theme="light"]) .token.number,
+  :root:not([data-theme="light"]) .token.constant,
+  :root:not([data-theme="light"]) .token.symbol { color: #f5d491; }
+  :root:not([data-theme="light"]) .token.selector,
+  :root:not([data-theme="light"]) .token.attr-name,
+  :root:not([data-theme="light"]) .token.string,
+  :root:not([data-theme="light"]) .token.char,
+  :root:not([data-theme="light"]) .token.builtin { color: #6ee7b7; }
+  :root:not([data-theme="light"]) .token.operator,
+  :root:not([data-theme="light"]) .token.entity,
+  :root:not([data-theme="light"]) .token.url,
+  :root:not([data-theme="light"]) .token.variable { color: #f8a5c2; }
+  :root:not([data-theme="light"]) .token.atrule,
+  :root:not([data-theme="light"]) .token.attr-value,
+  :root:not([data-theme="light"]) .token.function,
+  :root:not([data-theme="light"]) .token.class-name { color: #93c5fd; }
+  :root:not([data-theme="light"]) .token.keyword { color: var(--accent); }
+  :root:not([data-theme="light"]) .token.regex,
+  :root:not([data-theme="light"]) .token.important { color: #fca5a5; }
+  :root:not([data-theme="light"]) .token.decorator { color: #fcd34d; }
+  :root:not([data-theme="light"]) .token.deleted  { color: #fca5a5; background: rgba(252, 165, 165, .12); }
+  :root:not([data-theme="light"]) .token.inserted { color: #6ee7b7; background: rgba(110, 231, 183, .12); }
+  :root:not([data-theme="light"]) .token.header   { color: #fcd34d; }
+}
+

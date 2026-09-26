@@ -42,6 +42,7 @@
     })();
   </script>
   <link rel="stylesheet" href="/assets/style.css" />
+  <link rel="stylesheet" href="/assets/prism.css" />
   <script defer src="/assets/theme.js"></script>
   <script defer src="/assets/keys.js"></script>
 </head>
@@ -117,5 +118,13 @@
     </div>
     <p>&copy; 2026 itingyu · 内容仅供参考，不构成投资建议。</p>
   </footer>
+
+  <!--
+    代码块:在 <code> 上加 class="language-bash" 等提示语言。
+    prism.js 会在 DOMReady 后自动 hook 所有 <pre><code class="language-*">,
+    把 token 拆成 <span class="token keyword"> 等;配色由 prism.css + style.css 接管。
+    支持:javascript / typescript / python / bash / json / diff。
+  -->
+  <script defer src="/assets/prism.js"></script>
 </body>
 </html>
