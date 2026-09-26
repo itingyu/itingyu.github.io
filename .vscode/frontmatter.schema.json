@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itingyu.github.io/.vscode/frontmatter.schema.json",
+  "title": "itingyu.github.io front matter",
+  "description": "Front matter 字段 schema。覆盖 Markdown(v2 落地后)与 HTML <meta> 形式(v1 现状)两套字段名集合,过渡期友好。",
+  "type": "object",
+  "$defs": {
+    "commonMd": {
+      "description": "Markdown 形式 front matter(v2 方向,YAML 写在 --- ... --- 之间)",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "文章标题",
+          "minLength": 1
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL 段(目录名)",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "发布日期,YYYY-MM-DD"
+        },
+        "tags": {
+          "type": "array",
+          "description": "标签列表",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "摘要,显示在列表 / RSS / og:description"
+        },
+        "cover": {
+          "type": "string",
+          "description": "封面图路径(相对 posts/<slug>/)",
+          "examples": ["cover.jpg", "cover.svg", "assets/cover.png"]
+        },
+        "draft": {
+          "type": "boolean",
+          "description": "草稿标记;true 时 build 跳过",
+          "default": false
+        },
+        "series": {
+          "type": "string",
+          "description": "所属系列名(同系列文章互相串联)"
+        },
+        "pinned": {
+          "type": "boolean",
+          "description": "是否置顶",
+          "default": false
+        }
+      },
+      "required": ["title", "date"],
+      "additionalProperties": false
+    },
+    "htmlMeta": {
+      "description": "HTML 形式 front matter(v1 现状,字段进 <meta> 与 JSON-LD)",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "<title>",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "description": "<meta name=\"description\">",
+          "minLength": 1
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "<meta property=\"article:published_time\">"
+        },
+        "tags": {
+          "type": "array",
+          "description": "<meta property=\"article:tag\"> × N",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "slug": {
+          "type": "string",
+          "description": "URL 段",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "author": {
+          "type": "string",
+          "description": "<meta name=\"author\">"
+        },
+        "canonical": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "<link rel=\"canonical\">"
+        },
+        "draft": {
+          "type": "boolean",
+          "description": "草稿标记",
+          "default": false
+        },
+        "series": {
+          "type": "string",
+          "description": "所属系列名"
+        },
+        "pinned": {
+          "type": "boolean",
+          "description": "是否置顶",
+          "default": false
+        },
+        "cover": {
+          "type": "string",
+          "description": "封面图路径"
+        }
+      },
+      "required": ["title", "date"],
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/commonMd" },
+    { "$ref": "#/$defs/htmlMeta" }
+  ]
+}

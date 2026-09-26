@@ -1,0 +1,25 @@
+{
+  "yaml.schemas": {
+    ".vscode/frontmatter.schema.json": [
+      "posts/*/source.md",
+      "posts/*/index.md"
+    ]
+  },
+  "editor.quickSuggestions": {
+    "comments": "on",
+    "strings": "on",
+    "other": "on"
+  },
+  "[markdown]": {
+    "editor.quickSuggestions": {
+      "comments": "on",
+      "strings": "on",
+      "other": "on"
+    }
+  },
+  "files.associations": {
+    "posts/*/source.md": "markdown",
+    "posts/*/index.md": "markdown"
+  },
+  "markdownlint.customRules": []
+}

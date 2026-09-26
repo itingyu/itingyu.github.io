@@ -1,0 +1,17 @@
+{
+  "default": true,
+  "MD003": { "style": "atx" },
+  "MD004": { "style": "dash" },
+  "MD007": { "indent": 2 },
+  "MD013": false,
+  "MD024": { "siblings_only": true },
+  "MD033": false,
+  "MD041": false,
+  "MD046": { "style": "fenced" },
+  "line-length": false,
+  "no-hard-tabs": true,
+  "no-inline-html": false,
+  "no-trailing-spaces": true,
+  "no-missing-space-atx": true,
+  "no-multiple-blanks": { "maximum": 1 }
+}

@@ -66,6 +66,15 @@ git push
 
 GitHub Pages 会自动部署。首页 / 归档 / 标签 / RSS 的增量更新由 `scripts/build-index.js` 自动接管。
 
+### VSCode 自动补全
+
+在 VSCode 打开 `posts/<slug>/source.md`(v2 后将改 `index.md`),front matter
+区域会自动提示 `title` / `date` / `tags` / `excerpt` / `cover` / `draft` /
+`series` / `pinned` 字段。补全 schema 由 `.vscode/frontmatter.schema.json`
+提供,`.vscode/settings.json` 已绑定到 `posts/*/source.md`(Markdown 源)。
+HTML front matter(`<meta>` 形式,v1 现状)同样有 schema 校验,过渡期友好。
+YAML 补全需装 `redhat.vscode-yaml` 扩展,不强装。
+
 ## 自动化构建
 
 文章数 > 30 后手工维护 `posts/index.html` / `archive/index.html` / `tags/` / `feeds/rss.xml` /
