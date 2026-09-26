@@ -4,6 +4,7 @@ slug: sing-box-setup-experience
 date: 2026-09-26
 tags: [sing-box, proxy, linux, network]
 excerpt: 从机场订阅到 zashboard dashboard，完整记录 sing-box 1.14 代理配置、DNS fakeip、订阅自动更新、CORS 反代等实战经验。
+cover: posts/sing-box-setup-experience/cover.svg
 ---
 
 从机场订阅 → sing-box 1.14 稳定运行 → zashboard 可视化 → chromium 走代理，本文记录全过程踩过的坑。配置目标是：国内域名走直连、国外域名走最低延迟节点、节点失效自动切换、浏览器一键切换代理模式。
