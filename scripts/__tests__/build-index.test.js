@@ -727,3 +727,191 @@ test('build: search.js empty token list falls back to renderDefault not empty st
   assert.ok(/renderDefault\(\)/.test(block[1]),
     'renderHits should call renderDefault on empty token list');
 });
+
+// ============================================================
+// spec v1.2 · AIWORK1-40 · article:pinned 首页精选 + .post-card refactor
+//   契约测试锚点:scripts/build-index.js parseFrontmatter / renderHomePostsSection
+//                 scripts/new-post.sh --pinned flag
+//   共 5 条 build 侧断言(frontmatter 3 条已在 frontmatter.test.js 落)
+// ============================================================
+
+// AIWORK1-40 DoD #4:首页含 <section class="featured">(pinned>0 时)
+test('AIWORK1-40 DoD #4: home page renders <section class="featured"> when pinned>0', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'pinned-post'], homeWithMarkers: true });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const home = fs.readFileSync(path.join(tmp, 'index.html'), 'utf8');
+    assert.ok(/<section class="featured"/.test(home),
+      'home should contain <section class="featured">');
+    assert.ok(/post-list--featured/.test(home),
+      'featured section should use post-list--featured class');
+    assert.ok(/post-card--featured/.test(home),
+      'featured card should use post-card--featured modifier');
+    assert.ok(/class="pinned-badge"/.test(home),
+      'featured card should include pinned-badge');
+    assert.ok(/post-list-item-pinned/.test(home),
+      'featured list item should have post-list-item-pinned class');
+    // featured 应在「最新文章」上方(spec §3.5 行 233)
+    const iFeatured = home.indexOf('class="featured"');
+    const iLatest = home.indexOf('最新文章');
+    assert.ok(iFeatured > 0 && iLatest > 0 && iFeatured < iLatest,
+      'featured section must precede 最新文章');
+
+    // pinned=false 文章(minimal-post)不应出现在 featured 区
+    const featuredRegion = home.slice(iFeatured, iLatest);
+    assert.ok(!/minimal-post/.test(featuredRegion),
+      'unpinned posts must not appear in featured section');
+  } finally { cleanProject(tmp); }
+});
+
+// AIWORK1-40 DoD #4 零回归:无 pinned → 不渲染 featured 区
+test('AIWORK1-40 DoD #4 (zero-regression): no pinned → no featured section', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'], homeWithMarkers: true });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const home = fs.readFileSync(path.join(tmp, 'index.html'), 'utf8');
+    assert.ok(!/<section class="featured"/.test(home),
+      'home should NOT contain featured section when no pinned');
+    assert.ok(!/class="pinned-badge"/.test(home),
+      'home should NOT contain pinned-badge when no pinned');
+  } finally { cleanProject(tmp); }
+});
+
+// AIWORK1-40 DoD #5:pinned>3 → 只展示 3 篇,超限裁剪
+test('AIWORK1-40 DoD #5: more than HOME_LIMIT pinned posts are clipped to 3', () => {
+  // 自建 5 篇 pinned(均不同 dateModified),断言 featured 区只渲染 3 张卡片
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pinned-cap-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    const dates = ['2026-01-01', '2026-02-01', '2026-03-01', '2026-04-01', '2026-05-01'];
+    for (let i = 0; i < 5; i++) {
+      const slug = `p${i}`;
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${dates[i]}" />
+          <meta property="article:modified_time" content="${dates[i]}" />
+          <meta property="article:pinned" content="true" />
+        </head><body></body></html>`);
+    }
+    const posts = scanPosts(tmp);
+    const featured = bi.renderHomeFeaturedSection(posts);
+    // 卡片数量 = 3(裁剪到 HOME_LIMIT)
+    const cardMatches = (featured.match(/class="post-list-item[^"]*pinned/g) || []).length;
+    assert.equal(cardMatches, 3, 'featured section should clip to HOME_LIMIT=3');
+
+    // 应当按 dateModified desc 取最新 3 篇 → p4, p3, p2
+    assert.ok(/posts\/p4\//.test(featured), 'p4 (newest) should be included');
+    assert.ok(/posts\/p3\//.test(featured), 'p3 should be included');
+    assert.ok(/posts\/p2\//.test(featured), 'p2 should be included');
+    assert.ok(!/posts\/p1\//.test(featured), 'p1 (older) should be clipped out');
+    assert.ok(!/posts\/p0\//.test(featured), 'p0 (oldest) should be clipped out');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// AIWORK1-40 DoD #6:排序按 dateModified desc,缺省回退 date
+test('AIWORK1-40 DoD #6: pinned posts sort by dateModified desc, fall back to date', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pinned-sort-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    // 4 篇 pinned(HOME_LIMIT=3 会裁掉 older,故验证前 3 + 验证 older 不在):
+    //   newest:  dateModified=2026-05-10
+    //   nomod:   pinned 但无 dateModified,date=2026-04-20(应回退)
+    //   mid:     dateModified=2026-04-15
+    //   older:   dateModified=2026-03-20(被裁掉,断言不在 featured 区)
+    function mk(slug, date, mod) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const modMeta = mod ? `  <meta property="article:modified_time" content="${mod}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${modMeta}          <meta property="article:pinned" content="true" />
+        </head><body></body></html>`);
+    }
+    mk('newest', '2026-02-01', '2026-05-10');
+    mk('mid',    '2026-04-01', '2026-04-15');
+    mk('older',  '2026-03-01', '2026-03-20');
+    mk('nomod',  '2026-04-20', null);
+
+    const posts = scanPosts(tmp);
+    const featured = bi.renderHomeFeaturedSection(posts);
+
+    // 期望顺序(裁剪到 3):newest > nomod > mid
+    const newestAt = featured.indexOf('/posts/newest/');
+    const nomodAt = featured.indexOf('/posts/nomod/');
+    const midAt = featured.indexOf('/posts/mid/');
+    assert.ok(newestAt > 0 && nomodAt > 0 && midAt > 0,
+      'top 3 pinned should all render in featured section');
+    assert.ok(newestAt < nomodAt,
+      'newest (2026-05-10) should precede nomod (date fallback 2026-04-20)');
+    assert.ok(nomodAt < midAt,
+      'nomod (date fallback 2026-04-20) should precede mid (2026-04-15) — dateModified beats date');
+
+    // older 被裁剪到 HOME_LIMIT=3,不在 featured 区
+    assert.ok(!featured.includes('/posts/older/'),
+      'older (2026-03-20) should be clipped from featured section');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// AIWORK1-40 DoD #7:pinned=false 文章不输出 <meta property="article:pinned">
+test('AIWORK1-40 DoD #7: non-pinned post files do not emit article:pinned meta', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'no-pinned-meta-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'posts', 'no-pin'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'posts', 'no-pin', 'index.html'),
+      `<!doctype html><html><head>
+        <title>No pin</title>
+        <meta property="article:published_time" content="2026-04-01" />
+      </head><body></body></html>`);
+
+    const posts = scanPosts(tmp);
+    assert.equal(posts[0].pinned, false, 'fm.pinned should default to false');
+
+    const idx = bi.renderPostsIndex(posts);
+    assert.ok(!/article:pinned/.test(idx),
+      'renderPostsIndex must not emit any article:pinned meta');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// AIWORK1-40 DoD #8:new-post.sh --pinned 生成的文章含 article:pinned meta
+test('AIWORK1-40 DoD #8: new-post.sh --pinned emits article:pinned=true meta in article', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'newpost-pinned-'));
+  try {
+    const script = path.join(__dirname, '..', '..', 'scripts', 'new-post.sh');
+    assert.ok(fs.existsSync(script), 'new-post.sh must exist');
+    // 真实 e2e:复制 scripts 目录所需资源到 tmp,再跑脚本
+    const scriptCopy = path.join(tmp, 'new-post.sh');
+    const templateCopy = path.join(tmp, 'post.html');
+    fs.copyFileSync(script, scriptCopy);
+    fs.copyFileSync(path.join(__dirname, '..', '..', 'scripts', 'templates', 'post.html'), templateCopy);
+    fs.chmodSync(scriptCopy, 0o755);
+
+    const cwd = fs.mkdtempSync(path.join(os.tmpdir(), 'newpost-cwd-'));
+    fs.mkdirSync(path.join(cwd, 'scripts', 'templates'), { recursive: true });
+    fs.copyFileSync(script, path.join(cwd, 'scripts', 'new-post.sh'));
+    fs.copyFileSync(templateCopy, path.join(cwd, 'scripts', 'templates', 'post.html'));
+    fs.chmodSync(path.join(cwd, 'scripts', 'new-post.sh'), 0o755);
+
+    // bash 直接调脚本,不用 spawn(避免拉依赖)
+    const { execFileSync } = require('node:child_process');
+    execFileSync('bash', [path.join(cwd, 'scripts', 'new-post.sh'), 'pinned-sample', '精选示例', '--tag', 'note', '--pinned'],
+      { cwd, stdio: 'pipe' });
+    const out = fs.readFileSync(path.join(cwd, 'posts', 'pinned-sample', 'index.html'), 'utf8');
+    assert.ok(/<meta property="article:pinned" content="true"\s*\/>/.test(out),
+      'output must contain <meta property="article:pinned" content="true">');
+
+    // 反例:不带 --pinned 的生成不应输出该 meta(节省 head 字节)
+    execFileSync('bash', [path.join(cwd, 'scripts', 'new-post.sh'), 'plain-sample', '普通示例', '--tag', 'note'],
+      { cwd, stdio: 'pipe' });
+    const out2 = fs.readFileSync(path.join(cwd, 'posts', 'plain-sample', 'index.html'), 'utf8');
+    assert.ok(!/article:pinned/.test(out2),
+      'output without --pinned must not emit article:pinned meta (saves head bytes)');
+
+    fs.rmSync(cwd, { recursive: true, force: true });
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});

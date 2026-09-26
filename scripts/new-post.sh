@@ -10,7 +10,7 @@ AUTHOR="${NEW_POST_AUTHOR:-itingyu}"
 
 usage() {
   cat <<EOF
-用法: new-post.sh <slug> "<title>" [--tag <tag>...] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>]
+用法: new-post.sh <slug> "<title>" [--tag <tag>...] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>] [--pinned]
 
 参数:
   <slug>                 文章 slug,只允许 [a-z0-9-],作为目录名与 URL 段
@@ -19,11 +19,14 @@ usage() {
   --date YYYY-MM-DD      发布日期,默认今天
   --excerpt "<text>"     文章摘要,默认与标题相同的占位说明
   --cover <path>         封面图路径(支持 .svg/.jpg/.png/.webp),会复制到 posts/<slug>/
+  --pinned               标记为首页精选置顶(spec v1.2 §3.5 行 77);会在 <head> 写入
+                         <meta property="article:pinned" content="true">,缺省不输出
   -h | --help            显示本帮助
 
 示例:
   ./scripts/new-post.sh my-first-post "我的第一篇" --tag note --excerpt "占位示例"
   ./scripts/new-post.sh hello "Hello" --tag note --cover /tmp/cover.svg
+  ./scripts/new-post.sh great-post "代表作" --tag note --pinned
 EOF
 }
 
@@ -41,6 +44,7 @@ DATE="$(date +%F)"
 EXCERPT=""
 TAGS=()
 COVER_PATH=""
+PINNED=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -48,6 +52,7 @@ while [ $# -gt 0 ]; do
     --date)   DATE="$2"; shift 2 ;;
     --excerpt) EXCERPT="$2"; shift 2 ;;
     --cover)  COVER_PATH="$2"; shift 2 ;;
+    --pinned) PINNED=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) echo "错误:未知参数 $1" >&2; usage; exit 1 ;;
   esac
@@ -118,6 +123,14 @@ else
   OG_IMAGE=""
 fi
 
+# 精选置顶 meta(spec v1.2 §3.5 行 77 / 行 241):仅 --pinned 时输出,缺省不写 meta 节省 head 字节
+if [ "$PINNED" -eq 1 ]; then
+  PINNED_META="  <meta property=\"article:pinned\" content=\"true\" />
+"
+else
+  PINNED_META=""
+fi
+
 # 用 awk 做占位符替换,避免 sed 在不同实现上的转义差异
 mkdir -p "$OUT_DIR"
 if [ -n "$COVER_PATH" ]; then
@@ -131,7 +144,8 @@ awk -v title="$TITLE" \
     -v tags_html="$TAGS_HTML" \
     -v postmeta_tags="$POSTMETA_TAGS" \
     -v og_image="$OG_IMAGE" \
-    -v cover_html="$COVER_HTML" '
+    -v cover_html="$COVER_HTML" \
+    -v pinned_meta="$PINNED_META" '
   {
     gsub(/\{\{TITLE\}\}/, title)
     gsub(/\{\{DESCRIPTION\}\}/, desc)
@@ -142,10 +156,12 @@ awk -v title="$TITLE" \
     gsub(/\{\{POSTMETA_TAGS\}\}/, postmeta_tags)
     gsub(/\{\{OG_IMAGE\}\}/, og_image)
     gsub(/\{\{COVER_HTML\}\}/, cover_html)
+    gsub(/\{\{PINNED_META\}\}/, pinned_meta)
     gsub(/\{\{BODY\}\}/, "")
     print
   }
 ' "$TEMPLATE" > "$OUT_FILE"
 
 echo "已生成: $OUT_FILE"
-[ -n "$COVER_PATH" ] && echo "封面图: $OUT_DIR/$COVER_NAME"
+[ -n "$COVER_PATH" ] && echo "封面图: $OUT_DIR/$COVER_NAME" || true
+[ "$PINNED" -eq 1 ] && echo "已标记精选置顶(article:pinned=true)" || true

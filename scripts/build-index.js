@@ -144,7 +144,16 @@ ${SITE_FOOTER}</body>
 // ============================================================
 
 function parseFrontmatter(html, slug) {
-  const out = { slug, title: '', description: null, date: null, tags: [], warnings: [] };
+  const out = {
+    slug,
+    title: '',
+    description: null,
+    date: null,
+    dateModified: null,
+    tags: [],
+    pinned: false,
+    warnings: [],
+  };
 
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
   if (titleMatch) {
@@ -171,6 +180,25 @@ function parseFrontmatter(html, slug) {
   out.date = dateRaw;
   if (dateRaw && !/^\d{4}-\d{2}-\d{2}/.test(dateRaw)) {
     out.warnings.push(`non-ISO date "${dateRaw}"`);
+  }
+
+  // dateModified(可选,v1.2 新增):仅当文章存在 <meta property="article:modified_time"> 时解析
+  // spec v1.2 §3.2 行 74:「可选,缺省回退 date,用于 article:pinned 精选置顶排序」
+  const modMatch = html.match(/<meta\s+property=["']article:modified_time["']\s+content=["']([^"']*)["']/i);
+  if (modMatch) {
+    const modRaw = modMatch[1].trim();
+    if (modRaw) {
+      out.dateModified = modRaw;
+      if (!/^\d{4}-\d{2}-\d{2}/.test(modRaw)) {
+        out.warnings.push(`non-ISO dateModified "${modRaw}"`);
+      }
+    }
+  }
+
+  // article:pinned(spec v1.2 §3.2 行 77):仅当 content="true" 时置 true,缺省 / "false" / 缺 meta → false
+  const pinnedMatch = html.match(/<meta\s+property=["']article:pinned["']\s+content=["']([^"']*)["']/i);
+  if (pinnedMatch && pinnedMatch[1].trim().toLowerCase() === 'true') {
+    out.pinned = true;
   }
 
   // Collect tag display names from <meta property="article:tag" content="X">
@@ -249,6 +277,20 @@ function byDateDesc(a, b) {
 
 function sortPosts(posts) {
   return [...posts].sort(byDateDesc);
+}
+
+// 精选置顶排序(spec v1.2 §3.2 行 77 + 行 241):dateModified desc,缺省回退 date
+// 用于首页 <section class="featured"> 的排序,NOT 用于普通时间线
+function byModifiedDesc(a, b) {
+  const ka = (a.dateModified || a.date || '').toString();
+  const kb = (b.dateModified || b.date || '').toString();
+  if (ka < kb) return 1;
+  if (ka > kb) return -1;
+  return (a.slug || '').localeCompare(b.slug || '');
+}
+
+function sortPinnedPosts(posts) {
+  return [...posts].sort(byModifiedDesc);
 }
 
 // ============================================================
@@ -409,17 +451,42 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
 // Renderers
 // ============================================================
 
-function renderPostListItem(post) {
+// ============================================================
+// .post-card 组件(spec v1.2 §3.5 行 233 + AIWORK1-40)
+//   - 抽出 .post-list > li 内层结构为组件,featured / 普通列表复用同一组件
+//   - 通过 modifiers: .post-card--featured(更大封面 + 更长摘要)
+//   - 同时保留 .post-list > li 的 class="post-list-item" 钩子,前端样式零回归
+//   - pinned 文章: <li> 加 post-list-item-pinned;卡片内左上角 .pinned-badge
+// ============================================================
+
+function renderPostCard(post, opts = {}) {
+  const featured = !!opts.featured;
+  const cardClass = featured ? 'post-card post-card--featured' : 'post-card';
   const tagHTML = (post.tags || []).map(t => {
     return `          <a class="chip" href="/tags/${escapeHTML(t.slug)}/" data-tag="${escapeHTML(t.slug)}">${escapeHTML(t.name)}</a>`;
   }).join('\n          <span class="dot">·</span>\n');
-  return `      <li>
-        <h3 class="post-title"><a href="/posts/${escapeHTML(post.slug)}/">${escapeHTML(post.title)}</a></h3>
-        <div class="post-meta">
-          <time datetime="${escapeHTML(post.date || '')}">${escapeHTML(post.date || '')}</time>
-${post.tags && post.tags.length ? `          <span class="dot">·</span>\n${tagHTML}\n` : ''}        </div>
-        <p class="post-excerpt">${escapeHTML(post.description || post.title || '')}</p>
+  const tagRow = post.tags && post.tags.length
+    ? `          <span class="dot">·</span>\n${tagHTML}\n`
+    : '';
+  // 摘要文案:featured 可更长(spec 拍板);普通列表维持原文,零回归
+  const excerpt = (post.description || post.title || '').toString();
+  const badge = post.pinned
+    ? `        <span class="pinned-badge" aria-label="精选文章">精选</span>\n`
+    : '';
+  return `      <li class="post-list-item${post.pinned ? ' post-list-item-pinned' : ''}">
+        <article class="${cardClass}">
+${badge}        <h3 class="post-title"><a href="/posts/${escapeHTML(post.slug)}/">${escapeHTML(post.title)}</a></h3>
+          <div class="post-meta">
+            <time datetime="${escapeHTML(post.date || '')}">${escapeHTML(post.date || '')}</time>
+${tagRow}          </div>
+          <p class="post-excerpt">${escapeHTML(excerpt)}</p>
+        </article>
       </li>`;
+}
+
+// 兼容旧接口(供 renderPostsIndex / renderTagPage 复用,结构同 .post-card)
+function renderPostListItem(post) {
+  return renderPostCard(post, { featured: false });
 }
 
 function renderPostsIndex(posts) {
@@ -750,16 +817,29 @@ ${urls}
 const HOME_START_MARK = '<!-- build:posts-start -->';
 const HOME_END_MARK = '<!-- build:posts-end -->';
 
+// 首页精选区(spec v1.2 §3.5 行 233):<section class="featured">,最多 HOME_LIMIT=3 篇
+// 排序:dateModified desc(spec 拍板),缺 dateModified 回退 date;超限裁剪到 HOME_LIMIT
+// 卡片:复用 .post-card + .post-card--featured modifier(pinned-badge 在卡片内左上角)
+function renderHomeFeaturedSection(posts) {
+  const pinned = (posts || []).filter(p => p && p.pinned);
+  if (pinned.length === 0) return '';
+  const sorted = sortPinnedPosts(pinned).slice(0, HOME_LIMIT);
+  const items = sorted.map(p => renderPostCard(p, { featured: true })).join('\n');
+  return `
+    <section class="featured" aria-label="精选文章">
+      <h2 class="section-title">精选</h2>
+      <ul class="post-list post-list--featured">
+${items}
+      </ul>
+    </section>
+`;
+}
+
 function renderHomePostsSection(posts) {
   const top = sortPosts(posts).slice(0, HOME_LIMIT);
-  const items = top.map(p => `      <li>
-        <h3 class="post-title"><a href="/posts/${escapeHTML(p.slug)}/">${escapeHTML(p.title)}</a></h3>
-        <div class="post-meta">
-          <time datetime="${escapeHTML(p.date || '')}">${escapeHTML(p.date || '')}</time>
-${(p.tags && p.tags.length) ? `          <span class="dot">·</span>\n          <a class="chip" href="/tags/${escapeHTML(p.tags[0].slug)}/" data-tag="${escapeHTML(p.tags[0].slug)}">${escapeHTML(p.tags[0].name)}</a>\n` : '        '}        </div>
-        <p class="post-excerpt">${escapeHTML(p.description || p.title || '')}</p>
-      </li>`).join('\n');
-  return `${HOME_START_MARK}
+  const items = top.map(p => renderPostCard(p, { featured: false })).join('\n');
+  const featured = renderHomeFeaturedSection(posts);
+  return `${HOME_START_MARK}${featured}
     <h2 class="section-title">最新文章</h2>
     <ul class="post-list">
 ${items}
@@ -1010,6 +1090,9 @@ module.exports = {
   parseFrontmatter,
   scanPosts,
   sortPosts,
+  sortPinnedPosts,
+  byDateDesc,
+  byModifiedDesc,
   scanCover,
   computeRelated,
   extractArticleBody,
@@ -1026,6 +1109,9 @@ module.exports = {
   renderSitemap,
   renderSearchIndex,
   renderSearchPage,
+  renderPostCard,
+  renderPostListItem,
+  renderHomeFeaturedSection,
   renderHomePostsSection,
   updateHomePage,
   HOME_START_MARK,

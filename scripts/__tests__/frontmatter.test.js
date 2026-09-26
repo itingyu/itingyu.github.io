@@ -62,3 +62,54 @@ test('frontmatter: non-ISO date emits warning but is accepted', () => {
   assert.equal(fm.date, 'March 10, 2026');
   assert.ok(fm.warnings.some(w => w.includes('non-ISO')), 'should warn');
 });
+
+// ============================================================
+// spec v1.2 · AIWORK1-40 · article:pinned + article:modified_time 解析
+// ============================================================
+
+// 6. article:pinned=true → fm.pinned === true
+test('frontmatter: parses article:pinned=true into fm.pinned (DoD #1)', () => {
+  const html = readFixture('pinned-post');
+  const fm = parseFrontmatter(html, 'pinned-post');
+  assert.equal(fm.pinned, true);
+});
+
+// 7. 缺省 / content="false" / content 缺省 → fm.pinned === false
+test('frontmatter: missing or article:pinned=false stays fm.pinned=false (DoD #2)', () => {
+  // 7a 缺省 meta
+  const htmlNoMeta = `<!doctype html><html><head>
+    <title>no pinned</title>
+    <meta property="article:published_time" content="2026-04-01" />
+  </head><body></body></html>`;
+  assert.equal(parseFrontmatter(htmlNoMeta, 'np1').pinned, false);
+
+  // 7b content="false"
+  const htmlFalse = `<!doctype html><html><head>
+    <title>false pinned</title>
+    <meta property="article:published_time" content="2026-04-01" />
+    <meta property="article:pinned" content="false" />
+  </head><body></body></html>`;
+  assert.equal(parseFrontmatter(htmlFalse, 'np2').pinned, false);
+
+  // 7c content="True" / "TRUE" 大小写不敏感
+  const htmlTrueUpper = `<!doctype html><html><head>
+    <title>TRUE pinned</title>
+    <meta property="article:published_time" content="2026-04-01" />
+    <meta property="article:pinned" content="TRUE" />
+  </head><body></body></html>`;
+  assert.equal(parseFrontmatter(htmlTrueUpper, 'np3').pinned, true);
+});
+
+// 8. article:modified_time → fm.dateModified
+test('frontmatter: parses article:modified_time into fm.dateModified (DoD #3)', () => {
+  const html = readFixture('pinned-post');
+  const fm = parseFrontmatter(html, 'pinned-post');
+  assert.equal(fm.dateModified, '2026-04-15');
+
+  // 缺省时 dateModified === null(不抛错,后续排序回退 date)
+  const htmlNoMod = `<!doctype html><html><head>
+    <title>no mod</title>
+    <meta property="article:published_time" content="2026-04-01" />
+  </head><body></body></html>`;
+  assert.equal(parseFrontmatter(htmlNoMod, 'nm').dateModified, null);
+});
