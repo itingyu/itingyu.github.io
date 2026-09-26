@@ -46,6 +46,9 @@ function makeEnv({ reducedMotion = false, fakeTimers = false } = {}) {
         }
         if (sel === '[data-search-input]') return el._searchInput || null;
         if (sel === '[data-theme-toggle]') return el._themeBtn || null;
+        if (sel === '.post-nav-next' || sel === '.post-nav-prev') {
+          return el._postNavCard || null;
+        }
         return null;
       },
       get style() {
@@ -74,6 +77,9 @@ function makeEnv({ reducedMotion = false, fakeTimers = false } = {}) {
       }
       if (sel === '[data-search-input]') return body._searchInput || null;
       if (sel === '[data-theme-toggle]') return body._themeBtn || null;
+      if (sel === '.post-nav-next' || sel === '.post-nav-prev') {
+        return body._postNavCard || null;
+      }
       return null;
     },
     createElement(tag) { return mkEl(tag); },
@@ -97,11 +103,20 @@ function makeEnv({ reducedMotion = false, fakeTimers = false } = {}) {
   vm.createContext(sandbox);
   vm.runInContext(KEYS_JS, sandbox);
 
+  let virtualTime = 0;
   function advanceTimers(ms) {
-    for (const t of [...timerCallbacks]) {
-      if (t.ms <= ms) {
-        activeTimers.delete(t.id);
-        t.cb();
+    virtualTime += ms;
+    let progressed = true;
+    while (progressed) {
+      progressed = false;
+      for (const t of [...timerCallbacks]) {
+        if (t.ms <= virtualTime) {
+          activeTimers.delete(t.id);
+          const idx = timerCallbacks.indexOf(t);
+          if (idx !== -1) timerCallbacks.splice(idx, 1);
+          t.cb();
+          progressed = true;
+        }
       }
     }
   }
@@ -123,6 +138,19 @@ function fireKey(env, opts) {
   };
   keydown(ev);
   return ev;
+}
+
+function makePostNavCard() {
+  const classes = new Set();
+  return {
+    tagName: 'A',
+    classList: {
+      add(c) { classes.add(c); },
+      remove(c) { classes.delete(c); },
+      contains(c) { return classes.has(c); },
+      _all() { return [...classes]; },
+    },
+  };
 }
 
 // =============================================================
@@ -182,19 +210,22 @@ test('D. focus <select> — j/k/?/s/Shift+T 全部不触发 + 无 preventDefault
 });
 
 test('E. focus 普通 <a> / <div> — j/k 正常触发(若 link 存在)', () => {
-  const env = makeEnv();
+  const env = makeEnv({ fakeTimers: true });
   env.body._linkRel = '/posts/welcome/';
+  env.body._postNavCard = makePostNavCard();
   const a = { tagName: 'A', isContentEditable: false };
   const div = { tagName: 'DIV', isContentEditable: false };
 
   const ev1 = fireKey(env, { key: 'j', target: a });
-  assert.equal(env.location._href, '/posts/welcome/', 'j 在 a 上应跳转');
-  assert.equal(ev1._prevented, true);
+  assert.equal(ev1._prevented, true, 'j 在 a 上应 preventDefault');
+  env.advanceTimers(200);
+  assert.equal(env.location._href, '/posts/welcome/', 'j flash 200ms 后应跳转');
 
   env.body._linkRel = '/posts/finance-2026-09-26/';
   const ev2 = fireKey(env, { key: 'k', target: div });
-  assert.equal(env.location._href, '/posts/finance-2026-09-26/', 'k 在 div 上应跳转');
-  assert.equal(ev2._prevented, true);
+  assert.equal(ev2._prevented, true, 'k 在 div 上应 preventDefault');
+  env.advanceTimers(200);
+  assert.equal(env.location._href, '/posts/finance-2026-09-26/', 'k flash 200ms 后应跳转');
 });
 
 test('F. focus 在 overlay 内 <kbd> — Esc 必须关闭', () => {
@@ -367,4 +398,51 @@ test('j 在无 <link rel="next"> 时 不 preventDefault', () => {
   env.body._linkRel = null;
   const ev = fireKey(env, { key: 'j' });
   assert.equal(ev._prevented, undefined, '无 next link 时 j 不应 preventDefault');
+});
+
+// =============================================================
+// §6 post-nav flash preview(AIWORK1-42 — 给 j/k 加 200ms 视觉反馈)
+// =============================================================
+
+test('L. j 在非 reduced-motion 下 → 先 .flash 再跳转(必须先看到 flash 再跳)', () => {
+  const env = makeEnv({ fakeTimers: true });
+  env.body._linkRel = '/posts/finance-2026-09-26/';
+  const card = makePostNavCard();
+  env.body._postNavCard = card;
+
+  const ev = fireKey(env, { key: 'j' });
+  assert.equal(ev._prevented, true, 'j 应 preventDefault');
+  assert.ok(card.classList.contains('flash'), '按 j 立即应给 .post-nav-next 加 .flash');
+  assert.equal(env.location._href, '', 'flash 期间不应立即跳转');
+
+  env.advanceTimers(199);
+  assert.equal(env.location._href, '', '199ms 时仍未跳转');
+  assert.ok(card.classList.contains('flash'), '199ms 时 .flash 仍在');
+
+  env.advanceTimers(1);
+  assert.equal(env.location._href, '/posts/finance-2026-09-26/', '200ms 后应跳转');
+  assert.equal(card.classList.contains('flash'), false, '跳转后 .flash 已移除');
+});
+
+test('M. j 在无对应 .post-nav-next 卡片时 → 既不 flash 也不跳转(单篇 / 首末篇边界)', () => {
+  const env = makeEnv({ fakeTimers: true });
+  env.body._linkRel = '/posts/finance-2026-09-26/';
+  // 故意不设 _postNavCard —— 模拟 link 存在但 nav 卡片不存在的边界
+
+  const ev = fireKey(env, { key: 'j' });
+  assert.equal(ev._prevented, true, 'j 仍 preventDefault(用户预期有反馈)');
+  env.advanceTimers(250);
+  assert.equal(env.location._href, '', '无卡片 → 不应跳转,避免「无反馈导航」');
+});
+
+test('N. reduced-motion=true → j 直接跳转,无 flash', () => {
+  const env = makeEnv({ reducedMotion: true, fakeTimers: true });
+  env.body._linkRel = '/posts/finance-2026-09-26/';
+  const card = makePostNavCard();
+  env.body._postNavCard = card;
+
+  const ev = fireKey(env, { key: 'j' });
+  assert.equal(ev._prevented, true, 'j 仍 preventDefault');
+  assert.equal(card.classList.contains('flash'), false, 'reduced-motion 下不加 .flash');
+  assert.equal(env.location._href, '/posts/finance-2026-09-26/', 'reduced-motion 下立即跳转');
 });

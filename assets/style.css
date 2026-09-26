@@ -964,6 +964,20 @@ button:focus-visible,
   box-shadow: var(--shadow-sm);
   text-decoration: none;
 }
+.post-nav a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.post-nav a.flash {
+  animation: postNavFlash 200ms ease-out;
+}
+@keyframes postNavFlash {
+  0%   { border-color: var(--border-soft); box-shadow: none; }
+  35%  { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-bg); }
+  100% { border-color: var(--border-soft); box-shadow: none; }
+}
 .post-nav-next { text-align: right; align-items: flex-end; }
 .post-nav-label {
   font-family: var(--font-sans);
@@ -989,6 +1003,12 @@ button:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .post-nav a { transition: none; }
   .post-nav a:hover { transform: none; }
+  .post-nav a:focus-visible {
+    transform: none;
+    border-color: var(--accent);
+    box-shadow: none;
+  }
+  .post-nav a.flash { animation: none; border-color: var(--accent); }
 }
 @media (max-width: 32rem) {
   .post-nav { grid-template-columns: 1fr; }

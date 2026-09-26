@@ -1174,3 +1174,35 @@ test('build: --only prevnext runs without error and refreshes article pages', ()
       'drift should be empty after --only prevnext');
   } finally { cleanProject(tmp); }
 });
+
+// ----- 49. AIWORK1-42 buildPostNav: prev/next aria-label 注入语义 ---------
+
+test('build: buildPostNav injects aria-label="上一篇:标题" / "下一篇:标题" on each <a>', () => {
+  const prev = { slug: 'a', title: 'A 标题', date: '2026-01-15' };
+  const next = { slug: 'b', title: 'B 标题', date: '2026-02-20' };
+  const nav = buildPostNav(prev, next);
+  // 每个 <a class="post-nav-prev"> 与 <a class="post-nav-next"> 都应携带 aria-label,
+  // 屏幕阅读器 Tab 进卡片时能听到完整上下文("上一篇: A 标题"),与可见 label 互补
+  assert.ok(/<a\s+class="post-nav-prev"[^>]*aria-label="上一篇:A 标题"/.test(nav),
+    'prev <a> should declare aria-label="上一篇:A 标题"');
+  assert.ok(/<a\s+class="post-nav-next"[^>]*aria-label="下一篇:B 标题"/.test(nav),
+    'next <a> should declare aria-label="下一篇:B 标题"');
+});
+
+test('build: buildPostNav aria-label survives full injectArticlePageEnhancements pipeline', () => {
+  // 端到端:经 injectArticlePageEnhancements 注入到文章 HTML 后,aria-label 必须仍在
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    // 末篇 multi-tag-post 应只剩 prev(中间排序后有 prev + next,这里取末篇验证 prev-only 路径)
+    const sorted = sortPostsAsc(posts);
+    const last = sorted[sorted.length - 1];
+    const html = fs.readFileSync(path.join(tmp, 'posts', last.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, last, posts, tmp);
+    assert.ok(/aria-label="上一篇:[^"]+"/.test(out),
+      'last post nav should carry aria-label="上一篇:<title>" for prev card');
+    // 末篇没有 next 卡片,故不应出现 "下一篇:"
+    assert.ok(!/aria-label="下一篇:/.test(out),
+      'last post should not declare next aria-label');
+  } finally { cleanProject(tmp); }
+});

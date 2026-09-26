@@ -19,6 +19,17 @@
     return link ? link.getAttribute('href') : null;
   }
 
+  function flashNav(side, href) {
+    var card = document.querySelector('.post-nav-' + side);
+    if (!card) return;
+    card.classList.add('flash');
+    var timer = setTimeout(function () {
+      card.classList.remove('flash');
+      window.location.href = href;
+    }, 200);
+    return timer;
+  }
+
   function buildOverlay() {
     var rows = [
       ['j / k', '下一篇 / 上一篇(文章页)'],
@@ -108,12 +119,26 @@
 
     if (key === 'j' || key === 'J') {
       var next = linkHref('next');
-      if (next) { window.location.href = next; e.preventDefault(); }
+      if (next) {
+        e.preventDefault();
+        if (reducedMotion) {
+          window.location.href = next;
+        } else {
+          flashNav('next', next);
+        }
+      }
       return;
     }
     if (key === 'k' || key === 'K') {
       var prev = linkHref('prev');
-      if (prev) { window.location.href = prev; e.preventDefault(); }
+      if (prev) {
+        e.preventDefault();
+        if (reducedMotion) {
+          window.location.href = prev;
+        } else {
+          flashNav('prev', prev);
+        }
+      }
       return;
     }
 

@@ -338,7 +338,10 @@ function buildPostNav(prev, next) {
   else if (!prev && next) navClass.push('post-nav-next-only');
   function card(side, sibling, label, relAttr) {
     const date = (sibling.date || '').toString().slice(0, 10);
-    return `      <a class="post-nav-${side}" href="/posts/${escapeHTML(sibling.slug)}/" rel="${relAttr}">
+    const ariaLabel = side === 'prev'
+      ? `上一篇:${escapeHTML(sibling.title || sibling.slug)}`
+      : `下一篇:${escapeHTML(sibling.title || sibling.slug)}`;
+    return `      <a class="post-nav-${side}" href="/posts/${escapeHTML(sibling.slug)}/" rel="${relAttr}" aria-label="${ariaLabel}">
         <span class="post-nav-label">${label}</span>
         <span class="post-nav-title">${escapeHTML(sibling.title)}</span>
         <time class="post-nav-date" datetime="${escapeHTML(date)}">${escapeHTML(date)}</time>
@@ -384,8 +387,14 @@ function injectPostNav(html, navHTML) {
   if (/<!--\s*build:postnav\s*-->/.test(out)) {
     return out.replace(/<!--\s*build:postnav\s*-->/, `<!-- build:postnav -->${navHTML}`);
   }
-  // 2. 幂等:已有 class="post-nav ..."(无论是否带额外 class)则跳过
-  if (/class="post-nav(?:\s|")/.test(out)) return out;
+  // 2. 已有 <nav class="post-nav ..."> 整块替换(支持 AIWORK1-42 升级 aria-label /
+  //    任何 nav 内容字段变化;post-nav 块由 build 完全决定,替换是幂等的)
+  //    消费前导 "\n    <nav>" 与底部 footer-branch 首次注入的前缀对齐,
+  //    保证二次 build byte-equal
+  const navBlockRe = /\n[ \t]*<nav\s+class="post-nav(?:\s[^"]*)?[""][^>]*>[\s\S]*?<\/nav>/;
+  if (navBlockRe.test(out)) {
+    return out.replace(navBlockRe, navHTML);
+  }
 
   // 3. 注入到 article-footer 前(优先 article-footer,否则 </main> 前)
   if (/<footer class="article-footer">/.test(out)) {
