@@ -15,6 +15,8 @@ const {
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
+  renderBreadcrumbListJSONLD, renderCollectionPageJSONLD, renderBlogJSONLD,
+  injectJSONLDIntoHead, postURL,
 } = bi;
 
 const FIX = path.join(__dirname, 'fixtures');
@@ -726,4 +728,234 @@ test('build: search.js empty token list falls back to renderDefault not empty st
   assert.ok(block, 'should have renderHits function');
   assert.ok(/renderDefault\(\)/.test(block[1]),
     'renderHits should call renderDefault on empty token list');
+});
+
+// ----- 36. AIWORK1-37 JSON-LD: 文章页 BreadcrumbList(Home › Tag › Article)
+
+function extractJSONLDBlocks(html) {
+  const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/g;
+  const out = [];
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    try { out.push(JSON.parse(m[1])); }
+    catch (_) { out.push({ __parseError: m[1].slice(0, 80) }); }
+  }
+  return out;
+}
+
+test('build: article page injects BreadcrumbList JSON-LD with 3 ListItems', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts.find(p => p.slug === 'multi-tag-post');
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    const blocks = extractJSONLDBlocks(out);
+    const breadcrumb = blocks.find(b => b['@type'] === 'BreadcrumbList');
+    assert.ok(breadcrumb, 'should inject BreadcrumbList JSON-LD');
+    assert.equal(breadcrumb['@context'], 'https://schema.org');
+    assert.equal(breadcrumb['@type'], 'BreadcrumbList');
+    assert.ok(Array.isArray(breadcrumb.itemListElement), 'itemListElement must be array');
+    assert.equal(breadcrumb.itemListElement.length, 3, 'must be Home › Tag › Article');
+
+    const [i1, i2, i3] = breadcrumb.itemListElement;
+    assert.equal(i1['@type'], 'ListItem');
+    assert.equal(i1.position, 1);
+    assert.equal(i1.name, '首页');
+    assert.equal(i1.item, 'https://itingyu.github.io/');
+    assert.equal(i2.position, 2);
+    assert.equal(i2.item, 'https://itingyu.github.io/tags/note/',
+      'Tag link should use first tag slug');
+    assert.equal(i3.position, 3);
+    assert.equal(i3.item, 'https://itingyu.github.io/posts/multi-tag-post/');
+    // 所有字段必须非空
+    for (const it of breadcrumb.itemListElement) {
+      assert.ok(it.name && it.item, `ListItem name+item non-empty (got ${JSON.stringify(it)})`);
+    }
+  } finally { cleanProject(tmp); }
+});
+
+test('build: article page BreadcrumbList falls back to /tags/ when post has no tags', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0]; // minimal-post 无标签
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+    const breadcrumb = extractJSONLDBlocks(out).find(b => b['@type'] === 'BreadcrumbList');
+    assert.ok(breadcrumb, 'should inject BreadcrumbList');
+    assert.equal(breadcrumb.itemListElement[1].item, 'https://itingyu.github.io/tags/',
+      'no-tag post should fall back to /tags/ index');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: article page BreadcrumbList injection is idempotent', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const once = injectArticlePageEnhancements(html, me, posts, tmp);
+    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
+    assert.equal(once, twice, 'second pass must be byte-equal');
+    const blocks = extractJSONLDBlocks(twice);
+    const breadcrumbCount = blocks.filter(b => b['@type'] === 'BreadcrumbList').length;
+    assert.equal(breadcrumbCount, 1, 'BreadcrumbList must appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 37. AIWORK1-37 JSON-LD: 标签页 / 归档页 CollectionPage ------------
+
+test('build: tag page emits CollectionPage JSON-LD with non-empty hasPart', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderTagPage('note', '随笔', posts);
+
+    const blocks = extractJSONLDBlocks(html);
+    const collection = blocks.find(b => b['@type'] === 'CollectionPage');
+    assert.ok(collection, 'should emit CollectionPage JSON-LD');
+    assert.equal(collection['@context'], 'https://schema.org');
+    assert.equal(collection.name, '随笔 · itingyu');
+    assert.equal(collection.url, 'https://itingyu.github.io/tags/note/');
+    assert.ok(Array.isArray(collection.hasPart), 'hasPart must be array');
+    assert.ok(collection.hasPart.length >= 1, 'hasPart non-empty');
+    const first = collection.hasPart[0];
+    assert.equal(first['@type'], 'BlogPosting');
+    assert.ok(first.headline && first.url, 'each BlogPosting has headline + url');
+    assert.equal(first.url, 'https://itingyu.github.io/posts/multi-tag-post/');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: archive page emits CollectionPage JSON-LD with all posts', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post', 'edge-cases-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderArchive(posts);
+
+    const blocks = extractJSONLDBlocks(html);
+    const collection = blocks.find(b => b['@type'] === 'CollectionPage');
+    assert.ok(collection, 'should emit CollectionPage JSON-LD');
+    assert.equal(collection.url, 'https://itingyu.github.io/archive/');
+    assert.ok(Array.isArray(collection.hasPart), 'hasPart must be array');
+    assert.equal(collection.hasPart.length, 3, 'archive should list every post');
+    // 每条都是 BlogPosting 且字段非空
+    for (const ref of collection.hasPart) {
+      assert.equal(ref['@type'], 'BlogPosting');
+      assert.ok(ref.headline && ref.url, 'each ref has headline + url');
+    }
+    // 按日期降序:edge-cases-post (2026-03-10) → multi-tag-post (2026-02-20) → minimal-post (2026-01-15)
+    assert.equal(collection.hasPart[0].url, 'https://itingyu.github.io/posts/edge-cases-post/');
+    assert.equal(collection.hasPart[1].url, 'https://itingyu.github.io/posts/multi-tag-post/');
+    assert.equal(collection.hasPart[2].url, 'https://itingyu.github.io/posts/minimal-post/');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 38. AIWORK1-37 JSON-LD: 首页 Blog(叠加在现有 Person 之上) -----
+
+test('build: home page injects Blog JSON-LD with blogPost list', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'], homeWithMarkers: true });
+  try {
+    const build = computeBuild(tmp);
+    const out = build.homeReplacement;
+    assert.ok(out, 'should have homeReplacement when markers present');
+
+    const blocks = extractJSONLDBlocks(out);
+    const blog = blocks.find(b => b['@type'] === 'Blog');
+    assert.ok(blog, 'should emit Blog JSON-LD');
+    assert.equal(blog['@context'], 'https://schema.org');
+    assert.equal(blog.url, 'https://itingyu.github.io/');
+    assert.ok(blog.name && blog.description, 'Blog name + description non-empty');
+    assert.ok(Array.isArray(blog.blogPost), 'blogPost must be array');
+    assert.equal(blog.blogPost.length, 2, 'blogPost should list every post');
+    for (const ref of blog.blogPost) {
+      assert.equal(ref['@type'], 'BlogPosting');
+      assert.ok(ref.headline && ref.url, 'each blogPost has headline + url');
+    }
+  } finally { cleanProject(tmp); }
+});
+
+test('build: home page Blog JSON-LD stacks above existing Person JSON-LD', () => {
+  // 模拟真实首页 — 已含 Person JSON-LD;注入 Blog 后两者并存
+  const tmp = makeProject({ posts: ['minimal-post'], homeWithMarkers: true });
+  try {
+    const homeFile = path.join(tmp, 'index.html');
+    const orig = fs.readFileSync(homeFile, 'utf8');
+    // 注入 Person JSON-LD(模拟真实首页)
+    const withPerson = orig.replace(
+      /<title>([^<]*)<\/title>/,
+      `<title>$1</title>
+  <script type="application/ld+json">
+  { "@context": "https://schema.org", "@type": "Person", "name": "itingyu", "url": "https://itingyu.github.io/" }
+  </script>
+  <script>
+    (function(){ try { document.documentElement.setAttribute('data-theme', 'light'); } catch (_) {} })();
+  </script>`
+    );
+    fs.writeFileSync(homeFile, withPerson);
+
+    const build = computeBuild(tmp);
+    const out = build.homeReplacement;
+    assert.ok(out, 'should have homeReplacement');
+
+    const blocks = extractJSONLDBlocks(out);
+    const types = blocks.map(b => b['@type']);
+    assert.ok(types.includes('Person'), 'should keep existing Person');
+    assert.ok(types.includes('Blog'), 'should add Blog');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: updateHomePage Blog JSON-LD injection is idempotent', () => {
+  const tmp = makeProject({ posts: ['minimal-post'], homeWithMarkers: true });
+  try {
+    const posts = scanPosts(tmp);
+    const original = fs.readFileSync(path.join(tmp, 'index.html'), 'utf8');
+    // 现有 home 已经包含 Person JSON-LD(JSON-LD 注释块);这里先模拟一次注入
+    const once = (function injectFromHelper(html) {
+      let out = html;
+      const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?"@type"\s*:\s*"Blog"/i;
+      if (!re.test(out)) {
+        const blogScript = renderBlogJSONLD({
+          name: 'itingyu · 博客',
+          description: 'x',
+          url: 'https://itingyu.github.io/',
+          posts: [],
+        });
+        out = injectJSONLDIntoHead(out, blogScript);
+      }
+      return out;
+    })(original);
+    const twice = (function injectFromHelper(html) {
+      let out = html;
+      const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?"@type"\s*:\s*"Blog"/i;
+      if (!re.test(out)) {
+        const blogScript = renderBlogJSONLD({
+          name: 'itingyu · 博客',
+          description: 'x',
+          url: 'https://itingyu.github.io/',
+          posts: [],
+        });
+        out = injectJSONLDIntoHead(out, blogScript);
+      }
+      return out;
+    })(once);
+    assert.equal(once, twice, 'second pass must be byte-equal');
+    const blocks = extractJSONLDBlocks(twice);
+    const blogCount = blocks.filter(b => b['@type'] === 'Blog').length;
+    assert.equal(blogCount, 1, 'Blog JSON-LD must appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 39. AIWORK1-37 JSON-LD: --check stays green after JSON-LD injection
+
+test('build: --check stays green after JSON-LD injection on all 4 page types', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'], homeWithMarkers: true });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    // 重算并比对 — 没有 drift 说明 JSON-LD 完全幂等
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [], 'no drift after writing + recomputing');
+  } finally { cleanProject(tmp); }
 });
