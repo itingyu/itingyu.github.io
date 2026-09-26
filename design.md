@@ -114,12 +114,23 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 
 ### 4.3 配色（WCAG AA 验证通过）
 
-| Token | 浅 | 深 | 对比度 |
+| Token | 浅 | 深 | 备注 |
 | --- | --- | --- | --- |
-| `--fg` | `#1f2328` | `#e6edf3` | — |
-| `--bg` | `#ffffff` | `#0d1117` | — |
-| `--accent` | `#0969da` | `#2f81f7` | ≥ 4.5:1 |
-| `--fg-muted` | `#57606a` | `#9198a1` | ≥ 4.5:1 |
+| `--fg` | `#1a1d24` | `#ece9e1` | 正文 |
+| `--bg` | `#fbfaf7` | `#0d1117` | 页面底色(暖米白 / GitHub Dim) |
+| `--bg-elev` | `#ffffff` | `#1c2030` | 卡片 / 浮层(暗色提亮以拉开层级) |
+| `--bg-soft` | `#f1efe9` | `#1a1f2c` | 次级容器 / 表头 |
+| `--border` / `--border-soft` | `#e6e3da` / `#efece4` | `#2a2e3a` / `#232634` | 边框双层 |
+| `--accent` | `#6d28d9` | `#a78bfa` | 主交互色(紫罗兰) |
+| `--accent-2` | `#db2777` | `#f472b6` | 渐变 / hover |
+| `--accent-bg` | `#f5edff` | `#2e1065` | chip 浅底 |
+| `--code-bg` / `--code-fg` | `#1a1d24` / `#e6e3da` | `#0a0c12` / `#ece9e1` | `<pre>` 夜码风 |
+| `--code-inline-bg` / `--code-inline-fg` | `#f1efe9` / `#6d28d9` | `#1c2030` / `#c4b5fd` | 行内 `<code>`(与 accent 解耦,避免暗色混淆) |
+| `--fg-muted` | `#5b6370` | `#a4a8b0` | 次要文字,≥ 4.5:1 |
+| `--scrollbar` | `#c7c2b3` | `#3a3e4a` | 自适应浅深主题 |
+| `--selection` | `#fde68a` | `#facc15` | 文本选中底色 |
+
+> 暗色 `--bg-elev` 从 `#161922` 提到 `#1c2030`(v5.1):让卡片 / TOC / 浮层真正"浮起来",避免和页面底色贴在一起。
 
 ### 4.4 交互组件
 
@@ -133,8 +144,10 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 - 全部图片需 `alt`（当前没有图,但若加需强制）
 - 标题层级严格,无跳级
 - 焦点环可见（`:focus-visible`）
-- `prefers-reduced-motion` 关过渡
-- 打印样式：去掉导航 / 主题按钮,黑白友好
+- `prefers-reduced-motion` 全局统一切换:`animation-duration` / `transition-duration` / `scroll-behavior` 都关
+- `prefers-color-scheme: dark` 跟随系统,`<html data-theme>` 手动覆盖优先
+- 滚动条:`scrollbar-color: var(--scrollbar) transparent` + `::-webkit-scrollbar-thumb` 双主题
+- 打印样式:去掉导航 / 主题按钮 / TOC / 阅读进度条,黑白友好,链接保留下划线
 
 ## 5. 内容来源与流程
 

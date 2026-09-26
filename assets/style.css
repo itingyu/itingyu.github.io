@@ -40,7 +40,11 @@
   --accent-bg:    #f5edff;
   --code-bg:      #1a1d24;
   --code-fg:      #e6e3da;
+  --code-inline-bg:  #f1efe9;
+  --code-inline-fg:  #6d28d9;
   --selection:    #fde68a;
+  --scrollbar:    #c7c2b3;
+  --scrollbar-bg: transparent;
 
   /* 分类色（chip / accent by tag） */
   --tag-finance:    #b91c1c;
@@ -60,25 +64,41 @@
   --r-md: 10px;
   --r-lg: 16px;
   --r-xl: 24px;
+
+  /* 动效时长(供 prefers-reduced-motion 统一覆盖) */
+  --t-fast:   .08s;
+  --t-base:   .2s;
+  --t-slow:   .35s;
+}
+
+/* Dark theme · 共享给 [data-theme="dark"] 与 prefers-color-scheme: dark */
+:root[data-theme="dark"],
+:root:not([data-theme="light"]) {
+  /* 当父级仅当 prefers-color-scheme: dark 才生效,见下方 @media */
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    color-scheme: dark;
     --fg:           #ece9e1;
     --fg-muted:     #a4a8b0;
     --fg-faint:     #6a6f78;
-    --bg:           #0f1115;
-    --bg-elev:      #161922;
-    --bg-soft:      #1c1f2a;
+    --bg:           #0d1117;
+    --bg-elev:      #1c2030;
+    --bg-soft:      #1a1f2c;
     --border:       #2a2e3a;
-    --border-soft:  #20232e;
+    --border-soft:  #232634;
 
     --accent:       #a78bfa;
     --accent-2:     #f472b6;
     --accent-bg:    #2e1065;
     --code-bg:      #0a0c12;
     --code-fg:      #ece9e1;
+    --code-inline-bg:  #1c2030;
+    --code-inline-fg:  #c4b5fd;
     --selection:    #facc15;
+    --scrollbar:    #3a3e4a;
+    --scrollbar-bg: transparent;
 
     --tag-finance:    #f87171;
     --tag-finance-bg: #3f1212;
@@ -94,21 +114,26 @@
 }
 
 :root[data-theme="dark"] {
+  color-scheme: dark;
   --fg:           #ece9e1;
   --fg-muted:     #a4a8b0;
   --fg-faint:     #6a6f78;
-  --bg:           #0f1115;
-  --bg-elev:      #161922;
-  --bg-soft:      #1c1f2a;
+  --bg:           #0d1117;
+  --bg-elev:      #1c2030;
+  --bg-soft:      #1a1f2c;
   --border:       #2a2e3a;
-  --border-soft:  #20232e;
+  --border-soft:  #232634;
 
   --accent:       #a78bfa;
   --accent-2:     #f472b6;
   --accent-bg:    #2e1065;
   --code-bg:      #0a0c12;
   --code-fg:      #ece9e1;
+  --code-inline-bg:  #1c2030;
+  --code-inline-fg:  #c4b5fd;
   --selection:    #facc15;
+  --scrollbar:    #3a3e4a;
+  --scrollbar-bg: transparent;
 
   --tag-finance:    #f87171;
   --tag-finance-bg: #3f1212;
@@ -121,6 +146,8 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, .5), 0 2px 4px rgba(0, 0, 0, .3);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, .6), 0 4px 8px rgba(0, 0, 0, .4);
 }
+
+:root[data-theme="light"] { color-scheme: light; }
 
 /* ---------- reset ---------- */
 
@@ -274,7 +301,7 @@ li + li { margin-top: .35rem; }
 code {
   font-family: var(--font-mono);
   font-size: .9em;
-  background: var(--bg-soft); color: var(--accent);
+  background: var(--code-inline-bg); color: var(--code-inline-fg);
   padding: .15em .4em; border-radius: var(--r-sm);
   font-weight: 500;
   border: 1px solid var(--border-soft);
@@ -294,6 +321,15 @@ pre code {
   border: 0; font-weight: 400;
 }
 
+kbd {
+  font-family: var(--font-mono);
+  font-size: .85em;
+  background: var(--bg-elev); color: var(--fg);
+  padding: .1em .5em; border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border-soft);
+}
+
 table {
   width: 100%; border-collapse: collapse; font-size: var(--step--1);
   border: 1px solid var(--border-soft); border-radius: var(--r-md);
@@ -304,6 +340,9 @@ th, td {
   border-bottom: 1px solid var(--border-soft);
 }
 th { background: var(--bg-soft); font-weight: 600; }
+tbody tr:nth-child(odd) td { background: color-mix(in srgb, var(--bg-soft) 50%, transparent); }
+tbody tr:last-child td { border-bottom: 0; }
+caption { caption-side: bottom; color: var(--fg-muted); font-size: var(--step--1); padding: .5rem 0 0; }
 tr:last-child td { border-bottom: 0; }
 
 /* ---------- post cards ---------- */
@@ -596,17 +635,7 @@ tr:last-child td { border-bottom: 0; }
 }
 .fourofour p { font-size: var(--step-1); color: var(--fg-muted); }
 
-/* ---------- print ---------- */
-
-@media print {
-  .site-header, .site-footer, .theme-toggle, .skip-link,
-  .hero-actions, .hero-eyebrow { display: none; }
-  body { background: #fff; color: #000; font-size: 11pt; }
-  a { color: #000; text-decoration: underline; }
-  pre, blockquote { border: 1px solid #ccc; page-break-inside: avoid; }
-  h2, h3 { page-break-after: avoid; }
-  .post-list > li { box-shadow: none; border: 1px solid #ccc; }
-}
+/* ---------- print(已合并到 v5.1 段) ---------- */
 
 /* ---------- prefers-reduced-motion ---------- */
 
@@ -1014,4 +1043,57 @@ button:focus-visible,
 @media (max-width: 640px) {
   .search-hit { padding: 1rem 1.1rem; }
   .search-box input[type="search"] { font-size: var(--step-0); }
+}
+
+/* ==========================================================================
+   v5.1 · 暗色微调(2026-09-26 北京时间 · admin「按优先级性价比走」)
+   - 滚动条暗色适配
+   - prefers-reduced-motion 统一缩短到 0s
+   - <blockquote> 颜色变体(.callout-info / .callout-warn 已复用)
+   - <kbd> 键盘样式(系统暗色 chip)
+   ========================================================================== */
+
+/* ---------- 滚动条(双主题适配) ---------- */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar) var(--scrollbar-bg);
+}
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--scrollbar) 70%, var(--fg-muted)); }
+
+/* ---------- prefers-reduced-motion 统一关动效 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- blockquote 颜色变体 ---------- */
+
+blockquote {
+  position: relative;
+}
+blockquote blockquote { margin: .75rem 0; }
+blockquote.callout-quote { font-style: normal; }
+blockquote p:last-child { margin-bottom: 0; }
+
+/* ---------- print ---------- */
+
+@media print {
+  :root { --bg: #fff; --fg: #000; --bg-elev: #fff; --bg-soft: #f5f5f5; }
+  .site-header, .site-footer, .theme-toggle, .toc-toggle, .reading-progress { display: none !important; }
+  a { color: #000; text-decoration: underline; }
+  pre, blockquote { border: 1px solid #ccc; page-break-inside: avoid; }
 }

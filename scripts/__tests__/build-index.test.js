@@ -518,3 +518,46 @@ test('build: computeBuild emits search index + search page; --check stays green'
     assert.equal(idx.posts.length, 2);
   } finally { cleanProject(tmp); }
 });
+
+// ----- 26. style.css dark theme tokens & reduced-motion -------------------
+
+test('build: style.css has both light + dark token sets with key new vars', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'style.css'), 'utf8');
+
+  // 浅色默认 token
+  for (const k of ['--fg', '--bg', '--bg-elev', '--accent', '--code-inline-bg', '--code-inline-fg', '--scrollbar']) {
+    assert.ok(css.includes(k + ':'), `must declare ${k} (light)`);
+  }
+
+  // dark 主题两处覆盖(prefers-color-scheme 与 [data-theme="dark"])
+  const darkMentions = (css.match(/data-theme="dark"/g) || []).length;
+  assert.ok(darkMentions >= 2, 'should cover dark via both [data-theme] and prefers-color-scheme');
+
+  // prefers-reduced-motion 存在且覆盖 transition
+  assert.ok(/@media\s*\(prefers-reduced-motion:\s*reduce\)/.test(css),
+    'should declare prefers-reduced-motion guard');
+  assert.ok(/transition-duration:\s*\.001ms/.test(css),
+    'should clamp transition-duration under reduced motion');
+
+  // scrollbar 自适应
+  assert.ok(/scrollbar-color:\s*var\(--scrollbar\)/.test(css),
+    'should theme scrollbar via scrollbar-color');
+
+  // code-inline 与 accent 解耦(避免暗色 accent 紫与代码 chip 混淆)
+  assert.ok(/background:\s*var\(--code-inline-bg\)/.test(css),
+    'inline code should use --code-inline-bg, not --bg-soft');
+  assert.ok(/color:\s*var\(--code-inline-fg\)/.test(css),
+    'inline code should use --code-inline-fg, not --accent');
+
+  // table 斑马纹
+  assert.ok(/tbody tr:nth-child\(odd\)/.test(css),
+    'table should have zebra striping');
+
+  // color-scheme 切换
+  assert.ok(/color-scheme:\s*dark/.test(css), 'dark mode should set color-scheme: dark');
+  assert.ok(/color-scheme:\s*light/.test(css), 'explicit light mode should set color-scheme: light');
+
+  // print 段合并(v5.1 段)
+  const printBlocks = (css.match(/@media print/g) || []).length;
+  assert.equal(printBlocks, 1, 'should have exactly one print media block');
+});
