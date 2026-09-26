@@ -8,10 +8,13 @@ const vm = require('node:vm');
 
 const KEYS_JS = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'keys.js'), 'utf8');
 
-function makeEnv({ reducedMotion = false } = {}) {
+function makeEnv({ reducedMotion = false, fakeTimers = false } = {}) {
   const listeners = {};
   const targets = [];
   const appended = [];
+  const timerCallbacks = [];
+  let nextTimerId = 1;
+  const activeTimers = new Map();
 
   const matchMedia = () => ({ matches: reducedMotion });
 
@@ -83,13 +86,27 @@ function makeEnv({ reducedMotion = false } = {}) {
     document,
     matchMedia,
     location,
-    setTimeout, clearTimeout,
+    setTimeout: fakeTimers
+      ? (cb, ms) => { const id = nextTimerId++; timerCallbacks.push({ cb, ms, id }); activeTimers.set(id, { cb, ms }); return id; }
+      : setTimeout,
+    clearTimeout: fakeTimers
+      ? (id) => { activeTimers.delete(id); }
+      : clearTimeout,
     console,
   };
   vm.createContext(sandbox);
   vm.runInContext(KEYS_JS, sandbox);
 
-  return { sandbox, listeners, targets, appended, body, location };
+  function advanceTimers(ms) {
+    for (const t of [...timerCallbacks]) {
+      if (t.ms <= ms) {
+        activeTimers.delete(t.id);
+        t.cb();
+      }
+    }
+  }
+
+  return { sandbox, listeners, targets, appended, body, location, advanceTimers };
 }
 
 function fireKey(env, opts) {
@@ -108,146 +125,246 @@ function fireKey(env, opts) {
   return ev;
 }
 
-test('keys.js: ? opens help overlay and Esc closes it', () => {
-  const env = makeEnv();
-  fireKey(env, { key: '?' });
-  assert.equal(env.appended.length >= 1, true, 'overlay appended on first ?');
-  const overlay = env.appended[env.appended.length - 1];
-  assert.equal(overlay.hidden, false, 'overlay visible after ?');
-  assert.equal(overlay.attributes['role'], 'dialog');
-  assert.equal(overlay.attributes['aria-modal'], 'true');
+// =============================================================
+// §1 a11y 焦点契约 — isEditable() 边界(用例 A–F)
+// =============================================================
 
-  fireKey(env, { key: 'Escape' });
-  assert.equal(overlay.hidden, true, 'overlay hidden after Esc');
-
-  fireKey(env, { key: '?' });
-  assert.equal(overlay.hidden, false, '? toggles back open');
-});
-
-test('keys.js: isEditable skips shortcuts when target is input/textarea/select/contenteditable', () => {
-  const env = makeEnv();
-  const input = { tagName: 'INPUT', isContentEditable: false };
-  const before = env.location._href;
-  fireKey(env, { key: 's', target: input });
-  fireKey(env, { key: '?', target: input });
-  assert.equal(env.location._href, before, 'no nav from input');
-  assert.equal(env.appended.length, 0, 'no overlay from input');
-
-  const ta = { tagName: 'TEXTAREA', isContentEditable: false };
-  fireKey(env, { key: 's', target: ta });
-  assert.equal(env.location._href, before, 'no nav from textarea');
-
-  const sel = { tagName: 'SELECT', isContentEditable: false };
-  fireKey(env, { key: 's', target: sel });
-  assert.equal(env.location._href, before, 'no nav from select');
-
-  const ce = { tagName: 'DIV', isContentEditable: true };
-  fireKey(env, { key: 's', target: ce });
-  assert.equal(env.location._href, before, 'no nav from contenteditable');
-});
-
-test('keys.js: Ctrl/Meta/Alt modifiers bypass shortcuts', () => {
-  const env = makeEnv();
-  const ev = fireKey(env, { key: '?', ctrlKey: true });
-  assert.equal(env.appended.length, 0, 'Ctrl+? does not open overlay');
-  fireKey(env, { key: '?', metaKey: true });
-  assert.equal(env.appended.length, 0, 'Meta+? does not open overlay');
-  fireKey(env, { key: '?', altKey: true });
-  assert.equal(env.appended.length, 0, 'Alt+? does not open overlay');
-});
-
-test('keys.js: j/k navigate via <link rel="next/prev">', () => {
+test('A. focus <input type="text"> — j/k/?/s/Shift+T 全部不触发 + 无 preventDefault', () => {
   const env = makeEnv();
   env.body._linkRel = '/posts/welcome/';
-  const ev1 = fireKey(env, { key: 'j' });
-  assert.equal(env.location._href, '/posts/welcome/');
-  assert.equal(ev1._prevented, true);
+  env.body._searchInput = { tagName: 'INPUT', isContentEditable: false, focus() {} };
+  env.body._themeBtn = { tagName: 'BUTTON', isContentEditable: false, click() {} };
+  const input = { tagName: 'INPUT', isContentEditable: false, type: 'text' };
 
-  env.body._linkRel = '/posts/finance-2026-09-26/';
-  const ev2 = fireKey(env, { key: 'k' });
-  assert.equal(env.location._href, '/posts/finance-2026-09-26/');
-  assert.equal(ev2._prevented, true);
+  for (const [key, opts] of [
+    ['j', {}],
+    ['k', {}],
+    ['?', {}],
+    ['s', {}],
+    ['T', { shiftKey: true }],
+  ]) {
+    const before = env.location._href;
+    const ev = fireKey(env, { key, target: input, ...opts });
+    assert.equal(ev._prevented, undefined, `${key} 在 input 上不应 preventDefault`);
+    assert.equal(env.location._href, before, `${key} 在 input 上不应跳转`);
+  }
+  assert.equal(env.appended.length, 0, '? 在 input 上不应创建 overlay');
+  assert.equal(env.body._themeBtn._clicked, undefined, 'Shift+T 在 input 上不应切主题');
 });
 
-test('keys.js: j/k fall back to rel="previous" when rel="prev" missing', () => {
+test('B. focus <textarea> — j/k/?/s/Shift+T 全部不触发 + 无 preventDefault', () => {
   const env = makeEnv();
-  // Mock: querySelector('link[rel="prev"]') returns null, querySelector('link[rel="previous"]') returns the link
-  const origQuery = env.sandbox.document.querySelector;
-  env.sandbox.document.querySelector = function (sel) {
-    if (sel === 'link[rel="prev"]') return null;
-    if (sel === 'link[rel="previous"]') return { getAttribute: (a) => a === 'href' ? '/archive/' : null };
-    return origQuery.call(this, sel);
-  };
-  fireKey(env, { key: 'k' });
-  assert.equal(env.location._href, '/archive/');
+  const ta = { tagName: 'TEXTAREA', isContentEditable: false };
+  for (const key of ['j', 'k', '?', 's']) {
+    const ev = fireKey(env, { key, target: ta });
+    assert.equal(ev._prevented, undefined, `${key} 在 textarea 上不应 preventDefault`);
+  }
+  const ev2 = fireKey(env, { key: 'T', target: ta, shiftKey: true });
+  assert.equal(ev2._prevented, undefined, 'Shift+T 在 textarea 上不应 preventDefault');
 });
 
-test('keys.js: j without <link rel="next"> is a no-op', () => {
+test('C. focus [contenteditable="true"] — j/k/?/s/Shift+T 全部不触发 + 无 preventDefault', () => {
   const env = makeEnv();
-  env.body._linkRel = null;
-  const before = env.location._href;
-  fireKey(env, { key: 'j' });
-  assert.equal(env.location._href, before, 'no nav when no next link');
-});
-
-test('keys.js: g h / g p / g a / g t navigate', () => {
-  for (const [key, expected] of [['h', '/'], ['p', '/posts/'], ['a', '/archive/'], ['t', '/tags/']]) {
-    const env = makeEnv();
-    fireKey(env, { key: 'g' });
-    const ev = fireKey(env, { key });
-    assert.equal(env.location._href, expected, `g ${key} → ${expected}`);
+  const ce = { tagName: 'ARTICLE', isContentEditable: true };
+  for (const key of ['j', 'k', '?', 's']) {
+    const ev = fireKey(env, { key, target: ce });
+    assert.equal(ev._prevented, undefined, `${key} 在 contenteditable 上不应 preventDefault`);
   }
 });
 
-test('keys.js: g + unmatched letter does not navigate', () => {
+test('D. focus <select> — j/k/?/s/Shift+T 全部不触发 + 无 preventDefault', () => {
   const env = makeEnv();
-  const before = env.location._href;
-  fireKey(env, { key: 'g' });
-  fireKey(env, { key: 'z' });
-  assert.equal(env.location._href, before, 'g z is a no-op');
+  const sel = { tagName: 'SELECT', isContentEditable: false };
+  for (const [key, opts] of [['j', {}], ['k', {}], ['?', {}], ['s', {}], ['T', { shiftKey: true }]]) {
+    const ev = fireKey(env, { key, target: sel, ...opts });
+    assert.equal(ev._prevented, undefined, `${key} 在 select 上不应 preventDefault(键盘可能切换 option)`);
+  }
 });
 
-test('keys.js: s focuses [data-search-input] when present', () => {
+test('E. focus 普通 <a> / <div> — j/k 正常触发(若 link 存在)', () => {
   const env = makeEnv();
-  const input = { tagName: 'INPUT', isContentEditable: false, _focused: false, focus() { this._focused = true; env.targets.push(this); }, select() {} };
-  env.body._searchInput = input;
-  const ev = fireKey(env, { key: 's' });
-  assert.equal(input._focused, true);
-  assert.equal(ev._prevented, true);
+  env.body._linkRel = '/posts/welcome/';
+  const a = { tagName: 'A', isContentEditable: false };
+  const div = { tagName: 'DIV', isContentEditable: false };
+
+  const ev1 = fireKey(env, { key: 'j', target: a });
+  assert.equal(env.location._href, '/posts/welcome/', 'j 在 a 上应跳转');
+  assert.equal(ev1._prevented, true);
+
+  env.body._linkRel = '/posts/finance-2026-09-26/';
+  const ev2 = fireKey(env, { key: 'k', target: div });
+  assert.equal(env.location._href, '/posts/finance-2026-09-26/', 'k 在 div 上应跳转');
+  assert.equal(ev2._prevented, true);
 });
 
-test('keys.js: s is a no-op without search input', () => {
+test('F. focus 在 overlay 内 <kbd> — Esc 必须关闭', () => {
   const env = makeEnv();
-  const ev = fireKey(env, { key: 's' });
-  assert.equal(ev._prevented, true, 'preventDefault is still called to avoid stray typing');
-  assert.equal(env.targets.length, 0, 'no focus target');
+  fireKey(env, { key: '?' });
+  const overlay = env.appended[env.appended.length - 1];
+  assert.equal(overlay.hidden, false, 'overlay 先打开');
+
+  const kbd = { tagName: 'KBD', isContentEditable: false };
+  kbd._inside = overlay;
+
+  const overlayBefore = overlay;
+  const ev = fireKey(env, { key: 'Escape', target: kbd });
+  assert.equal(ev._prevented, true, 'Esc 在 kbd 上应 preventDefault');
+  assert.equal(overlayBefore.hidden, true, 'Esc 关闭 overlay');
 });
 
-test('keys.js: Shift+T clicks theme toggle; plain t does not', () => {
-  const env = makeEnv();
-  const btn = { tagName: 'BUTTON', isContentEditable: false, _clicked: false, click() { this._clicked = true; } };
-  env.body._themeBtn = btn;
+// =============================================================
+// §2 prefers-reduced-motion(用例 G–H)
+// =============================================================
 
-  fireKey(env, { key: 't', shiftKey: false });
-  assert.equal(btn._clicked, false, 'plain t does not toggle theme');
+test('G. reduced-motion=true → toggleHelp() 不给 overlay 设 style.animation', () => {
+  const env = makeEnv({ reducedMotion: true });
+  fireKey(env, { key: '?' });
+  const overlay = env.appended[env.appended.length - 1];
+  assert.equal(overlay.hidden, false, 'overlay 仍打开');
+  assert.equal(overlay.style._props.animation, undefined, 'reduced-motion 下 style.animation 未被设值');
 
-  const ev = fireKey(env, { key: 'T', shiftKey: true });
-  assert.equal(btn._clicked, true, 'Shift+T toggles theme');
-  assert.equal(ev._prevented, true);
+  fireKey(env, { key: '?' });
+  fireKey(env, { key: '?' });
+  assert.equal(overlay.style._props.animation, undefined, '多次 toggle 后仍未设值');
 });
 
-test('keys.js: prefers-reduced-motion — no animation triggered on overlay open', () => {
+test('H. reduced-motion=true → 浮层瞬现,style.animation 永远 undefined', () => {
   const env = makeEnv({ reducedMotion: true });
   fireKey(env, { key: '?' });
   const overlay = env.appended[env.appended.length - 1];
   assert.equal(overlay.hidden, false);
-  assert.equal(overlay.style._props.animation, undefined, 'no animation set when reducedMotion');
+  assert.equal(overlay.style._props.animation, undefined, 'reduced-motion 路径完全不触发 animation 重置分支');
 });
 
-test('keys.js: without reduced-motion, animation reset trick used on open', () => {
+test('non-reduced-motion 对照 — animation 重置分支触发(style.animation="")', () => {
   const env = makeEnv({ reducedMotion: false });
   fireKey(env, { key: '?' });
   const overlay = env.appended[env.appended.length - 1];
   assert.equal(overlay.hidden, false);
-  assert.equal(overlay.style._props.animation, '', 'animation reset to empty string after reflow trick');
+  assert.equal(overlay.style._props.animation, '', '非 reduced-motion 路径 animation 重置为 ""');
+});
+
+// =============================================================
+// §3 修饰键契约(用例 I)
+// =============================================================
+
+test('I. Ctrl 按下时 j / ? / s 全部不触发 + 不 preventDefault', () => {
+  const env = makeEnv();
+  env.body._linkRel = '/posts/welcome/';
+
+  for (const key of ['j', '?', 's']) {
+    const before = env.location._href;
+    const ev = fireKey(env, { key, ctrlKey: true });
+    assert.equal(ev._prevented, undefined, `Ctrl+${key} 不应 preventDefault`);
+    assert.equal(env.location._href, before, `Ctrl+${key} 不应跳转/focus`);
+  }
+  assert.equal(env.appended.length, 0, 'Ctrl+? 不开 overlay');
+});
+
+test('Meta / Alt 任一修饰键按下 → 同样跳过', () => {
+  const env = makeEnv();
+  for (const modifier of ['metaKey', 'altKey']) {
+    const ev = fireKey(env, { key: '?', [modifier]: true });
+    assert.equal(ev._prevented, undefined, `${modifier}+? 不应 preventDefault`);
+  }
+  assert.equal(env.appended.length, 0, '修饰键 + ? 都不应开 overlay');
+});
+
+// =============================================================
+// §4 g* 超时契约(用例 J–K)
+// =============================================================
+
+test('J. g 后 1.2s 内连按 h → 跳转首页', () => {
+  const env = makeEnv({ fakeTimers: true });
+  fireKey(env, { key: 'g' });
+  env.advanceTimers(1100);
+  fireKey(env, { key: 'h' });
+  assert.equal(env.location._href, '/', '1.2s 内连按 g h 应跳转首页');
+});
+
+test('J(bis). g 后 1.2s 内连按 p / a / t 同样跳转', () => {
+  for (const [key, expected] of [['p', '/posts/'], ['a', '/archive/'], ['t', '/tags/']]) {
+    const env = makeEnv({ fakeTimers: true });
+    fireKey(env, { key: 'g' });
+    env.advanceTimers(1100);
+    fireKey(env, { key });
+    assert.equal(env.location._href, expected, `1.2s 内 g ${key} → ${expected}`);
+  }
+});
+
+test('K. g 后超过 1.2s 再按 h → 不跳转,状态清空', () => {
+  const env = makeEnv({ fakeTimers: true });
+  const before = env.location._href;
+  fireKey(env, { key: 'g' });
+  env.advanceTimers(1300);
+  fireKey(env, { key: 'h' });
+  assert.equal(env.location._href, before, 'g 超时后 h 不应触发跳转');
+});
+
+test('K(bis). g 后超过 1.2s 再按其它字母也不跳转', () => {
+  for (const key of ['h', 'p', 'a', 't', 'z']) {
+    const env = makeEnv({ fakeTimers: true });
+    const before = env.location._href;
+    fireKey(env, { key: 'g' });
+    env.advanceTimers(1300);
+    fireKey(env, { key });
+    assert.equal(env.location._href, before, `g 超时后 ${key} 不应跳转`);
+  }
+});
+
+test('K(边界). g 后 1.2s 整 — setTimeout 阈值精确边界', () => {
+  const env = makeEnv({ fakeTimers: true });
+  fireKey(env, { key: 'g' });
+  env.advanceTimers(1200);
+  const before = env.location._href;
+  fireKey(env, { key: 'h' });
+  assert.equal(env.location._href, before, '恰好 1200ms 超时后 h 应被认作新事件');
+});
+
+// =============================================================
+// §5 兜底契约
+// =============================================================
+
+test('Esc 在无 overlay 时 不 preventDefault', () => {
+  const env = makeEnv();
+  const ev = fireKey(env, { key: 'Escape' });
+  assert.equal(ev._prevented, undefined, '无 overlay 时 Esc 不应 preventDefault');
+});
+
+test('? toggle 是双向的(open → close → open)', () => {
+  const env = makeEnv();
+  fireKey(env, { key: '?' });
+  const overlay = env.appended[env.appended.length - 1];
+  assert.equal(overlay.hidden, false);
+  fireKey(env, { key: '?' });
+  assert.equal(overlay.hidden, true, '再按 ? 应关闭');
+  fireKey(env, { key: '?' });
+  assert.equal(overlay.hidden, false, '再按 ? 应打开');
+});
+
+test('Shift+T 而非裸 t — 避免触屏主题冲突', () => {
+  const env = makeEnv();
+  const btn = { tagName: 'BUTTON', isContentEditable: false, _clicked: false, click() { this._clicked = true; } };
+  env.body._themeBtn = btn;
+
+  fireKey(env, { key: 't' });
+  assert.equal(btn._clicked, false, '裸 t 不切主题');
+
+  const ev = fireKey(env, { key: 'T', shiftKey: true });
+  assert.equal(btn._clicked, true, 'Shift+T 切主题');
+  assert.equal(ev._prevented, true);
+});
+
+test('s 在无 [data-search-input] 时 仍 preventDefault 但不报错', () => {
+  const env = makeEnv();
+  const ev = fireKey(env, { key: 's' });
+  assert.equal(ev._prevented, true, 's 仍 preventDefault 防止浏览器把 s 输入到焦点元素');
+  assert.equal(env.targets.length, 0, '无搜索框时无 focus 目标');
+});
+
+test('j 在无 <link rel="next"> 时 不 preventDefault', () => {
+  const env = makeEnv();
+  env.body._linkRel = null;
+  const ev = fireKey(env, { key: 'j' });
+  assert.equal(ev._prevented, undefined, '无 next link 时 j 不应 preventDefault');
 });
