@@ -1,380 +1,327 @@
 'use strict';
 
+/*
+ * scripts/__tests__/render-finance-brief.test.js
+ *
+ * AIWORK1-51 · M6.4 — 验证 scripts/render-finance-brief.js 改产 .md 的契约:
+ *
+ *   1. 删除 renderPage / updatePostsIndex / updateArchiveIndex(装配归 build-index)
+ *   2. module.exports 仅有 { renderMarkdown, parseArgs }
+ *   3. renderMarkdown(briefJson) 复用 scripts/markdown.js 同源(拒绝 <script>/<style>)
+ *   4. --help 输出提示文件后缀为 .md
+ *   5. 输出结构:posts/<slug>/index.md 头部 YAML + MD body + 两个 marker
+ *   6. **不再写** index.html 到 finance 简报路径
+ *
+ * 通过 node:test 跑(node ≥ 18 内置)。零依赖。
+ */
+
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const cp = require('node:child_process');
 
-const {
-  parseFrontmatter,
-  renderMarkdown,
-  renderPage,
-  slugifyTagForFinance,
-} = require('../render-finance-brief.js');
+const rb = require('../render-finance-brief.js');
+const { renderMarkdown, parseArgs } = rb;
 
-// =====================================================================
-// §1 parseFrontmatter 单元测试 — YAML 子集
-// =====================================================================
+const REPO_ROOT = path.resolve(__dirname, '..', '..');
+const SCRIPT = path.join(REPO_ROOT, 'scripts', 'render-finance-brief.js');
 
-test('parseFrontmatter: 检测到 frontmatter 时返回 data 与 endLine', () => {
-  const md = `---
-title: "T"
-date: 2026-09-28
----
+// ============================================================================
+// § 1. Public surface — 只导出 { renderMarkdown, parseArgs }
+// ============================================================================
 
-# 正文
-`;
-  const { data, endLine } = parseFrontmatter(md);
-  assert.ok(data, '应返回非 null data');
-  assert.equal(data.title, 'T');
-  // date 是 2026-09-28,数字字面量不能有前导 0 → 用字符串比
-  assert.equal(String(data.date), '2026-09-28');
-  assert.equal(typeof endLine, 'number');
-  assert.ok(endLine >= 1);
+test('exports: only renderMarkdown + parseArgs (no renderPage / updatePostsIndex / updateArchiveIndex)', () => {
+  const keys = Object.keys(rb).sort();
+  assert.deepEqual(keys, ['parseArgs', 'renderMarkdown'].sort(),
+    `exports must be exactly {renderMarkdown, parseArgs}, got ${JSON.stringify(keys)}`);
 });
 
-test('parseFrontmatter: 没有 frontmatter 时返回 null', () => {
-  const md = `# 标题
-
-正文段落`;
-  const { data, endLine } = parseFrontmatter(md);
-  assert.equal(data, null);
-  assert.equal(endLine, 0);
+test('exports: renderMarkdown is a function', () => {
+  assert.equal(typeof renderMarkdown, 'function');
 });
 
-test('parseFrontmatter: inline 数组 — tags: ["a", "b"]', () => {
-  const md = `---
-tags: ["finance", "daily-brief", "a-share"]
----
-正文`;
-  const { data } = parseFrontmatter(md);
-  assert.deepEqual(data.tags, ['finance', 'daily-brief', 'a-share']);
+test('exports: parseArgs is a function', () => {
+  assert.equal(typeof parseArgs, 'function');
 });
 
-test('parseFrontmatter: 布尔与数字 — draft: false / date: 2026-09-28', () => {
-  const md = `---
-draft: false
-date: 2026-09-28
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(data.draft, false);
-  assert.equal(String(data.date), '2026-09-28');
+test('source: script must not define renderPage / updatePostsIndex / updateArchiveIndex', () => {
+  const src = fs.readFileSync(SCRIPT, 'utf8');
+  // 这些函数名应仅作为"已删除"的注释提及,不能存在函数定义
+  assert.equal(/^function\s+renderPage\b/m.test(src), false,
+    'renderPage function must be removed (assembly belongs to build-index)');
+  assert.equal(/^function\s+updatePostsIndex\b/m.test(src), false,
+    'updatePostsIndex function must be removed');
+  assert.equal(/^function\s+updateArchiveIndex\b/m.test(src), false,
+    'updateArchiveIndex function must be removed');
 });
 
-test('parseFrontmatter: 引号字符串 — title: "每日金融简报 · 2026-09-28"', () => {
-  const md = `---
-title: "每日金融简报 · 2026-09-28"
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(data.title, '每日金融简报 · 2026-09-28');
+// ============================================================================
+// § 2. parseArgs — 必填/可选参数与默认值
+// ============================================================================
+
+test('parseArgs: --help sets args.help', () => {
+  assert.equal(parseArgs(['--help']).help, true);
+  assert.equal(parseArgs(['-h']).help, true);
 });
 
-test('parseFrontmatter: 单引号字符串 — title: \'金融简报\'', () => {
-  const md = `---
-title: '金融简报'
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(data.title, '金融简报');
+test('parseArgs: required flags input/date/slug captured', () => {
+  const a = parseArgs(['--input', 'a.md', '--date', '2026-09-26', '--slug', 'finance-x']);
+  assert.equal(a.input, 'a.md');
+  assert.equal(a.date, '2026-09-26');
+  assert.equal(a.slug, 'finance-x');
 });
 
-test('parseFrontmatter: 引号字符串中允许中文 / 冒号 / 斜杠', () => {
-  const md = `---
-description: "2026-09-28 交易日简报：中美八点共识 / 美债 30Y 突破 5.5% / AI 与半导体主线"
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(
-    data.description,
-    '2026-09-28 交易日简报：中美八点共识 / 美债 30Y 突破 5.5% / AI 与半导体主线',
+test('parseArgs: optional flags title/excerpt/cover/outDir captured', () => {
+  const a = parseArgs([
+    '--title', 'T', '--excerpt', 'E', '--cover', 'c.svg', '--out-dir', '/tmp/x',
+  ]);
+  assert.equal(a.title, 'T');
+  assert.equal(a.excerpt, 'E');
+  assert.equal(a.cover, 'c.svg');
+  assert.equal(a.outDir, '/tmp/x');
+});
+
+test('parseArgs: unknown --flag throws', () => {
+  assert.throws(() => parseArgs(['--unknown-flag']), /未知参数/);
+});
+
+// ============================================================================
+// § 3. renderMarkdown(briefJson) — 契约
+// ============================================================================
+
+const VALID_BRIEF = {
+  title: '非交易日情报简报 · 2026-09-26（周六）',
+  date: '2026-09-26',
+  slug: 'finance-2026-09-26',
+  excerpt: '本简报由 Multica 金融小队队长基于公开渠道信息整理。',
+  body: '# 非交易日情报简报 · 2026-09-26（周六）\n\n第一段正文。\n\n## 二级标题\n\n- 列表项\n',
+};
+
+test('renderMarkdown: returns string with YAML frontmatter at top', () => {
+  const out = renderMarkdown(VALID_BRIEF);
+  assert.equal(typeof out, 'string');
+  assert.ok(out.startsWith('---\n'), 'must start with ---');
+  assert.ok(/\n---\n\n/.test(out), 'must have closing --- before body');
+});
+
+test('renderMarkdown: frontmatter contains all required fields', () => {
+  const out = renderMarkdown(VALID_BRIEF);
+  assert.match(out, /^title: "非交易日情报简报 · 2026-09-26（周六）"$/m);
+  assert.match(out, /^date: 2026-09-26$/m);
+  assert.match(out, /^slug: finance-2026-09-26$/m);
+  assert.match(out, /^description: "本简报由 Multica 金融小队队长基于公开渠道信息整理。"/m);
+  assert.match(out, /^tags: \[finance\]$/m);
+  assert.match(out, /^author: itingyu$/m);
+  assert.match(out, /^draft: false$/m);
+});
+
+test('renderMarkdown: insertCoverMarker placed after # heading + first paragraph', () => {
+  const out = renderMarkdown(VALID_BRIEF);
+  const idx = out.indexOf('<!-- build:cover -->');
+  const titleIdx = out.indexOf('# 非交易日情报简报');
+  const firstParaIdx = out.indexOf('第一段正文');
+  assert.ok(idx > 0, 'cover marker must exist');
+  assert.ok(titleIdx > 0, 'title heading must exist');
+  assert.ok(firstParaIdx > 0, 'first paragraph must exist');
+  assert.ok(titleIdx < idx, 'cover marker must be after title heading');
+  assert.ok(firstParaIdx < idx, 'cover marker must be after first paragraph');
+});
+
+test('renderMarkdown: <!-- build:related --> placed at end of body', () => {
+  const out = renderMarkdown(VALID_BRIEF);
+  const tail = out.trimEnd();
+  assert.ok(/<!-- build:related -->\s*$/.test(tail),
+    '<!-- build:related --> must be the last content of the .md file');
+});
+
+test('renderMarkdown: marker insertion is idempotent (no duplicate cover marker)', () => {
+  const briefWithMarker = {
+    ...VALID_BRIEF,
+    body: '<!-- build:cover -->\n\n# T\n\n<!-- build:related -->\n\npara',
+  };
+  const out = renderMarkdown(briefWithMarker);
+  const coverCount = (out.match(/<!-- build:cover -->/g) || []).length;
+  const relatedCount = (out.match(/<!-- build:related -->/g) || []).length;
+  assert.equal(coverCount, 1, 'must not duplicate cover marker');
+  assert.equal(relatedCount, 1, 'must not duplicate related marker');
+});
+
+test('renderMarkdown: required-field validation throws on missing title', () => {
+  const { title, ...rest } = VALID_BRIEF;
+  assert.throws(() => renderMarkdown(rest), /缺 title/);
+});
+
+test('renderMarkdown: required-field validation throws on missing date', () => {
+  const { date, ...rest } = VALID_BRIEF;
+  assert.throws(() => renderMarkdown(rest), /缺 date/);
+});
+
+test('renderMarkdown: required-field validation throws on bad slug', () => {
+  assert.throws(() => renderMarkdown({ ...VALID_BRIEF, slug: 'BAD UPPER' }),
+    /缺 slug/);
+});
+
+test('renderMarkdown: required-field validation throws on empty body', () => {
+  assert.throws(() => renderMarkdown({ ...VALID_BRIEF, body: '   ' }),
+    /缺 body/);
+});
+
+test('renderMarkdown: required-field validation throws on empty tags array', () => {
+  assert.throws(() => renderMarkdown({ ...VALID_BRIEF, tags: [] }),
+    /tags 必须是非空数组/);
+});
+
+// ============================================================================
+// § 4. 同源契约 — 复用 scripts/markdown.js 的安全规则
+// ============================================================================
+
+test('renderMarkdown: rejects <script> blocks via shared markdown.js', () => {
+  assert.throws(
+    () => renderMarkdown({ ...VALID_BRIEF, body: '# T\n\n<script>alert(1)</script>\n' }),
+    /<script>/,
   );
 });
 
-test('parseFrontmatter: 闭合 fence 缺失 → 视为无 frontmatter', () => {
-  const md = `---
-title: "未闭合"
-# 这是正文,不应被吞掉
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(data, null, '闭合 fence 缺失应回退为无 frontmatter');
+test('renderMarkdown: rejects <style> blocks via shared markdown.js', () => {
+  assert.throws(
+    () => renderMarkdown({ ...VALID_BRIEF, body: '# T\n\n<style>x{}</style>\n' }),
+    /<style>/,
+  );
 });
 
-test('parseFrontmatter: 第一行不是 --- 时返回 null', () => {
-  const md = `> 引用
+// ============================================================================
+// § 5. cover 字段可选 + draft 默认 false
+// ============================================================================
 
----
-title: "被错认的开头"
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.equal(data, null, '首行非 --- 不应触发 frontmatter 解析');
+test('renderMarkdown: cover is optional (omitted when null)', () => {
+  const out = renderMarkdown({ ...VALID_BRIEF, cover: null });
+  assert.ok(!/^cover:/m.test(out), 'cover field must not appear when null');
 });
 
-test('parseFrontmatter: inline 数组内单引号包裹,逗号不拆', () => {
-  const md = `---
-tags: ["hello, world", "a-share"]
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.deepEqual(data.tags, ['hello, world', 'a-share']);
+test('renderMarkdown: cover appears in frontmatter when provided', () => {
+  const out = renderMarkdown({ ...VALID_BRIEF, cover: 'cover.svg' });
+  assert.match(out, /^cover: cover\.svg$/m);
 });
 
-test('parseFrontmatter: 空 inline 数组 — tags: []', () => {
-  const md = `---
-tags: []
----
-`;
-  const { data } = parseFrontmatter(md);
-  assert.deepEqual(data.tags, []);
+test('renderMarkdown: draft: true honored when explicitly true', () => {
+  const out = renderMarkdown({ ...VALID_BRIEF, draft: true });
+  assert.match(out, /^draft: true$/m);
 });
 
-// =====================================================================
-// §2 renderMarkdown 行为 — 带 frontmatter 时剥离 frontmatter
-// =====================================================================
+// ============================================================================
+// § 6. --help 输出 — 必须提到 .md 后缀
+// ============================================================================
 
-const FM_MD = `---
-title: "每日金融简报 · 2026-09-28（星期一 · 交易日）"
-date: 2026-09-28
-tags: ["finance", "daily-brief", "a-share"]
-description: "2026-09-28 交易日简报：中美八点共识 / 美债 30Y 突破 5.5% / AI 与半导体主线 / 短线选股 4 只"
-draft: false
----
-
-## 中美八点共识
-
-凌晨 **新华社** 发布 *八点共识*,美元 / 离岸人民币闻讯下挫。
-
-| 代码 | 名称 | 收盘 | 涨跌 |
-| --- | --- | --- | --- |
-| 600519 | 贵州茅台 | 1620.00 | +1.23% |
-
-> 风险提示:以上不构成投资建议。
-`;
-
-test('renderMarkdown: 带 frontmatter 时剥离 frontmatter,正文不含 <p>title:</p> 残留', () => {
-  const { title, body, excerpt, frontmatter } = renderMarkdown(FM_MD);
-  assert.equal(title, '每日金融简报 · 2026-09-28（星期一 · 交易日）',
-    '应取 frontmatter.title 作为最终 title');
-  assert.ok(!/title:\s/.test(body), '正文不应有 frontmatter 残留 key');
-  assert.ok(!/<p>\s*title:/.test(body), '正文不应把 title 行渲成 <p>');
-  assert.ok(!/<p>\s*date:/.test(body), '正文不应把 date 行渲成 <p>');
-  assert.ok(!/<p>\s*tags:/.test(body), '正文不应把 tags 行渲成 <p>');
-  assert.ok(!/<p>\s*description:/.test(body), '正文不应把 description 行渲成 <p>');
-  assert.ok(!/<hr>\s*<p>title:/.test(body), '不应有 <hr><p>title: 视觉噪声');
-  // frontmatter 字段正确
-  assert.equal(frontmatter.title, '每日金融简报 · 2026-09-28（星期一 · 交易日）');
-  assert.equal(String(frontmatter.date), '2026-09-28');
-  assert.equal(frontmatter.draft, false);
-  assert.deepEqual(frontmatter.tags, ['finance', 'daily-brief', 'a-share']);
-  // 正文正常渲染
-  assert.ok(/<h2>中美八点共识<\/h2>/.test(body), '正文 H2 应正常渲染');
-  assert.ok(/<strong>新华社<\/strong>/.test(body), '粗体应正常');
-  assert.ok(/<table class="brief-table">/.test(body), '表格应正常渲染');
-  assert.ok(/<span class="ticker">600519<\/span>/.test(body), 'ticker 染色应正常');
+test('CLI: --help mentions .md extension (and does not describe index.html as the output product)', () => {
+  const out = cp.spawnSync('node', [SCRIPT, '--help'], { encoding: 'utf8' });
+  assert.equal(out.status, 0, `--help should exit 0, got ${out.status}: ${out.stderr}`);
+  assert.match(out.stdout, /\.md/, '--help output must mention .md');
+  // 不应在「输出」/「产物」段把 index.html 描述为产物;
+  // 在「不再做」声明里提到 index.html 是 OK 的(说明职责迁移)
+  assert.ok(!/产物[^]*index\.html/.test(out.stdout),
+    '--help output must not describe index.html as the produced artifact');
 });
 
-test('renderMarkdown: 不带 frontmatter 时回退到 H1 + 正文首段 excerpt(回归 9/27 简报)', () => {
-  // 模拟 9/27 简报风格:无 frontmatter,首行 H1,首段正文
-  const md = `# 每日金融简报 · 2026-09-27(星期日 · 休市)
-
-中秋假期,A 股休市,但外围市场仍波动。
-
-## 港股
-
-恒指收 17890.12,下跌 -0.45%。
-`;
-  const { title, body, excerpt, frontmatter } = renderMarkdown(md);
-  assert.equal(title, '每日金融简报 · 2026-09-27(星期日 · 休市)',
-    '应从首行 H1 提取 title');
-  assert.ok(/<h2>港股<\/h2>/.test(body), 'H2 正常');
-  assert.ok(!/<p>title:/.test(body), '无 frontmatter 时也不应有残留(本来就无)');
-  assert.ok(excerpt && excerpt.includes('中秋'),
-    'excerpt 应回退到正文首段');
-  // frontmatter 应为空对象(便于调用方判断「缺省」)
-  assert.deepEqual(frontmatter, {});
+test('CLI: missing required args exits 2 and prints usage', () => {
+  const out = cp.spawnSync('node', [SCRIPT], { encoding: 'utf8' });
+  assert.equal(out.status, 2);
+  assert.match(out.stderr, /缺少必填参数/);
 });
 
-test('renderMarkdown: 带 frontmatter + 正文有 H1 时,frontmatter.title 不应覆盖 H1', () => {
-  const md = `---
-title: "frontmatter 标题"
----
+// ============================================================================
+// § 7. CLI: 实际产出 posts/<slug>/index.md — 不写 index.html
+// ============================================================================
 
-# H1 标题
+test('CLI: writes <slug>/index.md (no index.html) when run with --out-dir', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rfin-'));
+  const inputMd = path.join(tmp, 'brief.md');
+  fs.writeFileSync(inputMd,
+    '# 非交易日情报简报 · 2026-09-26（周六）\n\n首段正文。\n\n## 二级\n\n- a\n- b\n');
 
-正文段落。
-`;
-  const { title } = renderMarkdown(md);
-  assert.equal(title, 'H1 标题', '正文 H1 优先于 frontmatter.title');
+  const out = cp.spawnSync('node', [
+    SCRIPT,
+    '--input', inputMd,
+    '--date', '2026-09-26',
+    '--slug', 'finance-cli-test',
+    '--out-dir', tmp,
+  ], { encoding: 'utf8' });
+
+  assert.equal(out.status, 0, `CLI failed: ${out.stderr}`);
+
+  const mdFile = path.join(tmp, 'finance-cli-test', 'index.md');
+  const htmlFile = path.join(tmp, 'finance-cli-test', 'index.html');
+  assert.ok(fs.existsSync(mdFile), `must create ${mdFile}`);
+  assert.ok(!fs.existsSync(htmlFile), `must NOT create ${htmlFile}`);
+
+  const content = fs.readFileSync(mdFile, 'utf8');
+  assert.ok(content.startsWith('---\n'), 'output must start with YAML frontmatter');
+  assert.ok(/<!-- build:cover -->/.test(content), 'must contain build:cover marker');
+  assert.ok(/<!-- build:related -->/.test(content), 'must contain build:related marker');
+
+  fs.rmSync(tmp, { recursive: true, force: true });
 });
 
-test('renderMarkdown: 带 frontmatter 但正文无 H1 时,使用 frontmatter.title', () => {
-  const md = `---
-title: "仅有 frontmatter 标题"
----
-
-正文段落,没有 H1。
-`;
-  const { title } = renderMarkdown(md);
-  assert.equal(title, '仅有 frontmatter 标题');
+test('CLI: end-to-end byte-stable for the same input (idempotent re-runs)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'rfin-idem-'));
+  const inputMd = path.join(tmp, 'brief.md');
+  fs.writeFileSync(inputMd,
+    '# T\n\n第一段。\n\n- a\n- b\n');
+  const args = [
+    SCRIPT,
+    '--input', inputMd,
+    '--date', '2026-09-26',
+    '--slug', 'idem',
+    '--out-dir', tmp,
+  ];
+  cp.spawnSync('node', args, { encoding: 'utf8' });
+  const first = fs.readFileSync(path.join(tmp, 'idem', 'index.md'), 'utf8');
+  cp.spawnSync('node', args, { encoding: 'utf8' });
+  const second = fs.readFileSync(path.join(tmp, 'idem', 'index.md'), 'utf8');
+  assert.equal(first, second, 'rerun on same input must produce identical bytes');
+  fs.rmSync(tmp, { recursive: true, force: true });
 });
 
-// =====================================================================
-// §3 renderPage — frontmatter 透传到 meta description / article:tag
-// =====================================================================
+// ============================================================================
+// § 8. YAML 转义 — 标题/摘要里的特殊字符必须正确 escape
+// ============================================================================
 
-test('renderPage: frontmatter.description 透传到 meta name="description"', () => {
-  const html = renderPage({
-    title: 'T',
-    slug: 'finance-2026-09-28',
-    date: '2026-09-28',
-    excerpt: 'fallback excerpt',
-    body: '<p>body</p>',
-    tags: ['finance', 'daily-brief'],
+test('renderMarkdown: YAML double-quoted string escapes backslash + quote + newline', () => {
+  const out = renderMarkdown({
+    title: 'a "quote" and \\ backslash',
+    date: '2026-09-26',
+    slug: 's',
+    excerpt: 'multi\nline',
+    body: '# T\n\np\n',
   });
-  // meta description 取 excerpt 字段(由 main() 注入 frontmatter.description)
-  const m = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["']/);
-  assert.ok(m, '应存在 <meta name="description">');
-  // 本测试只验 renderPage 行为:excerpt 被原样写入 meta description
-  assert.equal(m[1], 'fallback excerpt');
+  // 双引号要 \"
+  assert.match(out, /^title: "a \\"quote\\" and \\\\ backslash"$/m);
+  // 换行要空格
+  assert.match(out, /^description: "multi line"$/m);
 });
 
-test('renderPage: frontmatter.tags 全部 → 多条 <meta property="article:tag">', () => {
-  const html = renderPage({
-    title: 'T',
-    slug: 'finance-2026-09-28',
-    date: '2026-09-28',
-    excerpt: 'e',
-    body: '<p>body</p>',
-    tags: ['finance', 'daily-brief', 'a-share'],
-  });
-  // 每个 tag 一行
-  assert.ok(/<meta\s+property=["']article:tag["']\s+content=["']finance["']/.test(html),
-    '应渲染 finance meta tag');
-  assert.ok(/<meta\s+property=["']article:tag["']\s+content=["']daily-brief["']/.test(html),
-    '应渲染 daily-brief meta tag');
-  assert.ok(/<meta\s+property=["']article:tag["']\s+content=["']a-share["']/.test(html),
-    '应渲染 a-share meta tag');
-  // 校验:总 article:tag 数量等于传入 tags 长度(3 条)
-  const tagMatches = html.match(/<meta\s+property=["']article:tag["']/g) || [];
-  assert.equal(tagMatches.length, 3, 'article:tag 数量应等于 frontmatter.tags 长度');
+test('renderMarkdown: frontmatter field order is stable (snapshot)', () => {
+  const out = renderMarkdown(VALID_BRIEF);
+  const order = [...out.matchAll(/^([a-z]+):/gm)].map((m) => m[1]);
+  assert.deepEqual(order, [
+    'title', 'date', 'slug', 'description', 'tags', 'author', 'draft',
+  ], `field order drifted: ${JSON.stringify(order)}`);
 });
 
-test('renderPage: tags 缺省 → 回退单 tag「金融」(向后兼容)', () => {
-  const html = renderPage({
-    title: 'T',
-    slug: 'finance-2026-09-27',
-    date: '2026-09-27',
-    excerpt: 'e',
-    body: '<p>body</p>',
-    tags: null,
-  });
-  // 应有 1 条 article:tag = 金融
-  const tagMatches = html.match(/<meta\s+property=["']article:tag["']\s+content=["']([^"']*)["']/g) || [];
-  assert.equal(tagMatches.length, 1);
-  assert.ok(tagMatches[0].includes('金融'));
-});
+// ============================================================================
+// § 9. fixtures: 已生成的 scripts/__tests__/fixtures/finance-2026-09-26/index.md 契约
+// ============================================================================
 
-test('renderPage: og:description 与 JSON-LD description 取 excerpt(frontmatter.description)', () => {
-  const fmDesc = '2026-09-28 交易日简报：中美八点共识 / 美债 30Y 突破 5.5%';
-  const html = renderPage({
-    title: 'T',
-    slug: 'finance-2026-09-28',
-    date: '2026-09-28',
-    excerpt: fmDesc,
-    body: '<p>body</p>',
-    tags: ['finance'],
-  });
-  assert.ok(/<meta\s+property=["']og:description["']\s+content=["'][^"']*中美八点共识[^"']*["']/.test(html),
-    'og:description 应含 frontmatter.description 内容');
-  assert.ok(/"description"\s*:\s*"2026-09-28 交易日简报/.test(html),
-    'JSON-LD description 应含 frontmatter.description 内容');
-});
+const FIXTURE_DIR = path.join(__dirname, 'fixtures', 'finance-2026-09-26');
 
-test('renderPage: 主 chip 用 primary tag,href/data-tag 用 slugs', () => {
-  const html = renderPage({
-    title: 'T',
-    slug: 'finance-2026-09-28',
-    date: '2026-09-28',
-    excerpt: 'e',
-    body: '<p>body</p>',
-    tags: ['金融', 'a-share'],
-  });
-  // 第一个 chip 应该是 金融 → finance slug
-  assert.ok(/<a\s+class="chip"\s+href="\/tags\/finance\/"\s+data-tag="finance">金融<\/a>/.test(html),
-    '主 chip 应是 金融 → /tags/finance/,data-tag=finance');
-  // post-excerpt 应是 excerpt
-  assert.ok(/<p class="post-excerpt">e<\/p>/.test(html));
-});
-
-// =====================================================================
-// §4 端到端 — main() 行为通过解析整篇 md 验证
-// =====================================================================
-
-test('e2e: 带 frontmatter 的 md → excerpt/description 用 frontmatter.description', () => {
-  // main() 里 excerpt 优先级:args.excerpt || fm.description || mdExcerpt || title
-  // 模拟 main() 内部对 renderMarkdown 返回值的处理
-  const fmDesc = '2026-09-28 交易日简报：中美八点共识';
-  const md = `---
-description: "${fmDesc}"
----
-
-## 段一
-正文段落。
-`;
-  const { excerpt, frontmatter } = renderMarkdown(md);
-  const finalExcerpt = frontmatter.description || excerpt || 'fallback';
-  assert.equal(finalExcerpt, fmDesc,
-    '带 frontmatter.description 时,excerpt 应直接取该字段');
-});
-
-test('e2e: draft: true 的 frontmatter → renderMarkdown 仍解析,但 main() 会跳过(由调用方判断)', () => {
-  const md = `---
-draft: true
----
-
-## 草稿
-
-本条不应发布。
-`;
-  const { frontmatter } = renderMarkdown(md);
-  assert.equal(frontmatter.draft, true,
-    'renderMarkdown 应正确解析 draft: true;main() 据此跳过生成');
-});
-
-test('e2e: frontmatter 没闭合 → renderMarkdown 当作无 frontmatter,继续渲染正文', () => {
-  const md = `---
-draft: true
-
-## 正文标题
-`;
-  const { title, body, frontmatter } = renderMarkdown(md);
-  // 闭合 fence 缺失 → parseFrontmatter 返回 null → fm = {}
-  assert.deepEqual(frontmatter, {});
-  // 正文正常渲染
-  assert.ok(/<h2>正文标题<\/h2>/.test(body));
-});
-
-// =====================================================================
-// §5 slugifyTagForFinance — 与 build-index.js:slugifyTag 语义对齐
-// =====================================================================
-
-test('slugifyTagForFinance: 「金融」→ finance(历史兼容)', () => {
-  assert.equal(slugifyTagForFinance('金融'), 'finance');
-  assert.equal(slugifyTagForFinance('Finance'), 'finance');
-  assert.equal(slugifyTagForFinance('FINANCE'), 'finance');
-});
-
-test('slugifyTagForFinance: 英文 tag', () => {
-  assert.equal(slugifyTagForFinance('daily-brief'), 'daily-brief');
-  assert.equal(slugifyTagForFinance('A-Share'), 'a-share');
-});
-
-test('slugifyTagForFinance: 含特殊字符 → 清洗', () => {
-  assert.equal(slugifyTagForFinance('Daily Brief!'), 'daily-brief');
-  assert.equal(slugifyTagForFinance('  --hello--  '), 'hello');
-  assert.equal(slugifyTagForFinance('a / b'), 'a-b');
-});
-
-test('slugifyTagForFinance: 纯符号 → tag 兜底', () => {
-  assert.equal(slugifyTagForFinance('!!!'), 'tag');
+test('fixture: scripts/__tests__/fixtures/finance-2026-09-26/index.md exists (M6.4 完成定义)', () => {
+  const p = path.join(FIXTURE_DIR, 'index.md');
+  assert.ok(fs.existsSync(p), `missing ${p}`);
+  const content = fs.readFileSync(p, 'utf8');
+  assert.ok(content.startsWith('---\n'));
+  assert.ok(/<!-- build:cover -->/.test(content));
+  assert.ok(/<!-- build:related -->/.test(content));
+  assert.match(content, /^date: 2026-09-26$/m);
+  assert.match(content, /^slug: finance-2026-09-26$/m);
 });
