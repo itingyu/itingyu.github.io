@@ -903,3 +903,115 @@ button:focus-visible,
   font-style: italic;
   font-size: var(--step--1);
 }
+
+/* ==========================================================================
+   v5 · 搜索页样式(2026-09-26)
+   - .search-box / .search-results / .search-hit
+   ========================================================================== */
+
+.search-hint {
+  color: var(--fg-muted);
+  font-size: var(--step--1);
+  margin: 0 0 1.25rem;
+}
+
+.search-box {
+  margin-bottom: 2rem;
+}
+
+.search-box input[type="search"] {
+  display: block;
+  width: 100%;
+  padding: .9rem 1.1rem;
+  font-size: var(--step-1);
+  font-family: var(--font-sans);
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-sm);
+  transition: all .15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.search-box input[type="search"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg), var(--shadow-sm);
+}
+
+.search-status {
+  margin: .65rem 0 0;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.search-results {
+  list-style: none;
+  padding: 0; margin: 0;
+}
+
+.search-empty {
+  padding: 1rem 0;
+  color: var(--fg-muted);
+  font-style: italic;
+  font-size: var(--step--1);
+}
+
+.search-hit {
+  padding: 1.25rem 1.4rem;
+  margin: 0 0 1rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  transition: all .2s ease;
+}
+.search-hit:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-hit-title {
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin: 0 0 .35rem;
+  letter-spacing: -.01em;
+  line-height: 1.3;
+}
+.search-hit-title a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.search-hit-title a:hover { color: var(--accent); }
+
+.search-hit-meta {
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 .5rem;
+}
+
+.chip-mini {
+  display: inline-block;
+  padding: .05em .5em;
+  margin-right: .15em;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: .92em;
+  font-weight: 500;
+}
+
+.search-hit-excerpt {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: var(--step--1);
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .search-hit { padding: 1rem 1.1rem; }
+  .search-box input[type="search"] { font-size: var(--step-0); }
+}

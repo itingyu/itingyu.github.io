@@ -77,6 +77,7 @@ const SITE_HEADER = `
       <a href="/posts/" data-nav="posts">文章</a>
       <a href="/archive/" data-nav="archive">归档</a>
       <a href="/tags/" data-nav="tags">标签</a>
+      <a href="/search/" data-nav="search">搜索</a>
       <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
               aria-label="切换主题" data-theme-toggle>
@@ -102,6 +103,8 @@ const SITE_FOOTER = `
       <a href="/">首页</a>
       <a href="/posts/">文章</a>
       <a href="/archive/">归档</a>
+      <a href="/tags/">标签</a>
+      <a href="/search/">搜索</a>
       <a href="/about/">关于</a>
       <a href="/feeds/rss.xml">RSS</a>
       <a href="https://github.com/itingyu" rel="noopener">GitHub</a>
@@ -120,6 +123,7 @@ function pageShell({ title, description, canonical, extraHead = '', activeNav = 
     .replace('data-nav="posts"', `data-nav="posts"${ariaCurrent('posts')}`)
     .replace('data-nav="archive"', `data-nav="archive"${ariaCurrent('archive')}`)
     .replace('data-nav="tags"', `data-nav="tags"${ariaCurrent('tags')}`)
+    .replace('data-nav="search"', `data-nav="search"${ariaCurrent('search')}`)
     .replace('data-nav="about"', `data-nav="about"${ariaCurrent('about')}`);
   return `${HEAD_PRE_META}<title>${escapeHTML(title)}</title>
   <meta name="description" content="${escapeHTML(description)}" />
@@ -595,12 +599,85 @@ ${items}
 `;
 }
 
+// ============================================================
+// Search index (客户端全文搜索)
+//   - assets/search-index.json
+//   - 每个 post 含 title/description/tags/date/excerpt(纯文本前 500 字)
+//   - 由 search.js 加载,纯前端匹配
+// ============================================================
+
+function stripTags(html) {
+  return String(html == null ? '' : html)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/'/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function renderSearchIndex(posts, rootDir = ROOT) {
+  const sorted = sortPosts(posts);
+  const items = sorted.map(p => {
+    let excerpt = '';
+    const file = path.join(rootDir, 'posts', p.slug, 'index.html');
+    if (fs.existsSync(file)) {
+      const raw = fs.readFileSync(file, 'utf8');
+      const body = extractArticleBody(raw);
+      excerpt = stripTags(body).slice(0, 500);
+    }
+    return {
+      slug: p.slug,
+      url: `${SITE_ORIGIN}/posts/${p.slug}/`,
+      title: p.title,
+      description: p.description || '',
+      tags: (p.tags || []).map(t => t.name),
+      date: p.date || '',
+      excerpt,
+    };
+  });
+  return JSON.stringify(
+    { generated: new Date().toISOString().slice(0, 10), posts: items },
+    null, 2,
+  ) + '\n';
+}
+
+function renderSearchPage() {
+  // pageShell 已包含 theme.js;追加 search.js
+  const base = pageShell({
+    title: '搜索 · itingyu',
+    description: '在所有文章中搜索关键词。',
+    canonical: `${SITE_ORIGIN}/search/`,
+    activeNav: 'search',
+    main: `    <h1>搜索</h1>
+    <p class="search-hint">输入关键词搜索标题、标签、描述与正文。支持空格分隔多个关键词。</p>
+
+    <div class="search-box">
+      <input type="search" data-search-input
+             placeholder="试试搜索：金融 / 算法 / 入门..."
+             aria-label="搜索关键词"
+             autocomplete="off" autocorrect="off" autocapitalize="off"
+             spellcheck="false" />
+      <p class="search-status" data-search-status aria-live="polite">正在加载索引…</p>
+    </div>
+
+    <ul class="search-results" data-search-results aria-label="搜索结果"></ul>
+`,
+  });
+  // 在 </body> 前插入 search.js
+  return base.replace('</body>', '  <script defer src="/assets/search.js"></script>\n</body>');
+}
+
 function renderSitemap(posts) {
   const staticPages = [
     { loc: `${SITE_ORIGIN}/`, changefreq: 'weekly', priority: '1.0' },
     { loc: `${SITE_ORIGIN}/posts/`, changefreq: 'weekly', priority: '0.9' },
     { loc: `${SITE_ORIGIN}/archive/`, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_ORIGIN}/tags/`, changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_ORIGIN}/search/`, changefreq: 'monthly', priority: '0.4' },
     { loc: `${SITE_ORIGIN}/about/`, changefreq: 'monthly', priority: '0.5' },
   ];
   const tagNames = new Map();
@@ -696,6 +773,8 @@ function computeBuild(rootDir = ROOT) {
 
   const rss = renderRSS(posts, null, rootDir);
   const sitemap = renderSitemap(posts);
+  const searchIndex = renderSearchIndex(posts, rootDir);
+  const searchPage = renderSearchPage();
 
   let homeReplacement = null;
   const homeFile = path.join(rootDir, 'index.html');
@@ -723,6 +802,8 @@ function computeBuild(rootDir = ROOT) {
       'tags/index.html': tagsIndex,
       'feeds/rss.xml': rss,
       'sitemap.xml': sitemap,
+      'search/index.html': searchPage,
+      'assets/search-index.json': searchIndex,
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
     },
@@ -901,6 +982,7 @@ module.exports = {
   scanCover,
   computeRelated,
   extractArticleBody,
+  stripTags,
   injectArticlePageEnhancements,
   computeBuild,
   writeBuild,
@@ -911,6 +993,8 @@ module.exports = {
   renderTagPage,
   renderRSS,
   renderSitemap,
+  renderSearchIndex,
+  renderSearchPage,
   renderHomePostsSection,
   updateHomePage,
   HOME_START_MARK,

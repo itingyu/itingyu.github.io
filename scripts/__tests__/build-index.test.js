@@ -10,9 +10,10 @@ const bi = require('../build-index.js');
 const {
   scanPosts, sortPosts,
   scanCover, computeRelated, injectArticlePageEnhancements,
-  extractArticleBody,
+  extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
+  renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
 } = bi;
 
@@ -452,5 +453,68 @@ test('build: rss.xml content:encoded strips header / footer / related', () => {
     assert.ok(!/article-footer/.test(inner), 'CDATA must not contain article-footer');
     assert.ok(!/class="related"/.test(inner), 'CDATA must not contain related aside');
     assert.ok(!/<h1>最小示例<\/h1>/.test(inner), 'CDATA must not contain header h1');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 22. stripTags: 剥 HTML + 解码常见实体 + 折叠空白 -------------------
+
+test('build: stripTags removes tags and decodes entities, collapses whitespace', () => {
+  const html = '<p>Hello&nbsp;<strong>world</strong> & <ok> "q"</p>';
+  const out = stripTags(html);
+  assert.equal(out, 'Hello world & "q"');
+});
+
+// ----- 23. renderSearchIndex: JSON with all posts, sorted, no HTML -------
+
+test('build: renderSearchIndex produces sorted JSON with excerpts (no HTML)', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const json = renderSearchIndex(posts, tmp);
+    const parsed = JSON.parse(json);
+    assert.ok(parsed.generated, 'should have generated date');
+    assert.equal(parsed.posts.length, 2);
+    // 按日期降序
+    assert.equal(parsed.posts[0].slug, 'multi-tag-post');
+    assert.equal(parsed.posts[1].slug, 'minimal-post');
+    // excerpt 必须无 HTML
+    assert.ok(!/<[a-z][^>]*>/i.test(parsed.posts[0].excerpt),
+      'excerpt must be stripped of HTML tags');
+    // multi-tag-post 应包含正文中的关键词
+    assert.ok(parsed.posts[0].excerpt.length > 0);
+    // tags 是字符串数组
+    assert.ok(Array.isArray(parsed.posts[0].tags));
+    assert.ok(parsed.posts[0].tags.includes('金融'));
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 24. renderSearchPage: 含搜索框 + 加载 search.js -------------------
+
+test('build: renderSearchPage contains search input, status, results, search.js script', () => {
+  const html = renderSearchPage();
+  assert.ok(/data-search-input/.test(html), 'must contain search input');
+  assert.ok(/data-search-status/.test(html), 'must contain status region');
+  assert.ok(/data-search-results/.test(html), 'must contain results region');
+  assert.ok(/\/assets\/search\.js/.test(html), 'must reference search.js');
+  assert.ok(/aria-current="page"/.test(html), 'search nav should be marked current');
+});
+
+// ----- 25. computeBuild emits search-index.json + search/index.html ------
+
+test('build: computeBuild emits search index + search page; --check stays green', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const build = computeBuild(tmp);
+    assert.ok(build.files['assets/search-index.json'], 'should emit search-index.json');
+    assert.ok(build.files['search/index.html'], 'should emit search/index.html');
+
+    // 写入后 drift 检测应为空(无任何外部修改)
+    writeBuild(build, tmp);
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, []);
+
+    // 索引文件能被 parse 且含所有文章
+    const idx = JSON.parse(fs.readFileSync(path.join(tmp, 'assets', 'search-index.json'), 'utf8'));
+    assert.equal(idx.posts.length, 2);
   } finally { cleanProject(tmp); }
 });
