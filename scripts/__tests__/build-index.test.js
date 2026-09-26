@@ -699,3 +699,31 @@ test('build: tag cloud hint shows weight range when counts vary', () => {
     assert.equal(new Set(sizes).size, 2, 'sizes should differ between hot and cold tags');
   } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
 });
+
+// ----- 33. search.js: 默认展示全部文章(不输入也可见) -------------------
+
+test('build: search.js renders all posts by default when no query', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'search.js'), 'utf8');
+  assert.ok(/function renderDefault\b/.test(js), 'should define renderDefault');
+  assert.ok(/renderDefault\(\)/.test(js), 'should call renderDefault on initial load (no ?q=)');
+  assert.ok(/localeCompare/.test(js), 'should sort by date desc');
+});
+
+// ----- 34. search.js: Esc 清空恢复默认 ---------------------------------
+
+test('build: search.js Esc handler falls back to renderDefault', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'search.js'), 'utf8');
+  assert.ok(/e\.key\s*===\s*['"]Escape['"]/.test(js), 'should listen for Escape');
+  assert.ok(/renderDefault\(\)/.test(js), 'Escape should reset to default list');
+});
+
+// ----- 35. search.js: 输入空字符串回到默认(不是显示空状态) -------------
+
+test('build: search.js empty token list falls back to renderDefault not empty state', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'search.js'), 'utf8');
+  // 在 renderHits 里,有 tokens.length === 0 时调用 renderDefault,而不是 setEmpty
+  const block = js.match(/function renderHits\b([\s\S]*?)\n  \}/);
+  assert.ok(block, 'should have renderHits function');
+  assert.ok(/renderDefault\(\)/.test(block[1]),
+    'renderHits should call renderDefault on empty token list');
+});

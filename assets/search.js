@@ -14,14 +14,6 @@
     if (statusEl) statusEl.textContent = msg;
   }
 
-  function setEmpty(msg) {
-    resultsEl.innerHTML = '';
-    var p = document.createElement('li');
-    p.className = 'search-empty';
-    p.textContent = msg;
-    resultsEl.appendChild(p);
-  }
-
   // 简单 HTML 转义(防 XSS,搜索结果显示用)
   function esc(s) {
     return String(s == null ? '' : s)
@@ -69,17 +61,42 @@
     return prefix + t.slice(start, end) + suffix;
   }
 
-  function render(query) {
-    if (!index) {
-      setEmpty('索引未就绪,请稍候再试。');
-      return;
-    }
+  function hitHTML(post, tokens) {
+    var titleHTML = esc(post.title);
+    var desc = (post.excerpt || post.description || '').trim();
+    var snip = esc(snippet(desc, tokens, 140));
+    return '<li class="search-hit">'
+      + '<h3 class="search-hit-title"><a href="/posts/' + esc(post.slug) + '/">' + titleHTML + '</a></h3>'
+      + '<div class="search-hit-meta">'
+      + '<time datetime="' + esc(post.date) + '">' + esc(post.date) + '</time>'
+      + (post.tags && post.tags.length
+        ? ' · <span class="search-hit-tags">' + post.tags.map(function (t) { return '<span class="chip-mini">' + esc(t) + '</span>'; }).join(' ') + '</span>'
+        : '')
+      + '</div>'
+      + '<p class="search-hit-excerpt">' + snip + '</p>'
+      + '</li>';
+  }
+
+  function emptyHTML(msg) {
+    return '<li class="search-empty">' + esc(msg) + '</li>';
+  }
+
+  // 默认:按日期降序列出全部文章
+  function renderDefault() {
+    if (!index) { resultsEl.innerHTML = ''; return; }
+    var sorted = index.slice().sort(function (a, b) {
+      return (b.date || '').localeCompare(a.date || '');
+    });
+    setStatus('共 ' + index.length + ' 篇文章。输入关键词过滤。');
+    resultsEl.innerHTML = sorted.map(function (p) { return hitHTML(p, []); }).join('');
+  }
+
+  // 搜索结果
+  function renderHits(query) {
+    if (!index) { resultsEl.innerHTML = ''; return; }
     var tokens = tokenize(query);
-    if (!tokens.length) {
-      setStatus('共 ' + index.length + ' 篇文章。输入关键词开始搜索。');
-      setEmpty('');
-      return;
-    }
+    if (!tokens.length) { renderDefault(); return; }
+
     var hits = [];
     index.forEach(function (p) {
       var s = score(p, tokens);
@@ -93,25 +110,10 @@
     setStatus('命中 ' + hits.length + ' 篇 · 关键词: ' + tokens.join(' '));
 
     if (!hits.length) {
-      setEmpty('没有匹配的文章。换个关键词试试?');
+      resultsEl.innerHTML = emptyHTML('没有匹配「' + query + '」的文章。换个关键词试试?');
       return;
     }
-
-    resultsEl.innerHTML = hits.map(function (h) {
-      var p = h.post;
-      var titleHTML = esc(p.title);
-      var snip = esc(snippet(p.excerpt || p.description || '', tokens, 140));
-      return '<li class="search-hit">'
-        + '<h3 class="search-hit-title"><a href="/posts/' + esc(p.slug) + '/">' + titleHTML + '</a></h3>'
-        + '<div class="search-hit-meta">'
-        + '<time datetime="' + esc(p.date) + '">' + esc(p.date) + '</time>'
-        + (p.tags && p.tags.length
-          ? ' · <span class="search-hit-tags">' + p.tags.map(function (t) { return '<span class="chip-mini">' + esc(t) + '</span>'; }).join(' ') + '</span>'
-          : '')
-        + '</div>'
-        + '<p class="search-hit-excerpt">' + snip + '</p>'
-        + '</li>';
-    }).join('');
+    resultsEl.innerHTML = hits.map(function (h) { return hitHTML(h.post, tokens); }).join('');
   }
 
   // 加载索引
@@ -122,19 +124,18 @@
     })
     .then(function (data) {
       index = (data && data.posts) || [];
-      setStatus('已加载 ' + index.length + ' 篇文章的索引。输入关键词开始搜索。');
-      // 解析 URL ?q= 自动填入
       var params = new URLSearchParams(window.location.search);
       var initial = params.get('q');
       if (initial) {
         inputEl.value = initial;
-        render(initial);
+        renderHits(initial);
       } else {
-        setEmpty('');
+        renderDefault();
       }
     })
     .catch(function (err) {
       setStatus('索引加载失败: ' + (err && err.message ? err.message : 'unknown'));
+      resultsEl.innerHTML = emptyHTML('索引加载失败,请稍后重试。');
     });
 
   // 输入框防抖
@@ -142,14 +143,14 @@
   inputEl.addEventListener('input', function (e) {
     if (timer) clearTimeout(timer);
     var v = e.target.value;
-    timer = setTimeout(function () { render(v); }, 120);
+    timer = setTimeout(function () { renderHits(v); }, 120);
   });
 
   // 键盘快捷键:Esc 清空
   inputEl.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && inputEl.value) {
       inputEl.value = '';
-      render('');
+      renderDefault();
     }
   });
 })();

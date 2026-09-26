@@ -981,10 +981,16 @@ button:focus-visible,
 }
 
 .search-empty {
-  padding: 1rem 0;
+  list-style: none;
+  padding: 1.5rem 1rem;
+  margin: 0;
   color: var(--fg-muted);
   font-style: italic;
   font-size: var(--step--1);
+  text-align: center;
+  background: var(--bg-elev);
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--r-md);
 }
 
 .search-hit {
