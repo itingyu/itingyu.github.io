@@ -248,6 +248,21 @@ function sortPosts(posts) {
 }
 
 // ============================================================
+// Article body extraction (RSS 全文输出)
+//   - 从 <article>...</article> 中剥离 article-header / related aside
+//   - 返回纯正文 HTML,供 RSS content:encoded 使用
+// ============================================================
+
+function extractArticleBody(html) {
+  const articleMatch = html.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+  if (!articleMatch) return '';
+  let body = articleMatch[1];
+  body = body.replace(/<header class="article-header">[\s\S]*?<\/header>/i, '');
+  body = body.replace(/<aside class="related"[\s\S]*?<\/aside>/i, '');
+  return body.trim();
+}
+
+// ============================================================
 // Cover image scanner
 //   - posts/<slug>/cover.{svg,jpg,jpeg,png,webp}
 //   - returns absolute URL or null
@@ -528,7 +543,7 @@ ${list}
   });
 }
 
-function renderRSS(posts, buildDate) {
+function renderRSS(posts, buildDate, rootDir = ROOT) {
   const sorted = sortPosts(posts).slice(0, RSS_LIMIT);
   const rfc822 = (d) => {
     const dt = d instanceof Date ? d : new Date(d);
@@ -550,16 +565,23 @@ function renderRSS(posts, buildDate) {
     const link = `${SITE_ORIGIN}/posts/${p.slug}/`;
     const pubDate = p.date ? rfc822(p.date) : lastBuild;
     const cats = (p.tags || []).map(t => `      <category>${escapeXML(t.name)}</category>`).join('\n');
+    // 全文输出(RSS 2.0 + content:encoded 命名空间)
+    let fullBody = '';
+    const postFile = path.join(rootDir, 'posts', p.slug, 'index.html');
+    if (fs.existsSync(postFile)) {
+      const raw = fs.readFileSync(postFile, 'utf8');
+      fullBody = extractArticleBody(raw);
+    }
     return `    <item>
       <title>${escapeXML(p.title)}</title>
       <link>${link}</link>
       <guid isPermaLink="true">${link}</guid>
       <pubDate>${pubDate}</pubDate>
-      <description>${escapeXML(p.description || '')}</description>
+      <description>${escapeXML(p.description || '')}</description>${fullBody ? `\n      <content:encoded><![CDATA[${fullBody}]]></content:encoded>` : ''}
 ${cats ? cats + '\n' : ''}    </item>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>itingyu · 博客</title>
     <link>${SITE_ORIGIN}/</link>
@@ -672,7 +694,7 @@ function computeBuild(rootDir = ROOT) {
     tagPages[slug] = renderTagPage(slug, name, posts);
   }
 
-  const rss = renderRSS(posts);
+  const rss = renderRSS(posts, null, rootDir);
   const sitemap = renderSitemap(posts);
 
   let homeReplacement = null;
@@ -878,6 +900,7 @@ module.exports = {
   sortPosts,
   scanCover,
   computeRelated,
+  extractArticleBody,
   injectArticlePageEnhancements,
   computeBuild,
   writeBuild,

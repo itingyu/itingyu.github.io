@@ -10,6 +10,7 @@ const bi = require('../build-index.js');
 const {
   scanPosts, sortPosts,
   scanCover, computeRelated, injectArticlePageEnhancements,
+  extractArticleBody,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
   computeBuild, writeBuild, checkDrift,
@@ -404,5 +405,52 @@ test('build: articlePages map covers every post and writeBuild is idempotent', (
     assert.deepEqual(build2.articlePages['posts/minimal-post/index.html'],
                      build3.articlePages['posts/minimal-post/index.html'],
                      'articlePages must be stable across recomputations');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 20. extractArticleBody: keep body, strip article-header + related --
+
+test('build: extractArticleBody keeps article body, strips header/related', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = fs.readFileSync(path.join(tmp, 'posts', posts[0].slug, 'index.html'), 'utf8');
+    const body = extractArticleBody(html);
+    assert.ok(/<h2>第一段<\/h2>/.test(body), 'should keep article h2');
+    assert.ok(/正文。/.test(body), 'should keep paragraph text');
+    assert.ok(!/article-header/.test(body), 'should strip article-header');
+    assert.ok(!/class="related"/.test(body), 'should strip related aside');
+    assert.ok(!/<h1>最小示例<\/h1>/.test(body), 'should strip article-header h1');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 21. renderRSS: full body in <content:encoded> + xmlns:content NS -----
+
+test('build: rss.xml content:encoded contains full article body (CDATA)', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const xml = renderRSS(posts, null, tmp);
+    assert.ok(/xmlns:content="http:\/\/purl\.org\/rss\/1\.0\/modules\/content\/"/.test(xml),
+      'should declare content namespace');
+    assert.ok(/<content:encoded><!\[CDATA\[[\s\S]*?<h2>第一段<\/h2>[\s\S]*?\]\]><\/content:encoded>/.test(xml),
+      'should embed full body in content:encoded CDATA');
+    assert.ok(/正文。/.test(xml), 'body text must appear in RSS');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: rss.xml content:encoded strips header / footer / related', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const xml = renderRSS(posts, null, tmp);
+    // 提取第一个 item 中的 CDATA 区段
+    const m = xml.match(/<content:encoded><!\[CDATA\[([\s\S]*?)\]\]><\/content:encoded>/);
+    assert.ok(m, 'should have CDATA section');
+    const inner = m[1];
+    assert.ok(!/article-header/.test(inner), 'CDATA must not contain article-header');
+    assert.ok(!/article-footer/.test(inner), 'CDATA must not contain article-footer');
+    assert.ok(!/class="related"/.test(inner), 'CDATA must not contain related aside');
+    assert.ok(!/<h1>最小示例<\/h1>/.test(inner), 'CDATA must not contain header h1');
   } finally { cleanProject(tmp); }
 });
