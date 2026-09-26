@@ -309,8 +309,20 @@ function byDateDesc(a, b) {
   return (a.slug || '').localeCompare(b.slug || '');
 }
 
+function byDateAsc(a, b) {
+  const da = (a.date || '').toString();
+  const db = (b.date || '').toString();
+  if (da < db) return -1;
+  if (da > db) return 1;
+  return (a.slug || '').localeCompare(b.slug || '');
+}
+
 function sortPosts(posts) {
   return [...posts].sort(byDateDesc);
+}
+
+function sortPostsAsc(posts) {
+  return [...posts].sort(byDateAsc);
 }
 
 // ============================================================
@@ -366,12 +378,106 @@ function computeRelated(post, allPosts, max = RELATED_LIMIT) {
 }
 
 // ============================================================
+// Prev / Next siblings (按发布日期升序,上一篇 = 更老,下一篇 = 更新)
+// ============================================================
+
+function computePrevNext(post, allPosts) {
+  if (!post || !post.slug) return { prev: null, next: null };
+  const sorted = sortPostsAsc(allPosts);
+  const idx = sorted.findIndex(p => p && p.slug === post.slug);
+  if (idx === -1) return { prev: null, next: null };
+  return {
+    prev: idx > 0 ? sorted[idx - 1] : null,
+    next: idx < sorted.length - 1 ? sorted[idx + 1] : null,
+  };
+}
+
+function buildPostNav(prev, next) {
+  if (!prev && !next) return '';
+  const navClass = ['post-nav'];
+  if (prev && !next) navClass.push('post-nav-prev-only');
+  else if (!prev && next) navClass.push('post-nav-next-only');
+  function card(side, sibling, label, relAttr) {
+    const date = (sibling.date || '').toString().slice(0, 10);
+    return `      <a class="post-nav-${side}" href="/posts/${escapeHTML(sibling.slug)}/" rel="${relAttr}">
+        <span class="post-nav-label">${label}</span>
+        <span class="post-nav-title">${escapeHTML(sibling.title)}</span>
+        <time class="post-nav-date" datetime="${escapeHTML(date)}">${escapeHTML(date)}</time>
+      </a>`;
+  }
+  const prevCard = prev ? card('prev', prev, '← 上一篇', 'prev') : '';
+  const nextCard = next ? card('next', next, '下一篇 →', 'next') : '';
+  const sep = prevCard && nextCard ? '\n' : '';
+  return `
+    <nav class="${navClass.join(' ')}" aria-label="文章导航">
+${prevCard}${sep}${nextCard}
+    </nav>`;
+}
+
+function injectPrevNextHead(html, prev, next) {
+  // 始终先清理已有的 rel="prev"/rel="next"(URL 可能因新增/删除文章而变化)
+  // 用 /m 标志的 ^ 匹配行首,连同整行(标签 + 缩进 + 末尾换行)一并移除
+  let out = html.replace(/^[ \t]*<link\s+rel=["']prev["'][^>]*\/?>[ \t]*\n?/gm, '');
+  out = out.replace(/^[ \t]*<link\s+rel=["']next["'][^>]*\/?>[ \t]*\n?/gm, '');
+
+  if (!prev && !next) return out;
+  const tags = [];
+  if (prev) tags.push(`<link rel="prev" href="/posts/${escapeHTML(prev.slug)}/" />`);
+  if (next) tags.push(`<link rel="next" href="/posts/${escapeHTML(next.slug)}/" />`);
+  const indentedTags = tags.map(t => `  ${t}`).join('\n');
+
+  if (/<link\s+rel=["']canonical["'][^>]*\/?>/.test(out)) {
+    // canonical 后追加:canonical\n  <link>...
+    return out.replace(
+      /(<link\s+rel=["']canonical["'][^>]*\/?>)/,
+      `$1\n${indentedTags}`
+    );
+  }
+  // 兜底 A:有 JSON-LD <script> 时插到它之前(保持相对位置稳定,幂等)
+  if (/<script[^>]*type=["']application\/ld\+json["'][^>]*>/.test(out)) {
+    return out.replace(
+      /(\s*)(?=<script[^>]*type=["']application\/ld\+json["'][^>]*>)/,
+      `\n${indentedTags}$1`,
+    );
+  }
+  // 兜底 B:插到 </head> 前一行
+  return out.replace(/(<\/head>)/, `${indentedTags}\n$1`);
+}
+
+function injectPostNav(html, navHTML) {
+  if (!navHTML) return html;
+  let out = html;
+
+  // 1. 标记优先:已有 <!-- build:postnav --> 直接替换
+  if (/<!--\s*build:postnav\s*-->/.test(out)) {
+    return out.replace(/<!--\s*build:postnav\s*-->/, `<!-- build:postnav -->${navHTML}`);
+  }
+  // 2. 幂等:已有 class="post-nav ..."(无论是否带额外 class)则跳过
+  if (/class="post-nav(?:\s|")/.test(out)) return out;
+
+  // 3. 注入到 article-footer 前(优先 article-footer,否则 </main> 前)
+  if (/<footer class="article-footer">/.test(out)) {
+    return out.replace(
+      /([ \t]*)(<footer class="article-footer">)/,
+      `${navHTML}\n\n    $2`
+    );
+  }
+  if (/<\/main>/.test(out)) {
+    return out.replace(/(<\/main>)/, `${navHTML}\n  $1`);
+  }
+  return out;
+}
+
+// ============================================================
 // Article page enhancements (cover + related + progress div + reading-time)
 //   1. 注入 reading-progress div(若文章页没有)
 //   2. 升级「约 X 分钟」为 data-reading-time 占位(让 JS 实时计算)
 //   3. 注入 cover img(若 posts/<slug>/cover.* 存在)
 //   4. 注入「相关文章」区(基于同标签优先 + 日期降序)
 //   5. 注入 og:image meta(若 cover 存在)
+//   6. 字数 / 词数(紧跟 reading-time)
+//   7. 注入 <link rel="prev/next"> 到 <head>
+//   8. 注入底部上下篇 nav 卡片(单篇时跳过)
 // 策略:幂等。每步用未匹配的占位,确保重复跑不产生双重内容。
 // ============================================================
 
@@ -464,7 +570,15 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
     );
   }
 
-  // 7. JSON-LD BreadcrumbList(Home › Tag › Article;幂等)
+// 7. <link rel="prev/next"> 注入到 <head>(按日期升序:prev=更老,next=更新)
+  const { prev, next } = computePrevNext(post, allPosts);
+  out = injectPrevNextHead(out, prev, next);
+
+  // 8. 文章底部上下篇 nav 卡片(单篇时整段跳过;首/末篇只渲染存在的一侧)
+  const navHTML = buildPostNav(prev, next);
+  out = injectPostNav(out, navHTML);
+
+  // 9. JSON-LD BreadcrumbList(Home › Tag › Article;幂等)
   if (!hasJSONLDType(out, 'BreadcrumbList')) {
     const items = [{ name: '首页', url: `${SITE_ORIGIN}/` }];
     if (post.tags && post.tags.length > 0) {
@@ -1113,15 +1227,15 @@ function checkDrift(build, rootDir = ROOT) {
 // CLI
 // ============================================================
 
-const ALL_TARGETS = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages'];
+const ALL_TARGETS = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
 
 function usage() {
   return `Usage: node scripts/build-index.js [options]
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --no-cache       Force full rebuild (bypass SHA-256 cache, equivalent to fresh clone)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages)
+--no-cache       Force full rebuild (bypass SHA-256 cache, equivalent to fresh clone)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages|prevnext)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -1211,7 +1325,7 @@ function runFullBuild(opts) {
   if (!targets.includes('rss')) delete build.files['feeds/rss.xml'];
   if (!targets.includes('sitemap')) delete build.files['sitemap.xml'];
   if (!targets.includes('home')) build.homeReplacement = null;
-  if (!targets.includes('article-pages')) build.articlePages = {};
+  if (!targets.includes('article-pages') && !targets.includes('prevnext')) build.articlePages = {};
 
   if (opts.check) {
     const drift = checkDrift(build, opts.root);
@@ -1423,8 +1537,13 @@ module.exports = {
   parseFrontmatter,
   scanPosts,
   sortPosts,
+  sortPostsAsc,
   scanCover,
   computeRelated,
+  computePrevNext,
+  buildPostNav,
+  injectPrevNextHead,
+  injectPostNav,
   extractArticleBody,
   stripTags,
   injectArticlePageEnhancements,
