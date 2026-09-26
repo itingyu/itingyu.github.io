@@ -51,18 +51,23 @@ package.json            npm test / build / check
 - `--date` — 发布日期,默认今天
 - `--excerpt` — 摘要,默认占位文案
 
-### 发布两步走
+### 贡献流程(三步走)
 
 ```bash
 # 1. 生成文章页
 ./scripts/new-post.sh my-post "标题" --tag note
 
-# 2. 编辑正文、提交并推送
+# 2. 编辑正文、提交并推到自己分支
 $EDITOR posts/my-post/index.html
 git add posts/my-post/
 git commit -m "post: my-post"
-git push
+git push -u origin <your-branch>
 ```
+
+3. 在 GitHub 上开 PR → CI(`.github/workflows/ci.yml`)自动跑 `npm test` + `npm run check`,
+   `verify` job 全部绿后才能合并;合入 `master` 后 `pages-build` 自动重建,GitHub Pages 30 秒内可访问。
+
+> **PR 必跑 CI**:`verify` job 没绿就不合并 —— 这把「漏改聚合页」「RSS 漂移」「测试回归」挡在 `master` 之前。
 
 GitHub Pages 会自动部署。首页 / 归档 / 标签 / RSS 的增量更新由 `scripts/build-index.js` 自动接管。
 
