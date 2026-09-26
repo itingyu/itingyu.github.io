@@ -959,3 +959,24 @@ test('build: --check stays green after JSON-LD injection on all 4 page types', (
     assert.deepEqual(drift, [], 'no drift after writing + recomputing');
   } finally { cleanProject(tmp); }
 });
+
+// ----- 36. AIWORK1-36 heading 深链 + 一键复制锚点 -----------------------
+
+test('build: theme.js declares initHeadingAnchors with clipboard + slug + dedupe', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'theme.js'), 'utf8');
+  assert.ok(/function initHeadingAnchors\b/.test(js), 'should declare initHeadingAnchors');
+  assert.ok(/function ensureHeadingIds\b/.test(js), 'should extract ensureHeadingIds helper');
+  assert.ok(/heading-anchor/.test(js), 'should inject .heading-anchor element');
+  assert.ok(/navigator\.clipboard\.writeText/.test(js), 'should use clipboard API');
+  assert.ok(/history\.replaceState/.test(js), 'should sync address bar hash');
+  assert.ok(/while \(seen\[uniq\]\)/.test(js), 'should dedupe repeated slugs');
+});
+
+test('build: style.css declares .heading-anchor with hover/focus + reduced-motion', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'style.css'), 'utf8');
+  assert.ok(/\.heading-anchor\s*\{/.test(css), 'should declare .heading-anchor');
+  assert.ok(/h2:hover\s*>\s*\.heading-anchor/.test(css), 'should reveal on h2 hover');
+  assert.ok(/\.heading-anchor\.is-flashed/.test(css), 'should declare flash state');
+  assert.ok(/prefers-reduced-motion: reduce[\s\S]*\.heading-anchor\s*\{[^}]*transition:\s*none/.test(css),
+    'should disable transition under prefers-reduced-motion');
+});

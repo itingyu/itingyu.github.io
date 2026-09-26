@@ -34,7 +34,10 @@
     // 字数 / 词数 / 时长估算
     estimateReadingStats();
 
-    // 文章页 TOC(扫 article h2/h3)
+    // heading 锚点(独立于 TOC,即便没 TOC 也能深链)
+    initHeadingAnchors();
+
+    // 文章页 TOC(复用 heading id)
     initTOC();
 
     // 文章页 <pre> 复制按钮
@@ -108,6 +111,75 @@
     });
   }
 
+  // ---------- heading id + 深链锚点 ----------
+
+  function ensureHeadingIds(headings) {
+    var seen = {};
+    headings.forEach(function (h, i) {
+      if (h.id) return;
+      var slug = (h.textContent || '').trim()
+        .toLowerCase()
+        .replace(/[\s\u3000]+/g, '-')
+        .replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      // 重名去重
+      var base = slug || ('section-' + (i + 1));
+      var uniq = base, n = 2;
+      while (seen[uniq]) { uniq = base + '-' + n; n++; }
+      seen[uniq] = true;
+      h.id = uniq;
+    });
+  }
+
+  function initHeadingAnchors() {
+    var article = document.querySelector('article');
+    if (!article) return;
+
+    var headings = article.querySelectorAll('h2, h3');
+    if (!headings.length) return;
+
+    ensureHeadingIds(headings);
+
+    headings.forEach(function (h) {
+      if (h.querySelector('.heading-anchor')) return;
+      var a = document.createElement('a');
+      a.className = 'heading-anchor';
+      a.href = '#' + h.id;
+      a.setAttribute('aria-label', '复制锚点链接');
+      a.textContent = '\u{1F517}';
+
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        var hash = h.id;
+        // 同步地址栏 hash,深链可被粘贴
+        try { history.replaceState(null, '', '#' + hash); } catch (_) {}
+        // 优先绝对 URL,深链分享用
+        var absolute = location.origin + location.pathname + '#' + hash;
+        var done = function () { flashAnchor(a, '已复制'); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(absolute).then(done).catch(function () {
+            fallbackCopy(absolute, function () { flashAnchor(a, '已复制'); });
+          });
+        } else {
+          fallbackCopy(absolute, function () { flashAnchor(a, '已复制'); });
+        }
+      });
+
+      h.appendChild(a);
+    });
+  }
+
+  function flashAnchor(anchor, label) {
+    var orig = '\u{1F517}';
+    anchor.textContent = label;
+    anchor.classList.add('is-flashed');
+    setTimeout(function () {
+      anchor.textContent = orig;
+      anchor.classList.remove('is-flashed');
+    }, 1500);
+  }
+
   // ---------- 文章页 TOC ----------
 
   function initTOC() {
@@ -117,18 +189,8 @@
     var headings = article.querySelectorAll('h2, h3');
     if (headings.length < 2) return; // 段落太少不显示 TOC
 
-    // 给每个 heading 加 id(若已有则跳过)
-    headings.forEach(function (h, i) {
-      if (!h.id) {
-        var slug = (h.textContent || '').trim()
-          .toLowerCase()
-          .replace(/[\s\u3000]+/g, '-')
-          .replace(/[^\u4e00-\u9fa5a-z0-9-]/g, '')
-          .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '');
-        h.id = slug || ('section-' + (i + 1));
-      }
-    });
+    // 复用已生成的 heading id(initHeadingAnchors 已经跑过)
+    ensureHeadingIds(headings);
 
     // 构建 TOC DOM
     var aside = document.createElement('aside');

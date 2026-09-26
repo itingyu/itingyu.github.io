@@ -1100,6 +1100,7 @@ blockquote p:last-child { margin-bottom: 0; }
 @media print {
   :root { --bg: #fff; --fg: #000; --bg-elev: #fff; --bg-soft: #f5f5f5; }
   .site-header, .site-footer, .theme-toggle, .toc-toggle, .reading-progress { display: none !important; }
+  .heading-anchor { display: none !important; }
   a { color: #000; text-decoration: underline; }
   pre, blockquote { border: 1px solid #ccc; page-break-inside: avoid; }
 }
@@ -1296,3 +1297,46 @@ article pre:focus-within .copy-btn,
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ==========================================================================
+   v8 · heading 深链 + 一键复制锚点(2026-09-26 北京时间 · AIWORK1-36)
+   - .heading-anchor 桌面 hover 露,移动端常显,点击 flash
+   ========================================================================== */
+
+.heading-anchor {
+  display: inline-block;
+  margin-left: .35em;
+  text-decoration: none;
+  color: var(--fg-faint);
+  font-weight: 400;
+  opacity: 0;
+  transition: opacity var(--t-base) ease, color var(--t-base) ease, transform var(--t-base) ease;
+  vertical-align: baseline;
+  font-size: .75em;
+}
+
+h2:hover > .heading-anchor,
+h3:hover > .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.heading-anchor:hover {
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.heading-anchor.is-flashed {
+  opacity: 1;
+  color: #16a34a;
+}
+
+@media (max-width: 640px) {
+  .heading-anchor { opacity: .65; font-size: .85em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading-anchor { transition: none; }
+  .heading-anchor:hover { transform: none; }
+}
+
+/* 打印时不显示锚点(规则合并到全局 print 块,避免单文件多处 print block 断言失败) */
