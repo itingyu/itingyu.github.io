@@ -9,6 +9,7 @@ const os = require('node:os');
 const bi = require('../build-index.js');
 const {
   scanPosts, sortPosts,
+  scanCover, computeRelated, injectArticlePageEnhancements,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
   computeBuild, writeBuild, checkDrift,
@@ -241,5 +242,167 @@ test('build: checkDrift returns empty on a fresh build', () => {
     writeBuild(build, tmp);
     const drift = checkDrift(build, tmp);
     assert.deepEqual(drift, []);
+  } finally { cleanProject(tmp); }
+});
+// ----- 16. scanCover: returns URL when cover.{svg,jpg,...} exists ---------
+
+test('build: scanCover finds posts/<slug>/cover.{svg,jpg,...}', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    fs.writeFileSync(path.join(tmp, 'posts', 'minimal-post', 'cover.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 9"/>');
+    const url = scanCover('minimal-post', tmp);
+    assert.equal(url, 'https://itingyu.github.io/posts/minimal-post/cover.svg');
+
+    // 不存在的 slug 返回 null
+    assert.equal(scanCover('nope', tmp), null);
+  } finally { cleanProject(tmp); }
+});
+
+test('build: scanCover prefers svg > jpg > png order', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    fs.writeFileSync(path.join(tmp, 'posts', 'minimal-post', 'cover.png'), 'png');
+    fs.writeFileSync(path.join(tmp, 'posts', 'minimal-post', 'cover.svg'), 'svg');
+    const url = scanCover('minimal-post', tmp);
+    assert.equal(url, 'https://itingyu.github.io/posts/minimal-post/cover.svg');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 17. computeRelated: same-tag first, exclude self, fill by date ----
+
+test('build: computeRelated prefers same tag, excludes self, fills by date', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post', 'edge-cases-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts.find(p => p.slug === 'multi-tag-post');
+    const related = computeRelated(me, posts);
+    assert.ok(Array.isArray(related));
+    assert.ok(related.length >= 1, 'should have at least one related');
+    assert.ok(!related.find(p => p.slug === 'multi-tag-post'), 'must exclude self');
+
+    // minimal-post 没有标签 → 不会被排进 sameTag
+    // multi-tag-post 自身的标签集 {note, finance, algorithm},其他 fixture 都没共享 → sameTag 为空
+    // 所以走 others,按日期降序: edge-cases-post (2026-03-10) 排第一
+    assert.equal(related[0].slug, 'edge-cases-post',
+      'non-same-tag posts fall back to date-desc ordering');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: computeRelated puts same-tag posts first when tags overlap', () => {
+  // 自建 fixture: A、C 共享 "shared" tag;B 不共享;期望 related(A) 顶部是 C
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'related-test-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, tags) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const tagHTML = tags.map(t => `<a class="chip" href="/tags/${t}/" data-tag="${t}">${t}</a>`).join('');
+      const tagMeta = tags.map(t => `  <meta property="article:tag" content="${t}" />`).join('\n');
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${tagMeta}
+        </head><body><main><article><div class="post-meta">${tagHTML}</div></article></main></body></html>`);
+    }
+    mkPost('post-a', '2026-01-01', ['shared', 'note']);
+    mkPost('post-b', '2026-02-01', ['other']);
+    mkPost('post-c', '2025-12-01', ['shared']);
+
+    const posts = scanPosts(tmp);
+    const me = posts.find(p => p.slug === 'post-a');
+    const related = computeRelated(me, posts);
+    assert.equal(related[0].slug, 'post-c',
+      'same-tag (post-c) should rank above non-same-tag (post-b) even when post-b is newer');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// ----- 18. injectArticlePageEnhancements: idempotent + multi-aspect -----
+
+test('build: injectArticlePageEnhancements is idempotent', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const once = injectArticlePageEnhancements(html, me, posts, tmp);
+    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
+    assert.equal(once, twice, 'second injection must be byte-equal');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: injectArticlePageEnhancements injects progress + related + reading-time', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts.find(p => p.slug === 'minimal-post');
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    assert.ok(/class="reading-progress"\s+data-reading-progress/.test(out),
+      'should inject reading-progress bar');
+    assert.ok(/data-reading-time/.test(out),
+      'should mark reading-time span');
+    assert.ok(/<aside class="related"\s+aria-label="相关文章">/.test(out),
+      'should inject related section');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: injectArticlePageEnhancements injects cover when present', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    fs.writeFileSync(path.join(tmp, 'posts', 'minimal-post', 'cover.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg"/>');
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    assert.ok(/<img class="post-cover"\s+src="[^"]*cover\.svg"/.test(out),
+      'should inject post-cover img');
+    assert.ok(/<meta property="og:image"\s+content="[^"]*cover\.svg"/.test(out),
+      'should inject og:image meta');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 19. computeBuild emits articlePages map + writeBuild is idempotent ----
+
+test('build: articlePages map covers every post and writeBuild is idempotent', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const build = computeBuild(tmp);
+    assert.ok(build.articlePages);
+    assert.ok(build.articlePages['posts/minimal-post/index.html']);
+    assert.ok(build.articlePages['posts/multi-tag-post/index.html']);
+
+    writeBuild(build, tmp);
+    // First write should mutate file (inject progress + related).
+    const before = fs.readFileSync(path.join(tmp, 'posts', 'minimal-post', 'index.html'), 'utf8');
+
+    // Recompute build on the patched tree; second writeBuild must be no-op for articles.
+    const build2 = computeBuild(tmp);
+    const beforeWritten = [];
+    const writtenProxy = new Proxy({}, {
+      get(_, k) { return beforeWritten[k]; },
+    });
+    const spyWritten = [];
+    const realWriteFileSync = fs.writeFileSync;
+    const realReadFileSync = fs.readFileSync;
+    fs.readFileSync = (p, enc) => {
+      if (typeof p === 'string' && p.includes('posts/') && p.endsWith('index.html')) {
+        return before;
+      }
+      return realReadFileSync.call(fs, p, enc);
+    };
+    try {
+      writeBuild(build2, tmp);
+    } finally {
+      fs.readFileSync = realReadFileSync;
+    }
+    // computeBuild again to verify output is stable
+    const build3 = computeBuild(tmp);
+    assert.deepEqual(build2.articlePages['posts/minimal-post/index.html'],
+                     build3.articlePages['posts/minimal-post/index.html'],
+                     'articlePages must be stable across recomputations');
   } finally { cleanProject(tmp); }
 });

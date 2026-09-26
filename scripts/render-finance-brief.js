@@ -21,6 +21,7 @@
  *     --slug finance-2026-09-26 \
  *     [--title "金融每日简报 · 2026-09-26"] \
  *     [--excerpt "..."] \
+ *     [--cover <name>] \
  *     [--help]
  */
 
@@ -41,7 +42,8 @@ const USAGE = `用法:
     --date <YYYY-MM-DD> \\
     --slug <post-slug> \\
     [--title "<title>"] \\
-    [--excerpt "<excerpt>"]
+    [--excerpt "<excerpt>"] \\
+    [--cover <name>]
 
 参数:
   --input     金融小队产出的 Markdown 简报(必填)
@@ -49,6 +51,7 @@ const USAGE = `用法:
   --slug      文章 slug,会生成 posts/<slug>/index.html(必填)
   --title     文章标题;缺省取 md 第一行 # 标题
   --excerpt   摘要;缺省取 md 第一段正文
+  --cover     封面图文件名(放在 posts/<slug>/ 下,如 cover.svg)
   --help      输出本帮助
 
 示例:
@@ -74,6 +77,8 @@ function parseArgs(argv) {
       args.title = argv[++i];
     } else if (a === '--excerpt') {
       args.excerpt = argv[++i];
+    } else if (a === '--cover') {
+      args.cover = argv[++i];
     } else if (a && a.startsWith('--')) {
       throw new Error(`未知参数: ${a}`);
     } else {
@@ -331,10 +336,11 @@ function escapeJsonLd(s) {
   return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
 }
 
-function renderPage({ title, slug, date, excerpt, body }) {
+function renderPage({ title, slug, date, excerpt, body, cover = null }) {
   const canonical = `https://itingyu.github.io/posts/${slug}/`;
   const editUrl = `https://github.com/itingyu/itingyu.github.io/edit/master/posts/${slug}/index.html`;
   const dateCN = date; // YYYY-MM-DD 本身就是 ISO 排版,符合站点其他页面
+  const coverURL = cover ? `https://itingyu.github.io/posts/${slug}/${cover}` : null;
   const jsonLd = JSON.stringify(
     {
       '@context': 'https://schema.org',
@@ -371,7 +377,7 @@ function renderPage({ title, slug, date, excerpt, body }) {
   <meta property="og:locale" content="zh_CN" />
   <meta property="article:published_time" content="${date}" />
   <meta property="article:author" content="itingyu" />
-  <meta property="article:tag" content="${TAG_LABEL}" />
+  <meta property="article:tag" content="${TAG_LABEL}" />${coverURL ? `\n  <meta property="og:image" content="${coverURL}" />` : ''}
 
   <!-- JSON-LD -->
   <script type="application/ld+json">
@@ -391,6 +397,7 @@ ${jsonLd}
   <script defer src="/assets/theme.js"></script>
 </head>
 <body>
+  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
   <a class="skip-link" href="#main">跳到正文</a>
 
   <header class="site-header">
@@ -429,15 +436,18 @@ ${jsonLd}
           <time datetime="${date}">${dateCN}</time>
           <span class="dot">·</span>
           <a class="chip" href="/tags/${TAG_SLUG}/" data-tag="${TAG_SLUG}">${TAG_LABEL}</a>
+          <span class="dot">·</span>
+          <span data-reading-time>约 1 分钟</span>
         </div>
         <p class="post-excerpt">${escapeHtml(excerpt)}</p>
-      </header>
+      </header>${coverURL ? `\n      <img class="post-cover" src="${coverURL}" alt="${escapeHtml(title)}封面" loading="lazy" />` : ''}
 
       ${body}
 
       <div class="callout callout-warn">
         <strong>免责声明</strong> · ${DISCLAIMER_TEXT}
       </div>
+      <!-- build:related -->
     </article>
 
     <footer class="article-footer">
@@ -571,7 +581,18 @@ function main() {
   const outFile = path.join(outDir, 'index.html');
   fs.mkdirSync(outDir, { recursive: true });
 
-  const html = renderPage({ title, slug, date, excerpt, body });
+  // 封面图:复制到 posts/<slug>/ 下,确保 build-index 能扫到
+  let coverFile = null;
+  if (args.cover) {
+    const coverSrc = path.resolve(args.cover);
+    if (!fs.existsSync(coverSrc)) die(`找不到封面图: ${args.cover}`);
+    const coverName = path.basename(coverSrc);
+    const coverDst = path.join(outDir, coverName);
+    fs.copyFileSync(coverSrc, coverDst);
+    coverFile = coverName;
+  }
+
+  const html = renderPage({ title, slug, date, excerpt, body, cover: coverFile });
   fs.writeFileSync(outFile, html);
 
   updatePostsIndex(repoRoot, { title, slug, date, excerpt });

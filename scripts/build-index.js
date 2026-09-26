@@ -13,9 +13,11 @@ const SITE_ORIGIN = 'https://itingyu.github.io';
 const ROOT = process.cwd();
 const RSS_LIMIT = 20;
 const HOME_LIMIT = 3;
+const RELATED_LIMIT = 3;
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 const POSTS_DIR = path.join(ROOT, 'posts');
 const INDEX_FILE = path.join(ROOT, 'index.html');
+const COVER_EXTS = ['svg', 'jpg', 'jpeg', 'png', 'webp'];
 
 // ============================================================
 // HTML escaping
@@ -243,6 +245,137 @@ function byDateDesc(a, b) {
 
 function sortPosts(posts) {
   return [...posts].sort(byDateDesc);
+}
+
+// ============================================================
+// Cover image scanner
+//   - posts/<slug>/cover.{svg,jpg,jpeg,png,webp}
+//   - returns absolute URL or null
+// ============================================================
+
+function scanCover(slug, rootDir = ROOT) {
+  const dir = path.join(rootDir, 'posts', slug);
+  if (!fs.existsSync(dir)) return null;
+  for (const ext of COVER_EXTS) {
+    const p = path.join(dir, `cover.${ext}`);
+    if (fs.existsSync(p)) {
+      return `${SITE_ORIGIN}/posts/${slug}/cover.${ext}`;
+    }
+  }
+  return null;
+}
+
+// ============================================================
+// Related posts (同标签优先,排除自身,补日期新近,最多 N 篇)
+// ============================================================
+
+function computeRelated(post, allPosts, max = RELATED_LIMIT) {
+  if (!post || !post.slug) return [];
+  const tagSlugs = new Set((post.tags || []).map(t => t.slug));
+  const sameTag = [];
+  const others = [];
+  for (const p of allPosts) {
+    if (!p || p.slug === post.slug) continue;
+    const overlap = (p.tags || []).some(t => tagSlugs.has(t.slug));
+    (overlap ? sameTag : others).push(p);
+  }
+  sameTag.sort(byDateDesc);
+  others.sort(byDateDesc);
+  return [...sameTag, ...others].slice(0, max);
+}
+
+// ============================================================
+// Article page enhancements (cover + related + progress div + reading-time)
+//   1. 注入 reading-progress div(若文章页没有)
+//   2. 升级「约 X 分钟」为 data-reading-time 占位(让 JS 实时计算)
+//   3. 注入 cover img(若 posts/<slug>/cover.* 存在)
+//   4. 注入「相关文章」区(基于同标签优先 + 日期降序)
+//   5. 注入 og:image meta(若 cover 存在)
+// 策略:幂等。每步用未匹配的占位,确保重复跑不产生双重内容。
+// ============================================================
+
+function buildRelatedSection(post, allPosts) {
+  const related = computeRelated(post, allPosts);
+  if (!related.length) {
+    return `\n    <aside class="related" aria-label="相关文章">\n      <p class="related-title">相关文章</p>\n      <p class="related-empty">暂时没有相关文章。</p>\n    </aside>`;
+  }
+  const cards = related.map(p => {
+    const date = (p.date || '').toString();
+    const desc = (p.description || '').toString().slice(0, 120);
+    return `        <li>
+          <a class="related-card" href="/posts/${escapeHTML(p.slug)}/">
+            <p class="related-card-title">${escapeHTML(p.title)}</p>
+            <p class="related-card-meta"><time datetime="${escapeHTML(date)}">${escapeHTML(date)}</time></p>
+            ${desc ? `<p class="related-card-excerpt">${escapeHTML(desc)}</p>` : ''}
+          </a>
+        </li>`;
+  }).join('\n');
+  return `\n    <aside class="related" aria-label="相关文章">
+      <p class="related-title">相关文章</p>
+      <ul class="related-grid">
+${cards}
+      </ul>
+    </aside>`;
+}
+
+function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
+  let out = html;
+
+  // 1. reading-progress div(幂等:已存在则跳过)
+  if (!/class="reading-progress"[^>]*data-reading-progress/.test(out)) {
+    out = out.replace(
+      /(<a\s+class="skip-link"[^>]*>)/,
+      `<div class="reading-progress" data-reading-progress aria-hidden="true"></div>\n  $1`
+    );
+  }
+
+  // 2. reading-time(幂等:已有 data-reading-time 则跳过;否则升级「约 N 分钟」)
+  if (!/data-reading-time/.test(out)) {
+    out = out.replace(
+      /<span>约\s*\d+\s*分钟<\/span>/,
+      '<span data-reading-time>约 1 分钟</span>'
+    );
+  }
+
+  // 3. cover image(幂等:已有 class="post-cover" 则跳过)
+  const coverURL = scanCover(post.slug, rootDir);
+  if (coverURL && !/class="post-cover"/.test(out)) {
+    // 优先注入到 article-header 结束后的 article 内部
+    const coverHTML = `\n      <img class="post-cover" src="${escapeHTML(coverURL)}" alt="${escapeHTML(post.title || '')}封面" loading="lazy" />`;
+    if (/<\/header>\s*<!--\s*build:cover\s*-->/.test(out)) {
+      out = out.replace(/<!--\s*build:cover\s*-->/, `<!-- build:cover -->${coverHTML}`);
+    } else if (/<\/header>\s*(<)/.test(out)) {
+      out = out.replace(/<\/header>(\s*<!--[^-]*-->\s*)*(\s*)<(?!img|aside|figure)/, (m) => `${m.replace(/<$/, '')}${coverHTML}\n      <`);
+    } else {
+      // 兜底:插到 article 后
+      out = out.replace(/(<article[^>]*>)/, `$1${coverHTML}`);
+    }
+  }
+
+  // 4. related section(幂等:已有 class="related" 则跳过)
+  if (!/class="related"\s+aria-label="相关文章"/.test(out)) {
+    const relatedSection = buildRelatedSection(post, allPosts);
+    // 插到 </article> 后、article-footer 前;若没有 article-footer 则插到 </main> 前
+    if (/<\/article>\s*<!--\s*build:related\s*-->/.test(out)) {
+      out = out.replace(/<!--\s*build:related\s*-->/, `<!-- build:related -->${relatedSection}`);
+    } else if (/<\/article>(\s*<!--[^-]*-->\s*)*\s*<footer class="article-footer">/.test(out)) {
+      out = out.replace(/(<\/article>)/, `$1${relatedSection}\n\n    `);
+    } else if (/<\/article>/.test(out)) {
+      out = out.replace(/(<\/article>)/, `$1${relatedSection}`);
+    } else {
+      out = out.replace(/(<\/main>)/, `${relatedSection}\n  $1`);
+    }
+  }
+
+  // 5. og:image(幂等:已有 og:image 则跳过)
+  if (coverURL && !/<meta\s+property=["']og:image["']/.test(out)) {
+    out = out.replace(
+      /(<meta\s+property=["']article:author["'][^>]*>\s*)(\n)/,
+      `$1    <meta property="og:image" content="${escapeHTML(coverURL)}" />$2`
+    );
+  }
+
+  return out;
 }
 
 // ============================================================
@@ -549,6 +682,17 @@ function computeBuild(rootDir = ROOT) {
     homeReplacement = updateHomePage(homeHtml, posts);
   }
 
+  // 文章页增强注入(cover + related + progress + reading-time + og:image)
+  const articlePages = {};
+  for (const p of posts) {
+    if (!p.sourcePath) continue;
+    const file = path.join(rootDir, 'posts', p.slug, 'index.html');
+    if (!fs.existsSync(file)) continue;
+    const original = fs.readFileSync(file, 'utf8');
+    const enhanced = injectArticlePageEnhancements(original, p, posts, rootDir);
+    articlePages[`posts/${p.slug}/index.html`] = enhanced;
+  }
+
   return {
     posts,
     files: {
@@ -560,6 +704,7 @@ function computeBuild(rootDir = ROOT) {
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
     },
+    articlePages,
     homeReplacement,
     tagSlugs: Array.from(tagNames.keys()).sort(),
   };
@@ -574,6 +719,18 @@ function writeBuild(build, rootDir = ROOT) {
     fs.mkdirSync(path.dirname(full), { recursive: true });
     fs.writeFileSync(full, content);
     written.push(rel);
+  }
+
+  // 文章页增强(只在内容真正变化时写入,避免无谓编辑)
+  if (build.articlePages) {
+    for (const [rel, content] of Object.entries(build.articlePages)) {
+      const full = path.join(rootDir, rel);
+      let before = null;
+      try { before = fs.readFileSync(full, 'utf8'); } catch (_) {}
+      if (before !== null && before === content) continue;
+      fs.writeFileSync(full, content);
+      written.push(rel);
+    }
   }
 
   // home page replacement
@@ -619,6 +776,15 @@ function checkDrift(build, rootDir = ROOT) {
     }
     if (actual !== expected) drift.push({ rel, reason: 'mismatch' });
   }
+  if (build.articlePages) {
+    for (const [rel, expected] of Object.entries(build.articlePages)) {
+      const full = path.join(rootDir, rel);
+      let actual;
+      try { actual = fs.readFileSync(full, 'utf8'); }
+      catch (_) { drift.push({ rel, reason: 'missing' }); continue; }
+      if (actual !== expected) drift.push({ rel, reason: 'mismatch' });
+    }
+  }
   if (build.homeReplacement !== null) {
     const homeFile = path.join(rootDir, 'index.html');
     const actual = fs.readFileSync(homeFile, 'utf8');
@@ -636,7 +802,7 @@ function usage() {
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -659,7 +825,7 @@ function run(argv) {
   const opts = parseArgs(argv);
   if (opts.help) { process.stdout.write(usage()); return 0; }
   const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home'];
+  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages'];
 
   let targets = allNames;
   if (opts.only) {
@@ -682,6 +848,7 @@ function run(argv) {
   if (!targets.includes('rss')) delete build.files['feeds/rss.xml'];
   if (!targets.includes('sitemap')) delete build.files['sitemap.xml'];
   if (!targets.includes('home')) build.homeReplacement = null;
+  if (!targets.includes('article-pages')) build.articlePages = {};
 
   if (opts.check) {
     const drift = checkDrift(build, opts.root);
@@ -709,6 +876,9 @@ module.exports = {
   parseFrontmatter,
   scanPosts,
   sortPosts,
+  scanCover,
+  computeRelated,
+  injectArticlePageEnhancements,
   computeBuild,
   writeBuild,
   checkDrift,
