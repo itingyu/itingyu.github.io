@@ -149,9 +149,10 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 ### 5.2 发布流程
 
 ```
-1. 复制 posts/<template>/index.html 改名为 posts/<slug>/index.html
-2. 改 <title> / <meta> / JSON-LD / 正文
-3. 更新以下页面（手工或脚本）：
+1. ./scripts/new-post.sh <slug> "<title>" [--tag ...] [--date ...] [--excerpt ...]
+   → 生成 posts/<slug>/index.html（含完整 head meta / JSON-LD / 占位正文）
+2. 编辑 posts/<slug>/index.html 正文
+3. 由 scripts/build-index.js（AIWORK1-28）增量重生成以下页面：
    - index.html（首页最新文章）
    - posts/index.html（文章列表）
    - archive/index.html（归档）
@@ -163,7 +164,7 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 5. GitHub Pages 自动部署
 ```
 
-**手工更新的痛点**会在文章数 > 30 后浮现。届时引入一个 `scripts/build-index.js`（Node 原生,无依赖）脚本读所有 `posts/<slug>/index.html` 的 `<meta>` 重生成列表页与 RSS / sitemap。
+`scripts/new-post.sh` 是纯 POSIX Bash,无依赖;模板在 `scripts/templates/post.html`,占位符 `{{TITLE}}` / `{{DESCRIPTION}}` / `{{SLUG}}` / `{{DATE}}` / `{{AUTHOR}}` / `{{TAGS_HTML}}` / `{{POSTMETA_TAGS}}`。新增 / 改模板时改一处即可生效。
 
 **不做**：
 - 评论区（社交噪音 + 隐私风险;真要交互用 GitHub Issues）
