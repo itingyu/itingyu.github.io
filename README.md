@@ -106,13 +106,17 @@ node scripts/build-index.js --help        # usage
 
 ## 金融简报同步
 
-金融小队每日 08:00 (Asia/Shanghai) 输出的简报,通过 `scripts/render-finance-brief.js`
-(纯 Node,自实现最小 Markdown 渲染 + 标的 / 涨跌幅染色)转成博客文章 HTML,末尾自动加免责声明。
+金融小队每日 08:00 (Asia/Shanghai) 输出的简报,由金融小队队长自己跑
+`scripts/publish-finance-brief.sh` 一键完成「取 md → 渲染 → build → push 分支 → 开 PR」,
+技术总监(SDD技术总监)只做最后 PR review + merge。
 
 ```bash
-node scripts/render-finance-brief.js --input brief.md --date 2026-09-26 --slug finance-2026-09-26
-./scripts/finance-sync.sh --latest    # 拉 Multica 金融小队最近一篇附件并渲染
+# 金融小队队长(每天跑一次)
+./scripts/publish-finance-brief.sh --latest
+# 写简报评论时务必附 .md 附件(否则 finance-sync.sh 找不到)
 ```
+
+底层调用:`finance-sync.sh` → `render-finance-brief.js` → `npm run build` → `git push` 分支。
 
 ## 后续
 
