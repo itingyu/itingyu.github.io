@@ -637,3 +637,86 @@ button:focus-visible,
 .theme-toggle:focus-visible {
   outline-offset: 2px;
 }
+
+/* ==========================================================================
+   AIWORK1-27 · 金融简报专用样式(render-finance-brief.js 输出)
+   - .ticker         标的代码:等宽 + 加粗 + 浅底色
+   - .delta-up/down  涨跌幅染色(WCAG AA,浅 / 深双主题都达标)
+   - .brief-table    简报表格微调(数字右对齐、紧凑)
+   ========================================================================== */
+
+.ticker {
+  font-family: var(--font-mono);
+  font-size: .92em;
+  font-weight: 600;
+  padding: .05em .35em;
+  border-radius: var(--r-sm);
+  background: var(--bg-soft);
+  color: var(--fg);
+  border: 1px solid var(--border-soft);
+  letter-spacing: .02em;
+}
+
+.delta-up {
+  font-family: var(--font-mono);
+  font-size: .92em;
+  font-weight: 600;
+  color: #15803d;          /* 浅色:绿 WCAG AA on #fbfaf7 ≈ 4.85:1 */
+  background: #dcfce7;
+  padding: .05em .35em;
+  border-radius: var(--r-sm);
+  margin-left: .15em;
+}
+
+.delta-down {
+  font-family: var(--font-mono);
+  font-size: .92em;
+  font-weight: 600;
+  color: #b91c1c;          /* 浅色:红,与现有 --tag-finance 同色系 */
+  background: #fee2e2;
+  padding: .05em .35em;
+  border-radius: var(--r-sm);
+  margin-left: .15em;
+}
+
+:root[data-theme="dark"] .delta-up {
+  color: #4ade80;          /* 深色:亮绿 ≈ 8.2:1 on #0f1115 */
+  background: #14532d;
+}
+
+:root[data-theme="dark"] .delta-down {
+  color: #f87171;          /* 深色:亮红 ≈ 6.5:1 on #0f1115 */
+  background: #450a0a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .delta-up {
+    color: #4ade80;
+    background: #14532d;
+  }
+  :root:not([data-theme="light"]) .delta-down {
+    color: #f87171;
+    background: #450a0a;
+  }
+}
+
+.brief-table {
+  margin: 1.5rem 0;
+  font-size: var(--step--1);
+}
+.brief-table th,
+.brief-table td {
+  vertical-align: baseline;
+}
+.brief-table td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.brief-table th:not(:first-child) {
+  text-align: right;
+}
+.brief-table .ticker,
+.brief-table .delta-up,
+.brief-table .delta-down {
+  font-size: .95em;
+}
