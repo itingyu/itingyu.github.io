@@ -7,6 +7,7 @@
     "test": "node --test scripts/__tests__/*.test.js",
     "build": "node scripts/build-index.js",
     "check": "node scripts/build-index.js --check",
+    "validate": "node scripts/validate-frontmatter.js",
     "build:home": "node scripts/build-index.js --only home",
     "build:rss": "node scripts/build-index.js --only rss"
   }

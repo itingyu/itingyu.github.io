@@ -1,0 +1,23 @@
+name: verify
+
+on:
+  push:
+    branches: [master, agent/**]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install (no deps, zero-install)
+        run: echo "zero npm deps — skip install"
+      - name: Validate front matter
+        run: npm run validate
+      - name: Run tests
+        run: npm test
+      - name: Build drift check
+        run: npm run check

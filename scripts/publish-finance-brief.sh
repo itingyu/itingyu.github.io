@@ -131,6 +131,13 @@ esac
 ok "① 调 finance-sync.sh 渲染简报"
 bash "$SCRIPT_DIR/finance-sync.sh" "${sync_args[@]}" 2>&1 | sed 's/^/    /'
 
+# ---------- 1b. validate frontmatter (拒错 pre-commit) ----------
+ok "①b 跑 npm run validate(front matter 校验,失败 abort)"
+(
+  cd "$REPO_ROOT"
+  npm run validate 2>&1
+) | sed 's/^/    /' || die "front matter 校验失败,请按上面错误修复后再 commit"
+
 # finance-sync.sh 渲染后会把日期写到 commit message 里;从渲染产物抓
 POST_DIR="$(ls -td "$REPO_ROOT"/posts/finance-*/index.html 2>/dev/null | head -n1)"
 [ -n "$POST_DIR" ] && [ -f "$POST_DIR" ] || die "渲染产物未生成:posts/finance-*/index.html"
