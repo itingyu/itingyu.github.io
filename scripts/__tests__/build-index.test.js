@@ -644,3 +644,58 @@ test('build: theme.js declares estimateReadingStats with word + char split', () 
   assert.ok(/data-reading-time/.test(js), 'should still fill data-reading-time');
   assert.ok(/[\u4e00-\u9fa5]/.test(js), 'should detect CJK characters');
 });
+
+// ----- 32. tag cloud: 单 count 数据下仍保持视觉层次(size + weight + tint)
+
+test('build: tag cloud assigns --tag-size + --tag-weight per chip', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderTagsIndex(posts);
+    // 每个 chip 必须带两个内联变量
+    const chips = html.match(/<a class="chip"[^>]*>/g) || [];
+    chips.forEach(c => {
+      assert.ok(/--tag-size:\s*[\d.]+rem/.test(c), 'each chip should set --tag-size');
+      assert.ok(/--tag-weight:\s*[\d.]+/.test(c), 'each chip should set --tag-weight');
+    });
+  } finally { cleanProject(tmp); }
+});
+
+test('build: tag cloud hint explains when counts are uniform', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderTagsIndex(posts);
+    // multi-tag-post 含 3 个 tag,各 1 次 → count 全等 → 提示文案应包含「文章 ≥ 3 篇」
+    assert.ok(/文章\s*≥\s*3\s*篇/.test(html),
+      'should show 3-article threshold hint when counts uniform');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: tag cloud hint shows weight range when counts vary', () => {
+  // 自建 2 个 tag,A=2 篇,B=1 篇 → count 不等
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tagcloud-vary-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, tag) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+          <meta property="article:tag" content="${tag}" />
+        </head><body><main><article><div class="post-meta"><a class="chip" href="/tags/${tag}/" data-tag="${tag}">${tag}</a></div></article></main></body></html>`);
+    }
+    mkPost('p1', '2026-01-01', 'hot');
+    mkPost('p2', '2026-01-02', 'hot');
+    mkPost('p3', '2026-01-03', 'cold');
+    const posts = scanPosts(tmp);
+    const html = renderTagsIndex(posts);
+    // count:hot=2, cold=1 → hint 应包含「最多 2 篇,最少 1 篇」
+    assert.ok(/最多\s*2\s*篇.*最少\s*1\s*篇/.test(html),
+      'should show weight range when counts differ');
+    // size 应有差异(不等)
+    const sizes = [...html.matchAll(/--tag-size:\s*([\d.]+rem)/g)].map(m => m[1]);
+    assert.equal(new Set(sizes).size, 2, 'sizes should differ between hot and cold tags');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});

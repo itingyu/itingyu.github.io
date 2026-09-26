@@ -1180,12 +1180,20 @@ article pre:focus-within .copy-btn,
   padding: .3em .85em;
   border-radius: 999px;
   font-size: var(--tag-size, 1rem);
-  font-weight: 500;
+  font-weight: var(--tag-weight, 500);
   line-height: 1.3;
   transition: all .15s ease;
-  opacity: .9;
+  background: color-mix(in srgb, var(--accent-bg) calc(var(--tag-weight, 0.5) * 100%), transparent);
+  color: color-mix(in srgb, var(--accent) calc(60% + var(--tag-weight, 0.5) * 40%), var(--fg-muted));
+  border: 1px solid color-mix(in srgb, var(--accent) calc(var(--tag-weight, 0.5) * 30%), transparent);
 }
-.tag-cloud .chip:hover { opacity: 1; transform: translateY(-1px); }
+.tag-cloud .chip:hover {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
 .tag-cloud .tag-count {
   margin-left: .35em;
   font-size: .75em;

@@ -513,21 +513,33 @@ function renderTagsIndex(posts) {
   const minC = Math.min(...countsArr);
   const maxC = Math.max(...countsArr);
   const span = Math.max(1, maxC - minC);
-  function sizeRem(c) {
-    if (maxC === minC) return '1rem';
-    const t = (c - minC) / span;
-    return (0.9 + t * 0.9).toFixed(2) + 'rem';
+  function sizeWeight(c, slug) {
+    if (maxC === minC) {
+      // 没有频次差异 → 用 slug 字符哈希给 [0.3, 0.95] 的离散权重
+      // 保证每个 chip weight 不同,color-mix tint 才有层次
+      let h = 0;
+      for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
+      return (0.3 + (Math.abs(h) % 65) / 100).toFixed(2);
+    }
+    return ((c - minC) / span).toFixed(2);
   }
+  function rem(t) { return (0.9 + parseFloat(t) * 0.9).toFixed(2) + 'rem'; }
+
+  // count 全相等时文案改提示
+  const hint = maxC === minC
+    ? `    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">当前 <strong>${sorted.length}</strong> 个标签 · 文章 ≥ 3 篇后字号会反映文章数量</p>`
+    : `    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">字号大小反映文章数量 · 最多 ${maxC} 篇,最少 ${minC} 篇。点击进入标签归档。</p>`;
 
   const cloud = sorted.length === 0
     ? ''
     : sorted.map(slug => {
         const name = tagNames.get(slug);
         const count = counts.get(slug);
-        return `        <li><a class="chip" href="/tags/${escapeHTML(slug)}/" data-tag="${escapeHTML(slug)}" style="--tag-size:${sizeRem(count)}">${escapeHTML(name)}<span class="tag-count">${count}</span></a></li>`;
+        const w = sizeWeight(count, slug);
+        return `        <li><a class="chip" href="/tags/${escapeHTML(slug)}/" data-tag="${escapeHTML(slug)}" style="--tag-size:${rem(w)};--tag-weight:${w}">${escapeHTML(name)}<span class="tag-count">${count}</span></a></li>`;
       }).join('\n');
   const main = `    <h1>标签</h1>
-    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">字号大小反映文章数量。点击进入标签归档。</p>
+${hint}
     <ul class="tag-cloud">
 ${cloud}
     </ul>
