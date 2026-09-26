@@ -278,11 +278,17 @@ function validateFile(filePath, repoRoot, strict) {
       } else {
         const today = new Date();
         const ymd = new Date(`${dayPart}T00:00:00Z`);
-        const diffHours = (ymd.getTime() - today.getTime()) / 3600000;
-        if (diffHours > 24) {
-          const sev = strict ? 'fail' : 'warn';
-          issues.push(makeIssue(filePath, dateEntry.line, sev,
-            `date 是未来日期(${dayPart}),超过今天 24h`));
+        if (Number.isNaN(ymd.getTime())) {
+          // 形如 2026-13-99:regex 通过但 Date 解析失败 → 月/日越界
+          issues.push(makeIssue(filePath, dateEntry.line, 'fail',
+            `date 不是合法日历日期: ${dayPart}(月/日越界)`));
+        } else {
+          const diffHours = (ymd.getTime() - today.getTime()) / 3600000;
+          if (diffHours > 24) {
+            const sev = strict ? 'fail' : 'warn';
+            issues.push(makeIssue(filePath, dateEntry.line, sev,
+              `date 是未来日期(${dayPart}),超过今天 24h`));
+          }
         }
       }
     }
