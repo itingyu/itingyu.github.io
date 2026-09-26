@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 /* render-finance-brief.js
  *
- * 把金融小队产出的 Markdown 简报渲染成 itingyu.github.io 的一篇博客文章。
+ * 把金融小队产出的 Markdown 简报落地为 itingyu.github.io 的一篇博客文章的 v2 源文件
+ * (`posts/<slug>/index.md`)。
  *
- * 设计目标:
+ * 设计目标(design-v2.md §5.2.6 + §9 M6.4):
  *   - 纯 Node 内置模块(无第三方依赖)。
- *   - 输出的 HTML 与 posts/welcome/index.html 同构(head / meta / JSON-LD / 主题脚本 / footer)。
- *   - front matter 一律进 <meta> + JSON-LD;不入 HTML 注释。
- *   - 输出文件名由 --slug 决定,落在 posts/<slug>/index.html。
- *   - 自动维护 posts/index.html 与 archive/index.html(手写加项,不删旧项)。
- *
- * 已知约束(README/设计稿):
+ *   - 复用 `scripts/markdown.js` 同源:输入 body 必须能被共享渲染器解析
+ *     (拒绝 <script>/<style>/javascript: 等安全违规,见 markdown.js),保证 build-index
+ *     / preview / 后续静态生成拿到的 body 与本脚本同源。
+ *   - 输出结构:头部 YAML frontmatter + raw Markdown body + 两个 v2 marker
+ *     (`<!-- build:cover -->` 紧跟 # 标题后第一段正文后;
+ *      `<!-- build:related -->` 文末)。
+ *   - 装配职责(`renderPage` / `updatePostsIndex` / `updateArchiveIndex`)已移交给
+ *     `scripts/build-index.js`,本脚本只产 .md,不写 HTML、不动索引页。
  *   - 不自动 commit / push。完成后打印 git 命令,让人 review。
- *   - 不调 multica CLI —— 这个脚本只吃本地 .md;取附件留给 finance-sync.sh。
+ *   - 不调 multica CLI —— 这个脚本只吃本地 .md;取附件留给 finance-sync.sh / publish-finance-brief.sh。
  *
  * 用法:
  *   node scripts/render-finance-brief.js \
@@ -22,6 +25,7 @@
  *     [--title "金融每日简报 · 2026-09-26"] \
  *     [--excerpt "..."] \
  *     [--cover <name>] \
+ *     [--out-dir <dir>] \
  *     [--help]
  */
 
@@ -30,17 +34,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-// M6.1: shared Markdown renderer (17-feature grammar set). The 17 features
-// in scripts/markdown.js are the canonical source of truth; this file keeps
-// its finance-specific extensions (paintTickers, table layout) layered on
-// top. M6.6 will switch this file to fully delegate to renderMarkdown().
+// M6.1 共享 Markdown 渲染器(M6.4 落地:复用同源,body 必须能被它解析)。
 const sharedMarkdown = require('./markdown.js');
 
 const TAG_SLUG = 'finance';
-const TAG_LABEL = '金融';
-const ARTICLE_SECTION = 'Finance';
-const DISCLAIMER_TEXT =
-  '本站内容均为个人观点,所涉及的金融标的仅供学习研究使用,不构成任何投资建议。据此操作,风险自担。';
+const DEFAULT_AUTHOR = 'itingyu';
 
 const USAGE = `用法:
   node scripts/render-finance-brief.js \\
@@ -49,16 +47,30 @@ const USAGE = `用法:
     --slug <post-slug> \\
     [--title "<title>"] \\
     [--excerpt "<excerpt>"] \\
-    [--cover <name>]
+    [--cover <name>] \\
+    [--out-dir <dir>]
 
 参数:
   --input     金融小队产出的 Markdown 简报(必填)
   --date      发布日期,YYYY-MM-DD(必填)
-  --slug      文章 slug,会生成 posts/<slug>/index.html(必填)
+  --slug      文章 slug,会生成 <slug>/index.md(必填)
   --title     文章标题;缺省取 md 第一行 # 标题
   --excerpt   摘要;缺省取 md 第一段正文
-  --cover     封面图文件名(放在 posts/<slug>/ 下,如 cover.svg)
+  --cover     封面图文件名(放在 <slug>/ 下,如 cover.svg,可选)
+  --out-dir   输出根目录(默认仓根;测试可指 fixtures/)
   --help      输出本帮助
+
+输出:
+  <out-dir>/<slug>/index.md
+    - 头部 YAML frontmatter(title / date / slug / description / tags / author / [cover] / draft)
+    - MD body(原样保留简报正文;拒绝 <script>/<style> 等不安全块)
+    - 内置 marker:
+        <!-- build:cover -->   紧跟 # 标题后第一段正文后
+        <!-- build:related --> 位于文末
+
+注意:
+  - 本脚本**不再**生成 index.html;HTML 装配由 build-index.js 完成。
+  - 本脚本**不再**追加 posts/index.html / archive/index.html;索引装配归 build-index.js。
 
 示例:
   node scripts/render-finance-brief.js \\
@@ -85,6 +97,8 @@ function parseArgs(argv) {
       args.excerpt = argv[++i];
     } else if (a === '--cover') {
       args.cover = argv[++i];
+    } else if (a === '--out-dir') {
+      args.outDir = argv[++i];
     } else if (a && a.startsWith('--')) {
       throw new Error(`未知参数: ${a}`);
     } else {
@@ -115,438 +129,220 @@ function assertSlug(s) {
   return s;
 }
 
-/* ---------- markdown 渲染器(最小集合) ---------- */
-
-function escapeHtml(s) {
-  return s
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"');
+/* YAML 双引号字符串转义:backslash + 双引号 + 换行 + 控制字符。 */
+function yamlDoubleQuoted(s) {
+  return String(s)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, ' ')
+    .replace(/\t/g, ' ');
 }
 
-/* 把 6 位代码 + 涨跌幅(允许跨多空格)替换成 ticker/delta span。
- * 必须先 escape 再 replace,避免替换尖括号。
- *
- * 不用 \b:JS 中 \w 不会匹配中文,所以中日字符与数字之间没有 word boundary,
- * 用 (?<![\w.]) 限制 ticker 前面不是 . 或 word char 来收紧边界。
- */
-function paintTickers(escaped) {
-  return escaped.replace(
-    /(?<![\w.])(\d{6})(\s+)([+-]\d+(?:\.\d+)?%)/g,
-    (_, ticker, ws, delta) => {
-      const isUp = delta.startsWith('+');
-      const cls = isUp ? 'delta-up' : 'delta-down';
-      return `<span class="ticker">${ticker}</span>${ws}<span class="${cls}">${delta}</span>`;
-    },
-  );
-}
-
-/* 行内:代码 -> 粗体 -> 斜体 -> 标的价格 -> 自动链接 */
-function renderInline(text) {
-  let s = escapeHtml(text);
-
-  s = s.replace(/`([^`]+)`/g, (_, code) => `<code>${code}</code>`);
-
-  s = s.replace(/\*\*([^*]+)\*\*/g, (_, inner) => `<strong>${inner}</strong>`);
-  s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, (_, lead, inner) => `${lead}<em>${inner}</em>`);
-
-  s = paintTickers(s);
-
-  // 自动外链:http(s)://...
-  s = s.replace(/(https?:\/\/[^\s<]+)/g, (m) => `<a href="${m}" rel="noopener">${m}</a>`);
-
-  return s;
-}
-
-/* 渲染单个表格 cell(应用 ticker 染色 + 其它行内规则)。 */
-function renderCell(text) {
-  // 表格里常见 [代码, 名称, 收盘价, 涨跌幅] 四列。
-  // 涨跌幅单独成格时,如果该 cell 是 +/- 百分比,就保持原样;否则正常 inline 渲染。
-  return renderInline(text);
-}
-
-/* 解析整篇 md。返回 { title, body(HTML), excerpt } */
-function renderMarkdown(md) {
+/* 从 markdown 中提取第一条 H1 文本(供缺省 --title 使用)。 */
+function extractFirstH1(md) {
   const lines = md.replace(/\r\n/g, '\n').split('\n');
-  const out = [];
-  let title = null;
-  let excerpt = null;
+  for (const line of lines) {
+    const m = line.match(/^#\s+(.+?)\s*#*\s*$/);
+    if (m) return m[1].trim();
+  }
+  return null;
+}
+
+/* 从 markdown 中提取首段正文(去掉 heading / 空行后的连续行)。
+ *
+ * 包容首段可以是段落 / 列表项 / 引用 / 表格 / Setext 划线 —— 任取其一,取首段可见文本
+ * (剥掉 list 标记 / 引用 `> ` 前缀),作为 excerpt 候选。空输入返回 null。
+ */
+function extractFirstParagraph(md) {
+  const lines = md.replace(/\r\n/g, '\n').split('\n');
   let i = 0;
 
-  // 表格辅助:累积表格起始/对齐/数据行,遇非表格行就 flush。
-  function flushTable(buf) {
-    if (!buf) return null;
-    if (buf.rows.length < 2) {
-      // 没有表头/对齐行 → 退化为普通段落
-      return buf.rows.map((r) => `<p>${r.map(renderInline).join(' | ')}</p>`).join('\n');
-    }
-    const header = buf.rows[0];
-    const bodyRows = buf.rows.slice(2);
-    const headHtml =
-      '<thead><tr>' +
-      header.map((c) => `<th>${renderInline(c)}</th>`).join('') +
-      '</tr></thead>';
-
-    const bodyHtml =
-      '<tbody>' +
-      bodyRows
-        .map((r) => {
-          // 表格行染色:若某 cell 是 6 位数字,把它包成 ticker span;
-          // 另一个 cell 是 +/- 百分比,包成 delta-up / delta-down span。
-          const tickerIdx = r.findIndex((c) => /^\d{6}$/.test(c.trim()));
-          const deltaIdx = r.findIndex(
-            (c) => /^[+-]\d+(?:\.\d+)?%$/i.test(c.trim()),
-          );
-          const newRow = r.slice();
-          if (tickerIdx >= 0) {
-            newRow[tickerIdx] = `<span class="ticker">${r[tickerIdx].trim()}</span>`;
-          }
-          if (deltaIdx >= 0 && deltaIdx !== tickerIdx) {
-            const raw = r[deltaIdx].trim();
-            const cls = raw.startsWith('+') ? 'delta-up' : 'delta-down';
-            newRow[deltaIdx] = `<span class="${cls}">${raw}</span>`;
-          }
-          return (
-            '<tr>' +
-            newRow.map((c) => `<td>${c.startsWith('<span') ? c : renderCell(c)}</td>`).join('') +
-            '</tr>'
-          );
-        })
-        .join('') +
-      '</tbody>';
-    return `<table class="brief-table">${headHtml}${bodyHtml}</table>`;
+  // 跳过开头的空行
+  while (i < lines.length && lines[i].trim() === '') i++;
+  // 跳过首段 heading 块(连续 heading 行,允许 1-6 级 + Setext 划线)
+  while (i < lines.length && /^\s{0,3}#{1,6}\s+/.test(lines[i])) {
+    i++;
+    if (i < lines.length && /^\s{0,3}=+\s*$|^\s{0,3}-+\s*$/.test(lines[i])) i++;
   }
+  // 跳过空行
+  while (i < lines.length && lines[i].trim() === '') i++;
 
+  // 累积首段:把段落 / 列表项 / 引用 / 表格行的可见文本串起来,直到空行或新一级 block
+  const buf = [];
   while (i < lines.length) {
     const line = lines[i];
+    if (line.trim() === '') break;
+    // 遇到下一个 heading / 围栏 / 段落式分隔线即停
+    if (
+      /^\s{0,3}#{1,6}\s+/.test(line) ||
+      /^\s{0,3}(-{3,}|\*{3,}|_{3,})\s*$/.test(line) ||
+      /^\s{0,3}(```+|~~~+)/.test(line)
+    ) break;
 
-    // 跳过纯空行
-    if (line.trim() === '') {
-      i++;
-      continue;
-    }
-
-    // 分隔线 ---
-    if (/^---+\s*$/.test(line)) {
-      out.push('<hr>');
-      i++;
-      continue;
-    }
-
-    // 标题
-    const heading = line.match(/^(#{1,6})\s+(.+?)\s*#*\s*$/);
-    if (heading) {
-      const level = heading[1].length;
-      const text = heading[2];
-      if (level === 1) {
-        // H1 既作为 title,又作为文章主标题。
-        // 但 article-header 已经输出了一个 <h1>,正文里再重复一次会很丑;
-        // 所以:第一条 H1 仅提取 title,跳过输出;后续 H1 才渲染。
-        if (title === null) {
-          title = text;
-          i++;
-          continue;
-        }
-        out.push(`<h${level}>${renderInline(text)}</h${level}>`);
-        i++;
-        continue;
-      }
-      out.push(`<h${level}>${renderInline(text)}</h${level}>`);
-      i++;
-      continue;
-    }
-
-    // 引用(支持连续行)
-    if (/^>\s?/.test(line)) {
-      const buf = [];
-      while (i < lines.length && /^>\s?/.test(lines[i])) {
-        buf.push(lines[i].replace(/^>\s?/, ''));
-        i++;
-      }
-      out.push(`<blockquote>${buf.map(renderInline).join('<br>')}</blockquote>`);
-      continue;
-    }
-
-    // 表格(连续 | 起头)
-    if (/^\|/.test(line)) {
-      const buf = { rows: [] };
-      while (i < lines.length && /^\|/.test(lines[i])) {
-        const cells = lines[i]
-          .replace(/^\||\|$/g, '')
-          .split('|')
-          .map((c) => c.trim());
-        buf.rows.push(cells);
-        i++;
-      }
-      const html = flushTable(buf);
-      if (html) out.push(html);
-      continue;
-    }
-
-    // 无序列表
-    if (/^[-*+]\s+/.test(line)) {
-      const items = [];
-      while (
-        i < lines.length &&
-        (/^[-*+]\s+/.test(lines[i]) || (items.length && lines[i].trim() !== '' && !/^[#>\|]/.test(lines[i]) && !/^#{1,6}\s/.test(lines[i])))
-      ) {
-        if (/^[-*+]\s+/.test(lines[i])) {
-          items.push(lines[i].replace(/^[-*+]\s+/, ''));
-          i++;
-        } else {
-          // 续行(简单处理:折到上一项)
-          items[items.length - 1] += ' ' + lines[i].trim();
-          i++;
-        }
-      }
-      out.push(
-        '<ul>' + items.map((it) => `<li>${renderInline(it)}</li>`).join('') + '</ul>',
-      );
-      continue;
-    }
-
-    // 段落(连续非空行)
-    const para = [];
-    while (
-      i < lines.length &&
-      lines[i].trim() !== '' &&
-      !/^#{1,6}\s/.test(lines[i]) &&
-      !/^>\s?/.test(lines[i]) &&
-      !/^[-*+]\s+/.test(lines[i]) &&
-      !/^\|/.test(lines[i]) &&
-      !/^---+\s*$/.test(lines[i])
-    ) {
-      para.push(lines[i]);
-      i++;
-    }
-    const paraText = para.join(' ').trim();
-    if (paraText) {
-      const html = `<p>${renderInline(paraText)}</p>`;
-      out.push(html);
-      if (excerpt === null) excerpt = paraText;
-    }
+    let text = line;
+    // 列表标记剥离
+    text = text.replace(/^\s{0,6}[-*+]\s+/, '');
+    text = text.replace(/^\s{0,6}\d+\.\s+/, '');
+    // 引用前缀剥离
+    text = text.replace(/^\s{0,3}>\s?/, '');
+    // 表格 cell 边界 `|` 暂不去掉(更接近原文片段即可,excerpt 不必精确)
+    buf.push(text.trim());
+    i++;
   }
 
-  if (title === null) {
-    title = '金融每日简报';
-  }
-
-  return { title, body: out.join('\n'), excerpt };
+  const joined = buf.join(' ').replace(/\s+/g, ' ').trim();
+  return joined || null;
 }
 
-/* ---------- 页面装配 ---------- */
+/* 在 body 的"标题后第一段正文后"插入 `<!-- build:cover -->` marker。
+ *
+ * 规则(design-v2.md §5.2.6):
+ *   - 若 body 以 `# H1` 开头,跳过 H1 块,在紧随其后的首段正文段末插入。
+ *   - 若 body 无 H1,把 marker 插在首段正文段末。
+ *   - 若 body 无任何段落,marker 置于文末与 `<!-- build:related -->` 相邻。
+ *
+ * 已存在 `<!-- build:cover -->` / `<!-- build:related -->` marker 则不再插入(幂等)。
+ */
+function insertCoverMarker(body) {
+  const lines = body.replace(/\r\n/g, '\n').split('\n');
 
-function escapeJsonLd(s) {
-  // JSON-LD 里只会有双引号 / 反斜杠 / 换行需要转义
-  return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+  // 找 marker 位置:跳过头部 H1 / Setext 划线 / 空行,在首段正文后插入
+  let i = 0;
+  while (i < lines.length && lines[i].trim() === '') i++;
+  // 跳过 H1 块(支持多行 heading)
+  if (i < lines.length && /^\s{0,3}#\s+/.test(lines[i])) {
+    while (i < lines.length && /^\s{0,3}#{1,6}\s+/.test(lines[i])) {
+      i++;
+      if (i < lines.length && /^\s{0,3}=+\s*$|^\s{0,3}-+\s*$/.test(lines[i])) i++;
+    }
+  }
+  // 跳过空行
+  while (i < lines.length && lines[i].trim() === '') i++;
+  // 找首段末尾:遇到空行 / heading / 列表 / 引用 / 分隔线 / 围栏 即停
+  const paraStart = i;
+  while (
+    i < lines.length &&
+    lines[i].trim() !== '' &&
+    !/^\s{0,3}#{1,6}\s+/.test(lines[i]) &&
+    !/^\s{0,3}>\s?/.test(lines[i]) &&
+    !/^\s{0,3}[-*+]\s+/.test(lines[i]) &&
+    !/^\s{0,3}\d+\.\s+/.test(lines[i]) &&
+    !/^\s{0,3}(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i]) &&
+    !/^\s{0,3}(```+|~~~+)/.test(lines[i])
+  ) {
+    i++;
+  }
+  const paraEnd = i; // exclusive
+
+  // 已有 marker → 幂等返回
+  if (body.includes('<!-- build:cover -->')) {
+    return body;
+  }
+
+  if (paraEnd > paraStart) {
+    // 在首段末(空行前)插入 marker 注释
+    const before = lines.slice(0, paraEnd).join('\n');
+    const after = lines.slice(paraEnd).join('\n');
+    const sep = after.length > 0 && !after.startsWith('\n') ? '\n\n' : '\n';
+    return before + '\n\n<!-- build:cover -->' + sep + after;
+  }
+
+  // 无首段正文:把 marker 加在 body 头部(紧随空行分隔)
+  const tail = body.replace(/^\s+/, '');
+  return '<!-- build:cover -->\n\n' + tail;
 }
 
-function renderPage({ title, slug, date, excerpt, body, cover = null }) {
-  const canonical = `https://itingyu.github.io/posts/${slug}/`;
-  const editUrl = `https://github.com/itingyu/itingyu.github.io/edit/master/posts/${slug}/index.html`;
-  const dateCN = date; // YYYY-MM-DD 本身就是 ISO 排版,符合站点其他页面
-  const coverURL = cover ? `https://itingyu.github.io/posts/${slug}/${cover}` : null;
-  const jsonLd = JSON.stringify(
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      headline: title,
-      datePublished: date,
-      dateModified: date,
-      author: { '@type': 'Person', name: 'itingyu' },
-      url: canonical,
-      description: excerpt,
-      articleSection: ARTICLE_SECTION,
-      keywords: [TAG_LABEL, '金融市场', '每日简报'],
-    },
-    null,
-    2,
-  );
-
-  return `<!doctype html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${escapeHtml(title)} · itingyu</title>
-  <meta name="description" content="${escapeHtml(excerpt)}" />
-  <meta name="author" content="itingyu" />
-  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-  <link rel="canonical" href="${canonical}" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="${escapeHtml(title)}" />
-  <meta property="og:description" content="${escapeHtml(excerpt)}" />
-  <meta property="og:url" content="${canonical}" />
-  <meta property="og:locale" content="zh_CN" />
-  <meta property="article:published_time" content="${date}" />
-  <meta property="article:author" content="itingyu" />
-  <meta property="article:tag" content="${TAG_LABEL}" />${coverURL ? `\n  <meta property="og:image" content="${coverURL}" />` : ''}
-
-  <!-- JSON-LD -->
-  <script type="application/ld+json">
-${jsonLd}
-  </script>
-
-  <script>
-    (function(){
-      try {
-        var t = localStorage.getItem('itingyu-theme');
-        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        document.documentElement.setAttribute('data-theme', t);
-      } catch (_) {}
-    })();
-  </script>
-  <link rel="stylesheet" href="/assets/style.css" />
-  <script defer src="/assets/theme.js"></script>
-</head>
-<body>
-  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
-  <a class="skip-link" href="#main">跳到正文</a>
-
-  <header class="site-header">
-    <a class="site-brand" href="/">
-      <span class="site-brand-mark">i</span>
-      <span>itingyu</span>
-    </a>
-    <nav class="site-nav" aria-label="主导航">
-      <a href="/">首页</a>
-      <a href="/posts/">文章</a>
-      <a href="/archive/">归档</a>
-      <a href="/tags/">标签</a>
-      <a href="/about/">关于</a>
-      <button class="theme-toggle" type="button"
-              aria-label="切换主题" data-theme-toggle>
-        <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-        </svg>
-        <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-             stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="4"/>
-          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
-        </svg>
-      </button>
-    </nav>
-  </header>
-
-  <main id="main" class="container">
-    <article>
-      <header class="article-header">
-        <h1>${escapeHtml(title)}</h1>
-        <div class="post-meta">
-          <time datetime="${date}">${dateCN}</time>
-          <span class="dot">·</span>
-          <a class="chip" href="/tags/${TAG_SLUG}/" data-tag="${TAG_SLUG}">${TAG_LABEL}</a>
-          <span class="dot">·</span>
-          <span data-reading-time>约 1 分钟</span>
-        </div>
-        <p class="post-excerpt">${escapeHtml(excerpt)}</p>
-      </header>${coverURL ? `\n      <img class="post-cover" src="${coverURL}" alt="${escapeHtml(title)}封面" loading="lazy" />` : ''}
-
-      ${body}
-
-      <div class="callout callout-warn">
-        <strong>免责声明</strong> · ${DISCLAIMER_TEXT}
-      </div>
-      <!-- build:related -->
-    </article>
-
-    <footer class="article-footer">
-      <p>本页最后更新:${date} · 发现错别字?<a href="${editUrl}" rel="noopener">在 GitHub 上编辑</a>。</p>
-    </footer>
-  </main>
-
-  <footer class="site-footer">
-    <div class="links">
-      <a href="/">首页</a>
-      <a href="/posts/">文章</a>
-      <a href="/archive/">归档</a>
-      <a href="/about/">关于</a>
-      <a href="/feeds/rss.xml">RSS</a>
-      <a href="https://github.com/itingyu" rel="noopener">GitHub</a>
-    </div>
-    <p>&copy; 2026 itingyu · 内容仅供参考,不构成投资建议。</p>
-  </footer>
-</body>
-</html>
-`;
+/* 文末追加 `<!-- build:related -->` marker(若已存在则幂等)。
+ * 同时去除 body 末尾的多余空行,保证 marker 后只剩一个换行收尾。
+ */
+function appendRelatedMarker(body) {
+  if (body.includes('<!-- build:related -->')) return body;
+  const trimmed = body.replace(/\s+$/, '');
+  return trimmed + '\n\n<!-- build:related -->\n';
 }
 
-/* ---------- 索引页手写增量 ---------- */
-
-const POST_LIST_ITEM = (title, slug, date, excerpt) => `      <li>
-        <h3 class="post-title"><a href="/posts/${slug}/">${escapeHtml(title)}</a></h3>
-        <div class="post-meta">
-          <time datetime="${date}">${date}</time>
-          <span class="dot">·</span>
-          <a class="chip" href="/tags/${TAG_SLUG}/" data-tag="${TAG_SLUG}">${TAG_LABEL}</a>
-        </div>
-        <p class="post-excerpt">${escapeHtml(excerpt)}</p>
-      </li>
-`;
-
-function updatePostsIndex(repoRoot, { title, slug, date, excerpt }) {
-  const file = path.join(repoRoot, 'posts', 'index.html');
-  if (!fs.existsSync(file)) {
-    process.stderr.write(`warn: 缺少 ${file},跳过 posts/index.html 更新\n`);
-    return;
-  }
-  let html = fs.readFileSync(file, 'utf8');
-  if (html.includes(`href="/posts/${slug}/"`)) {
-    process.stderr.write(`info: posts/${slug} 已在 posts/index.html,跳过\n`);
-    return;
-  }
-  const item = POST_LIST_ITEM(title, slug, date, excerpt);
-  // 在 <ul class="post-list"> 后插入(保持时间倒序:新文插顶部)
-  const re = /(<ul class="post-list">\s*\n)/;
-  if (!re.test(html)) die('posts/index.html 找不到 <ul class="post-list">,请人工处理');
-  html = html.replace(re, `$1${item}`);
-  fs.writeFileSync(file, html);
+/* 校验 body 可被共享 markdown.js 解析(同源契约)。
+ * 不修改 body 也不消费结果,仅触发共享模块的安全/语法检查(<script> / <style> 拒绝)。
+ */
+function validateBodyAgainstShared(body) {
+  // 触发 markdown.js 的安全规则与语法解析(失败抛错)。
+  // 用空 sourcePath:image 解析走默认(/posts/<slug>/相对路径不会被使用,因为 finance brief 不带图)。
+  sharedMarkdown.renderMarkdown(body, { sourcePath: null });
 }
 
-function updateArchiveIndex(repoRoot, { title, slug, date }) {
-  const file = path.join(repoRoot, 'archive', 'index.html');
-  if (!fs.existsSync(file)) {
-    process.stderr.write(`warn: 缺少 ${file},跳过 archive/index.html 更新\n`);
-    return;
+/* 把 briefJson 渲染成完整的 `index.md` 文本。
+ *
+ * briefJson 字段:
+ *   title   {string}        文章标题(必填)
+ *   date    {string}        YYYY-MM-DD(必填)
+ *   slug    {string}        小写 slug(必填)
+ *   excerpt {string}        摘要(必填,可与 title 同)
+ *   body    {string}        简报 markdown 正文(必填)
+ *   cover   {string|null}   封面文件名(可选,如 cover.svg)
+ *   author  {string}        作者,默认 itingyu
+ *   tags    {string[]}      标签数组,默认 ['finance']
+ *   draft   {boolean}       默认 false(简报上线时直接 false;draft 状态归 build-index / publish.sh)
+ *
+ * 返回:
+ *   string —— 完整 .md 文件内容(YAML frontmatter + MD body + 两个 marker)
+ *
+ * 不做装配(HTML / 索引页) —— 装配归 build-index.js。
+ */
+function renderMarkdown(briefJson) {
+  if (!briefJson || typeof briefJson !== 'object') {
+    throw new TypeError('renderMarkdown: briefJson 必须是对象');
   }
-  let html = fs.readFileSync(file, 'utf8');
-  if (html.includes(`href="/posts/${slug}/"`)) {
-    process.stderr.write(`info: posts/${slug} 已在 archive/index.html,跳过\n`);
-    return;
+  const {
+    title,
+    date,
+    slug,
+    excerpt,
+    body,
+    cover = null,
+    author = DEFAULT_AUTHOR,
+    tags = [TAG_SLUG],
+    draft = false,
+  } = briefJson;
+
+  if (typeof title !== 'string' || title.trim() === '') {
+    throw new Error('renderMarkdown: 缺 title');
+  }
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    throw new Error('renderMarkdown: 缺 date(YYYY-MM-DD)');
+  }
+  if (typeof slug !== 'string' || !/^[a-z0-9][a-z0-9-]{0,80}$/.test(slug)) {
+    throw new Error('renderMarkdown: 缺 slug(小写字母/数字/短横线)');
+  }
+  if (typeof excerpt !== 'string') {
+    throw new Error('renderMarkdown: 缺 excerpt');
+  }
+  if (typeof body !== 'string' || body.trim() === '') {
+    throw new Error('renderMarkdown: 缺 body');
+  }
+  if (!Array.isArray(tags) || tags.length === 0) {
+    throw new Error('renderMarkdown: tags 必须是非空数组');
   }
 
-  const [y, m] = date.split('-');
-  const groupTitle = `${y} 年 ${parseInt(m, 10)} 月`;
+  // 1. 与 scripts/markdown.js 同源校验(让 <script>/<style>/不安全 URL 早爆)。
+  validateBodyAgainstShared(body);
 
-  const entry = `        <li>
-          <time datetime="${date}">${date.slice(5).replace('-', '-')}</time>
-          <a href="/posts/${slug}/">${escapeHtml(title)}</a>
-        </li>
-`;
+  // 2. body 注入两个 marker(幂等)
+  let mdBody = insertCoverMarker(body);
+  mdBody = appendRelatedMarker(mdBody);
 
-  // 是否已有该月分组
-  const groupRe = new RegExp(
-    `(<div class="archive-group">\\s*\\n\\s*<h3>${groupTitle}</h3>\\s*\\n\\s*<ul>\\s*\\n)`,
-  );
-  if (groupRe.test(html)) {
-    html = html.replace(groupRe, (m) => `${m}${entry}`);
-  } else {
-    // 在 </main> 前插入新分组
-    const newGroup = `    <div class="archive-group">
-      <h3>${groupTitle}</h3>
-      <ul>
-${entry}      </ul>
-    </div>
-`;
-    html = html.replace(/(<\/main>)/, `${newGroup}$1`);
-  }
-  fs.writeFileSync(file, html);
+  // 3. YAML frontmatter(顺序对齐 design-v2.md §3.2 + new-post.sh 模板)
+  const fmLines = ['---'];
+  fmLines.push(`title: "${yamlDoubleQuoted(title)}"`);
+  fmLines.push(`date: ${date}`);
+  fmLines.push(`slug: ${slug}`);
+  fmLines.push(`description: "${yamlDoubleQuoted(excerpt)}"`);
+  fmLines.push(`tags: [${tags.join(', ')}]`);
+  fmLines.push(`author: ${author}`);
+  if (cover) fmLines.push(`cover: ${cover}`);
+  fmLines.push(`draft: ${draft ? 'true' : 'false'}`);
+  fmLines.push('---');
+
+  return fmLines.join('\n') + '\n\n' + mdBody;
 }
 
 /* ---------- main ---------- */
@@ -576,43 +372,61 @@ function main() {
   const inputPath = path.resolve(args.input);
   if (!fs.existsSync(inputPath)) die(`找不到输入文件: ${args.input}`);
 
-  const repoRoot = path.resolve(__dirname, '..');
   const md = fs.readFileSync(inputPath, 'utf8');
-  const { title: mdTitle, body, excerpt: mdExcerpt } = renderMarkdown(md);
-
-  const title = args.title || mdTitle;
+  const mdTitle = extractFirstH1(md);
+  const mdExcerpt = extractFirstParagraph(md);
+  const title = (args.title || mdTitle || '金融每日简报').slice(0, 200);
   const excerpt = (args.excerpt || mdExcerpt || title).slice(0, 240);
 
-  const outDir = path.join(repoRoot, 'posts', slug);
-  const outFile = path.join(outDir, 'index.html');
+  const repoRoot = path.resolve(__dirname, '..');
+  const outRoot = args.outDir ? path.resolve(args.outDir) : repoRoot;
+  const outDir = path.join(outRoot, slug);
+  const outFile = path.join(outDir, 'index.md');
   fs.mkdirSync(outDir, { recursive: true });
 
-  // 封面图:复制到 posts/<slug>/ 下,确保 build-index 能扫到
+  // 封面图:仅在 outRoot == repoRoot 时复制到 posts/<slug>/ 下(测试模式不复制)
   let coverFile = null;
   if (args.cover) {
-    const coverSrc = path.resolve(args.cover);
-    if (!fs.existsSync(coverSrc)) die(`找不到封面图: ${args.cover}`);
-    const coverName = path.basename(coverSrc);
-    const coverDst = path.join(outDir, coverName);
-    fs.copyFileSync(coverSrc, coverDst);
-    coverFile = coverName;
+    if (outRoot !== repoRoot) {
+      process.stderr.write(`warn: --out-dir 非仓根,跳过 --cover 复制(${args.cover})\n`);
+    } else {
+      const coverSrc = path.resolve(args.cover);
+      if (!fs.existsSync(coverSrc)) die(`找不到封面图: ${args.cover}`);
+      const coverName = path.basename(coverSrc);
+      const coverDst = path.join(outDir, coverName);
+      fs.copyFileSync(coverSrc, coverDst);
+      coverFile = coverName;
+    }
   }
 
-  const html = renderPage({ title, slug, date, excerpt, body, cover: coverFile });
-  fs.writeFileSync(outFile, html);
+  const briefJson = {
+    title,
+    date,
+    slug,
+    excerpt,
+    body: md,
+    cover: coverFile,
+    author: DEFAULT_AUTHOR,
+    tags: [TAG_SLUG],
+    draft: false,
+  };
 
-  updatePostsIndex(repoRoot, { title, slug, date, excerpt });
-  updateArchiveIndex(repoRoot, { title, slug, date });
+  const out = renderMarkdown(briefJson);
+  fs.writeFileSync(outFile, out);
 
   const rel = path.relative(repoRoot, outFile);
   process.stdout.write(`OK · 生成 ${rel}\n`);
-  process.stdout.write(`下一步:\n`);
-  process.stdout.write(`  git add posts/${slug}/index.html posts/index.html archive/index.html\n`);
-  process.stdout.write(`  git commit -m "AIWORK1-27 · 新增金融简报 ${slug}"\n`);
+  process.stdout.write(`(装配职责已移交给 scripts/build-index.js,本脚本只产 .md。)\n`);
+  if (outRoot === repoRoot) {
+    process.stdout.write(`下一步(review 后再 push):\n`);
+    process.stdout.write(`  git add posts/${slug}/index.md\n`);
+    process.stdout.write(`  git commit -m "post(finance-${date}): 上线 · ${title}"\n`);
+    process.stdout.write(`  bash scripts/publish.sh ${slug}\n`);
+  }
 }
 
 if (require.main === module) {
   main();
 }
 
-module.exports = { renderMarkdown, renderInline, renderPage };
+module.exports = { renderMarkdown, parseArgs };
