@@ -1,7 +1,7 @@
 'use strict';
 
 // scripts/__tests__/build-posts-workflow.test.js
-// M7.2 · GH Actions workflow 契约测试(SDD测试工程师 添加,作为 PR-CI 红线)
+// M7.2 · GH Actions workflow 契约测试(SDD测试工程师 · AIWORK1-63 · PR-CI 红线)
 // 覆盖:
 //   1. 文件存在 + YAML 可解析
 //   2. 触发器:push(master)+ workflow_dispatch
@@ -10,7 +10,12 @@
 //   5. job.build.runs-on = ubuntu-latest
 //   6. 步骤顺序:checkout@v4 → setup-node@v4(node 20)→ npm ci → validate → npm test
 //      → npm run build → git config → commit → push
-//   7. if: 表达式三条件语法(actor != bot / event_type / auto-build 哨兵)
+//   7. if: 三条件子句各自存在(event_type / actor / auto-build 哨兵)
+//   8. if: 空提交跳过
+//   9. concurrency 防并发覆盖
+//  10. if: 顶层 && 把表达式切成 3 段,每段命中一种 guard(spec DoD #3 严约束)
+//      (此处规范示例是 "(A) && (B) && (C)",但允许 workflow_dispatch 演化为 "(A) && B && (C)";
+//       只要按 顶层 && 切出 3 段、3 种 guard 全到位、未知段=0 即可)
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -262,3 +267,82 @@ test('workflow concurrency: group on ref, cancel-in-progress=false', () => {
   assert.match(doc.concurrency.group, /build-posts-\$\{\{\s*github\.ref\s*\}\}/);
   assert.equal(doc.concurrency['cancel-in-progress'], 'false');
 });
+
+// 11. if: 顶层 && 把表达式切成 3 段,每段命中一种 guard
+//      spec DoD #3 严约束:防 OR 错位 / 漏条件 / 误删 guard
+//      实现可演化为 (A) && B && (C)(允许中间段不包括号,只要按 顶层 && 切出 3 段)
+test('workflow if: top-level && joins exactly 3 sub-conditions (AND topology)', () => {
+  const { doc } = loadWorkflow();
+  const expr = doc.jobs.build.if;
+  assert.ok(expr && typeof expr === 'string', 'no if: expression');
+
+  const segments = splitTopLevelAnd(expr);
+  assert.equal(
+    segments.length, 3,
+    `if: should have exactly 3 sub-conditions joined by top-level &&; got ${segments.length}\n` +
+    segments.map((s, i) => `  [${i}] ${s}`).join('\n'),
+  );
+
+  const guards = segments.map(classifyGuard);
+  const required = ['event_name', 'actor', 'sentinel'];
+  for (const g of required) {
+    assert.ok(
+      guards.includes(g),
+      `missing guard: ${g}\n` +
+      `segments:\n${segments.map(s => '  - ' + s).join('\n')}\n` +
+      `guards: [${guards.join(', ')}]`,
+    );
+  }
+  // 不能有 unknown 段 — 多半是 OR 错位 / 漏 guard / 多余表达式
+  assert.ok(
+    guards.every(g => g !== 'unknown'),
+    `unknown guard segment(s) — likely OR/AND structure drift:\n` +
+    segments.map((s, i) => `  [${i}] ${s} → ${guards[i]}`).join('\n'),
+  );
+});
+
+// helper:把 if: 表达式按 顶层 && 切分;() / [] / '...' / "..." 内的 && 不切
+function splitTopLevelAnd(expr) {
+  const out = [];
+  let depth = 0;          // () 深度
+  let bracketDepth = 0;   // [] 深度
+  let inS = false, inD = false;
+  let buf = '';
+  for (let i = 0; i < expr.length; i++) {
+    const c = expr[i];
+    if (inS) { buf += c; if (c === "'") inS = false; continue; }
+    if (inD) { buf += c; if (c === '"') inD = false; continue; }
+    if (c === "'") { inS = true; buf += c; continue; }
+    if (c === '"') { inD = true; buf += c; continue; }
+    if (c === '(') { depth++; buf += c; continue; }
+    if (c === ')') { depth--; buf += c; continue; }
+    if (c === '[') { bracketDepth++; buf += c; continue; }
+    if (c === ']') { bracketDepth--; buf += c; continue; }
+    if (depth === 0 && bracketDepth === 0 && expr.slice(i, i + 3) === ' &&') {
+      out.push(buf.trim());
+      buf = '';
+      i += 2; // skip '&&'
+      continue;
+    }
+    buf += c;
+  }
+  if (buf.trim()) out.push(buf.trim());
+  return out;
+}
+
+// helper:把 if: 子段分类成 event_name / actor / sentinel / unknown
+// 顺序很关键 — sentinel 优先(因为它的子段也含 github.event_name == 'workflow_dispatch')
+function classifyGuard(seg) {
+  if (/!contains\(\s*github\.event\.head_commit\.message/.test(seg) &&
+      /auto-build:/.test(seg)) {
+    return 'sentinel';
+  }
+  if (/github\.actor\s*!=\s*['"]github-actions\[bot\]['"]/.test(seg)) {
+    return 'actor';
+  }
+  if (/github\.event_name\s*==/.test(seg) &&
+      (/['"]push['"]/.test(seg) || /['"]workflow_dispatch['"]/.test(seg))) {
+    return 'event_name';
+  }
+  return 'unknown';
+}

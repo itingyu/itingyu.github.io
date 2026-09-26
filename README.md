@@ -28,7 +28,7 @@ scripts/                写作 + 构建脚本
   publish.sh            一键发布:test + build + 白名单 git add + commit + push
   publish-finance-brief.sh  金融简报专属流程(末尾委托 publish.sh 推送特性分支)
   build-index.js        自动重生成全部聚合页(零依赖)
-scripts/__tests__/      node:test 套件(17 条用例)
+scripts/__tests__/      node:test 套件(134 条用例)
 package.json            npm test / build / check
 ```
 
@@ -79,7 +79,7 @@ package.json            npm test / build / check
 扫所有 `posts/<slug>/index.html`,从 `<head>` meta 读 front matter 后重生成全部聚合页。
 
 ```bash
-npm test       # 跑 node:test 套件(17 条用例)
+npm test       # 跑 node:test 套件(134 条用例)
 npm run build  # 重建所有聚合页 + RSS + sitemap + 首页「最新文章」区
 npm run check  # 仅校验,不写文件 —— 检测 drift,drift 时退出码 = 1
 ```
@@ -143,6 +143,27 @@ node scripts/build-index.js --help        # usage
 ```
 
 底层调用:`finance-sync.sh` → `render-finance-brief.js` → `npm run build` → `git push` 分支。
+
+## 远程自动 build(`.github/workflows/build-posts.yml`)
+
+网页编辑器 / iPad Safari / VSCode Web 改 `posts/*.md` → push master →
+`.github/workflows/build-posts.yml` 自动跑 `npm ci → validate-frontmatter → npm test → npm run build` →
+产物 commit `auto-build: <ts>` → push 回 master → GitHub Pages 60s 内上线。
+
+防死循环三重防护(写在 `jobs.build.if`,见 `design-v2.md §5.2.2`):
+
+| guard | 拦截场景 |
+| --- | --- |
+| `event_name in {push, workflow_dispatch}` | 拦截 PR / schedule 等事件 |
+| `actor != 'github-actions[bot]'` | 拦截 bot 自己 push 引发的二次触发 |
+| `!contains(head_commit.message, 'auto-build:')`(workflow_dispatch 时短路) | 拦截产物 commit 触发的自激 |
+
+### ⚠️ 改 `.github/workflows/build-posts.yml` 必跑 `npm test`
+
+`scripts/__tests__/build-posts-workflow.test.js` 把上述契约固化为 PR-CI 红线(YAML schema +
+`if:` 表达式按 顶层 `&&` 切 3 段、3 种 guard 全到位、`push` / `workflow_dispatch` 都在)——
+任何人「顺手简化」`if:`(漏条件、`&&` 误改 `||`、删 actor 检查)本地 `npm test` 立刻红,PR 拒合。
+**提交 workflow 改动前必跑 `npm test`**。
 
 ## 后续
 
