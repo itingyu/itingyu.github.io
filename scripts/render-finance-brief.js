@@ -30,6 +30,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+// M6.1: shared Markdown renderer (17-feature grammar set). The 17 features
+// in scripts/markdown.js are the canonical source of truth; this file keeps
+// its finance-specific extensions (paintTickers, table layout) layered on
+// top. M6.6 will switch this file to fully delegate to renderMarkdown().
+const sharedMarkdown = require('./markdown.js');
+
 const TAG_SLUG = 'finance';
 const TAG_LABEL = '金融';
 const ARTICLE_SECTION = 'Finance';
