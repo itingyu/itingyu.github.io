@@ -403,7 +403,102 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
     );
   }
 
+  // 7. JSON-LD BreadcrumbList(Home › Tag › Article;幂等)
+  if (!hasJSONLDType(out, 'BreadcrumbList')) {
+    const items = [{ name: '首页', url: `${SITE_ORIGIN}/` }];
+    if (post.tags && post.tags.length > 0) {
+      const t = post.tags[0];
+      items.push({ name: t.name, url: `${SITE_ORIGIN}/tags/${t.slug}/` });
+    } else {
+      items.push({ name: '标签', url: `${SITE_ORIGIN}/tags/` });
+    }
+    items.push({ name: post.title || post.slug, url: postURL(post) });
+    const breadcrumbScript = renderBreadcrumbListJSONLD(items);
+    out = injectJSONLDIntoHead(out, breadcrumbScript);
+  }
+
   return out;
+}
+
+// ============================================================
+// JSON-LD structured data (Schema.org)
+//   - BreadcrumbList: 文章页(Home › Tag › Article)
+//   - CollectionPage: 标签页、归档页
+//   - Blog: 首页
+//   - 单独 <script type="application/ld+json"> 块;
+//     JSON 由 build-index 自动注入,不在 HTML 模板手工维护
+//   - 幂等: 已含目标 @type 的脚本则跳过
+// ============================================================
+
+function postURL(p) {
+  return `${SITE_ORIGIN}/posts/${p.slug}/`;
+}
+
+function hasJSONLDType(html, type) {
+  const re = new RegExp(
+    `<script[^>]*type=["']application/ld\\+json["'][^>]*>[\\s\\S]*?"@type"\\s*:\\s*"${type}"`,
+    'i',
+  );
+  return re.test(html);
+}
+
+function renderJSONLDScript(obj) {
+  return `\n  <script type="application/ld+json">\n${JSON.stringify(obj, null, 2)}\n  </script>`;
+}
+
+function renderBreadcrumbListJSONLD(items) {
+  return renderJSONLDScript({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    'itemListElement': items.map((it, i) => ({
+      '@type': 'ListItem',
+      'position': i + 1,
+      'name': it.name,
+      'item': it.url,
+    })),
+  });
+}
+
+function buildBlogPostingRef(p) {
+  const ref = { '@type': 'BlogPosting', headline: p.title, url: p.url };
+  if (p.date) ref.datePublished = p.date;
+  return ref;
+}
+
+function renderCollectionPageJSONLD({ name, description, url, posts }) {
+  return renderJSONLDScript({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url,
+    hasPart: posts.map(buildBlogPostingRef),
+  });
+}
+
+function renderBlogJSONLD({ name, description, url, posts }) {
+  return renderJSONLDScript({
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name,
+    description,
+    url,
+    blogPost: posts.map(buildBlogPostingRef),
+  });
+}
+
+// 注入 JSON-LD <script> 到 head: 优先插到 FOUC <script> 前,否则插到 </head> 前
+function injectJSONLDIntoHead(html, jsonldScript) {
+  if (/<script>\s*\(function\(\)\{/.test(html)) {
+    return html.replace(
+      /(\s*)(?=<script>\s*\(function\(\)\{)/,
+      (_m, ws) => `${jsonldScript}\n${ws || ''}`,
+    );
+  }
+  if (/<\/head>/.test(html)) {
+    return html.replace(/(<\/head>)/, `  ${jsonldScript}\n$1`);
+  }
+  return html;
 }
 
 // ============================================================
@@ -475,7 +570,7 @@ function renderArchive(posts) {
   }
   const keys = Array.from(groups.keys()).sort().reverse();
   const main = `    <h1>归档</h1>
-${keys.map(k => {
+ ${keys.map(k => {
   const [year, month] = k.split('-');
   const list = groups.get(k).map(p => `        <li>
           <time datetime="${escapeHTML(p.date || '')}">${escapeHTML((p.date || '').slice(5))}</time>
@@ -484,16 +579,23 @@ ${keys.map(k => {
   return `    <div class="archive-group">
       <h3>${year} 年 ${parseInt(month, 10)} 月</h3>
       <ul>
-${list}
+ ${list}
       </ul>
     </div>`;
 }).join('\n')}
-`;
+ `;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: '归档 · itingyu',
+    description: '按月归档的全部文章。',
+    url: `${SITE_ORIGIN}/archive/`,
+    posts: sorted.map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+  });
   return pageShell({
     title: '归档 · itingyu',
     description: '按月归档的全部文章。',
     canonical: `${SITE_ORIGIN}/archive/`,
     activeNav: 'archive',
+    extraHead: collectionJSONLD,
     main,
   });
 }
@@ -567,14 +669,21 @@ function renderTagPage(tagSlug, tagName, posts) {
     <p><a href="/tags/">← 返回全部标签</a></p>
 
     <ul class="post-list">
-${list}
+ ${list}
     </ul>
-`;
+ `;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: `${tagName} · itingyu`,
+    description: `「${tagName}」标签下的全部文章。`,
+    url: `${SITE_ORIGIN}/tags/${tagSlug}/`,
+    posts: tagged.map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+  });
   return pageShell({
     title: `${tagName} · itingyu`,
     description: `「${tagName}」标签下的全部文章。`,
     canonical: `${SITE_ORIGIN}/tags/${tagSlug}/`,
     activeNav: 'tags',
+    extraHead: collectionJSONLD,
     main,
   });
 }
@@ -774,9 +883,20 @@ function updateHomePage(html, posts) {
   if (html.indexOf(HOME_START_MARK) === -1 || html.indexOf(HOME_END_MARK) === -1) {
     return null; // no markers
   }
+  let out = html;
+  // JSON-LD Blog(叠加在现有 Person 之上;幂等)
+  if (!hasJSONLDType(out, 'Blog')) {
+    const blogJSONLD = renderBlogJSONLD({
+      name: 'itingyu · 博客',
+      description: 'itingyu 的个人博客。记录编程学习、金融市场观察与算法可视化笔记。',
+      url: `${SITE_ORIGIN}/`,
+      posts: sortPosts(posts).map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+    });
+    out = injectJSONLDIntoHead(out, blogJSONLD);
+  }
   const section = renderHomePostsSection(posts);
   const re = new RegExp(`${HOME_START_MARK}[\\s\\S]*?${HOME_END_MARK}`);
-  return html.replace(re, section);
+  return out.replace(re, section);
 }
 
 // ============================================================
@@ -1029,6 +1149,11 @@ module.exports = {
   renderSearchPage,
   renderHomePostsSection,
   updateHomePage,
+  renderBreadcrumbListJSONLD,
+  renderCollectionPageJSONLD,
+  renderBlogJSONLD,
+  injectJSONLDIntoHead,
+  postURL,
   HOME_START_MARK,
   HOME_END_MARK,
   RSS_LIMIT,
