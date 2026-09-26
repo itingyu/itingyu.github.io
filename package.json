@@ -8,6 +8,7 @@
     "build": "node scripts/build-index.js",
     "check": "node scripts/build-index.js --check",
     "build:home": "node scripts/build-index.js --only home",
-    "build:rss": "node scripts/build-index.js --only rss"
+    "build:rss": "node scripts/build-index.js --only rss",
+    "build:series": "node scripts/build-index.js --only series && node scripts/build-index.js --only series-pages"
   }
 }

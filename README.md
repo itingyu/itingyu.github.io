@@ -85,10 +85,11 @@ node scripts/build-index.js               # 全量重建
 node scripts/build-index.js --check       # 校验 drift
 node scripts/build-index.js --only rss    # 只重生成 feeds/rss.xml
 node scripts/build-index.js --only home   # 只更新首页「最新文章」区
+node scripts/build-index.js --only series # 只重生成 series/index.html
 node scripts/build-index.js --help        # usage
 ```
 
-支持的 `--only` 目标:`posts` / `archive` / `tags` / `tag-pages` / `rss` / `sitemap` / `home`。
+支持的 `--only` 目标:`posts` / `archive` / `tags` / `tag-pages` / `series` / `series-pages` / `rss` / `sitemap` / `home` / `article-pages`。
 
 ### Front matter 约定
 

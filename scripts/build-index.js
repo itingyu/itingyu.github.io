@@ -78,6 +78,7 @@ const SITE_HEADER = `
       <a href="/posts/" data-nav="posts">文章</a>
       <a href="/archive/" data-nav="archive">归档</a>
       <a href="/tags/" data-nav="tags">标签</a>
+      <a href="/series/" data-nav="series">系列</a>
       <a href="/search/" data-nav="search">搜索</a>
       <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
@@ -105,6 +106,7 @@ const SITE_FOOTER = `
       <a href="/posts/">文章</a>
       <a href="/archive/">归档</a>
       <a href="/tags/">标签</a>
+      <a href="/series/">系列</a>
       <a href="/search/">搜索</a>
       <a href="/about/">关于</a>
       <a href="/feeds/rss.xml">RSS</a>
@@ -124,6 +126,7 @@ function pageShell({ title, description, canonical, extraHead = '', activeNav = 
     .replace('data-nav="posts"', `data-nav="posts"${ariaCurrent('posts')}`)
     .replace('data-nav="archive"', `data-nav="archive"${ariaCurrent('archive')}`)
     .replace('data-nav="tags"', `data-nav="tags"${ariaCurrent('tags')}`)
+    .replace('data-nav="series"', `data-nav="series"${ariaCurrent('series')}`)
     .replace('data-nav="search"', `data-nav="search"${ariaCurrent('search')}`)
     .replace('data-nav="about"', `data-nav="about"${ariaCurrent('about')}`);
   return `${HEAD_PRE_META}<title>${escapeHTML(title)}</title>
@@ -145,7 +148,7 @@ ${SITE_FOOTER}</body>
 // ============================================================
 
 function parseFrontmatter(html, slug) {
-  const out = { slug, title: '', description: null, date: null, tags: [], warnings: [] };
+  const out = { slug, title: '', description: null, date: null, tags: [], section: null, warnings: [] };
 
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
   if (titleMatch) {
@@ -195,6 +198,16 @@ function parseFrontmatter(html, slug) {
     if (!slugByDisplay.has(display)) slugByDisplay.set(display, dataTag);
   }
 
+  // 同样的思路,扫 series chip 的 display → slug(给 article:section 缺省回退用)
+  const secDisplayRe = /<a\s+[^>]*class=["'][^"']*\bchip\b[^"']*["'][^>]*href=["']\/series\/([^/"']+)\/["'][^>]*data-section=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  const slugBySectionDisplay = new Map();
+  let sm;
+  while ((sm = secDisplayRe.exec(html)) !== null) {
+    const display = sm[3].replace(/<[^>]+>/g, '').trim();
+    if (!display) continue;
+    if (!slugBySectionDisplay.has(display)) slugBySectionDisplay.set(display, sm[2]);
+  }
+
   // Build tag list: each unique display name with resolved slug
   const tagList = [];
   const seenSlugs = new Set();
@@ -205,6 +218,29 @@ function parseFrontmatter(html, slug) {
     tagList.push({ slug: slugVal, name });
   }
   out.tags = tagList;
+
+  // article:section(系列归属,spec v1.2 — 单值)
+  // - 显示文本 = <meta property="article:section" content="X"> 的 content
+  // - slug 优先取 <a class="chip" href="/series/<slug>/" data-section="<slug>">name</a>
+  //   里的 data-section(允许自定义 slug);缺省回退 slugifyTag(display)
+  const secMetaRe = /<meta\s+property=["']article:section["']\s+content=["']([^"']*)["']/i;
+  const secMeta = html.match(secMetaRe);
+  if (secMeta) {
+    const sectionName = secMeta[1].trim();
+    if (sectionName) {
+      const secChipRe = /<a\s+[^>]*class=["'][^"']*\bchip\b[^"']*["'][^>]*href=["']\/series\/([^/"']+)\/["'][^>]*data-section=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/i;
+      const secChip = html.match(secChipRe);
+      let sectionSlug;
+      if (secChip) {
+        // 优先 chip 的 data-section;若 chip 显示文本与 meta 不一致,仍以 meta 为准(spec 拍板)
+        sectionSlug = secChip[2] || slugifyTag(sectionName);
+      } else {
+        sectionSlug = slugBySectionDisplay.get(sectionName)
+          || slugifyTag(sectionName);
+      }
+      out.section = { slug: sectionSlug, name: sectionName };
+    }
+  }
 
   return out;
 }
@@ -415,6 +451,19 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
     items.push({ name: post.title || post.slug, url: postURL(post) });
     const breadcrumbScript = renderBreadcrumbListJSONLD(items);
     out = injectJSONLDIntoHead(out, breadcrumbScript);
+  }
+
+  // 8. article:section chip in post-meta(spec v1.2:在 tags 之后,reading-time 之前追加)
+  // 幂等:post-meta 内已有 data-section chip 则跳过
+  // 形态:tags · chip · reading-time — 在原 dot 之前插入「dot + chip」,
+  //       原 dot 顺位变成 chip 与 reading-time 之间的分隔
+  if (post.section && !/data-section=/.test(out)) {
+    const sec = post.section;
+    const newSep = `<span class="dot">·</span>\n          <a class="chip" href="/series/${escapeHTML(sec.slug)}/" data-section="${escapeHTML(sec.slug)}">${escapeHTML(sec.name)}</a>\n          `;
+    out = out.replace(
+      /(<span\s+class="dot"[^>]*>[^<]*<\/span>\s*\n\s*<span[^>]*data-reading-time)/,
+      `${newSep}$1`
+    );
   }
 
   return out;
@@ -688,6 +737,90 @@ function renderTagPage(tagSlug, tagName, posts) {
   });
 }
 
+// ============================================================
+// Series aggregation (spec v1.2 / idea 2.3)
+//   - article:section → /series/<slug>/
+//   - 与 tags 平行但语义为「系列/合集」:一篇文章只能隶属一个 series
+//   - 视觉同 /tags/ 但更精简(spec 拍板:不上 tag-cloud 字号权重)
+// ============================================================
+
+// Aggregate posts by series: { slug → { name, posts } }
+// Articles without section are excluded.
+function collectSeries(posts) {
+  const map = new Map();
+  for (const p of posts) {
+    if (!p.section) continue;
+    const key = p.section.slug;
+    if (!map.has(key)) map.set(key, { slug: key, name: p.section.name, posts: [] });
+    map.get(key).posts.push(p);
+  }
+  return map;
+}
+
+function renderSeriesIndex(posts) {
+  const series = collectSeries(posts);
+  // 按文章数降序,同数时按拼音/Unicode locale 升序;与 /tags/ 视觉对齐
+  const sorted = Array.from(series.values()).sort((a, b) =>
+    b.posts.length - a.posts.length || a.slug.localeCompare(b.slug)
+  );
+  const hint = sorted.length === 0
+    ? `    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">还没有任何系列 — 在文章 front matter 加 <code>article:section</code> 即可聚合。</p>`
+    : sorted.length > 10
+      ? `    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">共 <strong>${sorted.length}</strong> 个系列 · 超过 10 个建议归档一部分,保持入口聚焦。</p>`
+      : `    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">共 <strong>${sorted.length}</strong> 个系列 · 文章按系列聚合,点击进入单系列列表。</p>`;
+  const list = sorted.length === 0 ? '' : sorted.map(s => {
+    const count = s.posts.length;
+    return `        <li><a class="chip" href="/series/${escapeHTML(s.slug)}/" data-section="${escapeHTML(s.slug)}">${escapeHTML(s.name)}<span class="tag-count">${count}</span></a></li>`;
+  }).join('\n');
+  const main = `    <h1>系列</h1>
+${hint}
+    <ul class="tag-cloud">
+${list}
+    </ul>
+`;
+  return pageShell({
+    title: '系列 · itingyu',
+    description: '按系列(合集)浏览文章。一篇文章隶属一个系列,显示文本与 slug 同源于 article:section。',
+    canonical: `${SITE_ORIGIN}/series/`,
+    activeNav: 'series',
+    main,
+  });
+}
+
+function renderSeriesPage(sectionSlug, sectionName, posts) {
+  const inSeries = sortPosts(
+    posts.filter(p => p.section && p.section.slug === sectionSlug)
+  );
+  const list = inSeries.map(p => `      <li>
+        <h3 class="post-title"><a href="/posts/${escapeHTML(p.slug)}/">${escapeHTML(p.title)}</a></h3>
+        <div class="post-meta">
+          <time datetime="${escapeHTML(p.date || '')}">${escapeHTML(p.date || '')}</time>
+        </div>
+        <p class="post-excerpt">${escapeHTML(p.description || p.title || '')}</p>
+      </li>`).join('\n');
+  const main = `    <h1>系列：${escapeHTML(sectionName)}</h1>
+    <p><a href="/series/">← 返回全部系列</a></p>
+
+    <ul class="post-list">
+  ${list}
+    </ul>
+ `;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: `${sectionName} · itingyu`,
+    description: `「${sectionName}」系列下的全部文章。`,
+    url: `${SITE_ORIGIN}/series/${sectionSlug}/`,
+    posts: inSeries.map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+  });
+  return pageShell({
+    title: `${sectionName} · itingyu`,
+    description: `「${sectionName}」系列下的全部文章。`,
+    canonical: `${SITE_ORIGIN}/series/${sectionSlug}/`,
+    activeNav: 'series',
+    extraHead: collectionJSONLD,
+    main,
+  });
+}
+
 function renderRSS(posts, buildDate, rootDir = ROOT) {
   const sorted = sortPosts(posts).slice(0, RSS_LIMIT);
   const rfc822 = (d) => {
@@ -818,6 +951,7 @@ function renderSitemap(posts) {
     { loc: `${SITE_ORIGIN}/posts/`, changefreq: 'weekly', priority: '0.9' },
     { loc: `${SITE_ORIGIN}/archive/`, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_ORIGIN}/tags/`, changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_ORIGIN}/series/`, changefreq: 'monthly', priority: '0.5' },
     { loc: `${SITE_ORIGIN}/search/`, changefreq: 'monthly', priority: '0.4' },
     { loc: `${SITE_ORIGIN}/about/`, changefreq: 'monthly', priority: '0.5' },
   ];
@@ -834,13 +968,22 @@ function renderSitemap(posts) {
     changefreq: 'monthly',
     priority: '0.5',
   }));
+  // Series pages(spec v1.2): 中文 slug 由 encodeURI 处理为 percent-encoded 形式(spec 示例)
+  const seriesMap = collectSeries(posts);
+  const seriesPages = Array.from(seriesMap.values()).sort((a, b) =>
+    a.slug.localeCompare(b.slug)
+  ).map(s => ({
+    loc: `${SITE_ORIGIN}/series/${encodeURI(s.slug)}/`,
+    changefreq: 'monthly',
+    priority: '0.5',
+  }));
   const postPages = sortPosts(posts).map(p => ({
     loc: `${SITE_ORIGIN}/posts/${p.slug}/`,
     lastmod: p.date || '',
     changefreq: 'monthly',
     priority: '0.8',
   }));
-  const all = [...staticPages, ...tagPages, ...postPages];
+  const all = [...staticPages, ...tagPages, ...seriesPages, ...postPages];
   const today = new Date().toISOString().slice(0, 10);
   const urls = all.map(u => {
     const lastmod = u.lastmod || today;
@@ -909,6 +1052,7 @@ function computeBuild(rootDir = ROOT) {
   const postsIndex = renderPostsIndex(posts);
   const archive = renderArchive(posts);
   const tagsIndex = renderTagsIndex(posts);
+  const seriesIndex = renderSeriesIndex(posts);
 
   const tagBuckets = new Map();
   const tagNames = new Map();
@@ -923,6 +1067,13 @@ function computeBuild(rootDir = ROOT) {
     tagPages[slug] = renderTagPage(slug, name, posts);
   }
 
+  // Series aggregation(spec v1.2,idea 2.3)
+  const seriesMap = collectSeries(posts);
+  const seriesPages = {};
+  for (const s of seriesMap.values()) {
+    seriesPages[s.slug] = renderSeriesPage(s.slug, s.name, posts);
+  }
+
   const rss = renderRSS(posts, null, rootDir);
   const sitemap = renderSitemap(posts);
   const searchIndex = renderSearchIndex(posts, rootDir);
@@ -935,7 +1086,7 @@ function computeBuild(rootDir = ROOT) {
     homeReplacement = updateHomePage(homeHtml, posts);
   }
 
-  // 文章页增强注入(cover + related + progress + reading-time + og:image)
+  // 文章页增强注入(cover + related + progress + reading-time + og:image + section chip)
   const articlePages = {};
   for (const p of posts) {
     if (!p.sourcePath) continue;
@@ -952,16 +1103,20 @@ function computeBuild(rootDir = ROOT) {
       'posts/index.html': postsIndex,
       'archive/index.html': archive,
       'tags/index.html': tagsIndex,
+      'series/index.html': seriesIndex,
       'feeds/rss.xml': rss,
       'sitemap.xml': sitemap,
       'search/index.html': searchPage,
       'assets/search-index.json': searchIndex,
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
+      ...Object.fromEntries(Object.entries(seriesPages).map(([slug, content]) =>
+        [`series/${slug}/index.html`, content])),
     },
     articlePages,
     homeReplacement,
     tagSlugs: Array.from(tagNames.keys()).sort(),
+    seriesSlugs: Array.from(seriesMap.keys()).sort(),
   };
 }
 
@@ -1015,6 +1170,27 @@ function writeBuild(build, rootDir = ROOT) {
     }
   }
 
+  // prune series/<slug>/index.html that no longer exist(spec v1.2 与 tag prune 平行)
+  // 同时清理孤儿空目录(被删完 index.html 之后剩余的目录)
+  const seriesDir = path.join(rootDir, 'series');
+  if (fs.existsSync(seriesDir)) {
+    const seriesDirs = fs.readdirSync(seriesDir, { withFileTypes: true })
+      .filter(e => e.isDirectory() && e.name !== 'index.html')
+      .map(e => e.name);
+    for (const slug of seriesDirs) {
+      if (!build.seriesSlugs.includes(slug)) {
+        const dirPath = path.join(seriesDir, slug);
+        const idxFile = path.join(dirPath, 'index.html');
+        if (fs.existsSync(idxFile)) {
+          fs.unlinkSync(idxFile);
+          removed.push(`series/${slug}/index.html`);
+        }
+        // 清理已变空的子目录(避免仓库累积孤儿空目录)
+        try { fs.rmdirSync(dirPath); } catch (_) {}
+      }
+    }
+  }
+
   return { written, removed };
 }
 
@@ -1057,7 +1233,7 @@ function usage() {
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|series|series-pages|rss|sitemap|home|article-pages)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -1080,7 +1256,7 @@ function run(argv) {
   const opts = parseArgs(argv);
   if (opts.help) { process.stdout.write(usage()); return 0; }
   const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages'];
+  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'series', 'series-pages', 'rss', 'sitemap', 'home', 'article-pages'];
 
   let targets = allNames;
   if (opts.only) {
@@ -1098,6 +1274,13 @@ function run(argv) {
   if (!targets.includes('tag-pages')) {
     for (const rel of Object.keys(build.files)) {
       if (rel.startsWith('tags/') && rel !== 'tags/index.html') delete build.files[rel];
+    }
+  }
+  // Series(spec v1.2):与 tag-pages 平行筛选
+  if (!targets.includes('series')) delete build.files['series/index.html'];
+  if (!targets.includes('series-pages')) {
+    for (const rel of Object.keys(build.files)) {
+      if (rel.startsWith('series/') && rel !== 'series/index.html') delete build.files[rel];
     }
   }
   if (!targets.includes('rss')) delete build.files['feeds/rss.xml'];
@@ -1143,6 +1326,9 @@ module.exports = {
   renderArchive,
   renderTagsIndex,
   renderTagPage,
+  renderSeriesIndex,
+  renderSeriesPage,
+  collectSeries,
   renderRSS,
   renderSitemap,
   renderSearchIndex,

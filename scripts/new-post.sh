@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # new-post.sh — 一键生成博客文章页(纯 POSIX bash,无依赖)
-# 用法: ./scripts/new-post.sh <slug> "<title>" [--tag <tag>...] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>]
+# 用法: ./scripts/new-post.sh <slug> "<title>" [--tag <tag>...] [--section "<name>"] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>]
 
 set -eu
 
@@ -10,12 +10,13 @@ AUTHOR="${NEW_POST_AUTHOR:-itingyu}"
 
 usage() {
   cat <<EOF
-用法: new-post.sh <slug> "<title>" [--tag <tag>...] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>]
+用法: new-post.sh <slug> "<title>" [--tag <tag>...] [--section "<name>"] [--date YYYY-MM-DD] [--excerpt "<text>"] [--cover <path>]
 
 参数:
   <slug>                 文章 slug,只允许 [a-z0-9-],作为目录名与 URL 段
   <title>                文章标题(必填,带引号)
   --tag <tag>            标签,可重复多次(对应 tags/<tag>/ 与 chip)
+  --section "<name>"     系列归属,单值(spec v1.2);中文保留,slug 与显示文本同源
   --date YYYY-MM-DD      发布日期,默认今天
   --excerpt "<text>"     文章摘要,默认与标题相同的占位说明
   --cover <path>         封面图路径(支持 .svg/.jpg/.png/.webp),会复制到 posts/<slug>/
@@ -23,6 +24,7 @@ usage() {
 
 示例:
   ./scripts/new-post.sh my-first-post "我的第一篇" --tag note --excerpt "占位示例"
+  ./scripts/new-post.sh finance-brief "金融市场观察 · 2026-10-01" --tag finance --section "金融市场观察" --excerpt "日终综述"
   ./scripts/new-post.sh hello "Hello" --tag note --cover /tmp/cover.svg
 EOF
 }
@@ -40,11 +42,13 @@ TITLE="$1"; shift
 DATE="$(date +%F)"
 EXCERPT=""
 TAGS=()
+SECTION=""
 COVER_PATH=""
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --tag)    TAGS+=("$2"); shift 2 ;;
+    --section) SECTION="$2"; shift 2 ;;
     --date)   DATE="$2"; shift 2 ;;
     --excerpt) EXCERPT="$2"; shift 2 ;;
     --cover)  COVER_PATH="$2"; shift 2 ;;
@@ -101,6 +105,19 @@ else
   POSTMETA_TAGS=""
 fi
 
+# 系列归属(spec v1.2):head meta + post-meta chip
+# 显示文本与 slug 同源 = $SECTION 原文
+# 模板里 time 后与 reading-time 前已经各有一个 <span class="dot">·</span> 作为分隔
+# section chip 不自带前缀 dot,夹在两组 <dot> 之间
+SECTION_HTML=""
+POSTMETA_SECTION=""
+if [ -n "$SECTION" ]; then
+  SECTION_HTML="  <meta property=\"article:section\" content=\"${SECTION}\" />
+"
+  POSTMETA_SECTION="          <a class=\"chip\" href=\"/series/${SECTION}/\" data-section=\"${SECTION}\">${SECTION}</a>
+"
+fi
+
 # 封面图:复制到 posts/<slug>/,渲染时 inline 进 og:image 与 post-cover
 COVER_HTML=""
 if [ -n "$COVER_PATH" ]; then
@@ -130,6 +147,8 @@ awk -v title="$TITLE" \
     -v author="$AUTHOR" \
     -v tags_html="$TAGS_HTML" \
     -v postmeta_tags="$POSTMETA_TAGS" \
+    -v section_html="$SECTION_HTML" \
+    -v postmeta_section="$POSTMETA_SECTION" \
     -v og_image="$OG_IMAGE" \
     -v cover_html="$COVER_HTML" '
   {
@@ -140,6 +159,8 @@ awk -v title="$TITLE" \
     gsub(/\{\{AUTHOR\}\}/, author)
     gsub(/\{\{TAGS_HTML\}\}/, tags_html)
     gsub(/\{\{POSTMETA_TAGS\}\}/, postmeta_tags)
+    gsub(/\{\{SECTION_HTML\}\}/, section_html)
+    gsub(/\{\{POSTMETA_SECTION\}\}/, postmeta_section)
     gsub(/\{\{OG_IMAGE\}\}/, og_image)
     gsub(/\{\{COVER_HTML\}\}/, cover_html)
     gsub(/\{\{BODY\}\}/, "")

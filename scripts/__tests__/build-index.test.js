@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
+const { spawnSync } = require('node:child_process');
 
 const bi = require('../build-index.js');
 const {
@@ -12,6 +13,7 @@ const {
   scanCover, computeRelated, injectArticlePageEnhancements,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
+  renderSeriesIndex, renderSeriesPage, collectSeries,
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
@@ -957,5 +959,392 @@ test('build: --check stays green after JSON-LD injection on all 4 page types', (
     // 重算并比对 — 没有 drift 说明 JSON-LD 完全幂等
     const drift = checkDrift(computeBuild(tmp), tmp);
     assert.deepEqual(drift, [], 'no drift after writing + recomputing');
+  } finally { cleanProject(tmp); }
+});
+
+// ============================================================
+// AIWORK1-39 / spec v1.2 · article:section + /series/ 端到端契约
+// ============================================================
+
+// 40. AIWORK1-39 #3: 新 fixture sectioned-post 存在并可解析
+test('build: sectioned-post fixture exists and parses with article:section', () => {
+  const html = fs.readFileSync(path.join(FIX, 'sectioned-post', 'index.html'), 'utf8');
+  const fm = bi.parseFrontmatter(html, 'sectioned-post');
+  assert.ok(fm.section, 'sectioned-post fixture must expose fm.section');
+  assert.equal(fm.section.name, '金融市场观察');
+  assert.equal(fm.section.slug, '金融市场观察');
+});
+
+// 41. AIWORK1-39 #4: build 产出 series/index.html 含全部 series + 计数
+test('build: series/index.html lists all series with counts and chips', () => {
+  const tmp = makeProject({ posts: ['sectioned-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderSeriesIndex(posts);
+    // sectioned-post 隶属「金融市场观察」
+    assert.ok(/href="\/series\/金融市场观察\/"/.test(html),
+      'must link to series by original-text slug (Chinese preserved)');
+    assert.ok(/data-section="金融市场观察"/.test(html),
+      'chip must carry data-section attribute');
+    assert.ok(/<span class="tag-count">1<\/span>/.test(html),
+      'count = 1 for single series');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: computeBuild writes series/index.html on disk', () => {
+  const tmp = makeProject({ posts: ['sectioned-post'] });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    assert.ok(fs.existsSync(path.join(tmp, 'series', 'index.html')),
+      'series/index.html must be written');
+    const html = fs.readFileSync(path.join(tmp, 'series', 'index.html'), 'utf8');
+    assert.ok(/金融市场观察/.test(html));
+  } finally { cleanProject(tmp); }
+});
+
+// 42. AIWORK1-39 #5: build 产出 series/<slug>/index.html,仅含该系列文章
+test('build: series/<slug>/index.html lists only that series posts', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-page-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    // 两个同系列 + 一个不同系列 + 一个无 section
+    const mkPost = (slug, date, tag, section) => {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta name="description" content="d" />
+          <meta property="article:published_time" content="${date}" />
+          <meta property="article:tag" content="${tag}" />
+${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    };
+    mkPost('a-1', '2026-04-01', 'finance', '金融市场观察');
+    mkPost('a-2', '2026-04-02', 'finance', '金融市场观察');
+    mkPost('b-1', '2026-05-01', 'note', 'SDD 实战笔记');
+    mkPost('c-1', '2026-06-01', 'note', null);
+
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+
+    const seriesA = fs.readFileSync(path.join(tmp, 'series', '金融市场观察', 'index.html'), 'utf8');
+    assert.ok(seriesA.includes('/posts/a-1/'), 'series page must include a-1');
+    assert.ok(seriesA.includes('/posts/a-2/'), 'series page must include a-2');
+    assert.ok(!seriesA.includes('/posts/b-1/'),
+      'series page must not include posts from other series');
+    assert.ok(!seriesA.includes('/posts/c-1/'),
+      'series page must not include posts without any section');
+
+    const seriesB = fs.readFileSync(path.join(tmp, 'series', 'sdd-实战笔记', 'index.html'), 'utf8');
+    assert.ok(seriesB.includes('/posts/b-1/'), 'series B page must include b-1');
+    assert.ok(!seriesB.includes('/posts/a-1/'), 'series B page must exclude other series');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 43. AIWORK1-39 #6: 无 section 文章不出现 series/index.html(防泄漏)
+test('build: posts without article:section are excluded from series/index.html', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-leak-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, section) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    }
+    mkPost('with-sec', '2026-04-01', '金融市场观察');
+    mkPost('no-sec-1', '2026-04-02', null);
+    mkPost('no-sec-2', '2026-04-03', null);
+
+    const posts = scanPosts(tmp);
+    const html = renderSeriesIndex(posts);
+    assert.ok(/金融市场观察/.test(html), 'series index should list the one section');
+    assert.ok((html.match(/<a class="chip" href="\/series/g) || []).length === 1,
+      'must contain exactly 1 series chip');
+    // 无 section 的文章不应被提及
+    assert.ok(!/no-sec-1/.test(html), 'posts without section must NOT leak into series index');
+    assert.ok(!/no-sec-2/.test(html), 'posts without section must NOT leak into series index');
+
+    // 也校验 computeBuild 输出
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const onDisk = fs.readFileSync(path.join(tmp, 'series', 'index.html'), 'utf8');
+    assert.ok(!/no-sec-1/.test(onDisk) && !/no-sec-2/.test(onDisk),
+      'on-disk series/index.html must not leak unsectioned posts');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 44. AIWORK1-39 #7: section 名去重 + 计数正确(同系列多篇只一行 + 准确计数)
+test('build: section names are deduped with accurate per-section counts', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-dedup-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, section) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    }
+    // Section A: 3 篇;Section B: 2 篇;无 section: 1 篇
+    mkPost('a1', '2026-04-01', 'Section A');
+    mkPost('a2', '2026-04-02', 'Section A');
+    mkPost('a3', '2026-04-03', 'Section A');
+    mkPost('b1', '2026-04-04', 'Section B');
+    mkPost('b2', '2026-04-05', 'Section B');
+    mkPost('n1', '2026-04-06', null);
+
+    const posts = scanPosts(tmp);
+    const map = collectSeries(posts);
+    assert.equal(map.size, 2, 'should have exactly 2 distinct series');
+    const slugs = Array.from(map.keys()).sort();
+    assert.deepEqual(slugs, ['section-a', 'section-b']);
+    assert.equal(map.get('section-a').posts.length, 3);
+    assert.equal(map.get('section-b').posts.length, 2);
+
+    const idx = renderSeriesIndex(posts);
+    // 按文章数降序:Section A (3) 在 Section B (2) 之前
+    assert.ok(idx.indexOf('Section A') < idx.indexOf('Section B'),
+      'larger series first');
+    assert.ok(/<span class="tag-count">3<\/span>/.test(idx),
+      'Section A count = 3');
+    assert.ok(/<span class="tag-count">2<\/span>/.test(idx),
+      'Section B count = 2');
+
+    // 各系列下页面只列该系列文章
+    const aPage = renderSeriesPage('section-a', 'Section A', posts);
+    assert.ok(aPage.includes('a1') && aPage.includes('a2') && aPage.includes('a3'));
+    assert.ok(!aPage.includes('b1') && !aPage.includes('n1'),
+      'Section A page must exclude non-Section A posts');
+
+    const bPage = renderSeriesPage('section-b', 'Section B', posts);
+    assert.ok(bPage.includes('b1') && bPage.includes('b2'));
+    assert.ok(!bPage.includes('a1') && !bPage.includes('n1'),
+      'Section B page must exclude non-Section B posts');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 45. AIWORK1-39 #8: --only series 子命令存在 + 可独立构建 series
+test('build: --only series writes series index + pages but skips tag indices', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-only-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, tag, section) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      const tagMeta = tag ? `  <meta property="article:tag" content="${tag}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${tagMeta}${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    }
+    mkPost('a1', '2026-04-01', 'finance', 'Section A');
+    mkPost('b1', '2026-04-02', 'note', 'Section B');
+
+    // Pre-create existing files that should NOT be touched (--only 边界):
+    // posts/index.html / tags/index.html / tags/<slug>/index.html 都应是 sentinel
+    fs.writeFileSync(path.join(tmp, 'posts', 'index.html'), 'posts-untouched');
+    fs.mkdirSync(path.join(tmp, 'tags'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'tags', 'index.html'), 'tags-untouched');
+    fs.mkdirSync(path.join(tmp, 'tags', 'finance'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'tags', 'finance', 'index.html'), 'tag-page-untouched');
+
+    // Run with --only series via subprocess to assert CLI binding (exits 0, scope correct)
+    const result = spawnSync('node', [
+      path.join(__dirname, '..', 'build-index.js'),
+      '--only', 'series', '--root', tmp,
+    ], { encoding: 'utf8' });
+    assert.equal(result.status, 0, `series-only should exit 0: ${result.stderr}`);
+    // series/index.html should be written
+    assert.ok(fs.existsSync(path.join(tmp, 'series', 'index.html')),
+      'series/index.html should be created by --only series');
+    // posts/index.html should NOT be re-written (untouched)
+    assert.ok(fs.readFileSync(path.join(tmp, 'posts', 'index.html'), 'utf8') === 'posts-untouched',
+      '--only series must NOT touch posts/index.html');
+    // tags/* should NOT be created/touched
+    assert.ok(fs.readFileSync(path.join(tmp, 'tags', 'index.html'), 'utf8') === 'tags-untouched',
+      '--only series must NOT touch tags/index.html');
+
+    // --only series-pages covers per-section pages
+    const result2 = spawnSync('node', [
+      path.join(__dirname, '..', 'build-index.js'),
+      '--only', 'series-pages', '--root', tmp,
+    ], { encoding: 'utf8' });
+    assert.equal(result2.status, 0, `series-pages-only should exit 0: ${result2.stderr}`);
+    assert.ok(fs.existsSync(path.join(tmp, 'series', 'section-a', 'index.html')),
+      'section-a page should be created by --only series-pages');
+    assert.ok(fs.existsSync(path.join(tmp, 'series', 'section-b', 'index.html')),
+      'section-b page should be created by --only series-pages');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 46. AIWORK1-39 #9 / DoD #10: sitemap 注入 series 页 + 站首页
+test('build: sitemap.xml lists /series/ index and per-section pages with percent-encoded URLs', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-sitemap-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, section) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    }
+    mkPost('cn-1', '2026-04-01', '金融市场观察');
+    mkPost('ascii-1', '2026-04-02', 'Section A');
+
+    const posts = scanPosts(tmp);
+    const xml = renderSitemap(posts);
+
+    // 站首页
+    assert.ok(/<loc>https:\/\/itingyu\.github\.io\/series\/<\/loc>/.test(xml),
+      'sitemap must include /series/ index page');
+    // 中文 section 用 percent-encoded(规范 RFC 3986)
+    assert.ok(/<loc>https:\/\/itingyu\.github\.io\/series\/%E9%87%91%E8%9E%8D[^<]*<\/loc>/.test(xml),
+      'sitemap must percent-encode Chinese series slug');
+    // ASCII section 直接出现
+    assert.ok(/<loc>https:\/\/itingyu\.github\.io\/series\/section-a\/<\/loc>/.test(xml),
+      'sitemap must include ASCII slug series page');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 47. AIWORK1-39 #11 / DoD #11: 文章页 .post-meta 在 tags 之后追加 series chip
+test('build: article page injects series chip in post-meta between tags and reading-time', () => {
+  const tmp = makeProject({ posts: ['sectioned-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    // 必须有 series chip,带 data-section
+    assert.ok(/<a class="chip" href="\/series\/金融市场观察\/" data-section="金融市场观察">金融市场观察<\/a>/.test(out),
+      'must inject series chip with data-section');
+    // 位置:在 tags chip 之后,在 reading-time 之前
+    const idxTag = out.search(/<a class="chip" href="\/tags\/finance\/"/);
+    const idxSection = out.search(/<a class="chip" href="\/series\/金融市场观察\/"/);
+    const idxTime = out.search(/<span[^>]*data-reading-time/);
+    assert.ok(idxTag > 0 && idxSection > 0 && idxTime > 0, 'all markers must be present');
+    assert.ok(idxTag < idxSection, 'series chip must come after tag chip');
+    assert.ok(idxSection < idxTime, 'series chip must come before reading-time');
+
+    // 幂等:二次注入字节级一致
+    const twice = injectArticlePageEnhancements(out, me, posts, tmp);
+    assert.equal(out, twice, 'series chip injection must be idempotent');
+    const dataSectionCount = (twice.match(/data-section=/g) || []).length;
+    assert.equal(dataSectionCount, 1, 'data-section must appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+// 48. AIWORK1-39 #12 / DoD #12: --check 全绿(端到端无 drift)
+test('build: --check stays green for series aggregation end-to-end', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-drift-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    function mkPost(slug, date, section) {
+      fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const secMeta = section ? `  <meta property="article:section" content="${section}" />\n` : '';
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+        `<!doctype html><html><head>
+          <title>${slug}</title>
+          <meta property="article:published_time" content="${date}" />
+${secMeta}
+        </head><body><main><article></article></main></body></html>`);
+    }
+    mkPost('s1', '2026-04-01', '金融市场观察');
+    mkPost('s2', '2026-04-02', 'SDD 实战笔记');
+    mkPost('s3', '2026-04-03', null);
+
+    // 写入 + 重算 → 不应有 drift
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [], 'no drift after series aggregation end-to-end');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 49. AIWORK1-39: nav 显示 /series/ + series 页 aria-current
+test('build: site nav exposes /series/ link and series index marks it current', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-nav-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'posts', 'sectioned-post'), { recursive: true });
+    fs.copyFileSync(path.join(FIX, 'sectioned-post', 'index.html'),
+      path.join(tmp, 'posts', 'sectioned-post', 'index.html'));
+
+    const posts = scanPosts(tmp);
+    const idx = renderSeriesIndex(posts);
+
+    // nav 含 data-nav="series"
+    assert.ok(/<a\s+href="\/series\/"\s+data-nav="series"/.test(idx),
+      'header nav must expose /series/ with data-nav="series"');
+    // 当前页应当被标 aria-current
+    assert.ok(/<a\s+href="\/series\/"\s+data-nav="series"[^>]*aria-current="page"/.test(idx),
+      'series index itself should be marked aria-current=page');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 50. AIWORK1-39: prune 行为 — 删除某系列后,旧 series/<slug>/index.html 应被剪除
+test('build: writeBuild prunes orphaned series/<slug>/index.html', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-prune-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    fs.mkdirSync(path.join(tmp, 'posts', 'a'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'posts', 'a', 'index.html'),
+      `<!doctype html><html><head>
+        <title>a</title>
+        <meta property="article:published_time" content="2026-04-01" />
+        <meta property="article:section" content="活跃系列" />
+      </head><body></body></html>`);
+
+    // Pre-create a stale series page that should be pruned.
+    fs.mkdirSync(path.join(tmp, 'series', 'orphan-series'), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'series', 'orphan-series', 'index.html'), 'stale');
+
+    const build = computeBuild(tmp);
+    const result = writeBuild(build, tmp);
+
+    assert.ok(result.removed.includes('series/orphan-series/index.html'),
+      'orphan series page must be in removed list');
+    assert.ok(!fs.existsSync(path.join(tmp, 'series', 'orphan-series', 'index.html')),
+      'orphan series file must be gone');
+    assert.ok(fs.existsSync(path.join(tmp, 'series', '活跃系列', 'index.html')),
+      'active series file must remain');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// 51. AIWORK1-39: series 页面含 CollectionPage JSON-LD
+test('build: series page emits CollectionPage JSON-LD with non-empty hasPart', () => {
+  const tmp = makeProject({ posts: ['sectioned-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderSeriesPage('金融市场观察', '金融市场观察', posts);
+
+    const blocks = extractJSONLDBlocks(html);
+    const collection = blocks.find(b => b['@type'] === 'CollectionPage');
+    assert.ok(collection, 'series page must emit CollectionPage JSON-LD');
+    assert.equal(collection['@context'], 'https://schema.org');
+    assert.equal(collection.name, '金融市场观察 · itingyu');
+    assert.equal(collection.url, 'https://itingyu.github.io/series/金融市场观察/');
+    assert.ok(Array.isArray(collection.hasPart));
+    assert.ok(collection.hasPart.length >= 1, 'hasPart non-empty');
+    collection.hasPart.forEach(ref => {
+      assert.equal(ref['@type'], 'BlogPosting');
+      assert.ok(ref.headline && ref.url);
+    });
   } finally { cleanProject(tmp); }
 });

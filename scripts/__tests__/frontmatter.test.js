@@ -62,3 +62,35 @@ test('frontmatter: non-ISO date emits warning but is accepted', () => {
   assert.equal(fm.date, 'March 10, 2026');
   assert.ok(fm.warnings.some(w => w.includes('non-ISO')), 'should warn');
 });
+
+// ============================================================
+// AIWORK1-39 / spec v1.2 · article:section 解析契约
+// ============================================================
+
+// 6. AIWORK1-39 #1: 解析 <meta property="article:section"> → fm.section
+test('frontmatter: parses article:section into fm.section (Chinese preserved)', () => {
+  const html = readFixture('sectioned-post');
+  const fm = parseFrontmatter(html, 'sectioned-post');
+  assert.ok(fm.section, 'section must be present');
+  assert.equal(fm.section.name, '金融市场观察', 'section display name must come from meta content');
+  assert.equal(fm.section.slug, '金融市场观察', 'section slug equals content for pure-CJK (slugifyTag preserves CJK)');
+});
+
+// 7. AIWORK1-39 #2: 缺省 → fm.section === null,不抛错
+test('frontmatter: missing article:section returns null without throwing', () => {
+  const html = readFixture('minimal-post');
+  const fm = parseFrontmatter(html, 'minimal-post');
+  assert.equal(fm.section, null, 'no article:section meta must give fm.section === null');
+});
+
+// 7b. 没有 section meta + 内嵌 hardcoded HTML → 同样 null
+test('frontmatter: inline HTML without article:section yields null section', () => {
+  const html = `<!doctype html><html><head>
+    <title>X</title>
+    <meta property="article:published_time" content="2026-05-01" />
+  </head><body></body></html>`;
+  const fm = parseFrontmatter(html, 'no-section');
+  assert.equal(fm.section, null, 'section must be null when meta absent');
+  assert.ok(!fm.warnings.some(w => /section/i.test(w)),
+    'no section meta must not emit a warning');
+});
