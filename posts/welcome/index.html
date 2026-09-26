@@ -5,22 +5,19 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>欢迎来到新博客 · itingyu</title>
   <meta name="description" content="原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。" />
-  <meta name="author" content="itingyu" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="canonical" href="https://itingyu.github.io/posts/welcome/" />
   <link rel="prev" href="/posts/sing-box-setup-experience/" />
-
-  <!-- Open Graph -->
+  <meta name="author" content="itingyu" />
+  <meta property="article:published_time" content="2026-09-26" />
+  <meta property="article:author" content="itingyu" />    <meta property="og:image" content="https://itingyu.github.io/posts/welcome/cover.svg" />
+  <meta property="article:tag" content="note" />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="欢迎来到新博客" />
-  <meta property="og:description" content="原 itingyu.github.io 已清空，从这里重新搭建。" />
+  <meta property="og:description" content="原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。" />
   <meta property="og:url" content="https://itingyu.github.io/posts/welcome/" />
   <meta property="og:locale" content="zh_CN" />
-  <meta property="article:published_time" content="2026-09-26" />
-  <meta property="article:author" content="itingyu" />
-  <meta property="article:tag" content="随笔" />
 
-  <!-- JSON-LD -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -28,9 +25,12 @@
     "headline": "欢迎来到新博客",
     "datePublished": "2026-09-26",
     "dateModified": "2026-09-26",
-    "author": { "@type": "Person", "name": "itingyu" },
+    "author": {
+      "@type": "Person",
+      "name": "itingyu"
+    },
     "url": "https://itingyu.github.io/posts/welcome/",
-    "description": "原 itingyu.github.io 已清空，从这里重新搭建。"
+    "description": "原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。"
   }
   </script>
   <script type="application/ld+json">
@@ -47,7 +47,7 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "随笔",
+      "name": "note",
       "item": "https://itingyu.github.io/tags/note/"
     },
     {
@@ -59,7 +59,6 @@
   ]
 }
   </script>
-
 
   <script>
     (function(){
@@ -84,11 +83,12 @@
       <span>itingyu</span>
     </a>
     <nav class="site-nav" aria-label="主导航">
-      <a href="/">首页</a>
-      <a href="/posts/">文章</a>
-      <a href="/archive/">归档</a>
-      <a href="/tags/">标签</a>
-      <a href="/about/">关于</a>
+      <a href="/" data-nav="home">首页</a>
+      <a href="/posts/" data-nav="posts">文章</a>
+      <a href="/archive/" data-nav="archive">归档</a>
+      <a href="/tags/" data-nav="tags">标签</a>
+      <a href="/search/" data-nav="search">搜索</a>
+      <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
               aria-label="切换主题" data-theme-toggle>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
@@ -113,33 +113,23 @@
         <div class="post-meta">
           <time datetime="2026-09-26">2026-09-26</time>
           <span class="dot">·</span>
-          <a class="chip" href="/tags/note/" data-tag="note">随笔</a>
+          <a class="chip" href="/tags/note/" data-tag="note">note</a>
           <span class="dot">·</span>
-          <span data-reading-time>约 1 分钟</span>
-          <span class="dot">·</span>
-          <span class="word-count" data-word-count>统计中…</span>
-        </div>
-        <p class="post-excerpt">原 itingyu.github.io 已清空，从这里重新搭建。</p>
+                  </div>
+        <p class="post-excerpt">原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。</p>
       </header>
 
-      <p>这是新博客的第一篇占位文章，用来验证：</p>
-      <ul>
-        <li>文章页的标题 / 元信息 / 正文排版；</li>
-        <li>标签 chip 与「按标签筛选」跳转；</li>
-        <li>归档页的按月分组；</li>
-        <li>浅色 / 深色主题切换与持久化；</li>
-        <li>RSS feed 与 sitemap 的产出。</li>
-      </ul>
+<!-- build:cover -->
+      <img class="post-cover" src="https://itingyu.github.io/posts/welcome/cover.svg" alt="欢迎来到新博客封面" loading="lazy" />
+<p>这是新博客的第一篇占位文章，用来验证：</p>
+<ul><li>文章页的标题 / 元信息 / 正文排版；</li><li>标签 chip 与「按标签筛选」跳转；</li><li>归档页的按月分组；</li><li>浅色 / 深色主题切换与持久化；</li><li>RSS feed 与 sitemap 的产出。</li></ul>
+<h2>选型说明</h2>
+<p>不做静态站点生成器、不接 CMS。每篇文章就是一个完整的 HTML 文件，front matter 信息全部塞进 <code>&lt;head&gt;</code> 的 <code>&lt;meta&gt;</code> 与 JSON-LD 里。代价是写新文章要复制粘贴一份模板，收益是仓库可以直接 git push 部署、零构建、零运行时依赖。</p>
+<blockquote><strong>说明</strong> · 这是一篇示例文章，正式内容上线后会替换或删除。</blockquote>
+<h2>下一步</h2>
+<p>等骨架稳定后，接入「金融小队」的每日简报自动同步。</p>
+<!-- build:related -->
 
-      <h2>选型说明</h2>
-      <p>不做静态站点生成器、不接 CMS。每篇文章就是一个完整的 HTML 文件,front matter 信息全部塞进 <code>&lt;head&gt;</code> 的 <code>&lt;meta&gt;</code> 与 JSON-LD 里。代价是写新文章要复制粘贴一份模板,收益是仓库可以直接 git push 部署、零构建、零运行时依赖。</p>
-
-      <div class="callout callout-note">
-        <strong>说明</strong> · 这是一篇示例文章,正式内容上线后会替换或删除。
-      </div>
-
-      <h2>下一步</h2>
-      <p>等骨架稳定后,接入「金融小队」的每日简报自动同步。</p>
     </article>
     <aside class="related" aria-label="相关文章">
       <p class="related-title">相关文章</p>
@@ -148,14 +138,20 @@
           <a class="related-card" href="/posts/finance-2026-09-26/">
             <p class="related-card-title">非交易日情报简报 · 2026-09-26（周六）</p>
             <p class="related-card-meta"><time datetime="2026-09-26">2026-09-26</time></p>
-            <p class="related-card-excerpt">1. 本简报由 Multica 金融小队队长基于公开渠道信息整理，仅供工作区成员内部研究、参考；不构成任何买卖建议或投资意见。 2. 信息时效以原始来源为准，节假期间海外市场仍正常交易，海外资产价格波动与地缘事件可能在节后 A 股开盘前持续</p>
+            <p class="related-card-excerpt">非交易日情报简报 · 2026-09-26（周六）：本简报由 Multica 金融小队队长基于公开渠道信息整理，仅供工作区成员内部研究、参考；不构成任何买卖建议或投资意见。</p>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/posts/sing-box-setup-experience/">
+            <p class="related-card-title">sing-box 代理搭建经验：从 0 到稳定上网</p>
+            <p class="related-card-meta"><time datetime="2026-09-26">2026-09-26</time></p>
+            <p class="related-card-excerpt">从机场订阅到 zashboard dashboard，完整记录 sing-box 1.14 代理配置、DNS fakeip、订阅自动更新、CORS 反代等实战经验。</p>
           </a>
         </li>
       </ul>
     </aside>
 
     
-
 
 
     <nav class="post-nav post-nav-prev-only" aria-label="文章导航">
@@ -165,9 +161,11 @@
         <time class="post-nav-date" datetime="2026-09-26">2026-09-26</time>
       </a>
     </nav>
+
     <footer class="article-footer">
-      <p>本页最后更新：2026-09-26 · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/posts/welcome/index.html" rel="noopener">在 GitHub 上编辑</a>。</p>
+      <p>本页最后更新：2026-09-26 · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/posts/welcome/index.md" rel="noopener">在 GitHub 上编辑</a>。</p>
     </footer>
+
   </main>
 
   <footer class="site-footer">
@@ -175,6 +173,8 @@
       <a href="/">首页</a>
       <a href="/posts/">文章</a>
       <a href="/archive/">归档</a>
+      <a href="/tags/">标签</a>
+      <a href="/search/">搜索</a>
       <a href="/about/">关于</a>
       <a href="/feeds/rss.xml">RSS</a>
       <a href="https://github.com/itingyu" rel="noopener">GitHub</a>
