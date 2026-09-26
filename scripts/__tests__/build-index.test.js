@@ -8,8 +8,10 @@ const os = require('node:os');
 
 const bi = require('../build-index.js');
 const {
-  scanPosts, sortPosts,
+  scanPosts, sortPosts, sortPostsAsc,
   scanCover, computeRelated, injectArticlePageEnhancements,
+  computePrevNext, buildPostNav,
+  injectPrevNextHead, injectPostNav,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
@@ -747,7 +749,7 @@ test('build: article page injects BreadcrumbList JSON-LD with 3 ListItems', () =
   const tmp = makeProject({ posts: ['multi-tag-post'] });
   try {
     const posts = scanPosts(tmp);
-    const me = posts.find(p => p.slug === 'multi-tag-post');
+    const me = posts[0];
     const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
 
@@ -960,7 +962,7 @@ test('build: --check stays green after JSON-LD injection on all 4 page types', (
   } finally { cleanProject(tmp); }
 });
 
-// ----- 36. AIWORK1-36 heading 深链 + 一键复制锚点 -----------------------
+// ----- 40. AIWORK1-36 heading 深链 + 一键复制锚点 -----------------------
 
 test('build: theme.js declares initHeadingAnchors with clipboard + slug + dedupe', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'theme.js'), 'utf8');
@@ -979,4 +981,196 @@ test('build: style.css declares .heading-anchor with hover/focus + reduced-motio
   assert.ok(/\.heading-anchor\.is-flashed/.test(css), 'should declare flash state');
   assert.ok(/prefers-reduced-motion: reduce[\s\S]*\.heading-anchor\s*\{[^}]*transition:\s*none/.test(css),
     'should disable transition under prefers-reduced-motion');
+});
+
+// ----- 41. AIWORK1-33 prev/next: 边界 1 = 单篇(空集合) ------------------
+
+test('build: prev/next with no posts → no links, no nav injected', () => {
+  // 空集合 → 不应有 articlePages,也不应注入任何 prev/next 内容
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'prevnext-empty-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    const posts = scanPosts(tmp);
+    assert.equal(posts.length, 0, 'should have no posts');
+    const me = { slug: 'phantom', title: '幻', date: '2026-01-01', tags: [], warnings: [] };
+    const { prev, next } = computePrevNext(me, posts);
+    assert.equal(prev, null);
+    assert.equal(next, null);
+    assert.equal(buildPostNav(null, null), '', 'empty nav HTML');
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// ----- 42. AIWORK1-33 prev/next: 边界 2 = 单篇 ----------------------------
+
+test('build: prev/next with single post → no rel=prev/next, no nav block', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const { prev, next } = computePrevNext(me, posts);
+    assert.equal(prev, null, 'single post must have no prev');
+    assert.equal(next, null, 'single post must have no next');
+
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+    assert.ok(!/<link\s+rel=["']prev["']/.test(out), 'single post should not inject rel="prev"');
+    assert.ok(!/<link\s+rel=["']next["']/.test(out), 'single post should not inject rel="next"');
+    assert.ok(!/class="post-nav/.test(out), 'single post should not inject post-nav block');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 43. AIWORK1-33 prev/next: 边界 3 = 多篇首末 + 中间 ----------------
+
+test('build: prev/next with multiple posts → first has only next, last has only prev, middle has both', () => {
+  // minimal-post(2026-01-15) < multi-tag-post(2026-02-20) < edge-cases-post(2026-03-10)
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post', 'edge-cases-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const sorted = sortPostsAsc(posts);
+    assert.equal(sorted[0].slug, 'minimal-post');
+    assert.equal(sorted[1].slug, 'multi-tag-post');
+    assert.equal(sorted[2].slug, 'edge-cases-post');
+
+    // 首篇:只有 next
+    const first = computePrevNext(sorted[0], posts);
+    assert.equal(first.prev, null);
+    assert.ok(first.next && first.next.slug === 'multi-tag-post');
+
+    // 中间:prev + next
+    const mid = computePrevNext(sorted[1], posts);
+    assert.ok(mid.prev && mid.prev.slug === 'minimal-post');
+    assert.ok(mid.next && mid.next.slug === 'edge-cases-post');
+
+    // 末篇:只有 prev
+    const last = computePrevNext(sorted[2], posts);
+    assert.ok(last.prev && last.prev.slug === 'multi-tag-post');
+    assert.equal(last.next, null);
+
+    // 首篇的 article HTML 验证:只有 next 链接 + post-nav-next-only
+    const firstHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[0].slug, 'index.html'), 'utf8');
+    const firstOut = injectArticlePageEnhancements(firstHtml, sorted[0], posts, tmp);
+    assert.ok(!/<link\s+rel=["']prev["']/.test(firstOut),
+      'first post should not have rel="prev" in <head>');
+    assert.ok(/<link\s+rel=["']next["']\s+href="\/posts\/multi-tag-post\/"\s*\/>/.test(firstOut),
+      'first post should have rel="next" → multi-tag-post');
+    assert.ok(/class="post-nav post-nav-next-only"/.test(firstOut),
+      'first post nav should be next-only');
+    assert.ok(!/post-nav-prev/.test(firstOut),
+      'first post nav must not contain prev card');
+
+    // 中间篇:prev + next 都有
+    const midHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[1].slug, 'index.html'), 'utf8');
+    const midOut = injectArticlePageEnhancements(midHtml, sorted[1], posts, tmp);
+    assert.ok(/<link\s+rel=["']prev["']\s+href="\/posts\/minimal-post\/"\s*\/>/.test(midOut),
+      'middle post should have rel="prev" → minimal-post');
+    assert.ok(/<link\s+rel=["']next["']\s+href="\/posts\/edge-cases-post\/"\s*\/>/.test(midOut),
+      'middle post should have rel="next" → edge-cases-post');
+    assert.ok(/class="post-nav(?:\s|")/.test(midOut) && !/post-nav-prev-only/.test(midOut) && !/post-nav-next-only/.test(midOut),
+      'middle post nav should have both sides (no only-modifier)');
+
+    // 末篇:只有 prev
+    const lastHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[2].slug, 'index.html'), 'utf8');
+    const lastOut = injectArticlePageEnhancements(lastHtml, sorted[2], posts, tmp);
+    assert.ok(/<link\s+rel=["']prev["']\s+href="\/posts\/multi-tag-post\/"\s*\/>/.test(lastOut),
+      'last post should have rel="prev" → multi-tag-post');
+    assert.ok(!/<link\s+rel=["']next["']/.test(lastOut),
+      'last post should not have rel="next" in <head>');
+    assert.ok(/class="post-nav post-nav-prev-only"/.test(lastOut),
+      'last post nav should be prev-only');
+    assert.ok(!/post-nav-next/.test(lastOut),
+      'last post nav must not contain next card');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 44. AIWORK1-33 prev/next: 幂等(连续 build 不重复注入) -------------
+
+test('build: prev/next injection is idempotent across passes', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts.find(p => p.slug === 'multi-tag-post');
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+
+    const once = injectArticlePageEnhancements(html, me, posts, tmp);
+    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
+    assert.equal(once, twice, 'second pass must be byte-equal (idempotent)');
+
+    const linkMatches = (twice.match(/<link\s+rel=["']prev["']/g) || []).length;
+    assert.equal(linkMatches, 1, 'rel="prev" should appear exactly once');
+    const nextMatches = (twice.match(/<link\s+rel=["']next["']/g) || []).length;
+    assert.equal(nextMatches, 0, 'multi-tag-post has no next, rel="next" must not appear');
+
+    const navMatches = (twice.match(/class="post-nav(?:\s|")/g) || []).length;
+    assert.equal(navMatches, 1, 'post-nav block should appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 45. AIWORK1-33 prev/next: 排序按发布日期升序(同日期按 slug) -----
+
+test('build: sortPostsAsc orders by date asc with slug as tie-breaker', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post', 'edge-cases-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const asc = sortPostsAsc(posts);
+    // 2026-01-15 / 2026-02-20 / 2026-03-10
+    assert.equal(asc[0].slug, 'minimal-post');
+    assert.equal(asc[1].slug, 'multi-tag-post');
+    assert.equal(asc[2].slug, 'edge-cases-post');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 46. AIWORK1-33 buildPostNav: HTML 结构正确 -----------------------
+
+test('build: buildPostNav renders prev/next labels + title + date', () => {
+  const prev = { slug: 'a', title: 'A 标题', date: '2026-01-15' };
+  const next = { slug: 'b', title: 'B 标题', date: '2026-02-20' };
+  const nav = buildPostNav(prev, next);
+  assert.ok(/← 上一篇/.test(nav), 'prev label should be ← 上一篇');
+  assert.ok(/下一篇 →/.test(nav), 'next label should be 下一篇 →');
+  assert.ok(/A 标题/.test(nav));
+  assert.ok(/B 标题/.test(nav));
+  assert.ok(/datetime="2026-01-15"/.test(nav));
+  assert.ok(/datetime="2026-02-20"/.test(nav));
+  assert.ok(/rel="prev"/.test(nav));
+  assert.ok(/rel="next"/.test(nav));
+  assert.ok(!/post-nav-prev-only/.test(nav));
+  assert.ok(!/post-nav-next-only/.test(nav));
+});
+
+// ----- 47. AIWORK1-33 injectPrevNextHead: fallback(无 canonical) -------
+
+test('build: injectPrevNextHead falls back to </head> when no canonical link', () => {
+  const html = `<!doctype html><html><head>
+  <meta charset="utf-8" />
+  <meta name="article:published_time" content="2026-01-15" />
+</head><body></body></html>`;
+  const prev = { slug: 'a', title: 'A', date: '2026-01-15' };
+  const out = injectPrevNextHead(html, prev, null);
+  assert.ok(/<link\s+rel="prev"\s+href="\/posts\/a\/"\s*\/>/.test(out));
+  // 不应留空行(原始 </head> 前的 \n 与注入的 \n 合并产生双 \n = 空行)
+  assert.ok(!/算法/.test(out) || !/\n\n  <link/.test(out));
+  // 注入位置在 </head> 紧邻前一行(不应被插到 </head> 之后)
+  const linkIdx = out.indexOf('<link rel="prev"');
+  const headEndIdx = out.indexOf('</head>');
+  assert.ok(linkIdx > 0 && headEndIdx > linkIdx, 'link should be before </head>');
+});
+
+// ----- 48. AIWORK1-33 --only prevnext: CLI 子模式可用 ------------------
+
+test('build: --only prevnext runs without error and refreshes article pages', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+    // 再次执行 --only prevnext(模拟 PR 反馈后只跑这一档)
+    const { spawnSync } = require('node:child_process');
+    const r = spawnSync(process.execPath,
+      [path.join(__dirname, '..', 'build-index.js'), '--only', 'prevnext', '--root', tmp],
+      { encoding: 'utf8' });
+    assert.equal(r.status, 0, `cli should exit 0, got ${r.status}: ${r.stderr}`);
+    // 写盘后 checkDrift 应为空
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [],
+      'drift should be empty after --only prevnext');
+  } finally { cleanProject(tmp); }
 });
