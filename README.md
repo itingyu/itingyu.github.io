@@ -23,7 +23,7 @@ assets/                 样式 / 主题切换 / favicon
 scripts/                写作 + 构建脚本
   new-post.sh           一键生成新文章页
   templates/post.html   文章模板
-  render-finance-brief.js   金融简报 Markdown → HTML
+  render-finance-brief.js   金融简报 Markdown → posts/<slug>/index.md(v2 源文件)
   finance-sync.sh       拉 Multica 金融小队简报 → 渲染 → 提示 commit
   publish.sh            一键发布:test + build + 白名单 git add + commit + push
   publish-finance-brief.sh  金融简报专属流程(末尾委托 publish.sh 推送特性分支)
@@ -142,7 +142,7 @@ node scripts/build-index.js --help        # usage
 # 写简报评论时务必附 .md 附件(否则 finance-sync.sh 找不到)
 ```
 
-底层调用:`finance-sync.sh` → `render-finance-brief.js` → `npm run build` → `git push` 分支。
+底层调用(v2 · M6.4 改产 .md):`finance-sync.sh` → `render-finance-brief.js`(产 `posts/<slug>/index.md`)→ `publish.sh <slug>` → `.github/workflows/build-posts.yml` 监听 push 后自动 `npm run build` 出 HTML。
 
 ## 后续
 

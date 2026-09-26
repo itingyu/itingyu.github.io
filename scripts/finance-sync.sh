@@ -187,12 +187,12 @@ render_and_print() {
     --date "$date"
   echo
   echo "产物:"
-  echo "  posts/$slug/index.html"
+  echo "  posts/$slug/index.md"
   echo
   echo "下一步(review 后再 push):"
-  echo "  git add posts/$slug/index.html posts/index.html archive/index.html"
-  echo "  git commit -m \"AIWORK1-27 · 新增金融简报 $slug\""
-  echo "  git push"
+  echo "  bash scripts/publish.sh $slug"
+  echo "  # publish.sh 会:git add posts/$slug/index.md → commit → push master"
+  echo "  # HTML 产物由 .github/workflows/build-posts.yml 监听 push 后自动 build"
 }
 
 resolve_issue() {
