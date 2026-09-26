@@ -7,6 +7,15 @@
   <meta name="description" content="按标签浏览所有文章。" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="canonical" href="https://itingyu.github.io/tags/" />
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('itingyu-theme');
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/assets/style.css" />
   <script defer src="/assets/theme.js"></script>
 </head>
@@ -44,8 +53,6 @@
   <main id="main" class="container">
     <h1>标签</h1>
     <div class="tag-row">
-      <a class="chip" href="/tags/finance/">金融 <span style="opacity:.6">· 0</span></a>
-      <a class="chip" href="/tags/algorithm/">算法 <span style="opacity:.6">· 0</span></a>
       <a class="chip" href="/tags/note/">随笔 <span style="opacity:.6">· 1</span></a>
     </div>
 

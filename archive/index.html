@@ -7,6 +7,15 @@
   <meta name="description" content="按月归档的全部文章。" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="canonical" href="https://itingyu.github.io/archive/" />
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('itingyu-theme');
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (_) {}
+    })();
+  </script>
   <link rel="stylesheet" href="/assets/style.css" />
   <script defer src="/assets/theme.js"></script>
 </head>
