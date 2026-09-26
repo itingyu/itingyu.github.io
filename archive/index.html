@@ -7,6 +7,7 @@
   <meta name="description" content="按月归档的全部文章。" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="canonical" href="https://itingyu.github.io/archive/" />
+
   <script>
     (function(){
       try {
@@ -28,11 +29,11 @@
       <span>itingyu</span>
     </a>
     <nav class="site-nav" aria-label="主导航">
-      <a href="/">首页</a>
-      <a href="/posts/">文章</a>
-      <a href="/archive/" aria-current="page">归档</a>
-      <a href="/tags/">标签</a>
-      <a href="/about/">关于</a>
+      <a href="/" data-nav="home">首页</a>
+      <a href="/posts/" data-nav="posts">文章</a>
+      <a href="/archive/" data-nav="archive" aria-current="page">归档</a>
+      <a href="/tags/" data-nav="tags">标签</a>
+      <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
               aria-label="切换主题" data-theme-toggle>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
@@ -52,7 +53,6 @@
 
   <main id="main" class="container">
     <h1>归档</h1>
-
     <div class="archive-group">
       <h3>2026 年 9 月</h3>
       <ul>
@@ -62,6 +62,7 @@
         </li>
       </ul>
     </div>
+
   </main>
 
   <footer class="site-footer">

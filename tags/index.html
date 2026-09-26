@@ -7,6 +7,7 @@
   <meta name="description" content="按标签浏览所有文章。" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="canonical" href="https://itingyu.github.io/tags/" />
+
   <script>
     (function(){
       try {
@@ -28,11 +29,11 @@
       <span>itingyu</span>
     </a>
     <nav class="site-nav" aria-label="主导航">
-      <a href="/">首页</a>
-      <a href="/posts/">文章</a>
-      <a href="/archive/">归档</a>
-      <a href="/tags/" aria-current="page">标签</a>
-      <a href="/about/">关于</a>
+      <a href="/" data-nav="home">首页</a>
+      <a href="/posts/" data-nav="posts">文章</a>
+      <a href="/archive/" data-nav="archive">归档</a>
+      <a href="/tags/" data-nav="tags" aria-current="page">标签</a>
+      <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
               aria-label="切换主题" data-theme-toggle>
         <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
@@ -57,6 +58,7 @@
     </div>
 
     <p style="color:var(--fg-muted)">更多标签会在文章数增加后展开。</p>
+
   </main>
 
   <footer class="site-footer">
