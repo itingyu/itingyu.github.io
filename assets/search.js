@@ -1,6 +1,59 @@
-(function () {
+(function (exports) {
   'use strict';
   var INDEX_URL = '/assets/search-index.json';
+
+  function editDistance(a, b) {
+    if (a === b) return 0;
+    if (!a.length) return b.length;
+    if (!b.length) return a.length;
+    var v0 = new Array(b.length + 1);
+    var v1 = new Array(b.length + 1);
+    for (var i = 0; i <= b.length; i++) v0[i] = i;
+    for (var i = 0; i < a.length; i++) {
+      v1[0] = i + 1;
+      for (var j = 0; j < b.length; j++) {
+        var cost = a.charAt(i) === b.charAt(j) ? 0 : 1;
+        v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+      }
+      var tmp = v0; v0 = v1; v1 = tmp;
+    }
+    return v0[b.length];
+  }
+
+  // fuzzyMatch(query, posts, topN):
+  //   query  用户输入的 slug(已 lower-case trim)
+  //   posts  索引数组(每项含 slug/title/url 等)
+  //   topN   候选上限,默认 3
+  // 规则:editDistance ≤ 2,或 query 前 ≥3 字符是 slug 前缀;
+  // 完全相等的 slug 跳过(避免建议当前已存在的页)
+  function fuzzyMatch(query, posts, topN) {
+    topN = topN == null ? 3 : topN;
+    query = String(query == null ? '' : query).trim().toLowerCase();
+    if (!query) return [];
+    var qPrefix = query.length >= 3 ? query.slice(0, 3) : '';
+    var hits = [];
+    (posts || []).forEach(function (p) {
+      if (!p || !p.slug) return;
+      var slug = String(p.slug).toLowerCase();
+      if (slug === query) return;
+      var dist = editDistance(query, slug);
+      var prefix = qPrefix && slug.indexOf(qPrefix) === 0;
+      if (dist <= 2 || prefix) {
+        hits.push({ post: p, score: -dist + (prefix ? 0.5 : 0) });
+      }
+    });
+    hits.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return (b.post.date || '').localeCompare(a.post.date || '');
+    });
+    return hits.slice(0, topN).map(function (h) { return h.post; });
+  }
+
+  exports.fuzzyMatch = fuzzyMatch;
+  exports.editDistance = editDistance;
+
+  // ====== search 页面 DOM 绑定(只在含 [data-search-input] 的页面运行) ======
+  if (typeof document === 'undefined') return;
 
   var inputEl = document.querySelector('[data-search-input]');
   var statusEl = document.querySelector('[data-search-status]');
@@ -87,7 +140,7 @@
     var sorted = index.slice().sort(function (a, b) {
       return (b.date || '').localeCompare(a.date || '');
     });
-    setStatus('共 ' + index.length + ' 篇文章。输入关键词过滤。');
+    setStatus('共 ' + index.length + '篇文章。输入关键词过滤。');
     resultsEl.innerHTML = sorted.map(function (p) { return hitHTML(p, []); }).join('');
   }
 
@@ -153,4 +206,8 @@
       renderDefault();
     }
   });
-})();
+})(
+  typeof module !== 'undefined' && module.exports
+    ? module.exports
+    : (typeof window !== 'undefined' ? (window.ItBlogSearch = window.ItBlogSearch || {}) : {})
+);
