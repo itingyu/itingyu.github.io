@@ -165,7 +165,7 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 1. ./scripts/new-post.sh <slug> "<title>" [--tag ...] [--date ...] [--excerpt ...]
    → 生成 posts/<slug>/index.html（含完整 head meta / JSON-LD / 占位正文）
 2. 编辑 posts/<slug>/index.html 正文
-3. 由 scripts/build-index.js（AIWORK1-28）增量重生成以下页面：
+3. 由 scripts/build-index.js（AIWORK1-32 增量路径）重生成以下页面：
    - index.html（首页最新文章）
    - posts/index.html（文章列表）
    - archive/index.html（归档）
@@ -173,6 +173,10 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
    - tags/<tag>/index.html（如该标签下有变化）
    - feeds/rss.xml
    - sitemap.xml
+   - search/index.html + assets/search-index.json（基线页，不受 --only 影响）
+   注:增量路径基于 SHA-256 缓存( scripts/.cache/build-index/index.json ),
+       只重算有 post 内容变更影响的文件,改 1 篇 100+ 篇规模下 < 0.5s。
+       模板 / 解析规则改动后必须 `npm run build -- --no-cache` 或删缓存目录。
 4. git add . && git commit && git push
 5. GitHub Pages 自动部署
 ```

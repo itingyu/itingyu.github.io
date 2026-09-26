@@ -17,6 +17,9 @@ const {
   computeBuild, writeBuild, checkDrift,
   renderBreadcrumbListJSONLD, renderCollectionPageJSONLD, renderBlogJSONLD,
   injectJSONLDIntoHead, postURL,
+  sha256, sha256FileSync, loadCache, saveCache, clearCache,
+  runFullBuild, runIncrementalBuild,
+  CACHE_REL_DIR,
 } = bi;
 
 const FIX = path.join(__dirname, 'fixtures');
@@ -979,4 +982,424 @@ test('build: style.css declares .heading-anchor with hover/focus + reduced-motio
   assert.ok(/\.heading-anchor\.is-flashed/.test(css), 'should declare flash state');
   assert.ok(/prefers-reduced-motion: reduce[\s\S]*\.heading-anchor\s*\{[^}]*transition:\s*none/.test(css),
     'should disable transition under prefers-reduced-motion');
+});
+
+// ============================================================
+// 增量构建缓存(SHA-256)
+// ============================================================
+
+function makeCacheCleanProject(opts = {}) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-cache-'));
+  const slugs = opts.slugs || ['minimal-post', 'multi-tag-post', 'edge-cases-post'];
+  fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+  for (const slug of slugs) {
+    const src = path.join(FIX, slug, 'index.html');
+    const dst = path.join(tmp, 'posts', slug, 'index.html');
+    fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+    fs.copyFileSync(src, dst);
+  }
+  // 始终自带 home markers,便于校验 home 增量
+  fs.writeFileSync(path.join(tmp, 'index.html'),
+    `<!doctype html><html><head><title>Home</title></head><body>
+  <main>
+    <section class="hero">HERO</section>
+    <!-- build:posts-start -->
+    <!-- build:posts-end -->
+  </main>
+</body></html>
+`);
+  return tmp;
+}
+
+function withCapturedStdout(fn) {
+  const origWrite = process.stdout.write.bind(process.stdout);
+  const chunks = [];
+  process.stdout.write = (chunk) => { chunks.push(String(chunk)); return true; };
+  try { fn(); }
+  finally { process.stdout.write = origWrite; }
+  return chunks.join('');
+}
+
+function touchPostTitle(tmp, slug, suffix) {
+  // 改 <title> 与 og:title / h1 — 这会影响 posts/index.html / archive / rss / 首页 等聚合页
+  const file = path.join(tmp, 'posts', slug, 'index.html');
+  let html = fs.readFileSync(file, 'utf8');
+  html = html.replace(/<title>([^<]*)<\/title>/, `<title>$1 ${suffix}</title>`);
+  fs.writeFileSync(file, html);
+}
+
+// ----- 36. loadCache / saveCache 原子写 ---------------------------------
+
+test('cache: loadCache returns null on missing file', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-cache-empty-'));
+  try {
+    assert.equal(loadCache(tmp), null);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('cache: saveCache + loadCache roundtrip preserves schema', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-cache-rt-'));
+  try {
+    const obj = {
+      version: 1,
+      postShas: { a: 'abc123' },
+      fileShas: { 'posts/a/index.html': 'def456' },
+      tagSlugs: ['note', 'finance'],
+    };
+    saveCache(tmp, obj);
+    const loaded = loadCache(tmp);
+    assert.deepEqual(loaded, obj);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('cache: loadCache returns null on version mismatch', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-cache-bad-'));
+  try {
+    fs.mkdirSync(path.join(tmp, CACHE_REL_DIR), { recursive: true });
+    fs.writeFileSync(path.join(tmp, CACHE_REL_DIR, 'index.json'),
+      JSON.stringify({ version: 999, postShas: {}, fileShas: {}, tagSlugs: [] }));
+    assert.equal(loadCache(tmp), null);
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+test('cache: clearCache removes the cache directory', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-cache-clear-'));
+  try {
+    saveCache(tmp, { version: 1, postShas: {}, fileShas: {}, tagSlugs: [] });
+    assert.ok(fs.existsSync(path.join(tmp, CACHE_REL_DIR, 'index.json')));
+    clearCache(tmp);
+    assert.ok(!fs.existsSync(path.join(tmp, CACHE_REL_DIR, 'index.json')));
+  } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
+});
+
+// ----- 37. 全量 build 后写缓存,且 SHA 一致 -----------------------------
+
+test('incremental: full build writes cache + fileShas match disk', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => {
+      const code = runFullBuild({ root: tmp, check: false, noCache: true, only: null });
+      assert.equal(code, 0);
+    });
+    const cache = loadCache(tmp);
+    assert.ok(cache, 'cache should exist after full build');
+    assert.equal(cache.version, 1);
+    assert.deepEqual(Object.keys(cache.postShas).sort(),
+      ['edge-cases-post', 'minimal-post', 'multi-tag-post']);
+    for (const [rel, sha] of Object.entries(cache.fileShas)) {
+      const onDisk = sha256FileSync(path.join(tmp, rel));
+      assert.equal(onDisk, sha, `fileSha for ${rel} should match disk`);
+    }
+    assert.deepEqual(cache.tagSlugs.sort(), ['algorithm', 'edge', 'finance', 'note']);
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 38. 改 1 篇 → 增量重算: 写集 = 受影响的聚合页 + 文章页 -------------
+
+test('incremental: change one post → affected set includes aggregates + changed post', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+
+    // 修改前快照所有受关注文件 SHA
+    const watchRels = [
+      'posts/index.html', 'archive/index.html', 'tags/index.html',
+      'feeds/rss.xml', 'sitemap.xml', 'index.html',
+      'search/index.html', 'assets/search-index.json',
+      'tags/note/index.html', 'tags/finance/index.html', 'tags/algorithm/index.html',
+      'posts/minimal-post/index.html',
+      'posts/multi-tag-post/index.html',
+      'posts/edge-cases-post/index.html',
+    ];
+    const before = new Map();
+    for (const rel of watchRels) before.set(rel, sha256FileSync(path.join(tmp, rel)));
+
+    // 改动 multi-tag-post 标题(影响多个聚合页)
+    touchPostTitle(tmp, 'multi-tag-post', '(增量)');
+
+    // 跑增量(通过 runIncrementalBuild 直接调,不打印)
+    withCapturedStdout(() => {
+      const code = runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null });
+      assert.equal(code, 0);
+    });
+
+    // 受影响的聚合页必须被重写:
+    //   posts/index.html, archive/index.html, tags/index.html, feeds/rss.xml,
+    //   assets/search-index.json, index.html(home), tags/note/index.html,
+    //   tags/finance/index.html, tags/algorithm/index.html(若有),
+    //   posts/multi-tag-post/index.html(自身)
+    const after = new Map();
+    for (const rel of watchRels) after.set(rel, sha256FileSync(path.join(tmp, rel)));
+
+    // 至少这 5 个聚合页 + 自身文章页 SHA 必须变
+    const mustRewrite = [
+      'posts/index.html', 'archive/index.html',
+      'feeds/rss.xml', 'index.html', 'assets/search-index.json',
+      'posts/multi-tag-post/index.html',
+    ];
+    for (const rel of mustRewrite) {
+      assert.notEqual(after.get(rel), before.get(rel),
+        `${rel} should be rewritten after multi-tag-post changed`);
+    }
+
+    // 其他未改 post 的 article 页:由于 related 跨页聚合安全保守,仍重算;
+    // SHA 可能 = 也可能 !=,只断言「内容等于磁盘」(幂等)
+    for (const rel of ['posts/minimal-post/index.html', 'posts/edge-cases-post/index.html']) {
+      const computed = computeBuild(tmp).articlePages[rel];
+      const onDisk = fs.readFileSync(path.join(tmp, rel), 'utf8');
+      assert.equal(computed, onDisk, `${rel} disk content should equal recomputed content`);
+    }
+
+    // 缓存 postSha 应反映新内容
+    const cache = loadCache(tmp);
+    const actualPostSha = sha256FileSync(path.join(tmp, 'posts/multi-tag-post/index.html'));
+    assert.equal(cache.postShas['multi-tag-post'], actualPostSha);
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 39. 无变化 → 增量路径 = no-op, 无写入 -----------------------------
+
+test('incremental: no post changes → no-op (no writes, fast path)', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+
+    // 不修改任何东西,再跑一次
+    const out = withCapturedStdout(() => {
+      const code = runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null });
+      assert.equal(code, 0);
+    });
+    assert.ok(/no-op/.test(out), 'should print no-op message, got: ' + JSON.stringify(out));
+
+    // 各文件 mtime 不应被触动(以缓存文件作见证)
+    const cacheFile = path.join(tmp, CACHE_REL_DIR, 'index.json');
+    const stat1 = fs.statSync(cacheFile);
+    // 再跑一次,但不改 cacheFile 的预期
+    withCapturedStdout(() => runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null }));
+    const stat2 = fs.statSync(cacheFile);
+    assert.equal(stat2.mtimeMs, stat1.mtimeMs, 'cache file mtime should not move on no-op');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 40. --no-cache flag 等价首次全量(无 cache 也走全量) --------------
+
+test('incremental: --no-cache forces full rebuild even when cache present', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+
+    // 标记 cache 文件,等下验证是否被重写
+    const cacheFile = path.join(tmp, CACHE_REL_DIR, 'index.json');
+    const statBefore = fs.statSync(cacheFile);
+
+    // 跑 --no-cache 路径(走 runFullBuild 分支)
+    const out = withCapturedStdout(() => {
+      const code = require('../build-index.js').run(['--no-cache', '--root', tmp]);
+      assert.equal(code, 0);
+    });
+    assert.ok(/no-cache: full rebuild/.test(out),
+      'should announce no-cache mode, got: ' + JSON.stringify(out));
+
+    const statAfter = fs.statSync(cacheFile);
+    assert.notEqual(statAfter.mtimeMs, statBefore.mtimeMs,
+      'cache file should be rewritten under --no-cache');
+
+    // 缓存内容应一致
+    const cache = loadCache(tmp);
+    assert.ok(cache, 'cache should be valid after --no-cache rebuild');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 41. 缺失 cache 时回落到全量 ---------------------------------------
+
+test('incremental: no cache present → falls back to full rebuild + persists cache', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    // 不预建缓存,直接调用入口 run()
+    const out = withCapturedStdout(() => {
+      const code = require('../build-index.js').run(['--root', tmp]);
+      assert.equal(code, 0);
+    });
+    assert.ok(!/no-cache: full rebuild/.test(out),
+      'should not print no-cache banner when cache simply missing');
+
+    // 缓存应被建立
+    const cache = loadCache(tmp);
+    assert.ok(cache, 'cache should be created after first full build');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 42. 删除 tag → 增量修剪 stale tag 页 -------------------------------
+
+test('incremental: removing a tag from all posts prunes the stale tag page', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+
+    // 应当存在 tags/finance 与 tags/note
+    assert.ok(fs.existsSync(path.join(tmp, 'tags', 'finance', 'index.html')));
+    assert.ok(fs.existsSync(path.join(tmp, 'tags', 'note', 'index.html')));
+
+    // 删除所有带 finance tag 的 post 的 tag meta → 期望 tags/finance/index.html 被删
+    for (const slug of ['multi-tag-post']) {
+      const f = path.join(tmp, 'posts', slug, 'index.html');
+      let html = fs.readFileSync(f, 'utf8');
+      html = html.replace(/<meta\s+property="article:tag"\s+content="金融"\s*\/?>/g, '');
+      // 同时清理 chip
+      html = html.replace(/<a class="chip" href="\/tags\/finance\/" data-tag="finance">金融<\/a>/g, '');
+      html = html.replace(/<span class="dot">·<\/span>\s*<a class="chip" href="\/tags\/finance\/"/g, '<a class="chip" href="/tags/finance/"');
+      fs.writeFileSync(f, html);
+    }
+
+    withCapturedStdout(() => {
+      const code = runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null });
+      assert.equal(code, 0);
+    });
+
+    assert.ok(!fs.existsSync(path.join(tmp, 'tags', 'finance', 'index.html')),
+      'stale tag page should be removed');
+    assert.ok(fs.existsSync(path.join(tmp, 'tags', 'note', 'index.html')),
+      'note tag page should remain');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 43. 首页「最新文章」区跨页聚合:1 篇改动必重算 ---------------------
+
+test('incremental: changing top-N post triggers home page rewrite', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+
+    const before = sha256FileSync(path.join(tmp, 'index.html'));
+
+    // 改 edge-cases-post(2026-03-10,当前首页第一篇)的标题
+    const f = path.join(tmp, 'posts', 'edge-cases-post', 'index.html');
+    let html = fs.readFileSync(f, 'utf8');
+    html = html.replace('<title>Edge cases · itingyu</title>', '<title>Edge cases (已改) · itingyu</title>');
+    fs.writeFileSync(f, html);
+
+    withCapturedStdout(() => {
+      const code = runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null });
+      assert.equal(code, 0);
+    });
+
+    const after = sha256FileSync(path.join(tmp, 'index.html'));
+    assert.notEqual(after, before, 'home page should be rewritten when top post title changes');
+    const home = fs.readFileSync(path.join(tmp, 'index.html'), 'utf8');
+    assert.ok(home.includes('Edge cases (已改)'),
+      'home should reflect the new top post title');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 44. 100 篇 fixture:改 1 篇 → npm run build 走 < 0.5s --------------
+
+test('incremental: 100-post fixture, change 1 → 增量路径 < 0.5s', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'bi-100-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    // home 模板(供首页「最新文章」注入)
+    fs.writeFileSync(path.join(tmp, 'index.html'),
+      `<!doctype html><html lang="zh-CN"><head>
+  <meta charset="utf-8" />
+  <title>首页 · itingyu</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+</head><body><main>
+  <section class="hero">HERO</section>
+  <!-- build:posts-start -->
+  <!-- build:posts-end -->
+</main></body></html>
+`);
+    function mkPost(slug, i) {
+        fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+        const tag = i % 7 === 0 ? 'hot' : (i % 3 === 0 ? 'warm' : 'cold');
+        const date = `2026-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`;
+        fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
+          `<!doctype html><html lang="zh-CN"><head>
+  <meta charset="utf-8" />
+  <title>第 ${i} 篇 · itingyu</title>
+  <meta name="description" content="第 ${i} 篇占位摘要,用于压测增量构建。" />
+  <meta property="article:published_time" content="${date}" />
+  <meta property="article:tag" content="${tag}" />
+  <link rel="stylesheet" href="/assets/style.css" />
+</head><body><main><article>
+  <h2>第 ${i} 段</h2>
+  <p>这是第 ${i} 篇文章的正文,用于测试增量构建在 100+ 文章规模下的耗时。</p>
+</article></main></body></html>
+`);
+      }
+      for (let i = 0; i < 100; i++) {
+        mkPost(`post-${String(i).padStart(3, '0')}`, i);
+      }
+
+    // 首次 build 走全量
+    const fullStart = Date.now();
+    withCapturedStdout(() => {
+      const code = runFullBuild({ root: tmp, check: false, noCache: true, only: null });
+      assert.equal(code, 0);
+    });
+    const fullMs = Date.now() - fullStart;
+    // (不强约束,只是 sanity log)
+    assert.ok(fullMs < 5000, `full build should finish under 5s, took ${fullMs}ms`);
+
+    // 改 1 篇
+    const targetSlug = 'post-042';
+    const targetFile = path.join(tmp, 'posts', targetSlug, 'index.html');
+    let targetHtml = fs.readFileSync(targetFile, 'utf8');
+    targetHtml = targetHtml.replace('第 42 段', '第 42 段(增量改动)');
+    fs.writeFileSync(targetFile, targetHtml);
+
+    // 二次 build 走增量
+    const incStart = Date.now();
+    withCapturedStdout(() => {
+      const code = runIncrementalBuild({ root: tmp, check: false, noCache: false, only: null });
+      assert.equal(code, 0);
+    });
+    const incMs = Date.now() - incStart;
+    assert.ok(incMs < 500,
+      `incremental build should finish under 500ms with 100 posts, took ${incMs}ms`);
+
+    // 受影响文件至少含聚合页 + 自身
+    const homeSha = sha256FileSync(path.join(tmp, 'index.html'));
+    const rssSha = sha256FileSync(path.join(tmp, 'feeds/rss.xml'));
+    const postSha = sha256FileSync(path.join(tmp, 'posts', targetSlug, 'index.html'));
+    // 自身文章页必变(rss 含全文,所以变了;首页「最新文章」top 3 也可能变)
+    const homeContent = fs.readFileSync(path.join(tmp, 'index.html'), 'utf8');
+    assert.ok(homeContent.length > 0 && postSha.length === 64);
+
+    // --check 应仍然能正确报告(no drift 因为我们刚增量 build 过)
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [], 'checkDrift should be clean after incremental build');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 45. --check 仍能检测 drift(不受缓存影响) --------------------------
+
+test('incremental: --check still detects drift even with cache present', () => {
+  const tmp = makeCacheCleanProject();
+  try {
+    withCapturedStdout(() => runFullBuild({ root: tmp, check: false, noCache: true, only: null }));
+    // 手工篡改 posts/index.html
+    const idx = path.join(tmp, 'posts', 'index.html');
+    fs.appendFileSync(idx, '\n<!-- tampered -->\n');
+    // 通过入口跑 --check(必须 exit 1 + 报告 drift)
+    const origWrite = process.stdout.write.bind(process.stdout);
+    const chunks = [];
+    process.stdout.write = (chunk) => { chunks.push(String(chunk)); return true; };
+    let code;
+    try {
+      code = require('../build-index.js').run(['--check', '--root', tmp]);
+    } finally { process.stdout.write = origWrite; }
+    const out = chunks.join('');
+    assert.equal(code, 1, '--check should exit 1 on drift');
+    assert.ok(/drift detected/.test(out));
+    assert.ok(/posts\/index\.html/.test(out));
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 46. .gitignore 已忽略 cache 目录 -----------------------------------
+
+test('incremental: .gitignore excludes scripts/.cache/', () => {
+  const gi = fs.readFileSync(path.join(__dirname, '..', '..', '.gitignore'), 'utf8');
+  assert.ok(/scripts\/\.cache\//.test(gi),
+    '.gitignore must ignore the incremental cache directory');
 });

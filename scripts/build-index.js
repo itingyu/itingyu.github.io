@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const url = require('node:url');
+const crypto = require('node:crypto');
 
 // ============================================================
 // Configuration
@@ -18,6 +19,66 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 const POSTS_DIR = path.join(ROOT, 'posts');
 const INDEX_FILE = path.join(ROOT, 'index.html');
 const COVER_EXTS = ['svg', 'jpg', 'jpeg', 'png', 'webp'];
+
+// ============================================================
+// Incremental build cache (SHA-256)
+// ============================================================
+// 缓存 schema:
+//   {
+//     "version": 1,
+//     "postShas": { "<slug>": "<sha256 of posts/<slug>/index.html>" },
+//     "fileShas": { "<rel-path>": "<sha256 of disk content after build>" },
+//     "tagSlugs": ["finance", ...]
+//   }
+// 缓存位置:`scripts/.cache/build-index/index.json`(已加入 .gitignore)
+// 失效策略:见 README「缓存失效策略」节。
+// 任何改动 front matter 解析规则(parseFrontmatter / 模板 / pageShell / 聚合渲染)
+// 都必须删除此目录,否则会输出陈旧内容。
+
+const CACHE_VERSION = 1;
+const CACHE_REL_DIR = path.join('scripts', '.cache', 'build-index');
+const CACHE_FILE_NAME = 'index.json';
+
+function cacheFileFor(rootDir) {
+  return path.join(rootDir, CACHE_REL_DIR, CACHE_FILE_NAME);
+}
+
+function sha256(buf) {
+  return crypto.createHash('sha256').update(buf).digest('hex');
+}
+
+function sha256FileSync(p) {
+  return sha256(fs.readFileSync(p));
+}
+
+function loadCache(rootDir) {
+  const f = cacheFileFor(rootDir);
+  try {
+    const raw = fs.readFileSync(f, 'utf8');
+    const obj = JSON.parse(raw);
+    if (!obj || obj.version !== CACHE_VERSION) return null;
+    if (!obj.postShas || typeof obj.postShas !== 'object') return null;
+    if (!obj.fileShas || typeof obj.fileShas !== 'object') return null;
+    if (!Array.isArray(obj.tagSlugs)) return null;
+    return obj;
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveCache(rootDir, cache) {
+  const dir = path.join(rootDir, CACHE_REL_DIR);
+  fs.mkdirSync(dir, { recursive: true });
+  const f = cacheFileFor(rootDir);
+  const tmp = f + '.tmp';
+  fs.writeFileSync(tmp, JSON.stringify(cache, null, 2) + '\n');
+  fs.renameSync(tmp, f);
+}
+
+function clearCache(rootDir) {
+  const dir = path.join(rootDir, CACHE_REL_DIR);
+  fs.rmSync(dir, { recursive: true, force: true });
+}
 
 // ============================================================
 // HTML escaping
@@ -1052,11 +1113,14 @@ function checkDrift(build, rootDir = ROOT) {
 // CLI
 // ============================================================
 
+const ALL_TARGETS = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages'];
+
 function usage() {
   return `Usage: node scripts/build-index.js [options]
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
+  --no-cache       Force full rebuild (bypass SHA-256 cache, equivalent to fresh clone)
   --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
@@ -1064,10 +1128,11 @@ Options:
 }
 
 function parseArgs(argv) {
-  const opts = { check: false, only: null, root: ROOT };
+  const opts = { check: false, noCache: false, only: null, root: ROOT };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--check') opts.check = true;
+    else if (a === '--no-cache') opts.noCache = true;
     else if (a === '--only') { opts.only = argv[++i]; }
     else if (a === '--root') { opts.root = path.resolve(argv[++i]); }
     else if (a === '-h' || a === '--help') { opts.help = true; }
@@ -1076,22 +1141,65 @@ function parseArgs(argv) {
   return opts;
 }
 
-function run(argv) {
-  const opts = parseArgs(argv);
-  if (opts.help) { process.stdout.write(usage()); return 0; }
-  const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages'];
-
-  let targets = allNames;
-  if (opts.only) {
-    if (!allNames.includes(opts.only)) {
-      process.stderr.write(`Unknown --only target: ${opts.only}\nValid: ${allNames.join(', ')}\n`);
-      return 2;
-    }
-    targets = [opts.only];
+function resolveTargets(opts) {
+  if (!opts.only) return ALL_TARGETS;
+  if (!ALL_TARGETS.includes(opts.only)) {
+    process.stderr.write(`Unknown --only target: ${opts.only}\nValid: ${ALL_TARGETS.join(', ')}\n`);
+    return null;
   }
+  return [opts.only];
+}
 
-  // Filter files in build by target
+function relBelongsToTarget(rel, target) {
+  if (target === 'posts') return rel === 'posts/index.html';
+  if (target === 'archive') return rel === 'archive/index.html';
+  if (target === 'tags') return rel === 'tags/index.html';
+  if (target === 'tag-pages') return rel.startsWith('tags/') && rel !== 'tags/index.html';
+  if (target === 'rss') return rel === 'feeds/rss.xml';
+  if (target === 'sitemap') return rel === 'sitemap.xml';
+  if (target === 'home') return rel === 'index.html';
+  if (target === 'article-pages') return rel.startsWith('posts/') && rel !== 'posts/index.html';
+  return false;
+}
+
+// 不受 --only 过滤影响,始终写入的「基线」文件(搜索 + 静态模板)。
+function isBaselineRel(rel) {
+  return rel === 'search/index.html' || rel === 'assets/search-index.json';
+}
+
+function isAggregateRel(rel) {
+  // 不依赖具体 slug 的聚合页(以及模板无关的静态页)
+  return rel === 'posts/index.html'
+      || rel === 'archive/index.html'
+      || rel === 'tags/index.html'
+      || rel === 'feeds/rss.xml'
+      || rel === 'sitemap.xml'
+      || rel === 'index.html'
+      || rel === 'search/index.html'
+      || rel === 'assets/search-index.json';
+}
+
+function slugFromArticleRel(rel) {
+  // posts/<slug>/index.html → <slug>
+  const m = rel.match(/^posts\/([^/]+)\/index\.html$/);
+  return m ? m[1] : null;
+}
+
+function collectFileMap(build) {
+  const map = {};
+  for (const [rel, content] of Object.entries(build.files || {})) map[rel] = content;
+  for (const [rel, content] of Object.entries(build.articlePages || {})) map[rel] = content;
+  if (build.homeReplacement !== null) map['index.html'] = build.homeReplacement;
+  return map;
+}
+
+function runFullBuild(opts) {
+  // 与原行为完全一致:重新渲染所有目标并写入(无 cache 干预)。
+  const build = computeBuild(opts.root);
+  const targets = resolveTargets(opts);
+  if (!targets) return 2;
+
+  // 按目标过滤
   if (!targets.includes('posts')) delete build.files['posts/index.html'];
   if (!targets.includes('archive')) delete build.files['archive/index.html'];
   if (!targets.includes('tags')) delete build.files['tags/index.html'];
@@ -1119,7 +1227,191 @@ function run(argv) {
   const { written, removed } = writeBuild(build, opts.root);
   for (const w of written) process.stdout.write(`write  ${w}\n`);
   for (const r of removed) process.stdout.write(`remove ${r}\n`);
+
+  // 全量重建后也要写缓存,否则下次仍要走全量。
+  persistCacheFromBuild(opts.root, build);
   return 0;
+}
+
+// 重建并写盘 SHA-256 缓存(供下次 incremental 使用)。
+function persistCacheFromBuild(rootDir, build) {
+  const posts = scanPosts(rootDir);
+  const postShas = {};
+  for (const p of posts) postShas[p.slug] = sha256FileSync(p.sourcePath);
+
+  const allFiles = collectFileMap(build);
+  const fileShas = {};
+  for (const rel of Object.keys(allFiles)) {
+    try {
+      fileShas[rel] = sha256FileSync(path.join(rootDir, rel));
+    } catch (_) { /* file may have been deleted concurrently */ }
+  }
+  const tagSlugsSet = new Set();
+  for (const p of posts) for (const t of (p.tags || [])) tagSlugsSet.add(t.slug);
+  saveCache(rootDir, {
+    version: CACHE_VERSION,
+    postShas,
+    fileShas,
+    tagSlugs: Array.from(tagSlugsSet).sort(),
+  });
+}
+
+function runIncrementalBuild(opts) {
+  const cache = opts.noCache ? null : loadCache(opts.root);
+  const posts = scanPosts(opts.root);
+  const postShas = {};
+  for (const p of posts) postShas[p.slug] = sha256FileSync(p.sourcePath);
+
+  // diff post 集
+  const changedSlugs = [];
+  const addedSlugs = [];
+  const removedSlugs = [];
+  for (const slug of Object.keys(postShas)) {
+    if (!cache || !cache.postShas[slug]) addedSlugs.push(slug);
+    else if (cache.postShas[slug] !== postShas[slug]) changedSlugs.push(slug);
+  }
+  if (cache) {
+    for (const slug of Object.keys(cache.postShas)) {
+      if (!(slug in postShas)) removedSlugs.push(slug);
+    }
+  }
+  const anyPostChange = changedSlugs.length > 0 || addedSlugs.length > 0 || removedSlugs.length > 0;
+  const cachePresent = !!cache;
+
+  // 决定 --only 目标
+  const targets = resolveTargets(opts);
+  if (!targets) return 2;
+
+  // 完整渲染所有内容(纯 JS、零 IO,代价小);从 build.files / articlePages / homeReplacement 取值
+  const build = computeBuild(opts.root);
+  const allFiles = collectFileMap(build);
+
+  // 受 --only 过滤后的文件集(基线文件如搜索页/索引不受 --only 影响)。
+  const candidateRels = Object.keys(allFiles).filter(rel => {
+    if (isBaselineRel(rel)) return true;
+    return targets.some(t => relBelongsToTarget(rel, t));
+  });
+
+  // 计算受影响集合
+  const affected = new Set();
+  for (const rel of candidateRels) {
+    let dirty = false;
+
+    if (!cachePresent || opts.noCache) {
+      dirty = true;
+    } else if (!cache.fileShas[rel]) {
+      dirty = true; // 缓存从未记录过这个文件
+    } else {
+      try {
+        const diskSha = sha256FileSync(path.join(opts.root, rel));
+        if (diskSha !== cache.fileShas[rel]) dirty = true;
+      } catch (_) {
+        dirty = true; // 文件丢失 → 当 dirty 处理
+      }
+    }
+
+    // 即使 disk 干净,post 变化也可能让内容过期
+    if (!dirty && anyPostChange) {
+      if (isAggregateRel(rel)) {
+        dirty = true; // 聚合页依赖所有 post 元数据
+      } else if (rel.startsWith('tags/') && rel !== 'tags/index.html') {
+        // tag 页依赖该 tag 内的所有 post → 安全起见,任何 post 变化都重算
+        dirty = true;
+      } else if (rel.startsWith('posts/') && rel !== 'posts/index.html') {
+        // 文章页依赖自身 + 其它 post(related 跨页聚合)
+        dirty = true;
+      }
+    }
+
+    if (dirty) affected.add(rel);
+  }
+
+  // 快速通道:全 0 变化 + 全 0 dirty → 无事可做
+  if (!anyPostChange && affected.size === 0) {
+    process.stdout.write('no-op: cache + disk match, no post changes\n');
+    return 0;
+  }
+
+  // 打印 change-set 摘要(便于用户在 PR 反馈中确认增量范围)
+  const changeSummary = [];
+  if (changedSlugs.length) changeSummary.push(`changed:${changedSlugs.join(',')}`);
+  if (addedSlugs.length) changeSummary.push(`added:${addedSlugs.join(',')}`);
+  if (removedSlugs.length) changeSummary.push(`removed:${removedSlugs.join(',')}`);
+  process.stdout.write(`incremental: posts ${changeSummary.join(' | ') || 'unchanged'} | affected ${affected.size} file(s)\n`);
+
+  // 写入受影响文件(disk 对比写入,避免 mtime 无谓跳动)
+  const written = [];
+  for (const rel of affected) {
+    const expected = allFiles[rel];
+    const full = path.join(opts.root, rel);
+    let before = null;
+    try { before = fs.readFileSync(full, 'utf8'); } catch (_) {}
+    if (before === expected) continue;
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, expected);
+    written.push(rel);
+  }
+  for (const w of written) process.stdout.write(`write  ${w}\n`);
+
+  // 修剪已不存在的 tag 页(只删当前 cache.tagSlugs 已知且 posts 里不再用的)
+  const removed = pruneStaleTagPages(opts.root, posts, cache);
+  for (const r of removed) process.stdout.write(`remove ${r}\n`);
+
+  // 更新缓存:记下本次 build 后所有相关文件的 disk SHA
+  const newFileShas = {};
+  for (const rel of candidateRels) {
+    try {
+      newFileShas[rel] = sha256FileSync(path.join(opts.root, rel));
+    } catch (_) { /* 文件可能已被删 */ }
+  }
+  const tagSlugsSet = new Set();
+  for (const p of posts) for (const t of (p.tags || [])) tagSlugsSet.add(t.slug);
+  saveCache(opts.root, {
+    version: CACHE_VERSION,
+    postShas,
+    fileShas: newFileShas,
+    tagSlugs: Array.from(tagSlugsSet).sort(),
+  });
+
+  return 0;
+}
+
+function pruneStaleTagPages(rootDir, posts, cache) {
+  const removed = [];
+  const tagsDir = path.join(rootDir, 'tags');
+  if (!fs.existsSync(tagsDir)) return removed;
+  const currentTagSlugs = new Set();
+  for (const p of posts) for (const t of (p.tags || [])) currentTagSlugs.add(t.slug);
+  const tagDirs = fs.readdirSync(tagsDir, { withFileTypes: true })
+    .filter(e => e.isDirectory())
+    .map(e => e.name);
+  for (const slug of tagDirs) {
+    if (!currentTagSlugs.has(slug)) {
+      const idxFile = path.join(tagsDir, slug, 'index.html');
+      if (fs.existsSync(idxFile)) {
+        fs.unlinkSync(idxFile);
+        removed.push(`tags/${slug}/index.html`);
+      }
+    }
+  }
+  return removed;
+}
+
+function run(argv) {
+  const opts = parseArgs(argv);
+  if (opts.help) { process.stdout.write(usage()); return 0; }
+
+  // --check 始终走全量 rebuild + drift 路径(不被缓存影响)。
+  if (opts.check) return runFullBuild(opts);
+
+  // --no-cache 或缓存缺失/损坏 → 退化为原全量行为。
+  const cache = opts.noCache ? null : loadCache(opts.root);
+  if (!cache) {
+    if (opts.noCache) process.stdout.write('no-cache: full rebuild\n');
+    return runFullBuild(opts);
+  }
+
+  return runIncrementalBuild(opts);
 }
 
 if (require.main === module) {
@@ -1158,4 +1450,16 @@ module.exports = {
   HOME_END_MARK,
   RSS_LIMIT,
   HOME_LIMIT,
+  // Incremental cache (SHA-256)
+  sha256,
+  sha256FileSync,
+  loadCache,
+  saveCache,
+  clearCache,
+  run,
+  runFullBuild,
+  runIncrementalBuild,
+  parseArgs,
+  CACHE_VERSION,
+  CACHE_REL_DIR,
 };
