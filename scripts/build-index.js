@@ -394,6 +394,14 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
     );
   }
 
+  // 6. 字数 / 词数(紧跟 data-reading-time 后面;幂等)
+  if (!/data-word-count/.test(out) && /data-reading-time/.test(out)) {
+    out = out.replace(
+      /(<span\s+data-reading-time>[^<]*<\/span>)/,
+      '$1\n          <span class="dot">·</span>\n          <span class="word-count" data-word-count>统计中…</span>'
+    );
+  }
+
   return out;
 }
 
@@ -498,20 +506,31 @@ function renderTagsIndex(posts) {
       if (!tagNames.has(t.slug)) tagNames.set(t.slug, t.name);
     }
   }
-  const sorted = Array.from(counts.keys()).sort((a, b) => a.localeCompare(b));
-  const chips = sorted.length === 0
+  const sorted = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a) || a.localeCompare(b));
+
+  // 字号权重:count=min → 0.9rem,count=max → 1.8rem,中间线性插值
+  const countsArr = Array.from(counts.values());
+  const minC = Math.min(...countsArr);
+  const maxC = Math.max(...countsArr);
+  const span = Math.max(1, maxC - minC);
+  function sizeRem(c) {
+    if (maxC === minC) return '1rem';
+    const t = (c - minC) / span;
+    return (0.9 + t * 0.9).toFixed(2) + 'rem';
+  }
+
+  const cloud = sorted.length === 0
     ? ''
     : sorted.map(slug => {
         const name = tagNames.get(slug);
         const count = counts.get(slug);
-        return `      <a class="chip" href="/tags/${escapeHTML(slug)}/" data-tag="${escapeHTML(slug)}">${escapeHTML(name)} <span style="opacity:.6">· ${count}</span></a>`;
+        return `        <li><a class="chip" href="/tags/${escapeHTML(slug)}/" data-tag="${escapeHTML(slug)}" style="--tag-size:${sizeRem(count)}">${escapeHTML(name)}<span class="tag-count">${count}</span></a></li>`;
       }).join('\n');
   const main = `    <h1>标签</h1>
-    <div class="tag-row">
-${chips}
-    </div>
-
-    <p style="color:var(--fg-muted)">更多标签会在文章数增加后展开。</p>
+    <p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">字号大小反映文章数量。点击进入标签归档。</p>
+    <ul class="tag-cloud">
+${cloud}
+    </ul>
 `;
   return pageShell({
     title: '标签 · itingyu',

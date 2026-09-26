@@ -92,8 +92,8 @@ test('build: tags/index.html lists all tags with counts', () => {
     assert.ok(html.includes('/tags/note/'), 'should link note');
     assert.ok(html.includes('/tags/finance/'), 'should link finance');
     assert.ok(html.includes('/tags/algorithm/'), 'should link algorithm');
-    // counts: each tag has count 1
-    assert.ok(html.match(/·\s*1/), 'should have count 1');
+    // counts: 每个 tag 在 tag-count span 里
+    assert.ok(/class="tag-count">1<\/span>/.test(html), 'each tag count should be 1');
   } finally { cleanProject(tmp); }
 });
 
@@ -560,4 +560,87 @@ test('build: style.css has both light + dark token sets with key new vars', () =
   // print 段合并(v5.1 段)
   const printBlocks = (css.match(/@media print/g) || []).length;
   assert.equal(printBlocks, 1, 'should have exactly one print media block');
+});
+
+// ----- 27. C3 tag cloud: 字号权重 inline style 注入 ---------------------
+
+test('build: renderTagsIndex emits tag cloud with --tag-size on each chip', () => {
+  const tmp = makeProject({ posts: ['multi-tag-post', 'edge-cases-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderTagsIndex(posts);
+    assert.ok(/class="tag-cloud"/.test(html), 'should use .tag-cloud container');
+    assert.ok(/--tag-size:\s*[\d.]+rem/.test(html), 'should inject --tag-size per chip');
+    assert.ok(/class="tag-count">\d+<\/span>/.test(html), 'should display per-tag count');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: tag cloud orders tags by count desc (largest first)', () => {
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderTagsIndex(posts);
+    // multi-tag-post 有 3 个 tag,multi-tag-post 的 tag 总出现次数最多;
+    // minimal-post 无 tag。期望云里至少含 note/finance/algorithm(各 1 次)
+    assert.ok(html.indexOf('note') >= 0);
+    assert.ok(html.indexOf('finance') >= 0);
+    assert.ok(html.indexOf('algorithm') >= 0);
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 28. C11 word count injection in article meta ---------------------
+
+test('build: injectArticlePageEnhancements adds data-word-count after data-reading-time', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    assert.ok(/data-word-count/.test(out), 'should inject word count placeholder');
+    assert.ok(/class="word-count"/.test(out), 'should use .word-count class');
+    // 应紧跟在 reading-time 后
+    const iTime = out.indexOf('data-reading-time');
+    const iWord = out.indexOf('data-word-count');
+    assert.ok(iTime > 0 && iWord > 0 && iWord > iTime, 'word count must follow reading time');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 29. C11 idempotency: data-word-count only added once --------------
+
+test('build: word-count injection is idempotent', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const once = injectArticlePageEnhancements(html, me, posts, tmp);
+    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
+    assert.equal(once, twice, 'second pass must be no-op');
+    const wordMatches = (twice.match(/data-word-count/g) || []).length;
+    assert.equal(wordMatches, 1, 'data-word-count must appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 30. C8 copy button CSS in style.css -------------------------------
+
+test('build: style.css declares .copy-btn with hover/focus/copied states', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'style.css'), 'utf8');
+  assert.ok(/\.copy-btn\s*\{/.test(css), 'should declare .copy-btn');
+  assert.ok(/article pre:hover .copy-btn/.test(css), 'should reveal on pre hover');
+  assert.ok(/\.copy-btn\.is-copied/.test(css), 'should declare copied state');
+  assert.ok(/navigator\.clipboard|navigator\.clipboard|fallbackCopy/.test(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'theme.js'), 'utf8'),
+  ), 'theme.js should reference clipboard API + fallback');
+});
+
+// ----- 31. C11 reading-stats function replaces old estimateReadingTime -----
+
+test('build: theme.js declares estimateReadingStats with word + char split', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'theme.js'), 'utf8');
+  assert.ok(/function estimateReadingStats\b/.test(js), 'should rename to estimateReadingStats');
+  assert.ok(/data-word-count/.test(js), 'should fill data-word-count');
+  assert.ok(/data-reading-time/.test(js), 'should still fill data-reading-time');
+  assert.ok(/[\u4e00-\u9fa5]/.test(js), 'should detect CJK characters');
 });

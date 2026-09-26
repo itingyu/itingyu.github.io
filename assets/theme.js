@@ -31,11 +31,14 @@
     // 阅读进度条(只在文章页有效)
     initReadingProgress();
 
-    // 字数估算(替换占位「约 N 分钟」)
-    estimateReadingTime();
+    // 字数 / 词数 / 时长估算
+    estimateReadingStats();
 
     // 文章页 TOC(扫 article h2/h3)
     initTOC();
+
+    // 文章页 <pre> 复制按钮
+    initCopyButtons();
   });
 
   // ---------- 阅读进度条 ----------
@@ -68,12 +71,9 @@
     update();
   }
 
-  // ---------- 阅读时长估算 ----------
+  // ---------- 阅读时长 + 字数 / 词数 ----------
 
-  function estimateReadingTime() {
-    var placeholders = document.querySelectorAll('[data-reading-time]');
-    if (!placeholders.length) return;
-
+  function estimateReadingStats() {
     var article = document.querySelector('article');
     if (!article) return;
 
@@ -81,12 +81,30 @@
     var text = (article.innerText || article.textContent || '').trim();
     var cnChars = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
     var enWords = (text.match(/[A-Za-z]+/g) || []).length;
+    var totalUnits = cnChars + enWords;
 
     // 经验速度:中文 350 字/分钟,英文 220 词/分钟
     var minutes = Math.max(1, Math.ceil((cnChars / 350) + (enWords / 220)));
 
-    placeholders.forEach(function (el) {
-      el.textContent = '约 ' + minutes + ' 分钟';
+    // 阅读时长(已有占位符)
+    var timeEls = document.querySelectorAll('[data-reading-time]');
+    timeEls.forEach(function (el) { el.textContent = '约 ' + minutes + ' 分钟'; });
+
+    // 字数 / 词数
+    var countEls = document.querySelectorAll('[data-word-count]');
+    if (!countEls.length) return;
+    var label;
+    if (cnChars && enWords) {
+      label = cnChars + ' 字 / ' + enWords + ' 词';
+    } else if (cnChars) {
+      label = cnChars + ' 字';
+    } else {
+      label = enWords + ' 词';
+    }
+    countEls.forEach(function (el) {
+      el.textContent = label;
+      // 给搜索可达性附 title
+      el.setAttribute('title', '全文 ' + totalUnits + ' 单位,约 ' + minutes + ' 分钟阅读');
     });
   }
 
@@ -179,5 +197,60 @@
 
       headings.forEach(function (h) { observer.observe(h); });
     }
+  }
+
+  // ---------- <pre> 复制按钮 ----------
+
+  function initCopyButtons() {
+    var pres = document.querySelectorAll('article pre');
+    if (!pres.length) return;
+
+    pres.forEach(function (pre) {
+      if (pre.querySelector('.copy-btn')) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-btn';
+      btn.setAttribute('data-copy-btn', '');
+      btn.setAttribute('aria-label', '复制代码到剪贴板');
+      btn.textContent = '复制';
+
+      btn.addEventListener('click', function () {
+        var text = pre.innerText.replace(/\u00A0/g, ' ').replace(/^[\s\uFEFF]+|[\s\uFEFF]+$/g, '');
+        copyText(text, btn);
+      });
+
+      pre.appendChild(btn);
+    });
+  }
+
+  function copyText(text, btn) {
+    var done = function () {
+      if (!btn) return;
+      btn.textContent = '已复制';
+      btn.classList.add('is-copied');
+      setTimeout(function () {
+        btn.textContent = '复制';
+        btn.classList.remove('is-copied');
+      }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, cb) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      cb();
+    } catch (_) { /* swallow */ }
   }
 })();
