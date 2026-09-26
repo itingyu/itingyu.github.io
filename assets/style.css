@@ -1208,3 +1208,91 @@ article pre:focus-within .copy-btn,
   font-variant-numeric: tabular-nums;
 }
 
+/* ==========================================================================
+   v7 · 键盘快捷键浮层(2026-09-26 北京时间 · AIWORK1-34)
+   - .keyhelp-overlay    半透明浮层(? 弹出)
+   - .keyhelp-table      按键 / 行为 二列表格
+   - kbd                 按键胶囊样式
+   ========================================================================== */
+
+.keyhelp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: color-mix(in srgb, var(--bg) 60%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.keyhelp-overlay[hidden] { display: none; }
+
+.keyhelp-overlay > * {
+  background: var(--bg-elev);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.75rem 2rem;
+  max-width: 420px;
+  width: 100%;
+}
+
+.keyhelp-title {
+  margin: 0 0 1rem;
+  font-size: var(--step-1);
+  font-family: var(--font-serif);
+  text-align: center;
+}
+
+.keyhelp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--step--1);
+}
+.keyhelp-table th,
+.keyhelp-table td {
+  padding: .45rem .5rem;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-soft);
+}
+.keyhelp-table tr:last-child th,
+.keyhelp-table tr:last-child td { border-bottom: none; }
+.keyhelp-table th { width: 38%; }
+
+.keyhelp-table kbd,
+.keyhelp-hint kbd {
+  display: inline-block;
+  padding: .15em .55em;
+  margin: 0 .1em;
+  font-family: var(--font-mono);
+  font-size: .92em;
+  line-height: 1.2;
+  color: var(--fg);
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+}
+
+.keyhelp-hint {
+  margin: 1rem 0 0;
+  text-align: center;
+  color: var(--fg-muted);
+  font-size: var(--step--1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .keyhelp-overlay:not([hidden]) > * {
+    animation: keyhelp-fade-in var(--t-base) ease-out;
+  }
+}
+@keyframes keyhelp-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+

@@ -63,6 +63,7 @@ const FOUC_SCRIPT = `
   </script>
   <link rel="stylesheet" href="/assets/style.css" />
   <script defer src="/assets/theme.js"></script>
+  <script defer src="/assets/keys.js"></script>
 </head>
 `;
 

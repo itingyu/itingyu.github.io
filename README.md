@@ -104,6 +104,26 @@ node scripts/build-index.js --help        # usage
 `index.html` 的「最新文章」区被 `<!-- build:posts-start -->` … `<!-- build:posts-end -->`
 标记包住,build-index 只替换这段,hero 等手写区保持不变。
 
+## 键盘快捷键
+
+`assets/keys.js` 提供全局键盘快捷键(Gmail / GitHub 风格)。`build-index.js` 模板与
+所有静态 HTML 页面均自动注入 `<script defer src="/assets/keys.js"></script>`。
+
+| 按键 | 行为 |
+| --- | --- |
+| `j` / `k` | 文章页下一篇 / 上一篇(读 `<link rel="next/prev">`) |
+| `g h` / `g p` / `g a` / `g t` | 跳到首页 / 文章 / 归档 / 标签(1.2 秒内连按两键) |
+| `s` | focus 到搜索框(若该页有) |
+| `Shift+T` | 切换主题 |
+| `?` | 弹出 / 隐藏快捷键浮层(`Esc` 关) |
+
+契约:
+
+- 焦点在 `input` / `textarea` / `select` / `[contenteditable]` 时,**全部快捷键跳过**,避免与编辑冲突
+- `Ctrl` / `Meta` / `Alt` 同时按下时跳过(留作浏览器 / 系统快捷键)
+- 浮层淡入在 `prefers-reduced-motion: reduce` 下自动关闭
+- 文章页 `<link rel="prev">` / `<link rel="next">` 由 build-index 注入,缺则不触发跳转
+
 ## 金融简报同步
 
 金融小队每日 08:00 (Asia/Shanghai) 输出的简报,由金融小队队长自己跑
