@@ -4,6 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const url = require('node:url');
+const { renderMarkdown } = require('./markdown.js');
 
 // ============================================================
 // Configuration
@@ -18,6 +19,7 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 const POSTS_DIR = path.join(ROOT, 'posts');
 const INDEX_FILE = path.join(ROOT, 'index.html');
 const COVER_EXTS = ['svg', 'jpg', 'jpeg', 'png', 'webp'];
+const ALLOW_LEGACY_HTML = process.env.ALLOW_LEGACY_HTML === '1';
 
 // ============================================================
 // HTML escaping
@@ -147,6 +149,222 @@ ${SITE_FOOTER}</body>
 // Frontmatter parser
 // ============================================================
 
+/**
+ * 剥离并返回 YAML frontmatter 段 + 剩余正文。
+ * 期望 mdText 以 `---` 起始,第二个 `---` 闭合。
+ * 返回 { frontmatter: string, body: string, lineOffset: number }
+ * 若无 frontmatter,frontmatter = '', lineOffset = 1。
+ */
+function splitFrontmatter(mdText) {
+  const text = String(mdText == null ? '' : mdText);
+  if (!text.startsWith('---')) {
+    return { frontmatter: '', body: text, lineOffset: 1 };
+  }
+  const lines = text.split(/\r?\n/);
+  if (lines.length < 2 || lines[0].trim() !== '---') {
+    return { frontmatter: '', body: text, lineOffset: 1 };
+  }
+  let endIdx = -1;
+  for (let i = 1; i < lines.length; i += 1) {
+    if (lines[i].trim() === '---') { endIdx = i; break; }
+  }
+  if (endIdx === -1) {
+    return { frontmatter: '', body: text, lineOffset: 1 };
+  }
+  const fmLines = lines.slice(1, endIdx);
+  const body = lines.slice(endIdx + 1).join('\n');
+  return { frontmatter: fmLines.join('\n'), body, lineOffset: 2 };
+}
+
+/** 去掉首尾单/双引号;非配对则原样返回。 */
+function stripQuotes(s) {
+  if (typeof s !== 'string') return s;
+  if (s.length >= 2) {
+    const a = s.charAt(0);
+    const b = s.charAt(s.length - 1);
+    if ((a === '"' && b === '"') || (a === "'" && b === "'")) {
+      return s.slice(1, -1);
+    }
+  }
+  return s;
+}
+
+/** 把内联数组 `[a, b, c]` / `a, b, c` 解析成字符串数组。空 → []。 */
+function parseInlineArray(raw) {
+  if (typeof raw !== 'string') return [];
+  let v = raw.trim();
+  if (v === '') return [];
+  if (v.startsWith('[') && v.endsWith(']')) {
+    v = v.slice(1, -1).trim();
+  }
+  if (v === '') return [];
+  return v.split(',').map(s => stripQuotes(s.trim())).filter(s => s !== '');
+}
+
+/** 把字符串解析为 bool(true / false / yes / no),其他返回 undefined。 */
+function parseBool(raw) {
+  if (raw == null) return undefined;
+  const v = String(raw).trim().toLowerCase();
+  if (v === 'true' || v === 'yes') return true;
+  if (v === 'false' || v === 'no') return false;
+  return undefined;
+}
+
+/** 是不是 ISO 日期(YYYY-MM-DD 或更长的 ISO 8601)。 */
+function looksLikeDate(value) {
+  return /^\d{4}-\d{2}-\d{2}/.test(stripQuotes(String(value).trim()));
+}
+
+/**
+ * 解析 YAML frontmatter(scope: string / number / bool / date / array<string>)。
+ * 返回标准 frontmatter 对象:`{ title, description, date, tags, draft, slug, author, cover, series, pinned, canonical, warnings, _body }`。
+ * 必填:title(若缺,抛 Error,由调用方决定如何处理)。
+ */
+function parseYamlFrontmatter(mdText, slug) {
+  const out = {
+    slug,
+    title: '',
+    description: null,
+    date: null,
+    tags: [],
+    draft: false,
+    author: 'itingyu',
+    cover: null,
+    series: null,
+    pinned: false,
+    canonical: null,
+    warnings: [],
+  };
+
+  const { frontmatter, body, lineOffset } = splitFrontmatter(mdText);
+  out._body = body;
+  out._lineOffset = lineOffset;
+
+  if (frontmatter === '') {
+    out.warnings.push('frontmatter 缺失(期望首行 `---`)');
+    // 仍要走 title 检查:无 frontmatter → title 必缺 → 抛错
+  }
+
+  const lines = frontmatter.split(/\r?\n/);
+  // 已知键集合(用于 typo 警告)
+  const KNOWN_KEYS = new Set([
+    'title', 'description', 'excerpt', 'date', 'tags',
+    'slug', 'author', 'cover', 'series', 'pinned', 'draft', 'canonical',
+  ]);
+  // typo 字典(简版)
+  const TYPO = {
+    dtae: 'date', tite: 'title', tiel: 'title', titel: 'title',
+    tag: 'tags', tagss: 'tags', taags: 'tags',
+    descripton: 'description', descritpion: 'description', descripiton: 'description',
+    authro: 'author', auhtor: 'author',
+    cober: 'cover', publihsed: 'date', piblished: 'date',
+    drfat: 'draft', draf: 'draft', drat: 'draft',
+    pined: 'pinned', pinnned: 'pinned',
+  };
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const raw = lines[i];
+    const line = raw.trim();
+    if (line === '' || line.startsWith('#')) continue;
+    const m = raw.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/);
+    if (!m) {
+      out.warnings.push(`YAML 第 ${lineOffset + i} 行无法解析: "${raw}"`);
+      continue;
+    }
+    const key = m[1];
+    const value = m[2];
+
+    if (!KNOWN_KEYS.has(key)) {
+      if (TYPO[key]) {
+        out.warnings.push(`YAML 疑似 typo: "${key}:" → 建议 "${TYPO[key]}:"`);
+      } else {
+        out.warnings.push(`YAML 未知键: "${key}"`);
+      }
+      continue;
+    }
+
+    switch (key) {
+      case 'title': {
+        const t = stripQuotes(value).trim();
+        if (t === '') {
+          out.warnings.push('title 为空字符串');
+        } else {
+          out.title = t;
+        }
+        break;
+      }
+      case 'description':
+      case 'excerpt': {
+        const v = stripQuotes(value).trim();
+        if (v === '') break;
+        out[key] = v;
+        break;
+      }
+      case 'date': {
+        const v = stripQuotes(value).trim();
+        if (!v) break;
+        out.date = v;
+        if (!looksLikeDate(v)) out.warnings.push(`date 非 ISO 格式: "${v}"`);
+        break;
+      }
+      case 'tags': {
+        out.tags = parseInlineArray(value);
+        break;
+      }
+      case 'draft':
+      case 'pinned': {
+        const rawV = stripQuotes(value).trim();
+        const b = parseBool(rawV);
+        if (b === undefined) {
+          out.warnings.push(`${key} 必须为 bool(true / false / yes / no),得到 "${rawV}"`);
+        } else {
+          out[key] = b;
+        }
+        break;
+      }
+      case 'slug':
+      case 'author':
+      case 'cover':
+      case 'series':
+      case 'canonical': {
+        const v = stripQuotes(value).trim();
+        if (v === '') break;
+        out[key] = v;
+        break;
+      }
+    }
+  }
+
+  // description ↔ excerpt 双轨兼容:description 优先
+  if (out.description != null && out.excerpt != null) {
+    out.warnings.push('description 与 excerpt 同时存在,以 description 为准');
+    out.excerpt = null;
+  }
+
+  // 缺 title → 抛错(由调用方 exit 1)
+  if (!out.title) {
+    const err = new Error(`post "${slug}" 缺必填字段 title(请在 YAML frontmatter 中添加)`);
+    err.code = 'FRONTMATTER_MISSING_TITLE';
+    err.slug = slug;
+    throw err;
+  }
+
+  return out;
+}
+
+/** 把 parseYamlFrontmatter 输出转成与 parseFrontmatter 兼容的 shape(便于 JSON-LD 5 函数复用)。 */
+function normalizePostMeta(fm, slug) {
+  return {
+    slug,
+    title: fm.title || '',
+    description: fm.description || fm.excerpt || null,
+    date: fm.date || null,
+    tags: Array.isArray(fm.tags) ? fm.tags.map(t => ({ slug: t, name: t })) : [],
+    draft: !!fm.draft,
+    warnings: fm.warnings || [],
+  };
+}
+
 function parseFrontmatter(html, slug) {
   const out = { slug, title: '', description: null, date: null, tags: [], series: null, seriesDescription: null, warnings: [] };
 
@@ -257,6 +475,15 @@ function slugifySeries(name) {
 // Post scanner
 // ============================================================
 
+/**
+ * 扫描 posts/ 目录,返回 frontmatter 解析后的 post 对象数组。
+ * 严格模式(默认):
+ *   - `.md` 优先,`.html` only → 抛错(exit 2)
+ *   - `.md` + `.html` 共存 → 用 `.md`
+ *   - 两者皆无 → 跳过(占位目录)
+ *   - `draft: true` → 单点过滤,不收录(列表 / 聚合 / RSS / sitemap)
+ * 逃生口 `ALLOW_LEGACY_HTML=1`:`.html`-only 走 v1 路径(parseFrontmatter)
+ */
 function scanPosts(rootDir = ROOT) {
   const postsDir = path.join(rootDir, 'posts');
   if (!fs.existsSync(postsDir)) return [];
@@ -265,11 +492,50 @@ function scanPosts(rootDir = ROOT) {
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const slug = entry.name;
-    const file = path.join(postsDir, slug, 'index.html');
-    if (!fs.existsSync(file)) continue;
-    const html = fs.readFileSync(file, 'utf8');
-    const fm = parseFrontmatter(html, slug);
-    posts.push({ ...fm, sourcePath: file });
+    const mdFile = path.join(postsDir, slug, 'index.md');
+    const htmlFile = path.join(postsDir, slug, 'index.html');
+
+    if (fs.existsSync(mdFile)) {
+      // MD 路径
+      const mdText = fs.readFileSync(mdFile, 'utf8');
+      let fm;
+      try {
+        fm = parseYamlFrontmatter(mdText, slug);
+      } catch (err) {
+        if (err && err.code === 'FRONTMATTER_MISSING_TITLE') {
+          process.stderr.write(`错误: ${err.message}\n`);
+          process.exit(1);
+        }
+        throw err;
+      }
+      if (fm.draft) continue; // draft:true → 单点过滤
+      const post = {
+        ...normalizePostMeta(fm, slug),
+        sourceFormat: 'md',
+        sourcePath: mdFile,
+        mdText,
+      };
+      // 注入 tags 的 slug 解析:保持与 v1 一致,slug 来自 YAML tag 元素本身
+      post.tags = (fm.tags || []).map(t => ({ slug: t, name: t }));
+      posts.push(post);
+    } else if (fs.existsSync(htmlFile)) {
+      // .html only
+      if (!ALLOW_LEGACY_HTML) {
+        process.stderr.write(
+          `错误: posts/${slug}/ 只有 .html,缺少 index.md。\n` +
+          `M6 严格模式默认拒绝 .html-only。请把文章迁移到 .md(运行 scripts/new-post.sh 生成模板),\n` +
+          `或在过渡期设置 ALLOW_LEGACY_HTML=1 启用兼容路径(M6.5 完成后必须删除此逃生口)。\n`
+        );
+        process.exit(2);
+      }
+      // 逃生口:走 v1 兼容路径
+      const html = fs.readFileSync(htmlFile, 'utf8');
+      const fm = parseFrontmatter(html, slug);
+      posts.push({ ...fm, sourceFormat: 'html', sourcePath: htmlFile });
+    } else {
+      // 两者皆无 → 跳过(占位目录)
+      continue;
+    }
   }
   return posts;
 }
@@ -311,6 +577,30 @@ function extractArticleBody(html) {
   body = body.replace(/<header class="article-header">[\s\S]*?<\/header>/i, '');
   body = body.replace(/<aside class="related"[\s\S]*?<\/aside>/i, '');
   return body.trim();
+}
+
+/** 把 MD 源渲染成 article body HTML(RSS content:encoded 用)。 */
+function extractArticleBodyFromMd(mdText, slug) {
+  const bodyMd = (splitFrontmatter(mdText).body || '').trim();
+  if (!bodyMd) return '';
+  const html = renderMarkdown(bodyMd, { sourcePath: `posts/${slug}/index.md` });
+  // 移除 build markers(MD 路径允许模板里放 `<!-- build:cover -->` / `<!-- build:related -->`)
+  let out = html.replace(/<!--\s*build:[a-z0-9-]+\s*-->/g, '');
+  // 把 markdown 渲染产物的首段 <h1>(若存在)与 <p> 之前的内容裁掉 —— 我们在 RSS 里只想要正文
+  // 但 spec §3.2 默认 bodyMd 不带 # 标题;若有,保留
+  return out.trim();
+}
+
+/** 从 raw 内容里拿正文(RSS / search 索引用);raw 可能是 md 或 html。 */
+function extractArticleBodyForPost(post, rootDir = ROOT) {
+  if (post.sourceFormat === 'md') {
+    return extractArticleBodyFromMd(post.mdText || '', post.slug);
+  }
+  // legacy HTML
+  if (post.sourcePath && fs.existsSync(post.sourcePath)) {
+    return extractArticleBody(fs.readFileSync(post.sourcePath, 'utf8'));
+  }
+  return '';
 }
 
 // ============================================================
@@ -568,6 +858,110 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
   out = injectPostNav(out, navHTML);
 
   return out;
+}
+
+// ============================================================
+// Article page construction from Markdown + YAML (M6.2)
+//   - 走 v1.2 方案 X:MD → renderMarkdown → HTML → injectArticlePageEnhancements
+//   - MD body 里的 `<!-- build:cover -->` / `<!-- build:related -->` marker 透传
+//   - 必填:title/date;其它可选
+// ============================================================
+
+/**
+ * 从 MD + frontmatter 构造完整文章页 HTML(已注入增强)。
+ * 给 computeBuild 的 MD 路径使用。
+ */
+function buildArticlePageFromMd(post, allPosts, rootDir = ROOT) {
+  const fm = parseYamlFrontmatter(post.mdText, post.slug);
+  const description = fm.description || fm.excerpt || '';
+  const date = fm.date || '';
+  const author = fm.author || 'itingyu';
+  const tags = Array.isArray(fm.tags) ? fm.tags : [];
+
+  // body 段(MD 去掉 frontmatter)
+  const bodyMd = (splitFrontmatter(post.mdText).body || '').trim();
+  // 把标记占位符提取出来,renderMarkdown 不会破坏 HTML 注释
+  let bodyHtml = '';
+  if (bodyMd) {
+    bodyHtml = renderMarkdown(bodyMd, { sourcePath: `posts/${post.slug}/index.md` });
+  }
+
+  // tags HTML(chips)
+  const tagChips = tags.map(t =>
+    `          <a class="chip" href="/tags/${escapeHTML(t)}/" data-tag="${escapeHTML(t)}">${escapeHTML(t)}</a>`
+  ).join('\n          <span class="dot">·</span>\n');
+  const postMetaTags = tags.length
+    ? `${tagChips}\n          <span class="dot">·</span>\n          `
+    : '          ';
+
+  // 头部 meta tags
+  const metaTags = tags.map(t =>
+    `  <meta property="article:tag" content="${escapeHTML(t)}" />`
+  ).join('\n');
+
+  // JSON-LD BlogPosting(基础;BreadcrumbList 由 injectArticlePageEnhancements 后置注入)
+  const blogPosting = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: fm.title,
+    datePublished: date,
+    dateModified: date,
+    author: { '@type': 'Person', name: author },
+    url: `${SITE_ORIGIN}/posts/${post.slug}/`,
+    description,
+  };
+
+  // 用 pageShell 拼外壳;main 内容是 article
+  // article-header 注入 tags chips + reading-time + excerpt;injectArticlePageEnhancements 会继续增强
+  const articleHTML = `    <article>
+      <header class="article-header">
+        <h1>${escapeHTML(fm.title)}</h1>
+        <div class="post-meta">
+          <time datetime="${escapeHTML(date)}">${escapeHTML(date)}</time>
+${tags.length ? `          <span class="dot">·</span>\n${postMetaTags}` : '        '}        </div>
+        <p class="post-excerpt">${escapeHTML(description)}</p>
+      </header>
+
+${bodyHtml}
+    </article>
+
+    <footer class="article-footer">
+      <p>本页最后更新：${escapeHTML(date)} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/posts/${escapeHTML(post.slug)}/index.md" rel="noopener">在 GitHub 上编辑</a>。</p>
+    </footer>
+`;
+
+  // Build the page shell with full head metadata
+  // pageShell 接受 extraHead 注入 JSON-LD 与 og:* meta
+  const blogPostingJSONLD = `\n  <script type="application/ld+json">
+  ${JSON.stringify(blogPosting, null, 2).split('\n').join('\n  ')}
+  </script>`;
+
+  // og:* meta tags(用于 SEO,即使没 JSON-LD 也能被读取)
+  const ogMeta = `  <meta property="og:type" content="article" />
+  <meta property="og:title" content="${escapeHTML(fm.title)}" />
+  <meta property="og:description" content="${escapeHTML(description)}" />
+  <meta property="og:url" content="${SITE_ORIGIN}/posts/${escapeHTML(post.slug)}/" />
+  <meta property="og:locale" content="zh_CN" />`;
+
+  // 完整 extraHead(JSON-LD BlogPosting + og meta + article meta tags)
+  const articleMetaTags = `  <meta name="author" content="${escapeHTML(author)}" />
+  <meta property="article:published_time" content="${escapeHTML(date)}" />
+  <meta property="article:author" content="${escapeHTML(author)}" />
+${metaTags}`;
+
+  const extraHead = `${articleMetaTags}\n${ogMeta}\n${blogPostingJSONLD}`;
+
+  const html = pageShell({
+    title: `${fm.title} · itingyu`,
+    description,
+    canonical: `${SITE_ORIGIN}/posts/${post.slug}/`,
+    activeNav: '',
+    extraHead,
+    main: articleHTML,
+  });
+
+  // 走 injectArticlePageEnhancements:cover / related / progress / JSON-LD BreadcrumbList / prev-next
+  return injectArticlePageEnhancements(html, post, allPosts, rootDir);
 }
 
 // ============================================================
@@ -961,13 +1355,8 @@ function renderRSS(posts, buildDate, rootDir = ROOT, seriesList = []) {
     const link = `${SITE_ORIGIN}/posts/${p.slug}/`;
     const pubDate = p.date ? rfc822(p.date) : lastBuild;
     const cats = (p.tags || []).map(t => `      <category>${escapeXML(t.name)}</category>`).join('\n');
-    // 全文输出(RSS 2.0 + content:encoded 命名空间)
-    let fullBody = '';
-    const postFile = path.join(rootDir, 'posts', p.slug, 'index.html');
-    if (fs.existsSync(postFile)) {
-      const raw = fs.readFileSync(postFile, 'utf8');
-      fullBody = extractArticleBody(raw);
-    }
+    // 全文输出(RSS 2.0 + content:encoded 命名空间);MD 走 renderMarkdown,HTML 走原路径
+    const fullBody = extractArticleBodyForPost(p, rootDir);
     return `    <item>
       <title>${escapeXML(p.title)}</title>
       <link>${link}</link>
@@ -1070,12 +1459,8 @@ function renderSearchIndex(posts, rootDir = ROOT) {
   const sorted = sortPosts(posts);
   const items = sorted.map(p => {
     let excerpt = '';
-    const file = path.join(rootDir, 'posts', p.slug, 'index.html');
-    if (fs.existsSync(file)) {
-      const raw = fs.readFileSync(file, 'utf8');
-      const body = extractArticleBody(raw);
-      excerpt = stripTags(body).slice(0, 500);
-    }
+    const body = extractArticleBodyForPost(p, rootDir);
+    excerpt = stripTags(body).slice(0, 500);
     return {
       slug: p.slug,
       url: `${SITE_ORIGIN}/posts/${p.slug}/`,
@@ -1272,6 +1657,19 @@ function computeBuild(rootDir = ROOT) {
   // 文章页增强注入(cover + related + progress + reading-time + og:image)
   const articlePages = {};
   for (const p of posts) {
+    if (p.sourceFormat === 'md') {
+      // MD 路径:从 .md + frontmatter 构造完整文章页,再走 injectArticlePageEnhancements
+      try {
+        articlePages[`posts/${p.slug}/index.html`] = buildArticlePageFromMd(p, posts, rootDir);
+      } catch (err) {
+        if (err && err.code === 'FRONTMATTER_MISSING_TITLE') {
+          process.stderr.write(`错误: ${err.message}\n`);
+          process.exit(1);
+        }
+        throw err;
+      }
+      continue;
+    }
     if (!p.sourcePath) continue;
     const file = path.join(rootDir, 'posts', p.slug, 'index.html');
     if (!fs.existsSync(file)) continue;
@@ -1491,6 +1889,12 @@ if (require.main === module) {
 
 module.exports = {
   parseFrontmatter,
+  parseYamlFrontmatter,
+  splitFrontmatter,
+  buildArticlePageFromMd,
+  extractArticleBody,
+  extractArticleBodyFromMd,
+  extractArticleBodyForPost,
   scanPosts,
   sortPosts,
   sortPostsAsc,
@@ -1500,7 +1904,6 @@ module.exports = {
   buildPostNav,
   injectPrevNextHead,
   injectPostNav,
-  extractArticleBody,
   stripTags,
   injectArticlePageEnhancements,
   computeBuild,
@@ -1529,4 +1932,5 @@ module.exports = {
   HOME_END_MARK,
   RSS_LIMIT,
   HOME_LIMIT,
+  ALLOW_LEGACY_HTML,
 };
