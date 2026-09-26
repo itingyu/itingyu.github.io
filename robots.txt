@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://itingyu.github.io/sitemap.xml

@@ -3,11 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>文章 · itingyu</title>
-  <meta name="description" content="itingyu 的所有文章。" />
+  <title>标签 · itingyu</title>
+  <meta name="description" content="按标签浏览所有文章。" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-  <link rel="alternate" type="application/rss+xml" title="itingyu · 博客" href="/feeds/rss.xml" />
-  <link rel="canonical" href="https://itingyu.github.io/posts/" />
+  <link rel="canonical" href="https://itingyu.github.io/tags/" />
   <link rel="stylesheet" href="/assets/style.css" />
   <script defer src="/assets/theme.js"></script>
 </head>
@@ -21,9 +20,9 @@
     </a>
     <nav class="site-nav" aria-label="主导航">
       <a href="/">首页</a>
-      <a href="/posts/" aria-current="page">文章</a>
+      <a href="/posts/">文章</a>
       <a href="/archive/">归档</a>
-      <a href="/tags/">标签</a>
+      <a href="/tags/" aria-current="page">标签</a>
       <a href="/about/">关于</a>
       <button class="theme-toggle" type="button"
               aria-label="切换主题" data-theme-toggle>
@@ -43,23 +42,14 @@
   </header>
 
   <main id="main" class="container">
-    <h1>文章</h1>
+    <h1>标签</h1>
     <div class="tag-row">
-      <a class="chip" href="/tags/finance/">金融</a>
-      <a class="chip" href="/tags/algorithm/">算法</a>
-      <a class="chip" href="/tags/note/">随笔</a>
+      <a class="chip" href="/tags/finance/">金融 <span style="opacity:.6">· 0</span></a>
+      <a class="chip" href="/tags/algorithm/">算法 <span style="opacity:.6">· 0</span></a>
+      <a class="chip" href="/tags/note/">随笔 <span style="opacity:.6">· 1</span></a>
     </div>
-    <ul class="post-list">
-      <li>
-        <h3 class="post-title"><a href="/posts/welcome/">欢迎来到新博客</a></h3>
-        <div class="post-meta">
-          <time datetime="2026-09-26">2026-09-26</time>
-          <span class="dot">·</span>
-          <a class="chip" href="/tags/note/">随笔</a>
-        </div>
-        <p class="post-excerpt">原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。</p>
-      </li>
-    </ul>
+
+    <p style="color:var(--fg-muted)">更多标签会在文章数增加后展开。</p>
   </main>
 
   <footer class="site-footer">

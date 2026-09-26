@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>itingyu · 博客</title>
+    <link>https://itingyu.github.io/</link>
+    <description>编程学习 / 金融观察 / 算法可视化。</description>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 26 Sep 2026 12:00:00 +0800</lastBuildDate>
+    <atom:link href="https://itingyu.github.io/feeds/rss.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>欢迎来到新博客</title>
+      <link>https://itingyu.github.io/posts/welcome/</link>
+      <guid isPermaLink="true">https://itingyu.github.io/posts/welcome/</guid>
+      <pubDate>Sat, 26 Sep 2026 12:00:00 +0800</pubDate>
+      <description>原 itingyu.github.io 已清空，从这里重新搭建。</description>
+      <category>随笔</category>
+    </item>
+  </channel>
+</rss>
