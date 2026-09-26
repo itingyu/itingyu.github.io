@@ -266,8 +266,8 @@ hr {
 
 /* ---------- container ---------- */
 
-.container       { max-width: 920px; margin: 3rem auto; padding: 0 1.5rem; }
-.container-wide  { max-width: 1080px; margin: 3rem auto; padding: 0 1.5rem; }
+.container       { max-width: 1104px; margin: 3rem auto; padding: 0 1.5rem; }
+.container-wide  { max-width: 1296px; margin: 3rem auto; padding: 0 1.5rem; }
 
 /* ---------- typography ---------- */
 
