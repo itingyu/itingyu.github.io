@@ -25,6 +25,8 @@ scripts/                写作 + 构建脚本
   templates/post.html   文章模板
   render-finance-brief.js   金融简报 Markdown → HTML
   finance-sync.sh       拉 Multica 金融小队简报 → 渲染 → 提示 commit
+  publish.sh            一键发布:test + build + 白名单 git add + commit + push
+  publish-finance-brief.sh  金融简报专属流程(末尾委托 publish.sh 推送特性分支)
   build-index.js        自动重生成全部聚合页(零依赖)
 scripts/__tests__/      node:test 套件(17 条用例)
 package.json            npm test / build / check
@@ -51,20 +53,24 @@ package.json            npm test / build / check
 - `--date` — 发布日期,默认今天
 - `--excerpt` — 摘要,默认占位文案
 
-### 发布两步走
+### 发布一篇就一行命令
 
 ```bash
-# 1. 生成文章页
+# 1. 生成文章页(可省 —— 也可直接编辑或用 finance-sync.sh 渲染)
 ./scripts/new-post.sh my-post "标题" --tag note
 
-# 2. 编辑正文、提交并推送
-$EDITOR posts/my-post/index.html
-git add posts/my-post/
-git commit -m "post: my-post"
-git push
+# 2. 编辑正文
+
+# 3. 一键发布:test → build → 白名单 git add → commit → push
+./scripts/publish.sh                # 默认 master;commit message 自动从新文章推断
+./scripts/publish.sh --message "post(my-post): 标题"
 ```
 
-GitHub Pages 会自动部署。首页 / 归档 / 标签 / RSS 的增量更新由 `scripts/build-index.js` 自动接管。
+`scripts/publish.sh` 自动跑 `npm test` 兜底 → `npm run build` 重建聚合页 → 仅 add 白名单
+`posts/ index.html posts/index.html archive/ tags/ feeds/ sitemap.xml scripts/templates/`
+→ 按新增的 `posts/<slug>/index.html` 推断 `post(<slug>): <标题>` 写 commit → `git push origin master`。
+
+脚本受 `set -euo pipefail` 保护,任何一步失败立即 abort、退出码 ≠ 0;`--message` 缺失时从改动文件推断 slug,带 `<title>...</title>` 提取标题。GitHub Pages 会自动部署。
 
 ## 自动化构建
 

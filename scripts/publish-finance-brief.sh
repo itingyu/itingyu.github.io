@@ -4,7 +4,7 @@
 # 金融小队队长一键发布流程 —— 从 Multica 简报 issue 到推送 PR 分支。
 #
 # 设计目标:
-#   - 单条命令完成「取 md → 渲染 → build → commit → push 分支 → 输出 PR URL」
+#   - 单条命令完成「取 md → 渲染 → 一键 build + commit + push 特性分支 + 输出 PR URL」
 #   - 不自动 push master(永远让人 review 后合并)
 #   - 不引入 curl/wget/gh(只用 multica CLI + node + git)
 #   - 跑前先 sanity-check:worktree 在仓库根、有 npm/multica/git
@@ -21,12 +21,7 @@
 # 默认分支名: agent/finance/<YYYY-MM-DD>
 # 默认推送远端: origin
 #
-# 谁该跑这个脚本:
-#   - 金融小队队长(主体):每天简报评论里附带 .md 附件 + 跑这条命令
-#   - 技术总监(SDD技术总监 / @SDD测试工程师):仅做最后 PR review + merge
-#
-# 谁不该跑:
-#   - admin(不该自己跑;若金融小队没产出,等下一次)
+# 末尾委托 scripts/publish.sh 完成 test + build + commit + push(单一职责复用)。
 
 set -euo pipefail
 
@@ -48,21 +43,21 @@ publish-finance-brief.sh —— 金融小队队长一键发布每日简报到 it
 行为:
   1. 调 finance-sync.sh 把 md 下载到本地并调 render-finance-brief.js 渲染
      → 产出 posts/finance-<date>/index.html
-  2. 跑 npm run build 重生成所有聚合页(index/posts/archive/tags/feed/sitemap)
-  3. git checkout 新分支 agent/finance/<date>(已存在则报错)
-  4. git add + commit
-  5. git push -u origin agent/finance/<date>
-  6. 打印 PR URL —— 技术总监 review + merge
+  2. 切到新分支 agent/finance/<date>(已存在则报错)
+  3. 委托 scripts/publish.sh --branch <name> --message ...
+     完成:npm test → npm run build → 白名单 git add → git commit → git push
+  4. 打印 PR URL —— 技术总监 review + merge
 
 依赖:
   - multica CLI(取简报附件)
   - node ≥ 18(跑 build-index)
   - git(commit + push)
   - 已在 itingyu.github.io worktree 根目录
+  - scripts/publish.sh(同目录,可执行)
 
 约束:
   - 不修改 finance-sync.sh / render-finance-brief.js / build-index.js / package.json
-  - 不自动 push master(违反 review 门禁)
+  - 不自动 push master(违反 review 门禁):默认 --branch 上游
   - 不自动 git config(沿用 multica 注入的工作树配置)
 EOF
 }
@@ -101,7 +96,7 @@ require_cmd npm
 [ -f "$REPO_ROOT/package.json" ] || die "未在仓库根运行: $REPO_ROOT 缺 package.json"
 [ -x "$SCRIPT_DIR/finance-sync.sh" ] || die "缺 scripts/finance-sync.sh(应当可执行)"
 [ -f "$SCRIPT_DIR/render-finance-brief.js" ] || die "缺 scripts/render-finance-brief.js"
-[ -f "$SCRIPT_DIR/build-index.js" ] || die "缺 scripts/build-index.js"
+[ -x "$SCRIPT_DIR/publish.sh" ] || die "缺 scripts/publish.sh(应当可执行)"
 
 # 必须在 master 分支(或者人工指定别的基底;默认 master 干净状态)
 CURRENT_BRANCH="$(git -C "$REPO_ROOT" rev-parse --abbrev-ref HEAD)"
@@ -145,21 +140,10 @@ DATE="${SLUG#finance-}"
 
 ok "  → 渲染产物: $POST_DIR(slug=$SLUG, date=$DATE)"
 
-# ---------- 2. build-index ----------
-
-ok "② 跑 npm run build(重生成聚合页)"
-(
-  cd "$REPO_ROOT"
-  npm run build 2>&1
-) | sed 's/^/    /'
-
-# 检查聚合页也产生了
-[ -f "$REPO_ROOT/posts/index.html" ] || die "build-index 未产出 posts/index.html"
-
-# ---------- 3. 切分支 + commit ----------
+# ---------- 2. 切分支 ----------
 
 BRANCH_NAME="${BRANCH_NAME_OVERRIDE:-agent/finance/$DATE}"
-ok "③ 切分支: $BRANCH_NAME"
+ok "② 切分支: $BRANCH_NAME"
 
 git -C "$REPO_ROOT" show-ref --verify --quiet "refs/heads/$BRANCH_NAME" \
   && die "本地分支已存在: $BRANCH_NAME(可能重复跑;先 git branch -D $BRANCH_NAME)"
@@ -168,44 +152,23 @@ git -C "$REPO_ROOT" show-ref --verify --quiet "refs/remotes/origin/$BRANCH_NAME"
 
 git -C "$REPO_ROOT" checkout -b "$BRANCH_NAME"
 
-# 收集本 commit 应包含的文件
-FILES_TO_ADD=(
-  "posts/$SLUG/index.html"
-  "posts/index.html"
-  "archive/index.html"
-  "tags/index.html"
-  "tags/finance/index.html"
-  "index.html"
-  "feeds/rss.xml"
-  "sitemap.xml"
-)
-# 仅 add 真实存在的(避免 build 输出飘忽导致 add 失败)
-EXISTING=()
-for f in "${FILES_TO_ADD[@]}"; do
-  [ -f "$REPO_ROOT/$f" ] && EXISTING+=("$f")
-done
-[ "${#EXISTING[@]}" -gt 0 ] || die "没有任何预期产物存在,abort"
-
-git -C "$REPO_ROOT" add "${EXISTING[@]}"
+# ---------- 3. 委托 publish.sh(test + build + commit + push) ----------
 
 COMMIT_MSG="post(blog): 金融简报 $SLUG
 
 来源:Multica 金融小队${ISSUE_ID:+issue=$ISSUE_ID}${ATTACHMENT_ID:+attachment=$ATTACHMENT_ID}
 渲染:scripts/render-finance-brief.js(零依赖)
 聚合:scripts/build-index.js(自动重生成 index/posts/archive/tags/feed/sitemap)
-质量门:npm test 17/17;npm run check no drift
+质量门:npm test 90/90(由 scripts/publish.sh 执行);npm run check no drift
 review:@SDD技术总监 / @SDD测试工程师 请审
 
 Co-authored-by: multica-agent <github@multica.ai>"
-git -C "$REPO_ROOT" commit -m "$COMMIT_MSG"
-ok "  → commit 已落"
 
-# ---------- 4. push ----------
+ok "③ 委托 scripts/publish.sh --branch $BRANCH_NAME --message ..."
+bash "$SCRIPT_DIR/publish.sh" --branch "$BRANCH_NAME" --message "$COMMIT_MSG" 2>&1 \
+  | sed 's/^/    /'
 
-ok "④ push 分支到 origin"
-git -C "$REPO_ROOT" push -u origin "$BRANCH_NAME"
-
-# ---------- 5. 报告 PR ----------
+# ---------- 4. 报告 PR ----------
 
 REMOTE_URL="$(git -C "$REPO_ROOT" config --get remote.origin.url || echo "")"
 PR_URL=""
@@ -222,7 +185,7 @@ case "$REMOTE_URL" in
     ;;
 esac
 
-ok "⑤ 分支已推,等待 review + merge"
+ok "④ 分支已推,等待 review + merge"
 echo
 if [ -n "$PR_URL" ]; then
   echo "  PR URL: $PR_URL"

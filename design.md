@@ -165,19 +165,18 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 1. ./scripts/new-post.sh <slug> "<title>" [--tag ...] [--date ...] [--excerpt ...]
    → 生成 posts/<slug>/index.html（含完整 head meta / JSON-LD / 占位正文）
 2. 编辑 posts/<slug>/index.html 正文
-3. 由 scripts/build-index.js（AIWORK1-28）增量重生成以下页面：
-   - index.html（首页最新文章）
-   - posts/index.html（文章列表）
-   - archive/index.html（归档）
-   - tags/index.html（标签总览）
-   - tags/<tag>/index.html（如该标签下有变化）
-   - feeds/rss.xml
-   - sitemap.xml
-4. git add . && git commit && git push
-5. GitHub Pages 自动部署
+3. ./scripts/publish.sh [--message "..."]
+   → 一键完成:npm test 兜底 → npm run build(刷聚合页)
+     → 白名单 git add(posts/ index.html posts/index.html archive/ tags/
+       feeds/ sitemap.xml scripts/templates/)
+     → git commit -m "post(<slug>): <标题>"(从新增的 posts/<slug>/index.html 推断,可用 --message 覆盖)
+     → git push origin master
+4. GitHub Pages 自动部署
 ```
 
 `scripts/new-post.sh` 是纯 POSIX Bash,无依赖;模板在 `scripts/templates/post.html`,占位符 `{{TITLE}}` / `{{DESCRIPTION}}` / `{{SLUG}}` / `{{DATE}}` / `{{AUTHOR}}` / `{{TAGS_HTML}}` / `{{POSTMETA_TAGS}}`。新增 / 改模板时改一处即可生效。
+
+`scripts/publish.sh` 受 `set -euo pipefail` 保护,任何步骤失败立即 abort;`scripts/publish-finance-brief.sh` 末尾委托 `publish.sh --branch <feature> --message "..."` 推送特性分支,单一职责复用。
 
 **不做**：
 - 评论区（社交噪音 + 隐私风险;真要交互用 GitHub Issues）
