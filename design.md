@@ -71,7 +71,11 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 | `title` | `<title>` + `<meta property="og:title">` |
 | `description` | `<meta name="description">` |
 | `date` | `<meta property="article:published_time">` + `<time datetime>` |
+| `dateModified` | `<meta property="article:modified_time">` + `<time datetime>`(v1.2 新增;**可选**,缺省回退 `date`,用于 `article:pinned` 精选置顶排序) |
 | `tags[]` | `<meta property="article:tag">` × N |
+| `article:section` | `<meta property="article:section">`(v1.2 新增;系列归属,单值;**显示文本与 slug 同源,即 `content` 原文**,中文保留,不另设 `series-name` 字段) |
+| `article:pinned` | `<meta property="article:pinned" content="true">`(v1.2 新增;首页精选置顶标记,**仅当 `pinned=true` 时输出 meta**,缺省不输出;排序键 `dateModified` desc,缺 `dateModified` 时回退 `date`,上限 `HOME_LIMIT=3`) |
+| `og:image` | `<meta property="og:image">`(v1.2 新增;封面图复用,有 `cover.{jpg,svg,png,webp}` 用之,否则回退到 `assets/og-default.svg`;**绝对 URL**,首页同样注入) |
 | `slug` | URL 段,本身就是 |
 | `author` | `<meta name="author">` |
 | `canonical` | `<link rel="canonical">` |
@@ -89,12 +93,14 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 | `/archive/` | 按月归档（紧凑列表） |
 | `/tags/` | 全部标签 + 文章计数 |
 | `/tags/<tag>/` | 单标签下的文章 |
+| `/series/` | 全部系列总览(v1.2 新增;首页 / 文章页入口;同 `/tags/` 视觉但语义分层) |
+| `/series/<slug>/` | 单系列下的文章(v1.2 新增;`<slug>` = `article:section` 原文,中文等非 ASCII 由浏览器 / GitHub Pages percent-encode 如 `/series/%E9%87%91%E8%9E%8D%E5%B8%82%E5%9C%BA%E8%A7%82%E5%AF%9F/`,目录名按 UTF-8 落盘;与 `tags/<tag>/` 平行但语义为「系列/合集」) |
 | `/about/` | 关于 |
 | `/404.html` | 错误页 |
 | `/feeds/rss.xml` | RSS 订阅 |
 | `/sitemap.xml` | 站点地图 |
 | `/robots.txt` | 爬虫规则 |
-| `/assets/style.css` / `/assets/theme.js` / `/assets/favicon.svg` | 静态资源 |
+| `/assets/style.css` / `/assets/theme.js` / `/assets/favicon.svg` / `/assets/og-default.svg` | 静态资源 |
 
 ## 4. 视觉规范
 
@@ -181,9 +187,10 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 
 **不做**：
 - 评论区（社交噪音 + 隐私风险;真要交互用 GitHub Issues）
-- 站内全文搜索（< 50 篇索引页够用）
+- 站内全文搜索（< 50 篇索引页够用;`/search/` 客户端 JSON 搜索不计）
 - i18n（主中文,少量英文术语保留）
-- CDN（GitHub Pages 自带）
+- CDN（GitHub Pages 自带;所有第三方 JS / CSS 必须本地化单文件,不得引入 `<script src="https://cdn...">`）
+- 第三方 npm 依赖(本地内嵌单文件可接受,完整包拒绝;`prism.js` 单文件本地引入是允许的)
 
 ## 6. 里程碑（建议）
 
@@ -206,11 +213,44 @@ posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 
 ## 8. 开放问题（待 admin 决策）
 
-1. **是否需要「文章封面图」字段？** 当前未设计;若需要,约定 `posts/<slug>/cover.{jpg,svg}`
-2. **代码高亮**：当前 `<pre>` 是裸文本。要不要引入 `prism.js` / `highlight.js`？**默认不上,等真有技术文章再说**
-3. **评论**：见 §5.2 「不做」,确认接受
-4. **域名**：继续 `itingyu.github.io`,还是要绑自定义域名？
+1. **是否需要「文章封面图」字段？** 已落地:`posts/<slug>/cover.{jpg,svg,png,webp}` 由 `new-post.sh --cover` 注入,`build-index.js` 复用为 `og:image` 与文章头封面图(v1.1+)
+2. **代码高亮**：当前 `<pre>` 是裸文本。v1.2 决议:**允许 `prism.js` 单文件本地引入(零 CDN,零 npm)**,由 `build-index.js` 注入 `<pre><code class="language-xxx">`;具体落地在后续实现 issue。
+3. ~~评论~~：见 §5.2 「不做」,已签字接受(v1.0)
+4. **域名**：继续 `itingyu.github.io`,还是要绑自定义域名？(v1.2 不动)
 5. **金融内容合规**：简报里有具体标的代码 / 价格,要否加免责声明脚注（已经加在 footer + callout,但每篇可选加）
+
+## 9. 变更日志(changelog)
+
+### v1.2 — 2026-09-26(北京时间)— AIWORK1-31
+
+4 项 spec 增量,均来自产品Idea顾问调研的 Top 候选;未触动 M1/M2/M3/M4 既有章节。
+
+| # | 变更 | spec 落点 | 来源 idea | 工作量 |
+| - | --- | --- | --- | --- |
+| 1 | 代码语法高亮:从「默认不上」翻转为「**允许 `prism.js` 单文件本地引入(零 CDN,零 npm)**」 | §5.2 「不做」补一行 / §8.2 翻转为允许 | idea 2.1 | S |
+| 2 | 新增 front matter `article:section` + URL 契约 `/series/`、`/series/<slug>/`(slug = 原文,中文 percent-encode) | §3.2 字段表 / §3.3 URL 契约 | idea 2.3 | S |
+| 3 | 新增 front matter `article:pinned` 用于首页精选置顶(仅 `true` 时输出 meta;排序 `dateModified` desc,回退 `date`;上限 `HOME_LIMIT=3`) | §3.2 字段表 / §3.2 `dateModified` 字段 | idea 3.5 | S |
+| 4 | 新增 `<meta property="og:image">` 字段(绝对 URL);封面图复用 + 默认 `assets/og-default.svg` 回退;首页同样注入 | §3.2 字段表 | idea 4.1 | M |
+
+**评审拍板(本人主持 + 三方签字到位)**:
+
+| 拍板项 | 决议 | 签字来源 |
+| --- | --- | --- |
+| `article:pinned` 排序键 | `dateModified` 主,缺省回退 `date`;为此新增 `dateModified` 字段(可选) | 后端提问 #1 / 前端赞同 |
+| `article:section` slug 规则 | 沿用 `slugifyTag` 风格(中文保留,percent-encode);显示文本与 slug 同源,**不另设 `series-name` 字段** | 后端提问 #2 / 前端关闭原条件 |
+| `article:pinned` meta 输出策略 | 仅 `true` 时输出 head meta,缺省不输出(节省 head 字节) | 前端验收口径 #1 |
+| `og:image` URL 形态 | 强制绝对 URL(含 `https://itingyu.github.io/`),首页同样策略 | 后端建议 #4 / 前端验收口径 #5 / 测试契约 #4-3 |
+
+**约束**:
+- 4 项均**不引入** CDN / npm 依赖,严格符合 design.md §2「零供应链风险」哲学
+- 4 项均为**纯新增字段 / URL / 行为**,不修改任何既有 front matter 字段或 URL 契约
+- 4 项实现拆 issue 后各自走 SDD 评审签字
+
+**解锁的实现 issue**(本评审不创建,签字后由 SDD 技术总监另起 issue 派活):
+- `prism.js` 本地化集成(@SDD后端工程师)
+- `article:section` + `/series/` 端到端(@SDD后端工程师)
+- `article:pinned` 首页精选区(@SDD后端工程师)
+- `og:image` 自动注入(含 `og-default.svg` 默认图)(@SDD后端工程师)
 
 ---
 
