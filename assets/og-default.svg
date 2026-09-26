@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0969da"/>
+      <stop offset="55%" stop-color="#6d28d9"/>
+      <stop offset="100%" stop-color="#db2777"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.22" r="0.55">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <g transform="translate(96 96)">
+    <rect width="168" height="168" rx="36" fill="#ffffff" fill-opacity="0.95"/>
+    <text x="84" y="84" dominant-baseline="central" text-anchor="middle"
+          font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+          font-size="118" font-weight="700" fill="#6d28d9">i</text>
+  </g>
+
+  <g transform="translate(96 340)" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <text x="0" y="0" font-size="92" font-weight="700" letter-spacing="-2">itingyu</text>
+    <text x="6" y="74" font-size="36" font-weight="500" fill-opacity="0.85">编程学习 · 金融观察 · 算法可视化</text>
+  </g>
+
+  <g transform="translate(96 540)" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="0" y="-26" width="220" height="44" rx="22" fill="#ffffff" fill-opacity="0.18"/>
+    <text x="110" y="6" dominant-baseline="central" text-anchor="middle"
+          font-size="22" font-weight="600" fill="#ffffff" letter-spacing="1">itingyu.github.io</text>
+  </g>
+</svg>

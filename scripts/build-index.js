@@ -116,7 +116,7 @@ const SITE_FOOTER = `
 const SKIP_LINK = `  <a class="skip-link" href="#main">跳到正文</a>
 `;
 
-function pageShell({ title, description, canonical, extraHead = '', activeNav = '', main }) {
+function pageShell({ title, description, canonical, ogImage, extraHead = '', activeNav = '', main }) {
   const ariaCurrent = (key) => activeNav === key ? ' aria-current="page"' : '';
   const nav = SITE_HEADER
     .replace('data-nav="home"', `data-nav="home"${ariaCurrent('home')}`)
@@ -125,12 +125,15 @@ function pageShell({ title, description, canonical, extraHead = '', activeNav = 
     .replace('data-nav="tags"', `data-nav="tags"${ariaCurrent('tags')}`)
     .replace('data-nav="search"', `data-nav="search"${ariaCurrent('search')}`)
     .replace('data-nav="about"', `data-nav="about"${ariaCurrent('about')}`);
+  const ogTag = ogImage
+    ? `\n  <meta property="og:image" content="${escapeHTML(ogImage)}" />`
+    : '';
   return `${HEAD_PRE_META}<title>${escapeHTML(title)}</title>
   <meta name="description" content="${escapeHTML(description)}" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
-  <link rel="canonical" href="${canonical}" />
+  <link rel="canonical" href="${canonical}" />${ogTag}
 ${extraHead}${FOUC_SCRIPT}<body>
-${SKIP_LINK}${nav}
+ ${SKIP_LINK}${nav}
   <main id="main" class="container">
 ${main}
   </main>
@@ -285,6 +288,20 @@ function scanCover(slug, rootDir = ROOT) {
 }
 
 // ============================================================
+// og:image URL (absolutely required per spec design.md:242)
+//   - 有 cover → posts/<slug>/cover.<ext>(绝对 URL)
+//   - 无 cover → assets/og-default.svg(绝对 URL,默认图)
+// ============================================================
+
+function defaultOgImage() {
+  return `${SITE_ORIGIN}/assets/og-default.svg`;
+}
+
+function scanOgImage(slug, rootDir = ROOT) {
+  return scanCover(slug, rootDir) || defaultOgImage();
+}
+
+// ============================================================
 // Related posts (同标签优先,排除自身,补日期新近,最多 N 篇)
 // ============================================================
 
@@ -386,11 +403,12 @@ function injectArticlePageEnhancements(html, post, allPosts, rootDir = ROOT) {
     }
   }
 
-  // 5. og:image(幂等:已有 og:image 则跳过)
-  if (coverURL && !/<meta\s+property=["']og:image["']/.test(out)) {
+  // 5. og:image(幂等:已有 og:image 则跳过;有 cover → cover URL,否则回退默认图)
+  const ogImage = scanOgImage(post.slug, rootDir);
+  if (ogImage && !/<meta\s+property=["']og:image["']/.test(out)) {
     out = out.replace(
-      /(<meta\s+property=["']article:author["'][^>]*>\s*)(\n)/,
-      `$1    <meta property="og:image" content="${escapeHTML(coverURL)}" />$2`
+      /(<meta\s+property=["']article:author["'][^>]*>)([ \t]*\n)/,
+      `$1\n    <meta property="og:image" content="${escapeHTML(ogImage)}" />$2`
     );
   }
 
@@ -437,6 +455,7 @@ ${sorted.map(renderPostListItem).join('\n')}
     title: '文章 · itingyu',
     description: 'itingyu 的所有文章。',
     canonical: `${SITE_ORIGIN}/posts/`,
+    ogImage: defaultOgImage(),
     activeNav: 'posts',
     main,
   });
@@ -492,6 +511,7 @@ ${list}
     title: '归档 · itingyu',
     description: '按月归档的全部文章。',
     canonical: `${SITE_ORIGIN}/archive/`,
+    ogImage: defaultOgImage(),
     activeNav: 'archive',
     main,
   });
@@ -548,6 +568,7 @@ ${cloud}
     title: '标签 · itingyu',
     description: '按标签浏览所有文章。',
     canonical: `${SITE_ORIGIN}/tags/`,
+    ogImage: defaultOgImage(),
     activeNav: 'tags',
     main,
   });
@@ -573,6 +594,7 @@ ${list}
     title: `${tagName} · itingyu`,
     description: `「${tagName}」标签下的全部文章。`,
     canonical: `${SITE_ORIGIN}/tags/${tagSlug}/`,
+    ogImage: defaultOgImage(),
     activeNav: 'tags',
     main,
   });
@@ -682,6 +704,7 @@ function renderSearchPage() {
     title: '搜索 · itingyu',
     description: '在所有文章中搜索关键词。',
     canonical: `${SITE_ORIGIN}/search/`,
+    ogImage: defaultOgImage(),
     activeNav: 'search',
     main: `    <h1>搜索</h1>
     <p class="search-hint">输入关键词搜索标题、标签、描述与正文。支持空格分隔多个关键词。</p>
@@ -749,6 +772,7 @@ ${urls}
 
 const HOME_START_MARK = '<!-- build:posts-start -->';
 const HOME_END_MARK = '<!-- build:posts-end -->';
+const HOME_OG_MARK = '<!-- build:og-image -->';
 
 function renderHomePostsSection(posts) {
   const top = sortPosts(posts).slice(0, HOME_LIMIT);
@@ -775,7 +799,18 @@ function updateHomePage(html, posts) {
   }
   const section = renderHomePostsSection(posts);
   const re = new RegExp(`${HOME_START_MARK}[\\s\\S]*?${HOME_END_MARK}`);
-  return html.replace(re, section);
+  let out = html.replace(re, section);
+
+  // 首页 head og:image(默认图,绝对 URL;幂等:marker 唯一)
+  if (out.indexOf(HOME_OG_MARK) !== -1) {
+    // ogLine 没有前导缩进 — 复用 marker 行原本的 2 空格缩进(由前面的 `\n  ` 提供)
+    const ogLine = `<meta property="og:image" content="${escapeHTML(defaultOgImage())}" />\n  `;
+    out = out.replace(
+      new RegExp(`${HOME_OG_MARK}(\\s*<meta\\s+property=["']og:locale["'])`),
+      `${ogLine}$1`
+    );
+  }
+  return out;
 }
 
 // ============================================================
@@ -1011,6 +1046,8 @@ module.exports = {
   scanPosts,
   sortPosts,
   scanCover,
+  defaultOgImage,
+  scanOgImage,
   computeRelated,
   extractArticleBody,
   stripTags,
@@ -1030,6 +1067,7 @@ module.exports = {
   updateHomePage,
   HOME_START_MARK,
   HOME_END_MARK,
+  HOME_OG_MARK,
   RSS_LIMIT,
   HOME_LIMIT,
 };

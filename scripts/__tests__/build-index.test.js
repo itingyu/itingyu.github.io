@@ -9,7 +9,7 @@ const os = require('node:os');
 const bi = require('../build-index.js');
 const {
   scanPosts, sortPosts,
-  scanCover, computeRelated, injectArticlePageEnhancements,
+  scanCover, defaultOgImage, scanOgImage, computeRelated, injectArticlePageEnhancements,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
@@ -365,6 +365,152 @@ test('build: injectArticlePageEnhancements injects cover when present', () => {
     assert.ok(/<meta property="og:image"\s+content="[^"]*cover\.svg"/.test(out),
       'should inject og:image meta');
   } finally { cleanProject(tmp); }
+});
+
+// ----- 18a. og:image 自动注入(v1.2 4.1:有 cover 走 cover,无 cover 回退默认图) ----
+
+test('build: og:image falls back to default URL when no cover', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    const m = out.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/);
+    assert.ok(m, 'should inject og:image meta');
+    assert.equal(m[1], 'https://itingyu.github.io/assets/og-default.svg',
+      'no cover → fall back to assets/og-default.svg');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: og:image content must be an absolute URL (contains SITE_ORIGIN)', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const out = injectArticlePageEnhancements(html, me, posts, tmp);
+
+    const matches = out.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/g) || [];
+    assert.ok(matches.length >= 1, 'should have at least one og:image');
+    for (const line of matches) {
+      const url = line.match(/content=["']([^"']+)["']/)[1];
+      assert.ok(url.startsWith('https://itingyu.github.io/'),
+        `og:image content must be absolute URL under itingyu.github.io, got: ${url}`);
+    }
+  } finally { cleanProject(tmp); }
+});
+
+test('build: og:image injection is idempotent (only one og:image meta)', () => {
+  const tmp = makeProject({ posts: ['minimal-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const me = posts[0];
+    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const once = injectArticlePageEnhancements(html, me, posts, tmp);
+    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
+    assert.equal(once, twice, 'second pass must be byte-equal');
+    const cnt = (twice.match(/<meta\s+property=["']og:image["']/g) || []).length;
+    assert.equal(cnt, 1, 'og:image meta must appear exactly once');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: scanOgImage prefers cover URL, falls back to default', () => {
+  // 有 cover
+  const tmpWithCover = makeProject({ posts: ['minimal-post'] });
+  try {
+    fs.writeFileSync(path.join(tmpWithCover, 'posts', 'minimal-post', 'cover.jpg'), 'jpg');
+    assert.equal(scanOgImage('minimal-post', tmpWithCover),
+      'https://itingyu.github.io/posts/minimal-post/cover.jpg',
+      'with cover → cover URL');
+  } finally { cleanProject(tmpWithCover); }
+
+  // 无 cover → 默认图
+  const tmpNoCover = makeProject({ posts: ['minimal-post'] });
+  try {
+    assert.equal(scanOgImage('minimal-post', tmpNoCover),
+      'https://itingyu.github.io/assets/og-default.svg',
+      'no cover → default og image');
+  } finally { cleanProject(tmpNoCover); }
+});
+
+test('build: defaultOgImage returns absolute URL under SITE_ORIGIN', () => {
+  const url = defaultOgImage();
+  assert.ok(url.startsWith('https://itingyu.github.io/'),
+    `defaultOgImage must be absolute URL, got: ${url}`);
+  assert.equal(url, 'https://itingyu.github.io/assets/og-default.svg');
+});
+
+// ----- 18b. 首页 index.html head 也注入 og:image(默认图) -------------------
+
+test('build: home page (index.html) head gets og:image meta injected', () => {
+  const tmp = makeProject({ posts: ['minimal-post'], homeWithMarkers: true });
+  // index.html 在 makeProject 中已写入,但需要包含 og:image 注入位置
+  // 把 marker 写进 home template 里(模拟真实首页)
+  fs.writeFileSync(path.join(tmp, 'index.html'),
+    `<!doctype html><html lang="zh-CN"><head>
+  <meta charset="utf-8" />
+  <title>Home</title>
+  <link rel="canonical" href="https://itingyu.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://itingyu.github.io/" />
+  <!-- build:og-image -->
+  <meta property="og:locale" content="zh_CN" />
+</head><body>
+  <main>
+    <!-- build:posts-start -->
+    <!-- build:posts-end -->
+  </main>
+</body></html>
+`);
+  try {
+    const posts = scanPosts(tmp);
+    const build = computeBuild(tmp);
+    assert.ok(build.homeReplacement, 'should produce homeReplacement');
+    assert.ok(/<meta\s+property=["']og:image["']\s+content=["']https:\/\/itingyu\.github\.io\/assets\/og-default\.svg["']/.test(build.homeReplacement),
+      'home page head must contain og:image meta with default absolute URL');
+
+    // 幂等:再次运行 updateHomePage 应保持不变
+    const once = build.homeReplacement;
+    const twice = once.replace(/(<!-- build:posts-start -->[\s\S]*?<!-- build:posts-end -->)/, '$1');
+    // 上面只是简单演示 — 真实幂等需要走 updateHomePage;直接验证 marker 替换路径
+    const bi = require('../build-index.js');
+    const updateAgain = bi.updateHomePage(once, posts);
+    assert.equal(updateAgain, once, 'home replacement must be byte-equal on re-render');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 18c. assets/og-default.svg 文件存在 + 1200×630 + < 50KB -----------
+
+test('build: assets/og-default.svg exists, 1200x630, under 50KB', () => {
+  const file = path.join(__dirname, '..', '..', 'assets', 'og-default.svg');
+  assert.ok(fs.existsSync(file), 'assets/og-default.svg must exist');
+  const stat = fs.statSync(file);
+  assert.ok(stat.size < 50 * 1024,
+    `og-default.svg must be < 50KB, got ${stat.size} bytes`);
+
+  const svg = fs.readFileSync(file, 'utf8');
+  // 解析 width/height 属性
+  const widthMatch = svg.match(/<svg[^>]*\swidth=["'](\d+)["']/);
+  const heightMatch = svg.match(/<svg[^>]*\sheight=["'](\d+)["']/);
+  assert.ok(widthMatch && heightMatch, 'svg must declare width and height');
+  assert.equal(widthMatch[1], '1200', `width must be 1200, got ${widthMatch[1]}`);
+  assert.equal(heightMatch[1], '630', `height must be 630, got ${heightMatch[1]}`);
+});
+
+// ----- 18d. new-post.sh --cover 生成的 og:image 仍走 cover URL 路径 ----
+
+test('build: new-post.sh --cover path (post template OG_IMAGE line) stays absolute URL', () => {
+  const sh = fs.readFileSync(path.join(__dirname, '..', 'new-post.sh'), 'utf8');
+  // 抓 OG_IMAGE="..." 多行赋值(含转义双引号 \")
+  // 用更宽容的正则:捕获双引号但跳过 \",到下一个非转义的 " 结束
+  const m = sh.match(/OG_IMAGE="((?:\\.|[^\\"])*)"/);
+  assert.ok(m, 'new-post.sh must define OG_IMAGE');
+  assert.ok(m[1].includes('https://itingyu.github.io/'),
+    'OG_IMAGE content must reference absolute URL');
+  assert.ok(m[1].includes('/posts/${SLUG}/'),
+    'OG_IMAGE content must point to posts/<slug>/<cover>');
 });
 
 // ----- 19. computeBuild emits articlePages map + writeBuild is idempotent ----
