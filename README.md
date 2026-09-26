@@ -26,7 +26,7 @@ scripts/                写作 + 构建脚本
   render-finance-brief.js   金融简报 Markdown → HTML
   finance-sync.sh       拉 Multica 金融小队简报 → 渲染 → 提示 commit
   build-index.js        自动重生成全部聚合页(零依赖)
-scripts/__tests__/      node:test 套件(17 条用例)
+scripts/__tests__/      node:test 套件(59 条用例,含增量缓存)
 package.json            npm test / build / check
 ```
 
@@ -74,21 +74,46 @@ GitHub Pages 会自动部署。首页 / 归档 / 标签 / RSS 的增量更新由
 
 ```bash
 npm test       # 跑 node:test 套件(17 条用例)
-npm run build  # 重建所有聚合页 + RSS + sitemap + 首页「最新文章」区
+npm run build  # 增量重建聚合页 + RSS + sitemap + 首页「最新文章」区(SHA-256 缓存)
 npm run check  # 仅校验,不写文件 —— 检测 drift,drift 时退出码 = 1
 ```
 
 可用 flag(直接调脚本):
 
 ```bash
-node scripts/build-index.js               # 全量重建
-node scripts/build-index.js --check       # 校验 drift
+node scripts/build-index.js               # 增量(默认,使用 scripts/.cache/build-index/index.json)
+node scripts/build-index.js --no-cache    # 强制全量重建,绕过 SHA-256 缓存
+node scripts/build-index.js --check       # 校验 drift(不受缓存影响)
 node scripts/build-index.js --only rss    # 只重生成 feeds/rss.xml
 node scripts/build-index.js --only home   # 只更新首页「最新文章」区
 node scripts/build-index.js --help        # usage
+
+# npm 包装
+npm run build       # 增量
+npm run build:full  # 强制全量(同 --no-cache)
+npm run check       # drift 检测
 ```
 
-支持的 `--only` 目标:`posts` / `archive` / `tags` / `tag-pages` / `rss` / `sitemap` / `home`。
+支持的 `--only` 目标:`posts` / `archive` / `tags` / `tag-pages` / `rss` / `sitemap` / `home` / `article-pages`。
+
+### 增量构建与缓存失效策略
+
+`npm run build` 默认走增量路径:
+
+1. 扫描 `posts/<slug>/index.html`,对每篇算 `SHA-256(content)`,与缓存 (`scripts/.cache/build-index/index.json`) 的 `postShas[slug]` 比对,得到 `changed` / `added` / `removed` 集合。
+2. 决定「受影响」文件集:任何 post 改动 → 7 个聚合页 (`posts/index.html` / `archive/` / `tags/index.html` / `feeds/rss.xml` / `sitemap.xml` / `assets/search-index.json` / 首页 `index.html`) 必重算;`tags/<slug>/index.html` 与 `posts/<slug>/index.html` 同理保守覆盖(related 列表跨页聚合安全起见一并重算)。
+3. 受影响文件用 `computeBuild` 拿期望内容,再与磁盘内容比对,**SHA 一致则跳过写盘**(避免 `git diff` 噪声)。
+4. 已无任何 post 引用的 tag 页会被自动删除。
+5. 缓存目录 `scripts/.cache/` 已加入 `.gitignore`,不要提交。
+
+> **何时需要 `--no-cache` / 删除 `scripts/.cache/`**:
+>
+> - 改了 `scripts/build-index.js` 的 front matter 解析规则(`parseFrontmatter` / `slugifyTag` / `parseArgs` 等)
+> - 改了 `scripts/templates/post.html` 或 `pageShell` / `HEAD_PRE_META` 等渲染模板
+> - 改了聚合页算法(`renderPostsIndex` / `renderArchive` / `renderTagsIndex` / `renderRSS` / `renderSitemap` / `renderHomePostsSection` 等)
+> - 手工 `rm -rf scripts/.cache/` 后下次 build 会自动重建缓存
+>
+> 这些情况下缓存 SHA 还停留在旧规则下的输出,继续走增量会输出陈旧内容。安全做法:`rm -rf scripts/.cache/build-index && npm run build`,或直接 `npm run build -- --no-cache`。
 
 ### Front matter 约定
 
