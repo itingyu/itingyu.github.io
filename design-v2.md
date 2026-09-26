@@ -81,7 +81,16 @@
 posts/<slug>/index.md   →  build →  posts/<slug>/index.html  →  https://itingyu.github.io/posts/<slug>/
 ```
 
-> 若 `index.md` 与 `index.html` 同时存在,**`index.md` 优先**(build 时会覆盖 `.html`);过渡期可保留 `.html` 作为存档(commit 进 git 即可)。
+**首版切干净(2026-09-26 北京时间 后端/前端/测试三方共识)**:`scanPosts(rootDir)` 默认仅识别 `index.md`,行为:
+
+| 状态 | 行为 |
+| --- | --- |
+| `.md` ✅ 且 `.html` ✅ | **用 `.md`**;build 时 `.html` 被覆盖(允许共存,迁移过渡) |
+| `.md` ✅ 且 `.html` ❌ | **用 `.md`**;build 时生成 `.html` |
+| `.md` ❌ 且 `.html` ✅ | **默认抛错**(exit 2);`publish.sh` / Actions validate 捕获后失败 |
+| `.md` ❌ 且 `.html` ❌ | 跳过(占位目录) |
+
+**过渡期逃生口**:环境变量 `ALLOW_LEGACY_HTML=1` 时,`.html` only 目录走 v1 `parseFrontmatter` 兼容路径,不再抛错,**仅用于紧急回滚**(M6.5 完成 = `posts/` 下 `.md` 占比 100% 后即删,见 §6 M6.5 DoD)。
 
 ### 3.2 Front matter 编码(反转)
 
@@ -106,7 +115,7 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | 字段 | 类型 | 必填 | 落点(via build) |
 | --- | --- | --- | --- |
 | `title` | string | ✅ | `<title>` + `<meta property="og:title">` |
-| `description` / `excerpt` | string | ✅ | `<meta name="description">` + JSON-LD `description` |
+| `description` / `excerpt` | string | ✅(选其一即足;`description` 优先,缺则回退 `excerpt`) | `<meta name="description">` + JSON-LD `description` |
 | `date` | `YYYY-MM-DD` | ✅ | `<meta property="article:published_time">` + `<time datetime>` |
 | `tags[]` | array<string> | ✅ | `<meta property="article:tag">` × N + chip 链接 |
 | `slug` | slug | —(默认目录) | URL 段 |
@@ -244,7 +253,14 @@ $EDITOR posts/my-post/index.md
   5. `npm test`(回归)
   6. `npm run build`(生成产物)
   7. `git add -A` → `git commit -m "AIWORK1-... · auto-build"` → `git push`
-- **死循环防护**:`if: github.event_name == 'push' && !contains(github.event.head_commit.message, 'auto-build')`(commit message 哨兵)
+- **死循环防护(2026-09-26 三方共识)**:
+  ```yaml
+  if: |
+    github.event_name == 'push' &&
+    github.actor != 'github-actions[bot]' &&
+    !contains(github.event.head_commit.message, 'auto-build')
+  ```
+  三个条件任一过滤:`actor` 是 bot / message 含 `auto-build` 哨兵 → 跳过(2026-09-26 后端在 init commit message 加 `auto-build` 字符串)
 - **失败回滚**:Actions 失败不回滚(产物未 push),master 保留上一次稳定版本
 
 #### 5.2.3 草稿工作流(**v2 新增**)
@@ -268,15 +284,48 @@ npm run preview   # 启动 127.0.0.1:8080
 ```
 
 - 文档根:仓库根
-- `/posts/<slug>/`:若只有 `.md` → 临时调 `build-index.js --only <slug>` 渲染 → 返回 HTML;若已有 `.html` → 直接返回
-- 热重载:`fs.watch('posts/**/*.md')` → WebSocket `reload` 信号 → 浏览器 `location.reload()`
-- 仅监听 `127.0.0.1`(安全,无外网暴露)
+- `/posts/<slug>/`:读 `posts/<slug>/index.md` → 调 `parseYamlFrontmatter` + `renderMarkdown` → 在内存里拼 `pageShell` → 直接返回 HTML(不写盘,只 preview 阶段需要)
+- 热重载:`fs.watch(ROOT, { recursive: true })` + WebSocket `/ws` 升级 → 浏览器收到 `{t:'reload', p:<path>}` → `location.reload()`
+- 仅监听 `127.0.0.1:8080`(安全,无外网暴露)
+
+**draft 策略(2026-09-26 三方共识,默认严格)**:
+- preview 默认跳过 `draft: true` 文章(与 `build-index.js` 默认行为一致)
+- 需要预览 draft,调 `npm run preview -- --include-draft`(CLI 透传给 `scanPosts({ includeDraft: true })`)
+- 不设开关不暴露菜单 — 严防误预览公开发布
 
 #### 5.2.5 设计原则
 
-- **不引入第三方依赖**(marked / markdown-it / chokidar / ws 全砍,自实现)
+- **不引入第三方运行时依赖**(marked / markdown-it / chokidar 全砍,自实现;preview.js 的 `ws@8` 仅 devDep,见 §6.6)
 - **不引入构建工具**(webpack / vite / esbuild 全砍,纯 Node `node:test`)
 - **不引入 framework**(沿用 v1)
+
+#### 5.2.6 MD 渲染器与 HTML 增强管道(2026-09-26 三方共识)
+
+**方案 X(后端倾向 · 默认采用)**:MD → HTML → 增强,marker 由 MD 模板保留 → 渲染后由 `injectArticlePageEnhancements` 替换。
+
+```
+MD source (.md)
+   │
+   ▼  parseYamlFrontmatter
+   │
+   ├─ frontmatter → {title, date, tags, draft, cover, ...}
+   │
+   ▼  renderMarkdown(body)              ← scripts/markdown.js:renderMarkdown
+   │                                    (必须:htmlCommentPassthrough 透传 HTML 注释)
+   ▼  Markdown 内置 marker 不破坏:
+   │   <!-- build:cover -->             ← 紧跟 # 标题后第一段正文后
+   │   <!-- build:related -->           ← 文章末尾 / <footer> 前
+   ▼  pageShell({title, bodyHtml, ...})
+   ▼  injectArticlePageEnhancements(html, post, allPosts)
+       ├─ cover / related / progress / word-count
+       └─ JSON-LD BreadcrumbList
+```
+
+**HTML 注释透传(必须)**:MD 渲染器在 `<body>` 内对 `<!-- ... -->` 注释**原样保留**(不剥入 `<p>` / 不去除);允许 `<!-- build:cover -->` / `<!-- build:related -->` 在后续 `injectArticlePageEnhancements` 阶段命中替换。
+
+**`scripts/markdown.js` 抽取(共享)**:与 `render-finance-brief.js:164-330` 同源,但升级语法集(见附 A 17 项);build-index / render-finance-brief / preview **三处**统一 `require('../markdown')` —— 单源一份,修改影响一致。
+
+**JSON-LD 注入路径零回归**:v1.2 注入函数(`injectJSONLDIntoHead` / `renderBlogJSONLD` 等)吃 frontmatter 解析后对象,**字段契约不变**;MD 渲染只动 `<article>` body,不动 `<head>`;`hasJSONLDType` 幂等保留。
 
 ---
 
@@ -289,8 +338,8 @@ npm run preview   # 启动 127.0.0.1:8080
 | M3 内容接入 | 金融小队简报同步 + 示例文章 3 篇 | ✅ 已完成 |
 | M4 自动化 | `scripts/build-index.js` + 增量构建(SHA-256 缓存) | ✅ 已完成(AIWORK1-32) |
 | M5 内容深化 | prism.js 代码高亮 / series / pinned / og:image / JSON-LD / search / keys.js / 智能 404 / heading 锚点 | ✅ 已完成(v1.2) |
-| **M6 Markdown 迁移**(本评审主线) | 6.1 design-v2.md 评审签字 → 6.2 `build-index.js` 加 YAML/MD 扫描与渲染(自实现)→ 6.3 `new-post.sh` 输出 `.md` → 6.4 `render-finance-brief.js` 改产 `.md` → 6.5 现有 3 篇文章手工迁移 → 6.6 draft 字段 + 跳过逻辑 → 6.7 测试矩阵(≥ 8 MD + ≥ 5 frontmatter) | 📝 评审中 |
-| **M7 流程自动化**(本评审附属) | 7.1 `scripts/preview.js` + `preview` script → 7.2 `.github/workflows/build-posts.yml` → 7.3 `scripts/publish.sh` 一键 + `<slug>` 草稿子命令 → 7.4 `scripts/validate-frontmatter.js` | 📝 评审中 |
+| **M6 Markdown 迁移**(本评审主线) | 6.1 design-v2.md 评审签字 → 6.2 `scripts/markdown.js` 抽取 + 升级语法集(17 项,见附 A)→ 6.3 `build-index.js` 加 YAML/MD 扫描与渲染(自实现)→ 6.4 `new-post.sh` 输出 `.md` → 6.5 现有 3 篇文章手转 MD + ALLOW_LEGACY_HTML 逃生口部署 → 6.6 `render-finance-brief.js` 改产 `.md` → 6.7 draft 字段 + 跳过逻辑 → 6.8 测试矩阵(≥ 14 MD + ≥ 8 frontmatter + 3 篇 byte-equal) | 📝 评审中 |
+| **M7 流程自动化**(本评审附属) | 7.1 `scripts/preview.js`(含 `--include-draft`) + `preview` script → 7.2 `.github/workflows/build-posts.yml`(3 重死循环防护)→ 7.3 `scripts/publish.sh` 一键 + `<slug>` 草稿子命令 → 7.4 `scripts/validate-frontmatter.js` | 📝 评审中 |
 | M8 spec 同步与归档 | design-v1-archive.md 迁移 + README.md 改写 + CHANGELOG.md 增 v2 章节 | 📝 评审通过后即开 |
 
 ---
@@ -338,21 +387,22 @@ npm run preview   # 启动 127.0.0.1:8080
 
 | 子项 | 工作量 | 默认派给 | DoD 关键词 |
 | --- | --- | --- | --- |
-| `build-index.js` 加 YAML front matter 解析(自实现) + MD 渲染器 | M | @SDD后端工程师 | 自实现;沿用 render-finance-brief 模式;`renderPostMarkdown()` 函数 |
-| `new-post.sh` 输出 `posts/<slug>/index.md`(YAML 占位 + 一个 `<h1>标题</h1> + 段落`) | S | @SDD后端工程师 | `cat posts/test/index.md` 头部 YAML 完整 |
-| `render-finance-brief.js` 改为产出 `.md` | S | @SDD后端工程师 | 输出文件后缀 `.md`;front matter 与正文分离 |
-| `publish-finance-brief.sh` 同步调 `publish.sh` | XS | @SDD后端工程师 | 命令链替换 |
-| 现有 3 篇文章 `posts/welcome/` + `posts/finance-2026-09-26/` + `posts/sing-box-setup-experience/` 手转 MD | S | @SDD前端工程师(`sing-box` 已有 `source.md`) | `npm run check` 无 drift;frontmatter 字段全 |
-| `scripts/preview.js` + `package.json` `preview` script + WS 热重载 | M | @SDD前端工程师 | `npm run preview` 起 8080;改 `.md` 自动 reload |
-| `.github/workflows/build-posts.yml`(本地 checkout + npm ci + validate + test + build + push)| S | @SDD后端工程师 | Admin 配权限后,网页编辑 `.md` → 60s 内产物上线 |
-| `build-index.js` draft 字段跳过逻辑 | XS | @SDD后端工程师 | `draft: true` 文章不在任何聚合页/RSS/sitemap |
-| `scripts/publish.sh` 一键 + `<slug>` 子命令(草稿翻转) | S | @SDD后端工程师 | `./scripts/publish.sh welcome` 成功翻转 + 上线 |
-| `scripts/validate-frontmatter.js`(纯 Node 内置,JSON Schema 风格字段类型断言)| S | @SDD后端工程师 | 必填字段、类型、引用路径都校验;退出码 1 表示失败 |
-| MD 渲染器测试矩阵(`scripts/__tests__/markdown-render.test.js` ≥ 8 条) | S | @SDD测试工程师 | # / ** / * / `inline` / ```fenced``` / [link](url) / ![img](path) / > quote / - list 各覆盖 |
-| frontmatter 校验测试矩阵(`scripts/__tests__/validate-frontmatter.test.js` ≥ 5 条) | S | @SDD测试工程师 | 缺字段、类型错、引用路径不存在、draft: typo、tags 含空格各覆盖 |
+| **`scripts/markdown.js` 抽取 + 升级 17 项语法集**(`# H1-6 / 段落 / ** / * / \`inline\` / [link] / ![img] / > quote / - list / 1. list / ---HR / ```fenced``` / 嵌套列表 / 自动外链 / 续行 / escape /**htmlCommentPassthrough**`) | M | @SDD后端工程师 | 自实现;build-index / render-finance-brief / preview 三处 `require('../markdown')` 同源;`htmlCommentPassthrough` 透传 `<!-- build:* -->` marker |
+| `scripts/build-index.js` 加 `parseYamlFrontmatter(mdText, slug)` 替换 `parseFrontmatter`;`scanPosts` 仅读 `.md`,默认严格 + `ALLOW_LEGACY_HTML=1` 逃生口;`extractArticleBody` 走 `.md` → renderMarkdown;`injectArticlePageEnhancements` 走方案 X | M | @SDD后端工程师 | `npm run check` 仍 `no drift`;聚合页 JSON-LD 字节级与 v1.2 一致;`draft: true` 单点过滤 |
+| `scripts/new-post.sh` 输出 `posts/<slug>/index.md`(YAML 占位 + `<!-- build:cover -->` + `<!-- build:related -->` markers) | S | @SDD后端工程师 | `cat posts/test/index.md` 头部 YAML 完整;两个 marker 在 MD 内正确位置(标题后第一段 / 末尾 footer 前) |
+| `scripts/render-finance-brief.js` 改为产出 `.md`,删除 `renderPage` / `updatePostsIndex` / `updateArchiveIndex`(装配归 build-index) | S | @SDD后端工程师 | `node scripts/render-finance-brief.js --help` 输出 `.md` 后缀;输出文件 YAML + MD;不再写 `index.html` |
+| `scripts/publish-finance-brief.sh` 同步调 `scripts/publish.sh`(M7.3)收尾 | XS | @SDD后端工程师 | 命令链替换;不再 push `index.html` 到 finance 简报路径 |
+| 现有 3 篇文章 `posts/welcome/` + `posts/finance-2026-09-26/` + `posts/sing-box-setup-experience/` 手转 MD;迁移后 `ALLOW_LEGACY_HTML=1` 部署为 1 个 minor 版本过渡 | S | @SDD前端工程师(`sing-box` 已有 `source.md` 直接 `mv` 为 `index.md`) | `npm run check` 无 drift;frontmatter 字段全;`__tests__/migration-byte-equal.test.js` 3 篇 byte-equal |
+| `scripts/preview.js` + `package.json` `preview` script + `--include-draft` flag + WS 热重载 + `ws@8` devDep(仅预览阶段) | M | @SDD前端工程师 | `npm run preview` 起 `127.0.0.1:8080`;改 `.md` 1s 内浏览器自动 reload;`--include-draft` 在严格模式外可选 |
+| `.github/workflows/build-posts.yml`(checkout → setup-node@20 → npm ci → validate-frontmatter → npm test → npm run build → commit `auto-build` → push)| S | @SDD后端工程师 | Admin 配 `Settings → Actions → General → Workflow permissions: Read and write` 后,网页编辑 `.md` → 60s 内产物上线;`if:` 三重防护(actor + event + message)防死循环 |
+| `scripts/publish.sh` 一键 + `<slug>` 子命令(草稿翻转 `draft: true ↔ false`) | S | @SDD后端工程师 | `./scripts/publish.sh welcome` 成功翻转 + 上线;`--status draft` 反向 |
+| `scripts/validate-frontmatter.js`(纯 Node 内置,YAML 字段类型断言 + 引用路径校验)| S | @SDD后端工程师 | 必填 / 类型 / 引用路径 / typo / draft 都校验;退出码 1 表示失败 |
+| MD 渲染器测试矩阵(`scripts/__tests__/markdown-render.test.js` ≥ 14 条含 fenced + ordered + 续行 + escape + htmlCommentPassthrough)| S | @SDD测试工程师 | 7 项必审(`#` / `**` / `*` / \`inline\` / ```fenced``` / [link] / ![img] / > quote / - list / ---HR / 嵌套) + bonus 有序列表 + 续行 + escape;全绿 |
+| YAML frontmatter 校验测试矩阵(`scripts/__tests__/validate-frontmatter.test.js` ≥ 8 条) | S | @SDD测试工程师 | 缺字段 / 类型错 / 引用路径不存在 / draft typo / tags 非数组 / date 格式错 / 空数组合法 / description↔excerpt 双轨兼容 |
+| 3 篇 byte-equal 回测(`scripts/__tests__/migration-byte-equal.test.js` ≥ 3 条) | XS | @SDD测试工程师 | `welcome` + `finance-2026-09-26` + `sing-box-setup-experience` 转 MD 后 `node scripts/build-index.js --check` byte-equal |
 | `design.md` v1 / v1.2 移入 `design-v1-archive.md`;`design.md` 内容指向 `design-v2.md` 或合并覆盖 | XS | @SDD技术总监(本人) | 主仓两个文件;`design.md` ≤ 50 行,链接到 v2 |
-| `README.md` 改写为 v2(发布流程 + 远程编辑 + 草稿 + preview) | S | @SDD前端工程师 | 「写新文章」章节重写;新增「远程编辑」「预览」段 |
-| CSS 行宽 +20%(`.container` 920 → 1104,`.container-wide` 1080 → 1296) | XS | @SDD前端工程师 | `assets/style.css` 改 2 行;`@media` 不破 |
+| `README.md` 改写为 v2(发布流程 + 远程编辑 + 草稿 + preview + 行宽 +20%) | S | @SDD前端工程师 | 「写新文章」章节重写;新增「远程编辑」「预览」段 |
+| CSS 行宽 +20%(`.container` 920 → 1104,`.container-wide` 1080 → 1296) | XS | @SDD前端工程师 | `assets/style.css` 改 2 行;`@media` 不破(已落 AIWORK1-44) |
 
 ---
 
@@ -401,16 +451,38 @@ npm run preview   # 启动 127.0.0.1:8080
 | 围栏代码块 | ` ```lang ` | `<pre><code class="language-lang">` |
 | 水平线 | `---`(独立一段) | `<hr>` |
 
+## 附 A:Markdown 渲染器最小语法矩阵(实现 issue 必达;2026-09-26 三方共识为 17 项)
+
+| 语法 | 示例 | 输出 | 复用 / 新增 | v2 必审 |
+| --- | --- | --- | --- | :---: |
+| H1-H6 | `#` … `######` | `<h1>` … `<h6>` | 复用 | ✅ |
+| 段落 | 普通文本 | `<p>` | 复用 | — |
+| 加粗 | `**text**` | `<strong>` | 复用 | ✅ |
+| 斜体 | `*text*` | `<em>` | 复用 | ✅ |
+| 行内 code | `` `text` `` | `<code>` | 复用 | ✅ |
+| 链接 | `[label](url)` | `<a href="url">label</a>` | **新增** | ✅ |
+| 图片 | `![alt](path)` | `<img alt loading="lazy">` | **新增** | ✅ |
+| 引用 | `> text` | `<blockquote>`(单层) | 复用 | ✅ |
+| 无序列表 | `- item` × N | `<ul><li>` | 复用 | ✅ |
+| 有序列表 | `1. item` × N | `<ol start="1"><li>` | **新增** | — |
+| 围栏代码块 | ` ```lang ` | `<pre><code class="language-lang">` | **新增** | ✅ |
+| 水平线 | `---`(独立一段) | `<hr>` | 复用 | ✅ |
+| 自动外链 | `https://x.com` | `<a href rel="noopener">` | 复用 | — |
+| 嵌套列表 | 多层缩进 `-` | 多层 `<ul><li>` | **新增**(续行合并) | ✅ |
+| 续行 | list item 内多行 | 不破 + `<br>` 折叠 | **新增** | — |
+| escape | `\*` / `\`` | 字面字符 | **新增**(在 `escapeHtml` 前) | ✅ |
+| **HTML 注释透传** | `<!-- ... -->` | 原样保留(MD 模板 marker) | **新增**(关键) | ✅ |
+
 **不做**(避免引第三方):
-- 表格(本期 `article:pinned` 用 `.post-card` 列表代替;真要表格再手动 HTML)
-- 嵌套列表 / 嵌套引用(单层递归)
+- 表格(spec 不要求;`article:pinned` 用 `.post-card` 列表代替;真要表格再手动 HTML)
+- HTML 嵌入 `<div>` 等(除 `<!-- -->` 注释外;`<script>` / `<style>` 一律拒绝)
 - 任务列表 `- [ ]`(优先级低,不做)
 - 删除线 `~~text~~`(不做)
 - 数学公式(接入 KaTeX 是 v3+)
 
 **安全**:
-- 所有 `<` `>` `&` `"` 转义后输出
-- `<script>` / `<style>` 标签拒绝(含 lang 属性也不行)
+- 所有 `<` `>` `&` `"` 转义后输出(`escapeHtml` 在 escape 字符处理之后)
+- `<script>` / `<style>` 标签拒绝(含 lang 属性也不行);`<img>` 不允许 `onerror` 等事件属性
 - 图片路径只放白名单:相对路径、HTTP(S) URL;`javascript:` 一律拒绝
 - HTML 属性注入拒绝(`onerror` / `onclick` 等事件不放过)
 
