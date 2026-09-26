@@ -5,14 +5,14 @@
     <link>https://itingyu.github.io/</link>
     <description>编程学习 / 金融观察 / 算法可视化。</description>
     <language>zh-cn</language>
-    <lastBuildDate>Sat, 26 Sep 2026 12:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 26 Sep 2026 00:00:00 GMT</lastBuildDate>
     <atom:link href="https://itingyu.github.io/feeds/rss.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>欢迎来到新博客</title>
       <link>https://itingyu.github.io/posts/welcome/</link>
       <guid isPermaLink="true">https://itingyu.github.io/posts/welcome/</guid>
-      <pubDate>Sat, 26 Sep 2026 12:00:00 +0800</pubDate>
-      <description>原 itingyu.github.io 已清空，从这里重新搭建。</description>
+      <pubDate>Sat, 26 Sep 2026 00:00:00 GMT</pubDate>
+      <description>原 itingyu.github.io 已清空，从这里重新搭建。这是第一篇占位文章，用来验证文章页模板、标签与归档。</description>
       <category>随笔</category>
     </item>
   </channel>

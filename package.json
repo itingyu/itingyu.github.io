@@ -1,0 +1,13 @@
+{
+  "name": "itingyu-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "个人博客（itingyu.github.io）的纯静态站点 — 无运行时依赖，使用 Node 内置 node:test 跑测试。",
+  "scripts": {
+    "test": "node --test scripts/__tests__/*.test.js",
+    "build": "node scripts/build-index.js",
+    "check": "node scripts/build-index.js --check",
+    "build:home": "node scripts/build-index.js --only home",
+    "build:rss": "node scripts/build-index.js --only rss"
+  }
+}
