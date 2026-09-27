@@ -16,7 +16,7 @@ const {
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
-  computeBuild, writeBuild, checkDrift,
+  computeBuild, writeBuild, checkDrift, buildArticlePageFromMd,
   renderBreadcrumbListJSONLD, renderCollectionPageJSONLD, renderBlogJSONLD,
   injectJSONLDIntoHead, postURL,
 } = bi;
@@ -30,8 +30,8 @@ function makeProject(opts = {}) {
   const posts = opts.posts || ['minimal-post'];
   fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
   for (const slug of posts) {
-    const src = path.join(FIX, slug, 'index.html');
-    const dst = path.join(tmp, 'posts', slug, 'index.html');
+    const src = path.join(FIX, slug, 'index.md');
+    const dst = path.join(tmp, 'posts', slug, 'index.md');
     fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
     fs.copyFileSync(src, dst);
   }
@@ -142,12 +142,9 @@ test('build: rss.xml has <item> per post (top 20)', () => {
     for (let i = 0; i < 25; i++) {
       const slug = `p${String(i).padStart(2, '0')}`;
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
-      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
-        `<!doctype html><html><head>
-          <title>T${i}</title>
-          <meta name="description" content="D${i}" />
-          <meta property="article:published_time" content="2026-${String((i % 9) + 1).padStart(2, '0')}-15" />
-        </head><body></body></html>`);
+      const mm = String((i % 9) + 1).padStart(2, '0');
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: T${i}\nslug: ${slug}\ndate: 2026-${mm}-15\ndescription: D${i}\ntags: []\n---\n\nBody ${i}.\n`);
     }
     const posts = scanPosts(tmp);
     const rss = renderRSS(posts);
@@ -203,26 +200,10 @@ test('build: archive/index.html groups posts by year-month', () => {
   } finally { cleanProject(tmp); }
 });
 
-// ----- 15. Chinese tag names: URL slug separate from display ------------
-
-test('build: Chinese tag display name keeps English URL slug', () => {
-  const tmp = makeProject({ posts: ['multi-tag-post'] });
-  try {
-    const posts = scanPosts(tmp);
-    const build = computeBuild(tmp);
-    writeBuild(build, tmp);
-
-    // tags/index.html shows Chinese display name
-    const tagsIdx = fs.readFileSync(path.join(tmp, 'tags', 'index.html'), 'utf8');
-    assert.ok(tagsIdx.includes('金融'), 'display name should be 金融');
-    assert.ok(tagsIdx.includes('/tags/finance/'), 'URL should be /tags/finance/');
-
-    // tags/finance/index.html exists and shows 金融 in title
-    const tagPage = fs.readFileSync(path.join(tmp, 'tags', 'finance', 'index.html'), 'utf8');
-    assert.ok(tagPage.includes('金融'), 'tag page title should contain 金融');
-    assert.ok(tagPage.includes('multi-tag-post'), 'tag page should list the post');
-  } finally { cleanProject(tmp); }
-});
+// ----- 15. (v2 已删):Chinese tag display name vs English URL slug -------
+// v2 YAML tags 是字符串数组,slug 与 display name 共用;无独立 name 字段。
+// 若需要中文显示名 + 英文 URL slug,需自行约定字符串(推荐直接用英文)。
+// 故此处不写测试。
 
 // ----- bonus: home page marker replacement ------------------------------
 
@@ -302,14 +283,8 @@ test('build: computeRelated puts same-tag posts first when tags overlap', () => 
     fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
     function mkPost(slug, date, tags) {
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
-      const tagHTML = tags.map(t => `<a class="chip" href="/tags/${t}/" data-tag="${t}">${t}</a>`).join('');
-      const tagMeta = tags.map(t => `  <meta property="article:tag" content="${t}" />`).join('\n');
-      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
-        `<!doctype html><html><head>
-          <title>${slug}</title>
-          <meta property="article:published_time" content="${date}" />
-${tagMeta}
-        </head><body><main><article><div class="post-meta">${tagHTML}</div></article></main></body></html>`);
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: ${slug}\nslug: ${slug}\ndate: ${date}\ntags: [${tags.join(', ')}]\n---\n\nBody ${slug}.\n`);
     }
     mkPost('post-a', '2026-01-01', ['shared', 'note']);
     mkPost('post-b', '2026-02-01', ['other']);
@@ -330,25 +305,25 @@ test('build: injectArticlePageEnhancements is idempotent', () => {
   try {
     const posts = scanPosts(tmp);
     const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const once = injectArticlePageEnhancements(html, me, posts, tmp);
     const twice = injectArticlePageEnhancements(once, me, posts, tmp);
     assert.equal(once, twice, 'second injection must be byte-equal');
   } finally { cleanProject(tmp); }
 });
 
-test('build: injectArticlePageEnhancements injects progress + related + reading-time', () => {
+test('build: injectArticlePageEnhancements injects progress + related', () => {
+  // v2:reading-time / word-count 由 theme.js 在客户端实时计算,
+  // 服务端不再注入 `<span data-reading-time>` 占位。
   const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
   try {
     const posts = scanPosts(tmp);
     const me = posts.find(p => p.slug === 'minimal-post');
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
 
     assert.ok(/class="reading-progress"\s+data-reading-progress/.test(out),
       'should inject reading-progress bar');
-    assert.ok(/data-reading-time/.test(out),
-      'should mark reading-time span');
     assert.ok(/<aside class="related"\s+aria-label="相关文章">/.test(out),
       'should inject related section');
   } finally { cleanProject(tmp); }
@@ -361,7 +336,7 @@ test('build: injectArticlePageEnhancements injects cover when present', () => {
       '<svg xmlns="http://www.w3.org/2000/svg"/>');
     const posts = scanPosts(tmp);
     const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
 
     assert.ok(/<img class="post-cover"\s+src="[^"]*cover\.svg"/.test(out),
@@ -419,7 +394,8 @@ test('build: extractArticleBody keeps article body, strips header/related', () =
   const tmp = makeProject({ posts: ['minimal-post'] });
   try {
     const posts = scanPosts(tmp);
-    const html = fs.readFileSync(path.join(tmp, 'posts', posts[0].slug, 'index.html'), 'utf8');
+    // v2:从 .md 构造完整文章 HTML(走 buildArticlePageFromMd)
+    const html = buildArticlePageFromMd(posts[0], posts, tmp);
     const body = extractArticleBody(html);
     assert.ok(/<h2>第一段<\/h2>/.test(body), 'should keep article h2');
     assert.ok(/正文。/.test(body), 'should keep paragraph text');
@@ -486,9 +462,11 @@ test('build: renderSearchIndex produces sorted JSON with excerpts (no HTML)', ()
       'excerpt must be stripped of HTML tags');
     // multi-tag-post 应包含正文中的关键词
     assert.ok(parsed.posts[0].excerpt.length > 0);
-    // tags 是字符串数组
+    // tags 是字符串数组(v2 YAML:slug=display name,无独立 name)
     assert.ok(Array.isArray(parsed.posts[0].tags));
-    assert.ok(parsed.posts[0].tags.includes('金融'));
+    assert.ok(parsed.posts[0].tags.includes('note'));
+    assert.ok(parsed.posts[0].tags.includes('finance'));
+    assert.ok(parsed.posts[0].tags.includes('algorithm'));
   } finally { cleanProject(tmp); }
 });
 
@@ -592,40 +570,13 @@ test('build: tag cloud orders tags by count desc (largest first)', () => {
   } finally { cleanProject(tmp); }
 });
 
-// ----- 28. C11 word count injection in article meta ---------------------
+// ----- 28. (v2 已删):word count 服务端占位符 ----------------------------
+// v2:word count 由 theme.js 在客户端实时计算,服务端不再注入
+// `<span data-word-count>` 占位;由 JS 渲染到 .post-meta 里。
+// 测试改到 theme.js / search.js 的 JS 单元。
 
-test('build: injectArticlePageEnhancements adds data-word-count after data-reading-time', () => {
-  const tmp = makeProject({ posts: ['minimal-post'] });
-  try {
-    const posts = scanPosts(tmp);
-    const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
-    const out = injectArticlePageEnhancements(html, me, posts, tmp);
-
-    assert.ok(/data-word-count/.test(out), 'should inject word count placeholder');
-    assert.ok(/class="word-count"/.test(out), 'should use .word-count class');
-    // 应紧跟在 reading-time 后
-    const iTime = out.indexOf('data-reading-time');
-    const iWord = out.indexOf('data-word-count');
-    assert.ok(iTime > 0 && iWord > 0 && iWord > iTime, 'word count must follow reading time');
-  } finally { cleanProject(tmp); }
-});
-
-// ----- 29. C11 idempotency: data-word-count only added once --------------
-
-test('build: word-count injection is idempotent', () => {
-  const tmp = makeProject({ posts: ['minimal-post'] });
-  try {
-    const posts = scanPosts(tmp);
-    const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
-    const once = injectArticlePageEnhancements(html, me, posts, tmp);
-    const twice = injectArticlePageEnhancements(once, me, posts, tmp);
-    assert.equal(once, twice, 'second pass must be no-op');
-    const wordMatches = (twice.match(/data-word-count/g) || []).length;
-    assert.equal(wordMatches, 1, 'data-word-count must appear exactly once');
-  } finally { cleanProject(tmp); }
-});
+// ----- 29. (v2 已删):word-count 服务端幂等 ----------------------------
+// v2:同上,word count 不再服务端注入。
 
 // ----- 30. C8 copy button CSS in style.css -------------------------------
 
@@ -683,12 +634,8 @@ test('build: tag cloud hint shows weight range when counts vary', () => {
     fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
     function mkPost(slug, date, tag) {
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
-      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
-        `<!doctype html><html><head>
-          <title>${slug}</title>
-          <meta property="article:published_time" content="${date}" />
-          <meta property="article:tag" content="${tag}" />
-        </head><body><main><article><div class="post-meta"><a class="chip" href="/tags/${tag}/" data-tag="${tag}">${tag}</a></div></article></main></body></html>`);
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: ${slug}\nslug: ${slug}\ndate: ${date}\ntags: [${tag}]\n---\n\nBody ${slug}.\n`);
     }
     mkPost('p1', '2026-01-01', 'hot');
     mkPost('p2', '2026-01-02', 'hot');
@@ -750,7 +697,7 @@ test('build: article page injects BreadcrumbList JSON-LD with 3 ListItems', () =
   try {
     const posts = scanPosts(tmp);
     const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
 
     const blocks = extractJSONLDBlocks(out);
@@ -783,7 +730,7 @@ test('build: article page BreadcrumbList falls back to /tags/ when post has no t
   try {
     const posts = scanPosts(tmp);
     const me = posts[0]; // minimal-post 无标签
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
     const breadcrumb = extractJSONLDBlocks(out).find(b => b['@type'] === 'BreadcrumbList');
     assert.ok(breadcrumb, 'should inject BreadcrumbList');
@@ -797,7 +744,7 @@ test('build: article page BreadcrumbList injection is idempotent', () => {
   try {
     const posts = scanPosts(tmp);
     const me = posts[0];
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const once = injectArticlePageEnhancements(html, me, posts, tmp);
     const twice = injectArticlePageEnhancements(once, me, posts, tmp);
     assert.equal(once, twice, 'second pass must be byte-equal');
@@ -1011,7 +958,7 @@ test('build: prev/next with single post → no rel=prev/next, no nav block', () 
     assert.equal(prev, null, 'single post must have no prev');
     assert.equal(next, null, 'single post must have no next');
 
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    const html = buildArticlePageFromMd(me, posts, tmp);
     const out = injectArticlePageEnhancements(html, me, posts, tmp);
     assert.ok(!/<link\s+rel=["']prev["']/.test(out), 'single post should not inject rel="prev"');
     assert.ok(!/<link\s+rel=["']next["']/.test(out), 'single post should not inject rel="next"');
@@ -1047,7 +994,7 @@ test('build: prev/next with multiple posts → first has only next, last has onl
     assert.equal(last.next, null);
 
     // 首篇的 article HTML 验证:只有 next 链接 + post-nav-next-only
-    const firstHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[0].slug, 'index.html'), 'utf8');
+    const firstHtml = buildArticlePageFromMd(sorted[0], posts, tmp);
     const firstOut = injectArticlePageEnhancements(firstHtml, sorted[0], posts, tmp);
     assert.ok(!/<link\s+rel=["']prev["']/.test(firstOut),
       'first post should not have rel="prev" in <head>');
@@ -1059,7 +1006,7 @@ test('build: prev/next with multiple posts → first has only next, last has onl
       'first post nav must not contain prev card');
 
     // 中间篇:prev + next 都有
-    const midHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[1].slug, 'index.html'), 'utf8');
+    const midHtml = buildArticlePageFromMd(sorted[1], posts, tmp);
     const midOut = injectArticlePageEnhancements(midHtml, sorted[1], posts, tmp);
     assert.ok(/<link\s+rel=["']prev["']\s+href="\/posts\/minimal-post\/"\s*\/>/.test(midOut),
       'middle post should have rel="prev" → minimal-post');
@@ -1069,7 +1016,7 @@ test('build: prev/next with multiple posts → first has only next, last has onl
       'middle post nav should have both sides (no only-modifier)');
 
     // 末篇:只有 prev
-    const lastHtml = fs.readFileSync(path.join(tmp, 'posts', sorted[2].slug, 'index.html'), 'utf8');
+    const lastHtml = buildArticlePageFromMd(sorted[2], posts, tmp);
     const lastOut = injectArticlePageEnhancements(lastHtml, sorted[2], posts, tmp);
     assert.ok(/<link\s+rel=["']prev["']\s+href="\/posts\/multi-tag-post\/"\s*\/>/.test(lastOut),
       'last post should have rel="prev" → multi-tag-post');
@@ -1089,7 +1036,8 @@ test('build: prev/next injection is idempotent across passes', () => {
   try {
     const posts = scanPosts(tmp);
     const me = posts.find(p => p.slug === 'multi-tag-post');
-    const html = fs.readFileSync(path.join(tmp, 'posts', me.slug, 'index.html'), 'utf8');
+    // v2:从 .md 构造完整文章 HTML(走 buildArticlePageFromMd)
+    const html = buildArticlePageFromMd(me, posts, tmp);
 
     const once = injectArticlePageEnhancements(html, me, posts, tmp);
     const twice = injectArticlePageEnhancements(once, me, posts, tmp);
@@ -1197,7 +1145,9 @@ test('build: buildPostNav aria-label survives full injectArticlePageEnhancements
     // 末篇 multi-tag-post 应只剩 prev(中间排序后有 prev + next,这里取末篇验证 prev-only 路径)
     const sorted = sortPostsAsc(posts);
     const last = sorted[sorted.length - 1];
-    const html = fs.readFileSync(path.join(tmp, 'posts', last.slug, 'index.html'), 'utf8');
+    // v2:用 buildArticlePageFromMd 产出完整文章 HTML,再过一次 injectArticlePageEnhancements
+    // (该函数在 buildArticlePageFromMd 内部已调用;此处再次验证幂等 + aria-label 仍在)
+    const html = buildArticlePageFromMd(last, posts, tmp);
     const out = injectArticlePageEnhancements(html, last, posts, tmp);
     assert.ok(/aria-label="上一篇:[^"]+"/.test(out),
       'last post nav should carry aria-label="上一篇:<title>" for prev card');

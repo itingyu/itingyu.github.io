@@ -19,7 +19,6 @@ const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
 const POSTS_DIR = path.join(ROOT, 'posts');
 const INDEX_FILE = path.join(ROOT, 'index.html');
 const COVER_EXTS = ['svg', 'jpg', 'jpeg', 'png', 'webp'];
-const ALLOW_LEGACY_HTML = process.env.ALLOW_LEGACY_HTML === '1';
 
 // ============================================================
 // HTML escaping
@@ -443,12 +442,11 @@ function slugifyTag(name) {
 
 /**
  * 扫描 posts/ 目录,返回 frontmatter 解析后的 post 对象数组。
- * 严格模式(默认):
+ * 严格模式(默认,无逃生口 — M7.7 已删):
  *   - `.md` 优先,`.html` only → 抛错(exit 2)
  *   - `.md` + `.html` 共存 → 用 `.md`
  *   - 两者皆无 → 跳过(占位目录)
  *   - `draft: true` → 单点过滤,不收录(列表 / 聚合 / RSS / sitemap)
- * 逃生口 `ALLOW_LEGACY_HTML=1`:`.html`-only 走 v1 路径(parseFrontmatter)
  */
 function scanPosts(rootDir = ROOT) {
   const postsDir = path.join(rootDir, 'posts');
@@ -485,19 +483,14 @@ function scanPosts(rootDir = ROOT) {
       post.tags = (fm.tags || []).map(t => ({ slug: t, name: t }));
       posts.push(post);
     } else if (fs.existsSync(htmlFile)) {
-      // .html only
-      if (!ALLOW_LEGACY_HTML) {
-        process.stderr.write(
-          `错误: posts/${slug}/ 只有 .html,缺少 index.md。\n` +
-          `M6 严格模式默认拒绝 .html-only。请把文章迁移到 .md(运行 scripts/new-post.sh 生成模板),\n` +
-          `或在过渡期设置 ALLOW_LEGACY_HTML=1 启用兼容路径(M6.5 完成后必须删除此逃生口)。\n`
-        );
-        process.exit(2);
-      }
-      // 逃生口:走 v1 兼容路径
-      const html = fs.readFileSync(htmlFile, 'utf8');
-      const fm = parseFrontmatter(html, slug);
-      posts.push({ ...fm, sourceFormat: 'html', sourcePath: htmlFile });
+      // .html only — v2 严格模式:抛错并退出。M7.7 已删 ALLOW_LEGACY_HTML 逃生口。
+      process.stderr.write(
+        `错误: posts/${slug}/ 只有 .html,缺少 index.md。\n` +
+        `v2 严格模式拒绝 .html-only。请把文章迁移到 .md:\n` +
+        `  ./scripts/new-post.sh <new-slug>   生成模板\n` +
+        `  然后把内容粘进 posts/<slug>/index.md\n`
+      );
+      process.exit(2);
     } else {
       // 两者皆无 → 跳过(占位目录)
       continue;
@@ -1267,6 +1260,13 @@ function stripTags(html) {
 
 function renderSearchIndex(posts, rootDir = ROOT) {
   const sorted = sortPosts(posts);
+  // generated: deterministic latest post date (per design-v2 §5.2),so
+  // `npm run check` is stable across days. Falls back to today only
+  // when there are no posts at all (cold start);the commit-time search-
+  // index.json then matches a first build that finds 0 posts.
+  const generated = (sorted.length > 0 && sorted[0].date)
+    ? sorted[0].date
+    : new Date().toISOString().slice(0, 10);
   const items = sorted.map(p => {
     let excerpt = '';
     const body = extractArticleBodyForPost(p, rootDir);
@@ -1282,7 +1282,7 @@ function renderSearchIndex(posts, rootDir = ROOT) {
     };
   });
   return JSON.stringify(
-    { generated: new Date().toISOString().slice(0, 10), posts: items },
+    { generated, posts: items },
     null, 2,
   ) + '\n';
 }
@@ -1342,7 +1342,13 @@ function renderSitemap(posts) {
     priority: '0.8',
   }));
   const all = [...staticPages, ...tagPages, ...postPages];
-  const today = new Date().toISOString().slice(0, 10);
+  // today: deterministic latest post date (per design-v2 §5.2),so
+  // `npm run check` is stable across days. Same convention as renderRSS
+  // lastBuildDate and renderSearchIndex 'generated'.
+  const sorted = sortPosts(posts);
+  const today = (sorted.length > 0 && sorted[0].date)
+    ? sorted[0].date
+    : new Date().toISOString().slice(0, 10);
   const urls = all.map(u => {
     const lastmod = u.lastmod || today;
     return `  <url><loc>${u.loc}</loc><lastmod>${lastmod}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`;
@@ -1682,5 +1688,4 @@ module.exports = {
   HOME_END_MARK,
   RSS_LIMIT,
   HOME_LIMIT,
-  ALLOW_LEGACY_HTML,
 };
