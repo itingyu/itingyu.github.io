@@ -8,6 +8,11 @@
     "build": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js",
     "check": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --check",
     "build:home": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --only home",
-    "build:rss": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --only rss"
+    "build:rss": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --only rss",
+    "preview": "ALLOW_LEGACY_HTML=1 node scripts/preview.js",
+    "preview:draft": "ALLOW_LEGACY_HTML=1 node scripts/preview.js --include-draft"
+  },
+  "devDependencies": {
+    "ws": "^8.18.0"
   }
 }
