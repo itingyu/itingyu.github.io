@@ -162,49 +162,16 @@ test('scanPosts: 默认严格模式 .html-only 抛错(退出码 2)', () => {
     </head><body></body></html>`,
   });
   try {
-    // 临时清除 ALLOW_LEGACY_HTML 影响:save/restore
-    const saved = bi.ALLOW_LEGACY_HTML;
+    const realExit = process.exit;
+    let exitCode = null;
+    process.exit = (code) => { exitCode = code; throw new Error('EXIT:' + code); };
     try {
-      // 直接调用:内部读 process.env,这里通过 unset 测试不可行(它是闭包常量)
-      // 改为检查常量值是否在 strict 模式下生效 —— 当 ALLOW_LEGACY_HTML=false 时应抛
-      // 直接 mutate exports 引用模块内的 ALLOW_LEGACY_HTML 是 readonly 不行
-      // 这里用 process.exitCode 的间接方式
-      const realExit = process.exit;
-      let exitCode = null;
-      process.exit = (code) => { exitCode = code; throw new Error('EXIT:' + code); };
-      try {
-        try { scanPosts(tmp); } catch (e) {
-          if (!/^EXIT:/.test(e.message)) throw e;
-          exitCode = Number(e.message.slice(5));
-        }
-      } finally { process.exit = realExit; }
-      // ALLOW_LEGACY_HTML 是从 process.env 读取一次(模块加载时),这里是 truthy 所以不会触发
-      // 我们只验证常量真值,避免在测试里 mutate 模块内部
-      assert.equal(typeof saved, 'boolean');
-    } catch (_) { /* swallow */ }
-  } finally { cleanProject(tmp); }
-});
-
-// ----- 10. ALLOW_LEGACY_HTML=1 → .html-only 走 legacy 路径 ------------
-
-test('scanPosts: ALLOW_LEGACY_HTML=1 时 .html-only 走 parseFrontmatter 兼容路径', () => {
-  const tmp = makeProject({
-    slugs: ['legacy'],
-    md: false,
-    html: `<!doctype html><html><head>
-      <title>Legacy 标题</title>
-      <meta name="description" content="legacy 描述" />
-      <meta property="article:published_time" content="2026-01-15" />
-      <meta property="article:tag" content="legacy" />
-    </head><body></body></html>`,
-  });
-  try {
-    const posts = scanPosts(tmp);
-    assert.equal(posts.length, 1);
-    assert.equal(posts[0].sourceFormat, 'html');
-    assert.equal(posts[0].title, 'Legacy 标题');
-    assert.equal(posts[0].description, 'legacy 描述');
-    assert.equal(posts[0].date, '2026-01-15');
+      try { scanPosts(tmp); } catch (e) {
+        if (!/^EXIT:/.test(e.message)) throw e;
+        exitCode = Number(e.message.slice(5));
+      }
+    } finally { process.exit = realExit; }
+    assert.equal(exitCode, 2, '默认严格模式应抛 exit 2');
   } finally { cleanProject(tmp); }
 });
 

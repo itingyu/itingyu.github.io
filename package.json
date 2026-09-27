@@ -4,13 +4,13 @@
   "private": true,
   "description": "个人博客（itingyu.github.io）的纯静态站点 — 无运行时依赖，使用 Node 内置 node:test 跑测试。",
   "scripts": {
-    "test": "ALLOW_LEGACY_HTML=1 node --test scripts/__tests__/*.test.js",
-    "build": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js",
-    "check": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --check",
-    "build:home": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --only home",
-    "build:rss": "ALLOW_LEGACY_HTML=1 node scripts/build-index.js --only rss",
-    "preview": "ALLOW_LEGACY_HTML=1 node scripts/preview.js",
-    "preview:draft": "ALLOW_LEGACY_HTML=1 node scripts/preview.js --include-draft"
+    "test": "node --test scripts/__tests__/*.test.js",
+    "build": "node scripts/build-index.js",
+    "check": "node scripts/build-index.js --check",
+    "build:home": "node scripts/build-index.js --only home",
+    "build:rss": "node scripts/build-index.js --only rss",
+    "preview": "node scripts/preview.js",
+    "preview:draft": "node scripts/preview.js --include-draft"
   },
   "devDependencies": {
     "ws": "^8.18.0"

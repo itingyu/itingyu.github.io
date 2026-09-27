@@ -51,7 +51,6 @@ function makeProject() {
 }
 
 function buildInTemp(tmp) {
-  process.env.ALLOW_LEGACY_HTML = '1';
   // Bust require cache so ROOT binding picks up the mocked Date when invoked
   // through child build script.
   delete require.cache[require.resolve(path.join(REPO_ROOT, 'scripts', 'build-index.js'))];

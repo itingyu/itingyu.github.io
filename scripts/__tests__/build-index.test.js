@@ -36,6 +36,11 @@ function makeProject(opts = {}) {
     const dst = path.join(tmp, 'posts', slug, 'index.html');
     fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
     fs.copyFileSync(src, dst);
+    // v2 严格模式:同时复制 .md(若有),让 scanPosts 走 MD 路径;无 .md 时回退到 .html-only(将硬报错)
+    const mdSrc = path.join(FIX, slug, 'index.md');
+    if (fs.existsSync(mdSrc)) {
+      fs.copyFileSync(mdSrc, path.join(tmp, 'posts', slug, 'index.md'));
+    }
   }
   if (opts.homeWithMarkers) {
     fs.writeFileSync(path.join(tmp, 'index.html'),
@@ -144,11 +149,15 @@ test('build: rss.xml has <item> per post (top 20)', () => {
     for (let i = 0; i < 25; i++) {
       const slug = `p${String(i).padStart(2, '0')}`;
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      const date = `2026-${String((i % 9) + 1).padStart(2, '0')}-15`;
+      // v2 严格模式:.md 优先;同时写 .html + .md,scanPosts 走 MD 路径
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: T${i}\ndate: ${date}\ntags: []\ndescription: D${i}\nauthor: itingyu\n---\n\n正文。\n`);
       fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
         `<!doctype html><html><head>
           <title>T${i}</title>
           <meta name="description" content="D${i}" />
-          <meta property="article:published_time" content="2026-${String((i % 9) + 1).padStart(2, '0')}-15" />
+          <meta property="article:published_time" content="${date}" />
         </head><body></body></html>`);
     }
     const posts = scanPosts(tmp);
@@ -205,23 +214,24 @@ test('build: archive/index.html groups posts by year-month', () => {
   } finally { cleanProject(tmp); }
 });
 
-// ----- 15. Chinese tag names: URL slug separate from display ------------
+// ----- 15. MD 路径:中文 tag 名 → URL slug 即其本身(无 v1 chip 翻译) ----
 
-test('build: Chinese tag display name keeps English URL slug', () => {
+test('build: MD 中文 tag 名直接作为 URL slug(name === slug)', () => {
   const tmp = makeProject({ posts: ['multi-tag-post'] });
   try {
     const posts = scanPosts(tmp);
     const build = computeBuild(tmp);
     writeBuild(build, tmp);
 
-    // tags/index.html shows Chinese display name
+    // v2 MD 路径下 slug 与 name 同值(无 chip 翻译);tags/index.html 列出 note/finance/algorithm
     const tagsIdx = fs.readFileSync(path.join(tmp, 'tags', 'index.html'), 'utf8');
-    assert.ok(tagsIdx.includes('金融'), 'display name should be 金融');
+    assert.ok(tagsIdx.includes('/tags/note/'), 'URL should be /tags/note/');
     assert.ok(tagsIdx.includes('/tags/finance/'), 'URL should be /tags/finance/');
+    assert.ok(tagsIdx.includes('/tags/algorithm/'), 'URL should be /tags/algorithm/');
 
-    // tags/finance/index.html exists and shows 金融 in title
+    // tags/finance/index.html 存在并列出对应 post
     const tagPage = fs.readFileSync(path.join(tmp, 'tags', 'finance', 'index.html'), 'utf8');
-    assert.ok(tagPage.includes('金融'), 'tag page title should contain 金融');
+    assert.ok(tagPage.includes('finance'), 'tag page should contain slug finance');
     assert.ok(tagPage.includes('multi-tag-post'), 'tag page should list the post');
   } finally { cleanProject(tmp); }
 });
@@ -306,6 +316,9 @@ test('build: computeRelated puts same-tag posts first when tags overlap', () => 
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
       const tagHTML = tags.map(t => `<a class="chip" href="/tags/${t}/" data-tag="${t}">${t}</a>`).join('');
       const tagMeta = tags.map(t => `  <meta property="article:tag" content="${t}" />`).join('\n');
+      // v2 严格模式:写 .md(MD 路径)+ .html(供 injectArticlePageEnhancements 测试用)
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: ${slug}\ndate: ${date}\ntags: [${tags.join(', ')}]\nauthor: itingyu\n---\n\n正文。\n`);
       fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
         `<!doctype html><html><head>
           <title>${slug}</title>
@@ -490,7 +503,8 @@ test('build: renderSearchIndex produces sorted JSON with excerpts (no HTML)', ()
     assert.ok(parsed.posts[0].excerpt.length > 0);
     // tags 是字符串数组
     assert.ok(Array.isArray(parsed.posts[0].tags));
-    assert.ok(parsed.posts[0].tags.includes('金融'));
+    // v2 MD 路径:multi-tag-post 的 tags 是 [note, finance, algorithm]
+    assert.ok(parsed.posts[0].tags.includes('finance'));
   } finally { cleanProject(tmp); }
 });
 
@@ -685,6 +699,9 @@ test('build: tag cloud hint shows weight range when counts vary', () => {
     fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
     function mkPost(slug, date, tag) {
       fs.mkdirSync(path.join(tmp, 'posts', slug), { recursive: true });
+      // v2 严格模式:写 .md(MD 路径)+ .html(供渲染测试用)
+      fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.md'),
+        `---\ntitle: ${slug}\ndate: ${date}\ntags: [${tag}]\nauthor: itingyu\n---\n\n正文。\n`);
       fs.writeFileSync(path.join(tmp, 'posts', slug, 'index.html'),
         `<!doctype html><html><head>
           <title>${slug}</title>
