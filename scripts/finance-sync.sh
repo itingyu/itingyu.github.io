@@ -131,15 +131,21 @@ print(hit['id'] if hit else '')
 }
 
 # 找某 issue 评论里的 markdown 附件(优先 .md 后缀,否则最新一个)。
+# 容忍 attachments 字段的多种形态:
+#   - 数组 [] / [{...}]  → 正常解析
+#   - 字符串 "[object]" / "[object Object]" / "[]"  → 序列化层退化的空 attachments,视为无附件
+#   - null / 缺失  → 视为无附件
+# 任何形态都不应让 jq/python 抛 "Cannot iterate over string" / "AttributeError: 'str' object has no attribute 'get'"。
 attachment_id_from_issue() {
   local issue="$1"
   local json
   json="$(multica issue comment list "$issue" --output json)"
   json_get "$json" \
     '
-    ([.[].attachments // [] | add // [] | map(select((.name // .filename // "") | test(".(md|markdown)$"))) | .[0].id // null]) as $md
-    | ([.[].attachments // [] | add // [] | .[-1].id // null]) as $any
-    | ($md[0] // $any[0]) // empty
+    ([.[] | .attachments // [] | select(type == "array") | .[]]) as $all
+    | ($all | map(select((.name // .filename // "") | test("\\.(md|markdown)$"))) | .[0].id // null) as $md
+    | ($all | .[-1].id // null) as $any
+    | ($md // $any) // empty
     ' \
     '
 import json
@@ -149,7 +155,9 @@ except NameError:
     cs = []
 chosen = None
 for c in cs:
-    atts = (c.get("attachments") or [])
+    atts = c.get("attachments")
+    if not isinstance(atts, list):
+        continue
     for a in atts:
         name = (a.get("name") or a.get("filename") or "").lower()
         if name.endswith(".md") or name.endswith(".markdown"):
