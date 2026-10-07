@@ -8,12 +8,14 @@ const os = require('node:os');
 
 const bi = require('../build-index.js');
 const {
+  parseFrontmatter,
   scanPosts, sortPosts, sortPostsAsc,
   scanCover, computeRelated, injectArticlePageEnhancements,
   computePrevNext, buildPostNav,
   injectPrevNextHead, injectPostNav,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
+  scanSeries, renderSeriesIndex, renderSeriesPage,
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
@@ -1204,5 +1206,265 @@ test('build: buildPostNav aria-label survives full injectArticlePageEnhancements
     // 末篇没有 next 卡片,故不应出现 "下一篇:"
     assert.ok(!/aria-label="下一篇:/.test(out),
       'last post should not declare next aria-label');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 50. AIWORK1-73 series: parseFrontmatter 读 article:section + series_description ---
+
+function mkPostWithSeries(slug, date, seriesName, seriesDesc) {
+  return `<!doctype html><html lang="zh-CN"><head>
+    <title>${slug}</title>
+    <meta property="article:published_time" content="${date}" />
+    <meta property="article:section" content="${seriesName}" />
+    ${seriesDesc ? `<meta name="series_description" content="${seriesDesc}" />` : ''}
+  </head><body></body></html>`;
+}
+
+test('build: parseFrontmatter reads article:section + series_description', () => {
+  const html = mkPostWithSeries('a', '2026-01-15', '金融市场观察', 'A 股每日情报,仅供研究参考。');
+  const fm = parseFrontmatter(html, 'a');
+  assert.ok(fm.series, 'series should be present');
+  assert.equal(fm.series.name, '金融市场观察');
+  assert.equal(fm.series.slug, '金融市场观察');
+  assert.equal(fm.series.description, 'A 股每日情报,仅供研究参考。');
+  assert.deepEqual(fm.warnings, [], 'no warnings when series_description is provided');
+});
+
+test('build: parseFrontmatter warns on series missing series_description (does not error)', () => {
+  const html = mkPostWithSeries('a', '2026-01-15', '金融市场观察', null);
+  const fm = parseFrontmatter(html, 'a');
+  assert.ok(fm.series, 'series should still be parsed');
+  assert.equal(fm.series.description, null);
+  assert.ok(fm.warnings.some(w => w.includes('series_description')),
+    'should warn about missing series_description');
+});
+
+test('build: parseFrontmatter returns null series when no article:section meta', () => {
+  const html = `<!doctype html><html><head>
+    <title>Plain</title>
+    <meta property="article:published_time" content="2026-01-15" />
+  </head><body></body></html>`;
+  const fm = parseFrontmatter(html, 'plain');
+  assert.equal(fm.series, null);
+});
+
+// ----- 51. AIWORK1-73 scanSeries: 0 / 1 / 多 series 场景 ------------------
+
+function mkSeriesProject(posts) {
+  // posts: [{ slug, date, section, desc? }]
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-test-'));
+  fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+  for (const p of posts) {
+    fs.mkdirSync(path.join(tmp, 'posts', p.slug), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'posts', p.slug, 'index.html'),
+      mkPostWithSeries(p.slug, p.date, p.section, p.desc || null));
+  }
+  return tmp;
+}
+
+function cleanTmp(tmp) {
+  fs.rmSync(tmp, { recursive: true, force: true });
+}
+
+test('build: scanSeries returns empty list when no posts have series', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'series-empty-'));
+  try {
+    fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    assert.deepEqual(series, []);
+  } finally { cleanTmp(tmp); }
+});
+
+test('build: scanSeries aggregates single series with posts sorted desc', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-01', date: '2026-01-01', section: '金融市场观察', desc: 'A 股每日情报' },
+    { slug: 'f-02', date: '2026-02-01', section: '金融市场观察' },
+    { slug: 'f-03', date: '2026-03-01', section: '金融市场观察' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    assert.equal(series.length, 1);
+    assert.equal(series[0].slug, '金融市场观察');
+    assert.equal(series[0].count, 3);
+    assert.equal(series[0].latest, '2026-03-01');
+    // 专栏内按日期降序
+    assert.equal(series[0].posts[0].slug, 'f-03');
+    assert.equal(series[0].posts[1].slug, 'f-02');
+    assert.equal(series[0].posts[2].slug, 'f-01');
+    // 缺 series_description 的 posts 应不影响已有 description(fallback 不入 series_description 校验)
+    assert.equal(series[0].description, 'A 股每日情报');
+  } finally { cleanTmp(tmp); }
+});
+
+test('build: scanSeries with multiple series orders by latest desc', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-01-01', section: '金融市场观察' },
+    { slug: 'f-b', date: '2026-02-01', section: '金融市场观察' },
+    { slug: 'a-x', date: '2026-03-15', section: '算法笔记', desc: '算法可视化学习笔记' },
+    { slug: 'a-y', date: '2026-01-10', section: '算法笔记' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    assert.equal(series.length, 2);
+    // 最新日期优先:算法笔记(03-15) → 金融市场观察(02-01)
+    assert.equal(series[0].slug, '算法笔记');
+    assert.equal(series[1].slug, '金融市场观察');
+    assert.equal(series[0].count, 2);
+    assert.equal(series[1].count, 2);
+  } finally { cleanTmp(tmp); }
+});
+
+// ----- 52. AIWORK1-73 renderSeriesIndex: 含卡片网格 + 入口 JSON-LD --------
+
+test('build: renderSeriesIndex produces card grid + CollectionPage JSON-LD', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-02-15', section: '金融市场观察', desc: 'A 股每日情报与短线选股' },
+    { slug: 'f-b', date: '2026-02-10', section: '金融市场观察' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    const html = renderSeriesIndex(series);
+
+    assert.ok(/class="series-grid"/.test(html), 'should use series-grid container');
+    assert.ok(/class="series-card"/.test(html), 'should render series-card items');
+    assert.ok(html.includes('金融市场观察'), 'should display series name');
+    assert.ok(html.includes('href="/series/金融市场观察/"'), 'should link to series page');
+    assert.ok(/<time[^>]*datetime="2026-02-15"/.test(html), 'should show latest date');
+
+    const blocks = extractJSONLDBlocks(html);
+    const collection = blocks.find(b => b['@type'] === 'CollectionPage');
+    assert.ok(collection, 'should emit CollectionPage JSON-LD');
+    assert.ok(collection.hasPart.length >= 2, 'hasPart should list every post');
+  } finally { cleanTmp(tmp); }
+});
+
+// ----- 53. AIWORK1-73 renderSeriesPage: 单专栏页倒序 + CollectionPage -----
+
+test('build: renderSeriesPage orders posts by date desc within the series', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-01-01', section: '金融市场观察', desc: 'A 股每日情报' },
+    { slug: 'f-b', date: '2026-03-01', section: '金融市场观察' },
+    { slug: 'f-c', date: '2026-02-01', section: '金融市场观察' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    const html = renderSeriesPage(series[0]);
+
+    // 09-28 类相对顺序: f-b (2026-03-01) > f-c (2026-02-01) > f-a (2026-01-01)
+    const ib = html.indexOf('href="/posts/f-b/"');
+    const ic = html.indexOf('href="/posts/f-c/"');
+    const ia = html.indexOf('href="/posts/f-a/"');
+    assert.ok(ib > 0 && ic > 0 && ia > 0);
+    assert.ok(ib < ic && ic < ia, 'f-b < f-c < f-a in rendered HTML (date desc)');
+
+    assert.ok(/<a\s+href="\/series\/"\s*>\s*←\s*返回全部专栏/.test(html),
+      'should have 返回全部专栏 link');
+
+    const blocks = extractJSONLDBlocks(html);
+    const collection = blocks.find(b => b['@type'] === 'CollectionPage');
+    assert.ok(collection, 'should emit CollectionPage JSON-LD');
+    assert.equal(collection.url, 'https://itingyu.github.io/series/金融市场观察/');
+  } finally { cleanTmp(tmp); }
+});
+
+// ----- 54. AIWORK1-73 computeBuild: 系列页落地 + writeBuild + drift --------
+
+test('build: computeBuild emits series/index.html + series/<slug>/index.html and stays drift-free', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-02-15', section: '金融市场观察', desc: 'A 股每日情报' },
+    { slug: 'f-b', date: '2026-02-10', section: '金融市场观察' },
+    { slug: 'plain', date: '2026-01-15', section: null },
+  ]);
+  try {
+    const build = computeBuild(tmp);
+    assert.ok(build.files['series/index.html'], 'should emit series/index.html');
+    assert.ok(build.files['series/金融市场观察/index.html'], 'should emit per-series page');
+    assert.ok(!build.files['series/plain/index.html'], 'plain post must not produce series page');
+
+    writeBuild(build, tmp);
+    assert.ok(fs.existsSync(path.join(tmp, 'series', 'index.html')));
+    assert.ok(fs.existsSync(path.join(tmp, 'series', '金融市场观察', 'index.html')));
+
+    // 二次 computeBuild 应无 drift
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, []);
+  } finally { cleanTmp(tmp); }
+});
+
+// ----- 55. AIWORK1-73 --only series 单独刷新 CLI 子模式 -------------------
+
+test('build: --only series regenerates only series/* without touching other pages', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-02-15', section: '金融市场观察', desc: 'A 股每日情报' },
+  ]);
+  try {
+    // 先完整 build 一次
+    const build0 = computeBuild(tmp);
+    writeBuild(build0, tmp);
+
+    // 手动改动 posts/index.html(模拟外部修改);--only series 不应回滚
+    const postsIdx = path.join(tmp, 'posts', 'index.html');
+    const before = fs.readFileSync(postsIdx, 'utf8');
+    fs.writeFileSync(postsIdx, before + '\n<!-- tampered -->\n');
+
+    const { spawnSync } = require('node:child_process');
+    const r = spawnSync(process.execPath,
+      [path.join(__dirname, '..', 'build-index.js'), '--only', 'series', '--root', tmp],
+      { encoding: 'utf8' });
+    assert.equal(r.status, 0, `cli should exit 0, got ${r.status}: ${r.stderr}`);
+
+    // posts/index.html 的外部修改应保留(--only series 未触及)
+    const after = fs.readFileSync(postsIdx, 'utf8');
+    assert.ok(after.includes('<!-- tampered -->'), 'tampered posts/index.html should be untouched');
+
+    // series/index.html 重新生成,无 series 列表漂移
+    const seriesIdx = fs.readFileSync(path.join(tmp, 'series', 'index.html'), 'utf8');
+    assert.ok(/金融市场观察/.test(seriesIdx), 'series list should contain the series');
+  } finally { cleanTmp(tmp); }
+});
+
+// ----- 56. AIWORK1-73 style.css: .series-grid + .series-card 双主题 + reduced-motion ----
+
+test('build: style.css declares .series-grid + .series-card with reduced-motion guard', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'style.css'), 'utf8');
+  assert.ok(/\.series-grid\s*\{/.test(css), 'should declare .series-grid');
+  assert.ok(/\.series-card\s*\{/.test(css), 'should declare .series-card');
+  assert.ok(/\.series-card:hover\s*\{/.test(css), 'should declare .series-card hover state');
+  assert.ok(/grid-template-columns:\s*repeat\(auto-fit/.test(css),
+    'should use auto-fit responsive columns');
+  // reduced-motion 防护
+  assert.ok(/@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.series-card\s*\{[^}]*transition:\s*none/.test(css),
+    'should disable transition under prefers-reduced-motion');
+});
+
+// ----- 57. AIWORK1-73 renderPostsIndex: 入口链接到 /series/(仅在有 series 时) ----
+
+test('build: renderPostsIndex adds 专栏 chip to tag-row when series exist', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'f-a', date: '2026-02-15', section: '金融市场观察', desc: 'A 股每日情报' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderPostsIndex(posts);
+    assert.ok(/class="chip"[^>]*href="\/series\/"/.test(html),
+      'should add 专栏 chip linking to /series/');
+    assert.ok(/专栏\(\d+\)/.test(html),
+      'should show count in chip label');
+  } finally { cleanTmp(tmp); }
+});
+
+test('build: renderPostsIndex omits 专栏 chip when no series exist', () => {
+  // 用 fixtures(无 article:section)— 与现状一致
+  const tmp = makeProject({ posts: ['minimal-post', 'multi-tag-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderPostsIndex(posts);
+    assert.ok(!/href="\/series\/"/.test(html),
+      'should NOT add 专栏 chip when no series exist');
   } finally { cleanProject(tmp); }
 });

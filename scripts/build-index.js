@@ -145,7 +145,7 @@ ${SITE_FOOTER}</body>
 // ============================================================
 
 function parseFrontmatter(html, slug) {
-  const out = { slug, title: '', description: null, date: null, tags: [], warnings: [] };
+  const out = { slug, title: '', description: null, date: null, tags: [], series: null, warnings: [] };
 
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
   if (titleMatch) {
@@ -205,6 +205,23 @@ function parseFrontmatter(html, slug) {
     tagList.push({ slug: slugVal, name });
   }
   out.tags = tagList;
+
+  // Series (article:section, v1.2 沿用 → series). 缺 series_description 只 warn,不报错。
+  const sectionMatch = html.match(/<meta\s+property=["']article:section["']\s+content=["']([^"']*)["']/i);
+  const seriesName = sectionMatch ? sectionMatch[1].trim() : '';
+  if (seriesName) {
+    const descMatch = html.match(/<meta\s+name=["']series_description["']\s+content=["']([^"']*)["']/i)
+      || html.match(/<meta\s+content=["']([^"']*)["']\s+name=["']series_description["']/i);
+    const seriesDesc = descMatch ? descMatch[1].trim() : '';
+    if (!seriesDesc) {
+      out.warnings.push(`series "${seriesName}" missing series_description`);
+    }
+    out.series = {
+      name: seriesName,
+      slug: slugifyTag(seriesName),
+      description: seriesDesc || null,
+    };
+  }
 
   return out;
 }
@@ -637,9 +654,13 @@ ${post.tags && post.tags.length ? `          <span class="dot">·</span>\n${tagH
 function renderPostsIndex(posts) {
   const sorted = sortPosts(posts);
   const tagChips = collectTagChips(posts);
+  const seriesList = scanSeries(posts);
+  const seriesLink = seriesList.length > 0
+    ? `\n      <a class="chip" href="/series/" data-nav="series">专栏(${seriesList.length})</a>`
+    : '';
   const main = `    <h1>文章</h1>
     <div class="tag-row">
-${tagChips}
+${tagChips}${seriesLink}
     </div>
     <ul class="post-list">
 ${sorted.map(renderPostListItem).join('\n')}
@@ -768,6 +789,110 @@ ${cloud}
     description: '按标签浏览所有文章。',
     canonical: `${SITE_ORIGIN}/tags/`,
     activeNav: 'tags',
+    main,
+  });
+}
+
+// ============================================================
+// Series (专栏) aggregation + render
+//   - 读 posts[*].series = { name, slug, description }
+//   - /series/index.html 列出全部 series(卡片网格)
+//   - /series/<slug>/index.html 单专栏页(按专栏内时间倒序)
+//   - 缺 series_description 仅 warn(校验脚本同语义)
+//   - 复用 pageShell + 卡片样式(.series-card 在 assets/style.css)
+// ============================================================
+
+function scanSeries(posts) {
+  const buckets = new Map();
+  for (const p of posts) {
+    if (!p.series) continue;
+    const key = p.series.slug;
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        slug: p.series.slug,
+        name: p.series.name,
+        description: p.series.description || null,
+        posts: [],
+      });
+    }
+    buckets.get(key).posts.push(p);
+  }
+  const list = Array.from(buckets.values());
+  for (const s of list) {
+    s.posts.sort(byDateDesc);
+    s.count = s.posts.length;
+    s.latest = s.posts[0].date || '';
+    if (!s.description) {
+      // 取专栏内首篇文章的 description 作 fallback(只用于卡片描述,不入 series_description 校验)
+      s.description = (s.posts[0].description || '').toString().slice(0, 120) || null;
+    }
+  }
+  list.sort((a, b) => {
+    const da = a.latest || '';
+    const db = b.latest || '';
+    if (da < db) return 1;
+    if (da > db) return -1;
+    return a.name.localeCompare(b.name);
+  });
+  return list;
+}
+
+function renderSeriesIndex(seriesList) {
+  const cards = seriesList.map(s => `      <li class="series-card">
+        <h3 class="series-card-title"><a href="/series/${escapeHTML(s.slug)}/">${escapeHTML(s.name)}</a></h3>
+        <p class="series-card-meta"><span>${s.count} 篇</span>${s.latest ? `<span class="dot">·</span><time datetime="${escapeHTML(s.latest)}">${escapeHTML(s.latest)}</time>` : ''}</p>
+        ${s.description ? `<p class="series-card-desc">${escapeHTML(s.description)}</p>` : ''}
+      </li>`).join('\n');
+  const main = `    <h1>专栏</h1>
+    <p style="color:var(--fg-muted);margin-top:-.5rem;">把分散的连续内容聚合成入口。每个专栏按时间线倒序展示。</p>
+    <ul class="series-grid">
+${cards}
+    </ul>
+`;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: '专栏 · itingyu',
+    description: '全部专栏与最新更新。',
+    url: `${SITE_ORIGIN}/series/`,
+    posts: seriesList.flatMap(s => s.posts.map(p => ({ title: p.title, url: postURL(p), date: p.date }))),
+  });
+  return pageShell({
+    title: '专栏 · itingyu',
+    description: '全部专栏与最新更新。',
+    canonical: `${SITE_ORIGIN}/series/`,
+    activeNav: '',
+    extraHead: collectionJSONLD,
+    main,
+  });
+}
+
+function renderSeriesPage(series) {
+  const list = series.posts.map(p => `      <li>
+        <h3 class="post-title"><a href="/posts/${escapeHTML(p.slug)}/">${escapeHTML(p.title)}</a></h3>
+        <div class="post-meta">
+          <time datetime="${escapeHTML(p.date || '')}">${escapeHTML(p.date || '')}</time>
+        </div>
+        <p class="post-excerpt">${escapeHTML(p.description || p.title || '')}</p>
+      </li>`).join('\n');
+  const main = `    <h1>专栏：${escapeHTML(series.name)}</h1>
+    ${series.description ? `<p class="series-page-desc">${escapeHTML(series.description)}</p>` : ''}
+    <p><a href="/series/">← 返回全部专栏</a></p>
+
+    <ul class="post-list">
+ ${list}
+    </ul>
+`;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: `${series.name} · itingyu`,
+    description: series.description || `「${series.name}」专栏的全部文章。`,
+    url: `${SITE_ORIGIN}/series/${series.slug}/`,
+    posts: series.posts.map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+  });
+  return pageShell({
+    title: `${series.name} · itingyu`,
+    description: series.description || `「${series.name}」专栏的全部文章。`,
+    canonical: `${SITE_ORIGIN}/series/${series.slug}/`,
+    activeNav: '',
+    extraHead: collectionJSONLD,
     main,
   });
 }
@@ -1039,6 +1164,13 @@ function computeBuild(rootDir = ROOT) {
     tagPages[slug] = renderTagPage(slug, name, posts);
   }
 
+  const seriesList = scanSeries(posts);
+  const seriesIndex = renderSeriesIndex(seriesList);
+  const seriesPages = {};
+  for (const s of seriesList) {
+    seriesPages[s.slug] = renderSeriesPage(s);
+  }
+
   const rss = renderRSS(posts, null, rootDir);
   const sitemap = renderSitemap(posts);
   const searchIndex = renderSearchIndex(posts, rootDir);
@@ -1068,16 +1200,20 @@ function computeBuild(rootDir = ROOT) {
       'posts/index.html': postsIndex,
       'archive/index.html': archive,
       'tags/index.html': tagsIndex,
+      'series/index.html': seriesIndex,
       'feeds/rss.xml': rss,
       'sitemap.xml': sitemap,
       'search/index.html': searchPage,
       'assets/search-index.json': searchIndex,
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
+      ...Object.fromEntries(Object.entries(seriesPages).map(([slug, content]) =>
+        [`series/${slug}/index.html`, content])),
     },
     articlePages,
     homeReplacement,
     tagSlugs: Array.from(tagNames.keys()).sort(),
+    seriesSlugs: seriesList.map(s => s.slug),
   };
 }
 
@@ -1131,6 +1267,23 @@ function writeBuild(build, rootDir = ROOT) {
     }
   }
 
+  // prune series/<slug>/index.html that no longer exist
+  const seriesDir = path.join(rootDir, 'series');
+  if (fs.existsSync(seriesDir)) {
+    const seriesDirs = fs.readdirSync(seriesDir, { withFileTypes: true })
+      .filter(e => e.isDirectory())
+      .map(e => e.name);
+    for (const slug of seriesDirs) {
+      if (!build.seriesSlugs.includes(slug)) {
+        const idxFile = path.join(seriesDir, slug, 'index.html');
+        if (fs.existsSync(idxFile)) {
+          fs.unlinkSync(idxFile);
+          removed.push(`series/${slug}/index.html`);
+        }
+      }
+    }
+  }
+
   return { written, removed };
 }
 
@@ -1173,7 +1326,7 @@ function usage() {
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages|prevnext)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|series|series-pages|rss|sitemap|home|article-pages|prevnext)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -1196,7 +1349,7 @@ function run(argv) {
   const opts = parseArgs(argv);
   if (opts.help) { process.stdout.write(usage()); return 0; }
   const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
+  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'series', 'series-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
 
   let targets = allNames;
   if (opts.only) {
@@ -1214,6 +1367,12 @@ function run(argv) {
   if (!targets.includes('tag-pages')) {
     for (const rel of Object.keys(build.files)) {
       if (rel.startsWith('tags/') && rel !== 'tags/index.html') delete build.files[rel];
+    }
+  }
+  if (!targets.includes('series')) delete build.files['series/index.html'];
+  if (!targets.includes('series-pages')) {
+    for (const rel of Object.keys(build.files)) {
+      if (rel.startsWith('series/') && rel !== 'series/index.html') delete build.files[rel];
     }
   }
   if (!targets.includes('rss')) delete build.files['feeds/rss.xml'];
@@ -1264,6 +1423,9 @@ module.exports = {
   renderArchive,
   renderTagsIndex,
   renderTagPage,
+  scanSeries,
+  renderSeriesIndex,
+  renderSeriesPage,
   renderRSS,
   renderSitemap,
   renderSearchIndex,

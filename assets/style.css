@@ -1292,6 +1292,69 @@ article pre:focus-within .copy-btn,
 }
 
 /* ==========================================================================
+   AIWORK1-73 · 专栏系列页(2026-10-07 北京时间)
+   - .series-grid        专栏卡片网格(auto-fit 自适应列数)
+   - .series-card        单卡(标题 + meta + 描述)
+   - .series-card-title  卡片标题(serif)
+   - .series-card-meta   文章数 · 最新日期
+   - .series-card-desc   专栏简介(单行截断由 .post-excerpt 派生)
+   - .series-page-desc   单专栏页顶部简介
+   ========================================================================== */
+
+.series-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.25rem;
+  list-style: none; padding: 0; margin: 1.5rem 0 0;
+}
+.series-card {
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  transition: all .2s ease;
+}
+.series-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.series-card-title {
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.3;
+}
+.series-card-title a { color: var(--fg); }
+.series-card-title a:hover { color: var(--accent); text-decoration: none; }
+.series-card-meta {
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+  margin: 0;
+  display: flex; flex-wrap: wrap; gap: .35rem; align-items: center;
+}
+.series-card-meta time { color: var(--fg-muted); }
+.series-card-desc {
+  font-size: var(--step-0);
+  color: var(--fg-muted);
+  margin: .25rem 0 0;
+  line-height: 1.55;
+}
+.series-page-desc {
+  font-size: var(--step-1);
+  color: var(--fg-muted);
+  margin: -.25rem 0 1.5rem;
+  max-width: 60ch;
+  line-height: 1.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .series-card { transition: none; }
+  .series-card:hover { transform: none; }
+}
+
+/* ==========================================================================
    v7 · 键盘快捷键浮层(2026-09-26 北京时间 · AIWORK1-34)
    - .keyhelp-overlay    半透明浮层(? 弹出)
    - .keyhelp-table      按键 / 行为 二列表格
