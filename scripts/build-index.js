@@ -145,7 +145,7 @@ ${SITE_FOOTER}</body>
 // ============================================================
 
 function parseFrontmatter(html, slug) {
-  const out = { slug, title: '', description: null, date: null, tags: [], warnings: [] };
+  const out = { slug, title: '', description: null, date: null, tags: [], series: null, warnings: [] };
 
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
   if (titleMatch) {
@@ -205,6 +205,29 @@ function parseFrontmatter(html, slug) {
     tagList.push({ slug: slugVal, name });
   }
   out.tags = tagList;
+
+  // Series (article:section, v1.2 沿用 → series).
+  // - name: 专栏中文显示名(可中文)
+  // - slug: 优先取 meta[name="series_slug"] 显式英文/拉丁 slug;缺则回退到 slugifyTag(name)
+  // - description: 落 meta[name="series_description"];缺仅 warn 不报错
+  const sectionMatch = html.match(/<meta\s+property=["']article:section["']\s+content=["']([^"']*)["']/i);
+  const seriesName = sectionMatch ? sectionMatch[1].trim() : '';
+  if (seriesName) {
+    const slugMatch = html.match(/<meta\s+name=["']series_slug["']\s+content=["']([^"']*)["']/i)
+      || html.match(/<meta\s+content=["']([^"']*)["']\s+name=["']series_slug["']/i);
+    const descMatch = html.match(/<meta\s+name=["']series_description["']\s+content=["']([^"']*)["']/i)
+      || html.match(/<meta\s+content=["']([^"']*)["']\s+name=["']series_description["']/i);
+    const seriesDesc = descMatch ? descMatch[1].trim() : '';
+    if (!seriesDesc) {
+      out.warnings.push(`series "${seriesName}" missing series_description`);
+    }
+    const explicitSlug = slugMatch ? slugMatch[1].trim() : '';
+    out.series = {
+      name: seriesName,
+      slug: explicitSlug || slugifyTag(seriesName),
+      description: seriesDesc || null,
+    };
+  }
 
   return out;
 }
@@ -804,7 +827,7 @@ function renderTagPage(tagSlug, tagName, posts) {
   });
 }
 
-function renderRSS(posts, buildDate, rootDir = ROOT) {
+function renderRSS(posts, buildDate, rootDir = ROOT, seriesList = []) {
   const sorted = sortPosts(posts).slice(0, RSS_LIMIT);
   const rfc822 = (d) => {
     const dt = d instanceof Date ? d : new Date(d);
@@ -841,6 +864,10 @@ function renderRSS(posts, buildDate, rootDir = ROOT) {
       <description>${escapeXML(p.description || '')}</description>${fullBody ? `\n      <content:encoded><![CDATA[${fullBody}]]></content:encoded>` : ''}
 ${cats ? cats + '\n' : ''}    </item>`;
   }).join('\n');
+  // 顶部追加 series feed 的 atom:link(可选,便于 RSS 阅读器发现)
+  const seriesLinks = seriesList.map(s =>
+    `    <atom:link href="${SITE_ORIGIN}/feeds/series-${escapeXML(s.slug)}.xml" rel="related" type="application/rss+xml" title="${escapeXML(s.name)}" />`
+  ).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
@@ -849,11 +876,98 @@ ${cats ? cats + '\n' : ''}    </item>`;
     <description>编程学习 / 金融观察 / 算法可视化。</description>
     <language>zh-cn</language>
     <lastBuildDate>${lastBuild}</lastBuildDate>
-    <atom:link href="${SITE_ORIGIN}/feeds/rss.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="${SITE_ORIGIN}/feeds/rss.xml" rel="self" type="application/rss+xml" />${seriesLinks ? '\n' + seriesLinks : ''}
 ${items}
   </channel>
 </rss>
 `;
+}
+
+// ============================================================
+// Series (专栏) 聚合 + 专栏级 RSS / sitemap 标注
+//   - 复用 parseFrontmatter 读到的 posts[*].series = { name, slug, description }
+//   - scanSeries(posts) 聚合 → 系列列表(按最新发布日期降序)
+//   - renderSeriesRSS(series, posts, rootDir) 输出 /feeds/series-<slug>.xml
+//   - injectSeriesIntoSitemap(posts) 在 <url> 内追加 <series> 子元素(若有)
+// ============================================================
+
+function scanSeries(posts) {
+  const buckets = new Map();
+  for (const p of posts) {
+    if (!p.series || !p.series.slug) continue;
+    const key = p.series.slug;
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        slug: p.series.slug,
+        name: p.series.name,
+        description: p.series.description || null,
+        posts: [],
+      });
+    }
+    buckets.get(key).posts.push(p);
+  }
+  const list = Array.from(buckets.values());
+  for (const s of list) {
+    s.posts.sort(byDateDesc);
+    s.count = s.posts.length;
+    s.latest = s.posts[0].date || '';
+  }
+  list.sort((a, b) => {
+    const da = a.latest || '';
+    const db = b.latest || '';
+    if (da < db) return 1;
+    if (da > db) return -1;
+    return a.name.localeCompare(b.name);
+  });
+  return list;
+}
+
+function renderSeriesRSS(series, posts, rootDir = ROOT) {
+  if (!series || !series.slug) return [];
+  // 按 series.slug 过滤文章;该 series 必须有至少 1 篇
+  const filtered = sortPosts(posts.filter(p => p.series && p.series.slug === series.slug));
+  if (filtered.length === 0) return [];
+  const rfc822 = (d) => {
+    const dt = d instanceof Date ? d : new Date(d);
+    if (isNaN(dt.getTime())) return new Date().toUTCString();
+    return dt.toUTCString();
+  };
+  const lastBuild = rfc822(filtered[0].date || new Date());
+  const selfURL = `${SITE_ORIGIN}/feeds/series-${series.slug}.xml`;
+  const pageURL = `${SITE_ORIGIN}/series/${series.slug}/`;
+  const items = filtered.map(p => {
+    const link = `${SITE_ORIGIN}/posts/${p.slug}/`;
+    const pubDate = p.date ? rfc822(p.date) : lastBuild;
+    const cats = (p.tags || []).map(t => `      <category>${escapeXML(t.name)}</category>`).join('\n');
+    let fullBody = '';
+    const postFile = path.join(rootDir, 'posts', p.slug, 'index.html');
+    if (fs.existsSync(postFile)) {
+      const raw = fs.readFileSync(postFile, 'utf8');
+      fullBody = extractArticleBody(raw);
+    }
+    return `    <item>
+      <title>${escapeXML(p.title)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <description>${escapeXML(p.description || '')}</description>${fullBody ? `\n      <content:encoded><![CDATA[${fullBody}]]></content:encoded>` : ''}
+${cats ? cats + '\n' : ''}    </item>`;
+  }).join('\n');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>${escapeXML(series.name)} · itingyu</title>
+    <link>${pageURL}</link>
+    <description>${escapeXML(series.description || `${series.name}专栏的全部文章。`)}</description>
+    <language>zh-cn</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+    <atom:link href="${selfURL}" rel="self" type="application/rss+xml" />
+    <atom:link href="${pageURL}" rel="alternate" type="text/html" />
+${items}
+  </channel>
+</rss>
+`;
+  return [{ slug: series.slug, name: series.name, xml }];
 }
 
 // ============================================================
@@ -950,17 +1064,20 @@ function renderSitemap(posts) {
     changefreq: 'monthly',
     priority: '0.5',
   }));
+  // postPages 带可选 series 字段 → 用于给 <url> 注入 <series> 子元素(可选,build 时聚合;无 series 则不输出)
   const postPages = sortPosts(posts).map(p => ({
     loc: `${SITE_ORIGIN}/posts/${p.slug}/`,
     lastmod: p.date || '',
     changefreq: 'monthly',
     priority: '0.8',
+    series: p.series && p.series.slug ? p.series.slug : null,
   }));
   const all = [...staticPages, ...tagPages, ...postPages];
   const today = new Date().toISOString().slice(0, 10);
   const urls = all.map(u => {
     const lastmod = u.lastmod || today;
-    return `  <url><loc>${u.loc}</loc><lastmod>${lastmod}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`;
+    const seriesTag = u.series ? `<series>${escapeXML(u.series)}</series>` : '';
+    return `  <url><loc>${u.loc}</loc>${seriesTag}<lastmod>${lastmod}</lastmod><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`;
   }).join('\n');
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1039,7 +1156,17 @@ function computeBuild(rootDir = ROOT) {
     tagPages[slug] = renderTagPage(slug, name, posts);
   }
 
-  const rss = renderRSS(posts, null, rootDir);
+  // Series 聚合(用于系列 RSS + sitemap <series> 子元素 + rss.xml atom:link)
+  const seriesList = scanSeries(posts);
+  const seriesFiles = {};
+  for (const s of seriesList) {
+    const out = renderSeriesRSS(s, posts, rootDir);
+    if (out.length > 0 && out[0].xml) {
+      seriesFiles[`feeds/series-${s.slug}.xml`] = out[0].xml;
+    }
+  }
+
+  const rss = renderRSS(posts, null, rootDir, seriesList);
   const sitemap = renderSitemap(posts);
   const searchIndex = renderSearchIndex(posts, rootDir);
   const searchPage = renderSearchPage();
@@ -1074,6 +1201,7 @@ function computeBuild(rootDir = ROOT) {
       'assets/search-index.json': searchIndex,
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
+      ...seriesFiles,
     },
     articlePages,
     homeReplacement,
@@ -1173,7 +1301,7 @@ function usage() {
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages|prevnext)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages|prevnext|series-feeds)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -1196,7 +1324,7 @@ function run(argv) {
   const opts = parseArgs(argv);
   if (opts.help) { process.stdout.write(usage()); return 0; }
   const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
+  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext', 'series-feeds'];
 
   let targets = allNames;
   if (opts.only) {
@@ -1220,6 +1348,13 @@ function run(argv) {
   if (!targets.includes('sitemap')) delete build.files['sitemap.xml'];
   if (!targets.includes('home')) build.homeReplacement = null;
   if (!targets.includes('article-pages') && !targets.includes('prevnext')) build.articlePages = {};
+  // series-feeds 目标产出 /feeds/series-*.xml;
+  // 不在 targets 时(选择性 build)删掉系列 feed,保持 --only rss / --only sitemap 的隔离。
+  if (!targets.includes('series-feeds')) {
+    for (const rel of Object.keys(build.files)) {
+      if (rel.startsWith('feeds/series-')) delete build.files[rel];
+    }
+  }
 
   if (opts.check) {
     const drift = checkDrift(build, opts.root);
@@ -1264,6 +1399,8 @@ module.exports = {
   renderArchive,
   renderTagsIndex,
   renderTagPage,
+  scanSeries,
+  renderSeriesRSS,
   renderRSS,
   renderSitemap,
   renderSearchIndex,

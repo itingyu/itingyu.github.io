@@ -121,7 +121,9 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | `slug` | slug | —(默认目录) | URL 段 |
 | `author` | string | ✅(默认 itingyu) | `<meta name="author">` + JSON-LD `author` |
 | `cover` | path(相对 slug) | — | og:image + 视觉化(若实现) |
-| `series` | string | — | v1.2 `article:section` 沿用 |
+| `series` | string | — | v1.2 `article:section` 沿用(专栏显示名,如「金融市场观察」) |
+| `series_slug` | slug | — | 专栏 URL 段(显式英文 / 拉丁 slug;缺则回退 `slugifyTag(series)`) |
+| `series_description` | string | — | 落 `/series/<slug>/` 的 meta + `<description>` + JSON-LD;缺仅 warn 不报错 |
 | `pinned` | bool | — | v1.2 首页精选沿用 |
 | **`draft`** | **bool** | **(默认 false)** | **v2 新增,见 §3.4** |
 | `canonical` | URL | — | `<link rel="canonical">`,默认自动 |
@@ -143,8 +145,9 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | `/search/` | 客户端搜索(v1.2) | 手写 + 索引 JSON |
 | `/about/` | 关于 | 手写 |
 | `/404.html` | 错误页 | 手写 |
-| `/feeds/rss.xml` | RSS 订阅 | build 生成 |
-| `/sitemap.xml` | 站点地图 | build 生成 |
+| `/feeds/rss.xml` | RSS 订阅(主 feed) | build 生成 |
+| `/feeds/series-<series-slug>.xml` | RSS 订阅(专栏级 feed,v3 增量) | build 生成 |
+| `/sitemap.xml` | 站点地图(含 `<series>` 子元素,v3 增量) | build 生成 |
 | `/robots.txt` | 爬虫规则 | 手写 |
 | `/assets/{style.css,keys.js,theme.js,favicon.svg,prism.js}` | 静态资源 | 手写 |
 
@@ -171,6 +174,8 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 - **draft**:`true` / `false`(其他值报错)
 - **pinned**:`true` / `false`(其他值报错)
 - **series**:slug 格式(`^[\u4e00-\u9fa5a-z0-9-]+$`)— 与 v1.2 一致
+- **series_slug**:slug 格式(纯拉丁;优先于 `series` 自动推算,**推荐**英文 / 拉丁以便 `/feeds/series-<slug>.xml` 路径稳定)。例:`series: 金融市场观察` + `series_slug: finance-market` → feed 路径 `/feeds/series-finance-market.xml`
+- **series_description**:可缺;缺仅 warn,不报错(便于阶段式接入)
 
 ---
 

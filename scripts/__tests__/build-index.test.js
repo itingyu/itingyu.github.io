@@ -14,6 +14,7 @@ const {
   injectPrevNextHead, injectPostNav,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
+  scanSeries, renderSeriesRSS,
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
@@ -1204,5 +1205,221 @@ test('build: buildPostNav aria-label survives full injectArticlePageEnhancements
     // 末篇没有 next 卡片,故不应出现 "下一篇:"
     assert.ok(!/aria-label="下一篇:/.test(out),
       'last post should not declare next aria-label');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 50. AIWORK1-79 scanSeries: 0 / 1 / 多 series 聚合 ------------------
+
+function mkSeriesPostHtml({ slug, date, section, slugOverride, description }) {
+  const sectionMeta = section
+    ? `<meta property="article:section" content="${section}" />` : '';
+  const slugMeta = slugOverride
+    ? `<meta name="series_slug" content="${slugOverride}" />` : '';
+  const descMeta = description
+    ? `<meta name="series_description" content="${description}" />` : '';
+  return `<!doctype html><html lang="zh-CN"><head>
+    <title>${slug}</title>
+    <meta property="article:published_time" content="${date}" />
+${sectionMeta}
+${slugMeta}
+${descMeta}
+  </head><body></body></html>`;
+}
+
+function mkSeriesProject(posts) {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'aiwork1-79-'));
+  fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
+  for (const p of posts) {
+    fs.mkdirSync(path.join(tmp, 'posts', p.slug), { recursive: true });
+    fs.writeFileSync(path.join(tmp, 'posts', p.slug, 'index.html'),
+      mkSeriesPostHtml(p));
+  }
+  return tmp;
+}
+
+test('build: scanSeries aggregates posts into per-slug buckets with date desc order', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'p1', date: '2026-09-26', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报' },
+    { slug: 'p2', date: '2026-09-27', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报' },
+    { slug: 'p3', date: '2026-09-28', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报' },
+    { slug: 'p4', date: '2026-09-25', section: 'sing-box 折腾手记', slugOverride: 'sing-box', description: 'systemd / TUN / 规则集' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    assert.equal(series.length, 2, 'should produce 2 series');
+
+    const fm = series.find(s => s.slug === 'finance-market');
+    assert.ok(fm, 'finance-market series should exist');
+    assert.equal(fm.name, '金融市场观察');
+    assert.equal(fm.count, 3);
+    assert.equal(fm.posts[0].slug, 'p3', 'finance posts sorted date desc');
+    assert.equal(fm.posts[2].slug, 'p1');
+
+    const sb = series.find(s => s.slug === 'sing-box');
+    assert.ok(sb, 'sing-box series should exist');
+    assert.equal(sb.count, 1);
+  } finally { cleanProject(tmp); }
+});
+
+test('build: scanSeries returns empty array when no posts have series', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'p1', date: '2026-09-26' },
+    { slug: 'p2', date: '2026-09-27' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    assert.deepEqual(series, [], 'no series when no article:section meta');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 51. AIWORK1-79 renderSeriesRSS: 频道元数据 + item 数量 + 自指 atom:link --
+
+test('build: renderSeriesRSS emits /feeds/series-<slug>.xml with N items + correct metadata', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'p1', date: '2026-09-26', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报与短线选股' },
+    { slug: 'p2', date: '2026-09-27', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报与短线选股' },
+    { slug: 'p3', date: '2026-09-28', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股每日情报与短线选股' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const series = scanSeries(posts);
+    const out = renderSeriesRSS(series[0], posts, tmp);
+    assert.equal(out.length, 1, 'should emit one file entry');
+    assert.equal(out[0].slug, 'finance-market');
+    const xml = out[0].xml;
+
+    // 频道元数据
+    assert.ok(/<title>金融市场观察 · itingyu<\/title>/.test(xml),
+      'channel title should be "金融市场观察 · itingyu"');
+    assert.ok(/<link>https:\/\/itingyu\.github\.io\/series\/finance-market\/<\/link>/.test(xml),
+      'channel link should point at /series/finance-market/');
+    assert.ok(/<description>A 股每日情报与短线选股<\/description>/.test(xml),
+      'channel description should fall back to series_description');
+
+    // 自指 atom:link
+    assert.ok(/<atom:link href="https:\/\/itingyu\.github\.io\/feeds\/series-finance-market\.xml" rel="self" type="application\/rss\+xml" \/>/.test(xml),
+      'self atom:link should point at /feeds/series-finance-market.xml');
+
+    // item 数量 = 3,按日期倒序
+    const items = (xml.match(/<item>/g) || []).length;
+    assert.equal(items, 3, 'should emit one <item> per post in the series');
+    const p1Idx = xml.indexOf('/posts/p1/');
+    const p2Idx = xml.indexOf('/posts/p2/');
+    const p3Idx = xml.indexOf('/posts/p3/');
+    assert.ok(p1Idx > 0 && p2Idx > 0 && p3Idx > 0);
+    assert.ok(p3Idx < p2Idx && p2Idx < p1Idx,
+      'items should appear in date desc order (p3 → p2 → p1)');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: renderSeriesRSS emits nothing when series has zero posts', () => {
+  // posts 数组里没有该 series 的文章 → 不应产出 RSS 文件
+  const tmp = mkSeriesProject([
+    { slug: 'p1', date: '2026-09-26', section: '其他', slugOverride: 'other' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const fakeSeries = { slug: 'ghost', name: '幽灵', description: '不应出现' };
+    const out = renderSeriesRSS(fakeSeries, posts, tmp);
+    assert.equal(out.length, 0, 'should return empty array for empty series');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 52. AIWORK1-79 sitemap <series> 子元素 + rss.xml atom:link 自指 ----
+
+test('build: renderSitemap injects <series> child element only on posts that have series', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'fm-a', date: '2026-09-26', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'fm-b', date: '2026-09-27', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'plain', date: '2026-09-25' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const xml = renderSitemap(posts);
+    // 含 series 的两条 <url> 必须含 <series>finance-market</series>
+    assert.ok(/<loc>https:\/\/itingyu\.github\.io\/posts\/fm-a\/<\/loc><series>finance-market<\/series>/.test(xml),
+      'fm-a url should have <series>finance-market</series> child');
+    assert.ok(/<loc>https:\/\/itingyu\.github\.io\/posts\/fm-b\/<\/loc><series>finance-market<\/series>/.test(xml),
+      'fm-b url should have <series>finance-market</series> child');
+    // 无 series 的 plain url 不应含 <series> 子元素
+    const plainMatch = xml.match(/<url><loc>https:\/\/itingyu\.github\.io\/posts\/plain\/<\/loc>([\s\S]*?)<\/url>/);
+    assert.ok(plainMatch, 'plain url should exist');
+    assert.ok(!/<series>/.test(plainMatch[1]),
+      'plain url must NOT contain <series> child element');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: renderRSS adds atom:link rel=related pointing at series feeds', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'fm-a', date: '2026-09-26', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'fm-b', date: '2026-09-27', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'plain', date: '2026-09-25' },
+  ]);
+  try {
+    const posts = scanPosts(tmp);
+    const seriesList = scanSeries(posts);
+    const xml = renderRSS(posts, null, tmp, seriesList);
+    // 自指 atom:link 仍在
+    assert.ok(/<atom:link href="https:\/\/itingyu\.github\.io\/feeds\/rss\.xml" rel="self" type="application\/rss\+xml" \/>/.test(xml),
+      'main feed must keep self atom:link');
+    // 系列 feed 的 atom:link 也在(rel="related")
+    assert.ok(/<atom:link href="https:\/\/itingyu\.github\.io\/feeds\/series-finance-market\.xml" rel="related" type="application\/rss\+xml" title="金融市场观察" \/>/.test(xml),
+      'main feed should reference series-finance-market.xml via atom:link');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- 53. AIWORK1-79 computeBuild wires series RSS files into build.files -----
+
+test('build: computeBuild emits feeds/series-<slug>.xml + writeBuild creates files + checkDrift clean', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'fm-a', date: '2026-09-26', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'fm-b', date: '2026-09-27', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+    { slug: 'fm-c', date: '2026-09-28', section: '金融市场观察', slugOverride: 'finance-market', description: 'A 股' },
+  ]);
+  try {
+    const build = computeBuild(tmp);
+    // 3 篇金融日报 → 1 个系列 RSS
+    assert.ok(build.files['feeds/series-finance-market.xml'],
+      'build.files should contain feeds/series-finance-market.xml');
+    assert.ok(build.files['feeds/rss.xml'], 'main rss.xml should remain');
+    assert.ok(build.files['sitemap.xml'], 'sitemap.xml should remain');
+
+    const written = writeBuild(build, tmp);
+    assert.ok(written.written.includes('feeds/series-finance-market.xml'),
+      'writeBuild should write series feed file');
+    assert.ok(fs.existsSync(path.join(tmp, 'feeds', 'series-finance-market.xml')),
+      'series feed file should exist on disk');
+
+    // 内容正确
+    const xml = fs.readFileSync(path.join(tmp, 'feeds', 'series-finance-market.xml'), 'utf8');
+    assert.ok(/<title>金融市场观察 · itingyu<\/title>/.test(xml));
+    const items = (xml.match(/<item>/g) || []).length;
+    assert.equal(items, 3);
+
+    // 写盘 → 重算 → drift 应为空(全链路幂等)
+    const drift = checkDrift(computeBuild(tmp), tmp);
+    assert.deepEqual(drift, [], 'no drift after full build');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: computeBuild with no series posts → no feeds/series-*.xml produced', () => {
+  const tmp = mkSeriesProject([
+    { slug: 'plain-a', date: '2026-09-26' },
+    { slug: 'plain-b', date: '2026-09-27' },
+  ]);
+  try {
+    const build = computeBuild(tmp);
+    const seriesFiles = Object.keys(build.files).filter(r => r.startsWith('feeds/series-'));
+    assert.deepEqual(seriesFiles, [], 'no series feed files when no posts have series');
+
+    writeBuild(build, tmp);
+    // 也没遗留文件
+    const feedsDir = path.join(tmp, 'feeds');
+    if (fs.existsSync(feedsDir)) {
+      const seriesOnDisk = fs.readdirSync(feedsDir).filter(f => f.startsWith('series-'));
+      assert.deepEqual(seriesOnDisk, [], 'no series-*.xml on disk either');
+    }
   } finally { cleanProject(tmp); }
 });
