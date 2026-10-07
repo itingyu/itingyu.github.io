@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>厨房原理总论 · itingyu</title>
+  <meta name="description" content="烹饪的"理"先于"技"。理解了底层原理,任何菜谱都能举一反三。" />
+  <meta name="author" content="itingyu" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="canonical" href="https://itingyu.github.io/posts/kitchen-01-principles/" />
+  <link rel="prev" href="/posts/finance-2026-09-30/" />
+  <link rel="next" href="/posts/kitchen-02-ingredient-selection/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="厨房原理总论" />
+  <meta property="og:description" content="烹饪的"理"先于"技"。理解了底层原理,任何菜谱都能举一反三。" />
+  <meta property="og:url" content="https://itingyu.github.io/posts/kitchen-01-principles/" />
+  <meta property="og:locale" content="zh_CN" />
+  <meta property="article:published_time" content="2026-10-07" />
+  <meta property="article:author" content="itingyu" />
+  <meta property="article:section" content="厨房学" />
+  <meta name="series:description" content="从厨房原理到八大菜系家常做法的系统学习路径,业余到家庭厨房实战" />
+  <meta property="article:tag" content="cooking" />
+  <meta property="article:tag" content="kitchen" />
+  <meta property="article:tag" content="principles" />
+
+  <!-- JSON-LD -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "厨房原理总论",
+  "datePublished": "2026-10-07",
+  "dateModified": "2026-10-07",
+  "author": {
+    "@type": "Person",
+    "name": "itingyu"
+  },
+  "url": "https://itingyu.github.io/posts/kitchen-01-principles/",
+  "description": "烹饪的\"理\"先于\"技\"。理解了底层原理,任何菜谱都能举一反三。",
+  "articleSection": "厨房学",
+  "keywords": [
+    "cooking",
+    "kitchen",
+    "principles",
+    "厨房学",
+    "烹饪学习"
+  ]
+}
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "首页",
+      "item": "https://itingyu.github.io/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "cooking",
+      "item": "https://itingyu.github.io/tags/cooking/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "厨房原理总论",
+      "item": "https://itingyu.github.io/posts/kitchen-01-principles/"
+    }
+  ]
+}
+  </script>
+
+
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('itingyu-theme');
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (_) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/assets/style.css" />
+  <script defer src="/assets/theme.js"></script>
+  <script defer src="/assets/keys.js"></script>
+</head>
+<body>
+  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <header class="site-header">
+    <a class="site-brand" href="/">
+      <span class="site-brand-mark">i</span>
+      <span>itingyu</span>
+    </a>
+    <nav class="site-nav" aria-label="主导航">
+      <a href="/">首页</a>
+      <a href="/posts/">文章</a>
+      <a href="/archive/">归档</a>
+      <a href="/tags/">标签</a>
+      <a href="/series/">专栏</a>
+      <a href="/search/">搜索</a>
+      <a href="/about/">关于</a>
+      <button class="theme-toggle" type="button"
+              aria-label="切换主题" data-theme-toggle>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12 12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <main id="main" class="container">
+    <article>
+      <header class="article-header">
+        <h1>厨房原理总论</h1>
+        <div class="post-meta">
+          <time datetime="2026-10-07">2026-10-07</time>
+          <span class="dot">·</span>
+          <a class="chip" href="/tags/cooking/" data-tag="cooking">cooking</a>
+          <span class="dot">·</span>
+          <a class="chip" href="/series/厨房学/" data-series="厨房学">厨房学</a>
+          <span class="dot">·</span>
+          <span data-reading-time>约 1 分钟</span>
+          <span class="dot">·</span>
+          <span class="word-count" data-word-count>统计中…</span>
+        </div>
+        <p class="post-excerpt">烹饪的"理"先于"技"。理解了底层原理,任何菜谱都能举一反三。</p>
+      </header>
+
+      <blockquote>烹饪的"理"先于"技"。理解了底层原理,任何菜谱都能举一反三。</blockquote>
+<hr>
+<h2>一、烹饪的本质</h2>
+<p>烹饪 = <strong>热处理 + 调味 + 成形</strong></p>
+<ul><li><strong>热处理</strong>:通过加热改变食材的物理状态(软化、凝固)和化学结构(褐变、糊化)</li><li><strong>调味</strong>:通过盐、糖、酱、香料让味蕾产生愉悦感</li><li><strong>成形</strong>:刀工与烹法决定最终的"口感"与"卖相"</li></ul>
+<p>一句话概括:<strong>烹饪是控制"食材—热量—调味"三者关系的艺术。</strong></p>
+<hr>
+<h2>二、热量传递的三种方式</h2>
+<table><thead><tr><th>方式</th><th>原理</th><th>在厨房的应用</th></tr></thead><tbody><tr><td><strong>传导</strong></td><td>热量从高温向低温物体直接传递</td><td>锅底把热量传给食材</td></tr><tr><td><strong>对流</strong></td><td>流体(油/水/空气)流动传热</td><td>煮汤时水的翻滚、炒菜时油的循环</td></tr><tr><td><strong>辐射</strong></td><td>高温物体以电磁波形式发散热量</td><td>烤箱、明火烤、微波</td></tr></tbody></table>
+<h3>实际意义</h3>
+<ol><li><strong>炒锅传热最快</strong> → 适合爆炒</li><li><strong>砂锅传热慢但均匀</strong> → 适合慢炖</li><li><strong>金属烤盘导热快</strong> → 适合快速煎烤</li><li><strong>油比水传热快</strong> → 油炸比水煮"温度更高"</li></ol>
+<hr>
+<h2>三、食材的化学组成</h2>
+<p><strong>理解食材 = 理解水/蛋白/脂肪/糖/纤维五大组分</strong>。</p>
+<table><thead><tr><th>组分</th><th>含量参考</th><th>受热变化</th><th>在烹饪中的作用</th></tr></thead><tbody><tr><td><strong>水</strong></td><td>蔬菜 80-95%,肉类 60-75%</td><td>蒸发/渗出</td><td>决定嫩度,失水=变老</td></tr><tr><td><strong>蛋白质</strong></td><td>肉 15-25%</td><td>变性(凝固),60℃起,70-80℃ 大量出水,较高→150℃褐变</td><td>决定肉质的紧实度</td></tr><tr><td><strong>脂肪</strong></td><td>五花肉 50%,瘦肉 5%</td><td>融化、乳化</td><td>提供风味载体(脂溶香)</td></tr><tr><td><strong>糖类</strong></td><td>主食、米面</td><td>糊化(60-80℃)、焦糖化(>140℃)</td><td>决定甜味与焦香</td></tr><tr><td><strong>纤维</strong></td><td>蔬菜、全谷</td><td>软化</td><td>决定口感脆/软</td></tr><tr><td><strong>矿物质/维生素</strong></td><td>蔬果</td><td>易流失(尤其水溶)</td><td>影响营养</td></tr></tbody></table>
+<hr>
+<h2>四、四个核心化学反应</h2>
+<h3>1. 美拉德反应(Maillard Reaction)</h3>
+<ul><li><strong>条件</strong>:温度>140℃,需要氨基酸 + 还原糖,<strong>无水环境</strong></li><li><strong>结果</strong>:产生<strong>上百种风味物质</strong>,形成褐色表层</li><li><strong>典型应用</strong>:煎牛排、烤面包、炒糖色、煎鱼</li><li><strong>关键变量</strong>: - 温度越高,反应越快(超过 180℃ 容易焦苦) - <strong>不能有水</strong> → 一旦有水,温度被限制在 100℃,无法发生美拉德</li><li><strong>厨房启示</strong>:<strong>想要焦香 → 必须先煎干表面水分</strong></li></ul>
+<h3>2. 焦糖化反应</h3>
+<ul><li><strong>条件</strong>:糖 + 温度 > 160℃</li><li><strong>结果</strong>:蔗糖 → 多种芳香物质 + 褐色色素</li><li><strong>典型应用</strong>:拔丝、糖醋、炒糖色、烤布丁</li><li><strong>阶段</strong>: - 140-150℃:糖融化 - 160-170℃:浅黄,香甜 - 180℃:深琥珀色,焦香浓郁 ←<strong>做糖色的最佳阶段</strong> - >190℃:发苦发黑(失败)</li></ul>
+<h3>3. 淀粉糊化</h3>
+<ul><li><strong>条件</strong>:淀粉 + 水 + 加热(60-80℃ 起)</li><li><strong>结果</strong>:淀粉粒膨胀破裂,黏度增加</li><li><strong>典型应用</strong>:勾芡、煮饭、熬粥、做羹</li><li><strong>厨房启示</strong>: - <strong>勾芡前淀粉要加冷水调开</strong>(热水直接入锅会结块) - <strong>勾芡要分次少量</strong>,一次下太多会太稠</li></ul>
+<h3>4. 蛋白质变性(meat tender/vegetable softening)</h3>
+<ul><li><strong>条件</strong>:温度、pH、盐、金属离子都可引发</li><li><strong>结果</strong>:蛋白质结构改变,变得紧实</li><li><strong>典型应用</strong>:煮蛋、肉类收紧、豆浆→豆腐</li><li><strong>嫩肉三大原理</strong>: - <strong>盐腌</strong>:渗透压让肉纤维吸收水分(钠离子打破蛋白网络) - <strong>碱嫩</strong>:小苏打/碱水提高 pH,肉质松散(易过量发碱味) - <strong>物理敲打</strong>:断纤维、增大表面积</li></ul>
+<hr>
+<h2>五、其他关键原理</h2>
+<h3>乳化(Emulsion)</h3>
+<ul><li><strong>定义</strong>:油和水本不相溶,通过<strong>乳化剂</strong>(蛋黄、芥末、糖)把油滴稳定地分散在水里</li><li><strong>典型应用</strong>:蛋黄酱、奶白鱼汤、油醋汁、麻酱</li><li><strong>原理</strong>: - 蛋黄含卵磷脂(乳化剂) - 鱼汤变白 = 脂肪被沸腾水乳化成无数小油滴 - 麻酱澥开 = 加少量水或油反复搅拌</li></ul>
+<h3>渗透与扩散</h3>
+<ul><li><strong>腌菜</strong>:盐浓度差 → 蔬菜出水变软 → 盐味进入菜里</li><li><strong>糖渍水果</strong>:糖渗透进水果 → 析出水分,蜜饯形成</li><li><strong>卤肉</strong>:香料分子扩散进入肉纤维</li></ul>
+<h3>pH 值的厨房应用</h3>
+<ul><li><strong>加醋保脆</strong>:醋酸抑制果胶酶,蔬菜更脆(凉拌菜)</li><li><strong>加醋软化鱼骨</strong>:醋溶出鱼骨中的钙</li><li><strong>加碱嫩肉</strong>:碱性环境松散蛋白(豆腐嫩滑)</li><li><strong>加酒去腥</strong>:酒精溶解腥味物质并挥发</li></ul>
+<h3>油温与沸点</h3>
+<ul><li><strong>油的沸点</strong>:200-300℃(种类不同)</li><li><strong>水的沸点</strong>:100℃(标准大气压下,加入盐糖会略升)</li><li><strong>油温升高让水分瞬间蒸发</strong> → <strong>油炸的酥脆就是这原理</strong></li></ul>
+<hr>
+<h2>六、热源与锅具的"性格"</h2>
+<h3>锅具</h3>
+<table><thead><tr><th>锅</th><th>材质</th><th>性格</th><th>适合</th></tr></thead><tbody><tr><td><strong>铁锅</strong></td><td>生铁/熟铁</td><td>储热强,升温快,需开锅养锅</td><td>爆炒、煎</td></tr><tr><td><strong>不粘锅</strong></td><td>涂层</td><td>不粘、易用,但不耐高温刮擦</td><td>煎鱼、煎蛋、新手</td></tr><tr><td><strong>不锈钢锅</strong></td><td>18/10 钢</td><td>受热均匀,但易粘</td><td>煮汤、炖煮</td></tr><tr><td><strong>砂锅/陶锅</strong></td><td>陶土</td><td>储热强,密封性好</td><td>煲汤、炖菜、焖肉</td></tr><tr><td><strong>铝锅</strong></td><td>铝</td><td>导热极快,但不耐强碱</td><td>一般不推荐</td></tr><tr><td><strong>铜锅</strong></td><td>铜</td><td>导热极快,价格贵</td><td>高级料理</td></tr></tbody></table>
+<h3>热源</h3>
+<table><thead><tr><th>热源</th><th>特点</th></tr></thead><tbody><tr><td><strong>燃气</strong></td><td>火大可调,明火有锅气,适合中式爆炒</td></tr><tr><td><strong>电磁炉</strong></td><td>只加热铁质锅底,无明火,温度均匀</td></tr><tr><td><strong>电陶炉</strong></td><td>红外线,可配陶瓷锅</td></tr><tr><td><strong>微波</strong></td><td>水分子共振,内部加热,但无法形成美拉德</td></tr><tr><td><strong>烤箱</strong></td><td>空气对流+辐射,适合烘烤</td></tr></tbody></table>
+<hr>
+<h2>七、风味的两大机制</h2>
+<ol><li><strong>味觉</strong>:舌头尝到的味道(甜咸酸苦鲜)</li><li><strong>嗅觉</strong>:鼻子里闻到的香气(几百种风味分子)</li></ol>
+<p><strong>关键认知</strong>:风味的 70-80% 来自<strong>嗅觉</strong>,不是味觉。</p>
+<ul><li><strong>感冒鼻塞时吃饭没味道</strong> → 验证了这一点</li><li><strong>菜冷了不香</strong> → 温度低,香气分子挥发少 → 重新加热可恢复</li><li><strong>香辛料(葱姜蒜八角)</strong> → 都是脂溶性香气分子,需要油脂或酒精激发</li></ul>
+<hr>
+<h2>八、一张图看懂烹饪逻辑</h2>
+<pre><code>食材识别(02)
+   ↓
+刀工成形(04) ———决定"口感颗粒度"
+   ↓
+热源选择 → 锅具选择
+   ↓
+预处理:腌/焯水/挂糊/上浆(08)
+   ↓
+火候控制(05) ———决定"嫩/老/脆/软"
+   ↓
+调味(03) ———决定"味道层次"
+   ↓
+出品</code></pre>
+<hr>
+<h2>九、本章核心结论</h2>
+<table><thead><tr><th>认知</th><th>应用</th></tr></thead><tbody><tr><td><strong>美拉德需要高温+无水</strong></td><td>想焦香 → 先煎干表面</td></tr><tr><td><strong>油温 > 水温</strong></td><td>油炸比水煮温度高,能形成脆壳</td></tr><tr><td><strong>蛋白质 60℃ 变性,80℃ 收紧</strong></td><td>想嫩 → 低温短时间 / 想老 → 高温长时间</td></tr><tr><td><strong>糖 160-180℃ 焦糖化</strong></td><td>糖色在这温度区间最香</td></tr><tr><td><strong>风味的 80% 来自嗅觉</strong></td><td>重视香气的激发(热油浇葱花、热炒姜蒜)</td></tr><tr><td><strong>乳化靠乳化剂</strong></td><td>蛋黄酱、奶白汤都靠它</td></tr><tr><td><strong>pH 影响口感</strong></td><td>加醋保脆,加碱嫩肉</td></tr></tbody></table>
+<hr>
+<h2>📖 延伸阅读</h2>
+<ul><li>《食物与厨艺》(哈罗德·麦基)— 三大卷,讲透食材与烹法原理</li><li>《料理的科学》— 偏分子料理视角</li><li>《中国烹饪概论》— 中餐系统化讲解</li></ul>
+<blockquote>下一章:[02-食材识别与挑选](02-食材识别与挑选.md)</blockquote>
+
+      <div class="callout callout-note">
+        <strong>说明</strong> · 本站内容均为学习笔记与经验总结,所有菜谱与技法请结合实际食材、季节与个人口味灵活调整。涉及生食、营养与健康的内容仅供参考,特殊体质或疾病请咨询专业营养师/医生。
+      </div>
+      <!-- build:related -->
+    </article>
+    <aside class="related" aria-label="相关文章">
+      <p class="related-title">相关文章</p>
+      <ul class="related-grid">
+        <li>
+          <a class="related-card" href="/posts/kitchen-02-ingredient-selection/">
+            <p class="related-card-title">食材识别与挑选</p>
+            <p class="related-card-meta"><time datetime="2026-10-07">2026-10-07</time></p>
+            <p class="related-card-excerpt">食材是烹饪的起点。会选 = 成功一半。</p>
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/posts/kitchen-02b-prep-washing/">
+            <p class="related-card-title">食材预处理与清洗</p>
+            <p class="related-card-meta"><time datetime="2026-10-07">2026-10-07</time></p>
+            
+          </a>
+        </li>
+        <li>
+          <a class="related-card" href="/posts/kitchen-02c-raw-food/">
+            <p class="related-card-title">生食指南</p>
+            <p class="related-card-meta"><time datetime="2026-10-07">2026-10-07</time></p>
+            <p class="related-card-excerpt">生食是另一个世界——清新、清甜、本色、风味在口腔。 关键:选对 + 消毒 + 不糊弄。</p>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    
+
+
+    <nav class="post-nav" aria-label="文章导航">
+      <a class="post-nav-prev" href="/posts/finance-2026-09-30/" rel="prev" aria-label="上一篇:每日金融简报 · 2026-09-30（星期三 · 节前最后交易日）">
+        <span class="post-nav-label">← 上一篇</span>
+        <span class="post-nav-title">每日金融简报 · 2026-09-30（星期三 · 节前最后交易日）</span>
+        <time class="post-nav-date" datetime="2026-09-30">2026-09-30</time>
+      </a>
+      <a class="post-nav-next" href="/posts/kitchen-02-ingredient-selection/" rel="next" aria-label="下一篇:食材识别与挑选">
+        <span class="post-nav-label">下一篇 →</span>
+        <span class="post-nav-title">食材识别与挑选</span>
+        <time class="post-nav-date" datetime="2026-10-07">2026-10-07</time>
+      </a>
+    </nav>
+
+    <footer class="article-footer">
+      <p>本页最后更新:2026-10-07 · 发现错别字?<a href="https://github.com/itingyu/itingyu.github.io/edit/master/posts/kitchen-01-principles/index.html" rel="noopener">在 GitHub 上编辑</a>。</p>
+    </footer>
+  </main>
+
+  <footer class="site-footer">
+    <div class="links">
+      <a href="/">首页</a>
+      <a href="/posts/">文章</a>
+      <a href="/archive/">归档</a>
+      <a href="/tags/">标签</a>
+      <a href="/series/">专栏</a>
+      <a href="/search/">搜索</a>
+      <a href="/about/">关于</a>
+      <a href="/feeds/rss.xml">RSS</a>
+      <a href="https://github.com/itingyu" rel="noopener">GitHub</a>
+    </div>
+    <p>&copy; 2026 itingyu · 内容仅供参考,不构成投资建议。</p>
+  </footer>
+</body>
+</html>
