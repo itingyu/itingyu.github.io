@@ -11,6 +11,7 @@
 | v1.0 | 2026-09-26 上午 | 设计稿第一版(admin + 4 角色 4/5 签字,知会 admin) | 浅/深双主题 + 文章页模板 + 标签/归档/RSS/SEO |
 | v1.2 | 2026-09-26 下午 | v1.2 增量评审(AIWORK1-31,5/5 签字) | `article:section` 系列 + `article:pinned` 精选 + `og:image` 自动 + 代码语法高亮(prism.js 单文件) |
 | **v2** | **2026-09-26 晚** | **本评审(AIWORK1-48)** | **Markdown 源文件(架构反转)+ draft 字段 + GH Actions 自动 build + 本地 preview server + 行宽 +20%** |
+| **v3** | **2026-10-07** | **AIWORK1-75 专栏增量评审** | **per-series RSS(`/feeds/series-<slug>.xml`)+ sitemap `<series>` 子元素 + 顶栏 nav 增"专栏"入口 + BlogPosting JSON-LD `hasPart` 数组** |
 
 **反转的核心点**:v1「**HTML 即源码**」(git push 直接渲)→ v2「**Markdown 是源、HTML 是产物**」(本地或 Actions 预渲染后 git push)。其他 v1 / v1.2 的约定继续保留。
 
@@ -145,7 +146,8 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | `/about/` | 关于 | 手写 |
 | `/404.html` | 错误页 | 手写 |
 | `/feeds/rss.xml` | RSS 订阅 | build 生成 |
-| `/sitemap.xml` | 站点地图 | build 生成 |
+| `/feeds/series-<series-slug>.xml` | per-series RSS 过滤版(v3 增量) | build 生成;`<series-slug>` 沿用 v3 §3.5 的 `^[\u4e00-\u9fa5a-z0-9-]+$` 规则;URL 路径保留原字符,HTTP server(GitHub Pages)按字节送出,客户端解码 |
+| `/sitemap.xml` | 站点地图 | build 生成;每条 `<url>` 可附 `<series>` 子元素(显示名,即 slugify 之前的原值),不属 series 的 URL 字节级不变 |
 | `/robots.txt` | 爬虫规则 | 手写 |
 | `/assets/{style.css,keys.js,theme.js,favicon.svg,prism.js}` | 静态资源 | 手写 |
 
@@ -203,6 +205,24 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | 96 字 / 行超过「可读性研究」建议的上限(≤ 90 CJK / 行) | 默认应用;若反馈「太宽」再回退到 920(v1 baseline)或引入 3.3(字号 +1 补偿) |
 | 移动端 `< 640px` 溢出 | 沿用 v1 媒体查询 padding 兜底 |
 | 代码块 / 表格与正文同行不溢出 | 行内 `<code>` 不破坏,`<pre>` 横向滚动保留 |
+
+### 4.4 顶栏导航(nav 结构 · v3 增量)
+
+`pageShell()` 内的 `<nav class="site-nav">` 模板,所有页面共用同一段字符串。**固定顺序(19 个页面 byte-equal)**:
+
+| # | `<a>` 文本 | `data-nav` | `href` | 触发 `aria-current="page"` 的路径 |
+| - | - | - | - | - |
+| 1 | 首页 | `home` | `/` | `/` |
+| 2 | 文章 | `posts` | `/posts/` | `/posts/`、`/posts/<slug>/` |
+| 3 | 归档 | `archive` | `/archive/` | `/archive/` |
+| 4 | 标签 | `tags` | `/tags/` | `/tags/`、`/tags/<tag>/` |
+| 5 | **专栏**(v3 增) | `series` | `/series/` | `/series/`、`/series/<series-slug>/` |
+| 6 | 搜索 | `search` | `/search/` | `/search/` |
+| 7 | 关于 | `about` | `/about/` | `/about/` |
+
+**位置决策**:把 专栏 紧邻 标签(同属「内容过滤器」),搜索 与 标签/专栏 并列(工具型过滤器),关于 仍居最右(个人元信息)。`pageShell({activeNav: 'series'})` 在 `/series/` 与 `/series/<series-slug>/` 上自动给该项加 `aria-current="page"`,其它项不带。
+
+**键盘快捷键**(v3 不强制,留 B2 评估):若沿用 `g h / g p / g a / g t` 风格,建议 B2 增 `g s → /series/`,统一 g-prefix 跳转语法。
 
 ---
 
@@ -329,6 +349,40 @@ MD source (.md)
 
 **JSON-LD 注入路径零回归**:v1.2 注入函数(`injectJSONLDIntoHead` / `renderBlogJSONLD` 等)吃 frontmatter 解析后对象,**字段契约不变**;MD 渲染只动 `<article>` body,不动 `<head>`;`hasJSONLDType` 幂等保留。
 
+#### 5.2.7 Per-series RSS 与 sitemap `<series>` 扩展(v3 增量)
+
+**Per-series RSS**:`/feeds/series-<series-slug>.xml` 是 `/feeds/rss.xml` 的过滤版,**复用 `renderRSS(items, channel)` 函数**(同一 `<item>` schema、同 `<content:encoded>` CDATA、同 `<pubDate>` 格式),不是平行版本。
+
+| 契约点 | 行为 |
+| - | - |
+| 生成时机 | `scripts/build-index.js` 新增 `renderPerSeriesRSS(series, posts)`,build 时按 `computeBuild().series` 聚合 |
+| 文件名 | `feeds/series-<slug>.xml`;`<slug>` 沿用 §3.5 的 `^[\u4e00-\u9fa5a-z0-9-]+$`;中文 series「金融市场观察」→ `feeds/series-金融市场观察.xml`(URL 路径保留原字符) |
+| 内容 | RSS 2.0 + `<atom:link rel="self" href="…/feeds/series-<slug>.xml" />`,`<channel>` 含 title / link / lastBuildDate / description |
+| 草稿过滤 | `draft: true` 文章不出现在任何 per-series RSS;series 内全部 draft → **不生成**对应文件 |
+| 复用保证 | `renderRSS(items, channel)` 接受 `items` 数组 + `channel` 配置;per-series 调一次同一函数,item 渲染逻辑不变 |
+
+**Sitemap `<series>` 扩展**:`/sitemap.xml` 每条 `<url>` 可附裸子元素 `<series>...</series>`,**顶层 `<urlset>` 不新增 namespace**(避免破坏 sitemap.org schema 验证)。
+
+| 契约点 | 行为 |
+| - | - |
+| 注入位置 | `renderSitemap` 在 `posts.map` 内按 `p.series` 注入 `<series>${displayName}</series>`,`<series>` 值 = **显示名**(slugify 之前的原值,如「金融市场观察」) |
+| 缺席语义 | 不属 series 的 URL → `<url>` 内**不**含 `<series>` 子元素;字节级与 v2 相同 |
+| 命名空间 | 顶层 `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` 不变;`<series>` 作为未知子元素,sitemap.org / Google 验证器容忍 |
+
+#### 5.2.8 文章页 JSON-LD `hasPart` 契约(v3 增量)
+
+文章页 `<script type="application/ld+json">` 内的 `BlogPosting` 对象,**新增** `hasPart` 字段,列举同 series 其他文章 URL 列表(供 schema.org 连载识别)。
+
+| 契约点 | 行为 |
+| - | - |
+| 触发条件 | 文章 frontmatter 含 `series` **且**同 series 内除自身外 ≥ 1 篇其它文章(非草稿) |
+| 数据形状 | `hasPart` = `Array<{ "@type": "BlogPosting", "headline": string, "url": string }>`;每项 = `buildBlogPostingRef(post)` 输出,字段约束与 CollectionPage 既有 hasPart 同构;沿用 `scripts/build-index.js:578-582` 的 `buildBlogPostingRef` 实现 |
+| 排除自身 | `hasPart` 项**不含当前文章**(用 `post.slug !== currentSlug` 过滤) |
+| 缺席语义 | (a) 单篇 series(无兄弟文章) → `hasPart` **不**出现;(b) 文章不属于 series → `hasPart` **不**出现;(c) `draft: true` 兄弟 → 不计入 `hasPart` |
+| 与 `articleSection` 共存 | `articleSection`(v1.2 已落)继续承载「本篇所属系列」显示名;`hasPart`(v3 新增)承载「同系列其它文章 URL 列表」,两字段独立、不冗余 |
+| 幂等 | `renderBlogPostingJSONLD` 重复调用不重复追加 `hasPart`(沿用 `hasJSONLDType(out, 'BlogPosting')` 检查后跳过) |
+| 注入位置 | `injectArticlePageEnhancements` 的 JSON-LD 块;`<head>` 不变,不影响 MD 渲染路径 |
+
 ---
 
 ## 6. 里程碑(**本评审新增 M6 / M7**)
@@ -343,6 +397,7 @@ MD source (.md)
 | **M6 Markdown 迁移**(本评审主线) | 6.1 design-v2.md 评审签字 → 6.2 `scripts/markdown.js` 抽取 + 升级语法集(17 项,见附 A)→ 6.3 `build-index.js` 加 YAML/MD 扫描与渲染(自实现)→ 6.4 `new-post.sh` 输出 `.md` → 6.5 现有 3 篇文章手转 MD + ALLOW_LEGACY_HTML 逃生口部署 → 6.6 `render-finance-brief.js` 改产 `.md` → 6.7 draft 字段 + 跳过逻辑 → 6.8 测试矩阵(≥ 14 MD + ≥ 8 frontmatter + 3 篇 byte-equal) | 📝 评审中 |
 | **M7 流程自动化**(本评审附属) | 7.1 `scripts/preview.js`(含 `--include-draft`) + `preview` script → 7.2 `.github/workflows/build-posts.yml`(3 重死循环防护)→ 7.3 `scripts/publish.sh` 一键 + `<slug>` 草稿子命令 → 7.4 `scripts/validate-frontmatter.js` | 📝 评审中 |
 | M8 spec 同步与归档 | design-v1-archive.md 迁移 + README.md 改写 + CHANGELOG.md 增 v2 章节 | 📝 评审通过后即开 |
+| **M9 专栏增量**(v3 解锁) | 9.1 `scripts/build-index.js` 加 `renderPerSeriesRSS(series, posts)`,复用 `renderRSS` → B1 → 9.2 `renderSitemap` 注入 `<series>` 子元素(裸元素,不增 ns)→ B1 → 9.3 `pageShell` 内 nav 字符串模板插入「专栏」项(标签与搜索之间) → B2 → 9.4 `renderBlogPostingJSONLD` 改造:有兄弟 → 追加 `hasPart`(沿用 `buildBlogPostingRef`,排除自身) → B2 → 9.5 契约测试(per-series RSS / sitemap series / nav order / JSON-LD hasPart,新增 ≥ 13 条,`npm test` 90 现有 + ≥ 13 新增全绿 + `npm run check` no-drift) → 测试 | 📝 评审中(签字后拆 AIWORK1-76 / AIWORK1-77) |
 
 ---
 
@@ -405,6 +460,9 @@ MD source (.md)
 | `design.md` v1 / v1.2 移入 `design-v1-archive.md`;`design.md` 内容指向 `design-v2.md` 或合并覆盖 | XS | @SDD技术总监(本人) | 主仓两个文件;`design.md` ≤ 50 行,链接到 v2 |
 | `README.md` 改写为 v2(发布流程 + 远程编辑 + 草稿 + preview + 行宽 +20%) | S | @SDD前端工程师 | 「写新文章」章节重写;新增「远程编辑」「预览」段 |
 | CSS 行宽 +20%(`.container` 920 → 1104,`.container-wide` 1080 → 1296) | XS | @SDD前端工程师 | `assets/style.css` 改 2 行;`@media` 不破(已落 AIWORK1-44) |
+| **v3 专栏增量 · B1**:per-series RSS + sitemap `<series>` 子元素(`renderPerSeriesRSS` 复用 `renderRSS`;sitemap 裸子元素不增 ns) | M | @SDD后端工程师 | `feeds/series-<slug>.xml` 文件命名 / RSS 2.0 schema / draft 排除 / 0 文章跳过;`sitemap.xml` 属 series URL 含 `<series>`,不属 URL byte-equal;`npm test` 全绿 |
+| **v3 专栏增量 · B2**:跨页专栏导航渗透(`pageShell` nav 插入「专栏」项 + JSON-LD `hasPart` 注入 `renderBlogPostingJSONLD`) | M | @SDD前端工程师 | 19 页面 nav 字节级一致(插入点固定);`aria-current` 在 `/series/` 与 `/series/<slug>/` 触发;`hasPart` 数据形状与 `buildBlogPostingRef` 同构,排除自身,缺席时 `\n\n`不出现 |
+| **v3 专栏增量 · 测试**:per-series RSS / sitemap series / nav order / JSON-LD hasPart 契约测试(新增 ≥ 13 条) | S | @SDD测试工程师 | `npm test` 90 现有 + ≥ 13 新增全绿;`npm run check` no-drift |
 
 ---
 
@@ -418,9 +476,23 @@ MD source (.md)
 | **@SDD测试工程师** | 必须实质过 | 自实现 MD parser 测试矩阵 ≥ 8 条(给每个语法一条 happy path);YAML frontmatter 校验 ≥ 5 条(必填 / 类型 / 引用 / typo / draft 等) |
 | **@admin** | **实质签字**(★本评审不可走「默认签收」) | admin 房间直发 OR 在本 issue 评论 mention 形式回执 |
 
+### 10.1 v3 评审签字要求(AIWORK1-75,5/5 必实质签字 · **禁走「默认签收」**)
+
+| 角色 | 签字 | 验收路径(本评审必跑) |
+| --- | - | - |
+| **@SDD技术总监**(本人) | 主持 + 拍板 | `design-v2.md` §3.3 URL 契约表追加 `/feeds/series-<slug>.xml`;§4.4 新增 nav 结构(专栏固定在 标签 与 搜索 之间);§5.2.7 per-series RSS + sitemap 扩展;§5.2.8 JSON-LD `hasPart` 契约;changelog v3 行;M9 里程碑 |
+| **@SDD后端工程师** | 实质签字在 AIWORK1-76(本评审可「条件通过」,实签在实现 issue 回贴) | `renderPerSeriesRSS` 复用 `renderRSS` 函数可跑;`renderSitemap` 注入 `<series>` 不破顶层 namespace;`--only rss / sitemap / --check` 兼容 |
+| **@SDD前端工程师** | 实质签字在 AIWORK1-77(本评审可「条件通过」,实签在实现 issue 回贴) | `pageShell` nav 字符串模板插入「专栏」可跑;`renderBlogPostingJSONLD` 追加 `hasPart` 不破现有 `articleSection` 与 `hasJSONLDType` 幂等 |
+| **@SDD测试工程师** | 实质签字 | per-series RSS / sitemap series / nav order / JSON-LD hasPart 契约测试矩阵 ≥ 13 条;`npm test` 全绿 + `npm run check` no-drift |
+| **@admin** | 知会(★本评审不阻塞) | 通过房间直发或本评审 issue 评论回执,无需强制 @mention |
+
 **v2 评审通过后解锁**:
 - M6 / M7 子 issue 创建与派活
 - `design.md` v1/v1.2 归档 + `design-v2.md` 升为唯一权威 spec
+
+**v3 评审通过后解锁**:
+- AIWORK1-76(后端 B1):per-series RSS + sitemap series 落库
+- AIWORK1-77(前端 B2):跨页专栏导航渗透(nav 增项 + JSON-LD `hasPart`)
 
 ---
 
