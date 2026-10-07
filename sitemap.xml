@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://itingyu.github.io/</loc><lastmod>2026-09-28</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://itingyu.github.io/posts/</loc><lastmod>2026-09-28</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://itingyu.github.io/archive/</loc><lastmod>2026-09-28</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://itingyu.github.io/tags/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/search/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
-  <url><loc>https://itingyu.github.io/about/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/finance/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/linux/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/network/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/note/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/proxy/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
-  <url><loc>https://itingyu.github.io/tags/sing-box/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/</loc><lastmod>2026-10-07</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://itingyu.github.io/posts/</loc><lastmod>2026-10-07</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://itingyu.github.io/archive/</loc><lastmod>2026-10-07</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://itingyu.github.io/tags/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/series/</loc><lastmod>2026-10-07</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://itingyu.github.io/search/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://itingyu.github.io/about/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/finance/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/linux/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/network/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/note/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/proxy/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/tags/sing-box/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://itingyu.github.io/series/金融市场观察/</loc><lastmod>2026-10-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://itingyu.github.io/posts/finance-2026-09-28/</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://itingyu.github.io/posts/finance-2026-09-27/</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://itingyu.github.io/posts/finance-2026-09-26/</loc><lastmod>2026-09-26</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>

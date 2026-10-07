@@ -8,12 +8,14 @@ const os = require('node:os');
 
 const bi = require('../build-index.js');
 const {
+  parseFrontmatter,
   scanPosts, sortPosts, sortPostsAsc,
   scanCover, computeRelated, injectArticlePageEnhancements,
   computePrevNext, buildPostNav,
   injectPrevNextHead, injectPostNav,
   extractArticleBody, stripTags,
   renderPostsIndex, renderArchive, renderTagsIndex, renderTagPage,
+  slugifySeries, collectSeries, renderSeriesIndex, renderSeriesDetail,
   renderRSS, renderSitemap,
   renderSearchIndex, renderSearchPage,
   computeBuild, writeBuild, checkDrift,
@@ -1205,4 +1207,193 @@ test('build: buildPostNav aria-label survives full injectArticlePageEnhancements
     assert.ok(!/aria-label="下一篇:/.test(out),
       'last post should not declare next aria-label');
   } finally { cleanProject(tmp); }
+});
+
+// ----- series aggregation (AIWORK1-78) -------------------------------------
+
+test('build: parseFrontmatter extracts series + series_description meta', () => {
+  // 验证扫到 article:section + series:description → series / seriesDescription 字段填充
+  const html = `<!doctype html><html><head>
+    <meta property="article:section" content="金融市场观察" />
+    <meta name="series:description" content="A 股每日情报与短线选股,仅供参考" />
+  </head><body><article><header class="article-header"><h1>x</h1></header></article></body></html>`;
+  const fm = parseFrontmatter(html, 'demo');
+  assert.ok(fm.series, 'series should be set');
+  assert.equal(fm.series.name, '金融市场观察');
+  assert.equal(fm.series.slug, '金融市场观察', 'CJK slug keeps Chinese characters');
+  assert.equal(fm.seriesDescription, 'A 股每日情报与短线选股,仅供参考');
+});
+
+test('build: parseFrontmatter leaves series null when no article:section', () => {
+  const html = `<!doctype html><html><head></head><body><article><header class="article-header"><h1>x</h1></header></article></body></html>`;
+  const fm = parseFrontmatter(html, 'demo');
+  assert.equal(fm.series, null);
+  assert.equal(fm.seriesDescription, null);
+});
+
+test('build: slugifySeries lowercases ASCII + keeps CJK + collapses whitespace', () => {
+  assert.equal(slugifySeries('金融市场观察'), '金融市场观察', 'CJK 直透');
+  assert.equal(slugifySeries('Linux Adventures'), 'linux-adventures', 'ASCII lowercase + space → -');
+  assert.equal(slugifySeries('  /foo/ bar  '), 'foo-bar', 'strip whitespace + slash');
+  assert.equal(slugifySeries('   '), 'series', 'empty → series fallback');
+});
+
+test('build: renderSeriesIndex lists 2 cards for 2 series in mixed posts', () => {
+  // 2 篇金融市场观察 + 1 篇 Linux adventures + 1 篇无 series
+  const tmp = makeProject({ posts: ['series-a-post', 'series-b-post', 'series-c-post', 'no-series-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderSeriesIndex(posts);
+
+    // 2 张卡片(每个 series 一张),且无 series 不显示
+    const cardMatches = html.match(/class="series-card"/g) || [];
+    assert.equal(cardMatches.length, 2, 'should render 2 series cards');
+
+    // 卡片显示中文系列名 + 计数
+    assert.ok(html.includes('金融市场观察'), 'should display 金融市场观察 title');
+    assert.ok(html.includes('Linux adventures'), 'should display Linux adventures title');
+    assert.ok(html.includes('2 篇'), '金融市场观察 should have 2 篇 count');
+    assert.ok(html.includes('1 篇'), 'Linux adventures should have 1 篇 count');
+
+    // 链接到 /series/<slug>/
+    assert.ok(html.includes('href="/series/金融市场观察/"'), 'should link to 中文 slug');
+    assert.ok(html.includes('href="/series/linux-adventures/"'), 'should link to lowercase ASCII slug');
+
+    // series_description 注入
+    assert.ok(html.includes('A 股每日情报与短线选股,仅供参考'),
+      'should include series description on card');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: renderSeriesIndex renders empty-state when no series at all', () => {
+  // 仅一篇无 series → 总览页显示空状态,不报错
+  const tmp = makeProject({ posts: ['no-series-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const html = renderSeriesIndex(posts);
+    assert.ok(html.includes('series-empty'), 'empty state should be rendered');
+    assert.ok(!html.includes('class="series-card"'), 'no cards should be rendered');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: renderSeriesDetail sorts posts by date desc (series-internal timeline)', () => {
+  // 同 series 的 a/b 颠倒日期:b(2026-04-15) → 在前,a(2026-04-01) → 在后
+  const tmp = makeProject({ posts: ['series-a-post', 'series-b-post', 'series-c-post'] });
+  try {
+    const posts = scanPosts(tmp);
+    const series = collectSeries(posts);
+    assert.equal(series.length, 2);
+
+    const cn = series.find(s => s.slug === '金融市场观察');
+    assert.ok(cn, 'should have 金融市场观察 bucket');
+    assert.equal(cn.posts.length, 2);
+    assert.equal(cn.posts[0].slug, 'series-b-post', 'b(04-15) first');
+    assert.equal(cn.posts[1].slug, 'series-a-post', 'a(04-01) second');
+
+    const html = renderSeriesDetail(cn.slug, cn.name, cn.posts);
+    const ib = html.indexOf('series-b-post');
+    const ia = html.indexOf('series-a-post');
+    assert.ok(ib > 0 && ia > 0 && ib < ia, 'b should appear before a in rendered detail page');
+  } finally { cleanProject(tmp); }
+});
+
+test('build: computeBuild emits series pages + collection JSON-LD; --check stays green', () => {
+  // 端到端:2 series + 1 篇无 series → build 后产物包含 series/index.html +
+  // series/<slug>/index.html(2 张);无 series 不污染 series/ 目录;--check 第二次跑仍 no drift
+  const tmp = makeProject({ posts: ['series-a-post', 'series-b-post', 'series-c-post', 'no-series-post'] });
+  try {
+    const build = computeBuild(tmp);
+    writeBuild(build, tmp);
+
+    assert.ok(build.files['series/index.html'], 'files map should contain series/index.html');
+    assert.ok(build.files['series/金融市场观察/index.html'], 'should emit 中文 slug detail page');
+    assert.ok(build.files['series/linux-adventures/index.html'], 'should emit ASCII slug detail page');
+    assert.equal(build.seriesSlugs.length, 2);
+
+    // JSON-LD:detail 页必须包含 CollectionPage + hasPart 列出该 series 下所有文章
+    const detail = fs.readFileSync(path.join(tmp, 'series', '金融市场观察', 'index.html'), 'utf8');
+    assert.ok(detail.includes('"@type": "CollectionPage"'), 'should emit CollectionPage JSON-LD');
+    assert.ok(detail.includes('/posts/series-a-post/'), 'hasPart should include series-a-post');
+    assert.ok(detail.includes('/posts/series-b-post/'), 'hasPart should include series-b-post');
+    assert.ok(!detail.includes('/posts/no-series-post/'), 'hasPart should NOT include posts without series');
+
+    // 总览页必须有 2 张卡片
+    const idx = fs.readFileSync(path.join(tmp, 'series', 'index.html'), 'utf8');
+    assert.equal((idx.match(/class="series-card"/g) || []).length, 2, 'series index should have 2 cards');
+
+    // --check 第二次跑:无 drift(幂等)
+    const build2 = computeBuild(tmp);
+    const drift2 = checkDrift(build2, tmp);
+    assert.equal(drift2.length, 0, 'second pass should have no drift');
+  } finally { cleanProject(tmp); }
+});
+
+// ----- WCAG AA 对比度(浅/深主题校验; AIWORK1-78 §4.5) -------------------
+
+// 把 "#rrggbb" 转为 WCAG 相对亮度,见 https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+function relLuminance(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(String(hex).trim());
+  if (!m) return null;
+  const v = parseInt(m[1], 16);
+  const r = ((v >> 16) & 0xff) / 255;
+  const g = ((v >> 8) & 0xff) / 255;
+  const b = (v & 0xff) / 255;
+  function chan(c) {
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  }
+  return 0.2126 * chan(r) + 0.7152 * chan(g) + 0.0722 * chan(b);
+}
+function contrastRatio(a, b) {
+  const la = relLuminance(a);
+  const lb = relLuminance(b);
+  if (la === null || lb === null) return null;
+  const hi = Math.max(la, lb);
+  const lo = Math.min(la, lb);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+function parseCssVar(css, selector, varName) {
+  // 选择器可能含多行(逗号分隔),需要展开为几个独立选择器分别搜
+  // 该 CSS 必须包含 ;varName: 值; 模式才算命中(避免空块)
+  const selectors = selector.split(/\s*,\s*/);
+  const escaped = selectors.map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s*,\\s*');
+  // 用 [\s\S]*? 跨行匹配到最近的 '{...}' — 但内容里必须含 varName
+  const re = new RegExp(`${escaped}\\s*\\{([^}]*)\\}`, 'g');
+  let m;
+  while ((m = re.exec(css)) !== null) {
+    const inner = m[1];
+    const v = inner.match(new RegExp(`${varName}\\s*:\\s*([^;]+);`));
+    if (v) return v[1].trim();
+  }
+  return null;
+}
+
+test('build: WCAG AA 对比度 — .series-card 文本/边框配色浅深主题各达 4.5:1+', () => {
+  // 校验新加的 .series-card 相关变量在浅/深主题下与背景的对比度
+  // .series-card 标题用 --fg;正文/计数用 --fg-muted;边框用 --border-soft;卡片背景是 --bg-elev
+  const css = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'style.css'), 'utf8');
+
+  function pick(themeBlock, varName) {
+    const v = parseCssVar(css, themeBlock, varName);
+    assert.ok(v, `${themeBlock} should declare ${varName}`);
+    return v;
+  }
+
+  const pairs = [
+    { theme: ':root', bg: '--bg-elev', fg: '--fg', desc: 'series-card-title on card bg (light)' },
+    { theme: ':root', bg: '--bg-elev', fg: '--fg-muted', desc: 'series-card-meta on card bg (light)' },
+    { theme: ':root[data-theme="dark"]', bg: '--bg-elev', fg: '--fg', desc: 'series-card-title dark' },
+    { theme: ':root[data-theme="dark"]', bg: '--bg-elev', fg: '--fg-muted', desc: 'series-card-meta dark' },
+  ];
+
+  for (const p of pairs) {
+    const bg = pick(p.theme, p.bg);
+    const fg = pick(p.theme, p.fg);
+    const ratio = contrastRatio(fg, bg);
+    assert.ok(ratio !== null, `${p.desc}: colors must parse (fg=${fg} bg=${bg})`);
+    assert.ok(
+      ratio >= 4.5,
+      `${p.desc} contrast ${ratio.toFixed(2)}:1 must be >= 4.5:1 (fg=${fg} bg=${bg})`
+    );
+  }
 });

@@ -122,6 +122,7 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 | `author` | string | ✅(默认 itingyu) | `<meta name="author">` + JSON-LD `author` |
 | `cover` | path(相对 slug) | — | og:image + 视觉化(若实现) |
 | `series` | string | — | v1.2 `article:section` 沿用 |
+| `series_description` | string | — | v2.1 **可选增量**:专栏一句话简介,落 `<meta name="series:description">` + 系列页 description;缺不报错,仅 warn |
 | `pinned` | bool | — | v1.2 首页精选沿用 |
 | **`draft`** | **bool** | **(默认 false)** | **v2 新增,见 §3.4** |
 | `canonical` | URL | — | `<link rel="canonical">`,默认自动 |
@@ -171,6 +172,7 @@ canonical: https://itingyu.github.io/posts/my-first-post/  # 可选,默认自动
 - **draft**:`true` / `false`(其他值报错)
 - **pinned**:`true` / `false`(其他值报错)
 - **series**:slug 格式(`^[\u4e00-\u9fa5a-z0-9-]+$`)— 与 v1.2 一致
+- **series_description**(v2.1 可选):非空 string;**缺则 warn**(不报错);空字符串视同缺
 
 ---
 

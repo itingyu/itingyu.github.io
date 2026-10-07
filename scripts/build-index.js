@@ -78,6 +78,7 @@ const SITE_HEADER = `
       <a href="/posts/" data-nav="posts">文章</a>
       <a href="/archive/" data-nav="archive">归档</a>
       <a href="/tags/" data-nav="tags">标签</a>
+      <a href="/series/" data-nav="series">专栏</a>
       <a href="/search/" data-nav="search">搜索</a>
       <a href="/about/" data-nav="about">关于</a>
       <button class="theme-toggle" type="button"
@@ -105,6 +106,7 @@ const SITE_FOOTER = `
       <a href="/posts/">文章</a>
       <a href="/archive/">归档</a>
       <a href="/tags/">标签</a>
+      <a href="/series/">专栏</a>
       <a href="/search/">搜索</a>
       <a href="/about/">关于</a>
       <a href="/feeds/rss.xml">RSS</a>
@@ -124,6 +126,7 @@ function pageShell({ title, description, canonical, extraHead = '', activeNav = 
     .replace('data-nav="posts"', `data-nav="posts"${ariaCurrent('posts')}`)
     .replace('data-nav="archive"', `data-nav="archive"${ariaCurrent('archive')}`)
     .replace('data-nav="tags"', `data-nav="tags"${ariaCurrent('tags')}`)
+    .replace('data-nav="series"', `data-nav="series"${ariaCurrent('series')}`)
     .replace('data-nav="search"', `data-nav="search"${ariaCurrent('search')}`)
     .replace('data-nav="about"', `data-nav="about"${ariaCurrent('about')}`);
   return `${HEAD_PRE_META}<title>${escapeHTML(title)}</title>
@@ -145,7 +148,7 @@ ${SITE_FOOTER}</body>
 // ============================================================
 
 function parseFrontmatter(html, slug) {
-  const out = { slug, title: '', description: null, date: null, tags: [], warnings: [] };
+  const out = { slug, title: '', description: null, date: null, tags: [], series: null, seriesDescription: null, warnings: [] };
 
   const titleMatch = html.match(/<title>([\s\S]*?)<\/title>/);
   if (titleMatch) {
@@ -206,6 +209,23 @@ function parseFrontmatter(html, slug) {
   }
   out.tags = tagList;
 
+  // Series: <meta property="article:section" content="...">; slug 来自 slugifySeries(中文直透)
+  const sectionMatch = html.match(/<meta\s+property=["']article:section["']\s+content=["']([^"']*)["']/i);
+  if (sectionMatch) {
+    const raw = sectionMatch[1].trim();
+    if (raw) {
+      out.series = { name: raw, slug: slugifySeries(raw) };
+    }
+  }
+
+  // Series description(可选):<meta name="series:description" content="...">
+  const sdescMatch = html.match(/<meta\s+name=["']series:description["']\s+content=["']([^"']*)["']/i)
+    || html.match(/<meta\s+content=["']([^"']*)["']\s+name=["']series:description["']/i);
+  if (sdescMatch) {
+    const raw = sdescMatch[1].trim();
+    if (raw) out.seriesDescription = raw;
+  }
+
   return out;
 }
 
@@ -217,6 +237,20 @@ function slugifyTag(name) {
     .replace(/[^a-z0-9\u4e00-\u9fff-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '') || 'tag';
+}
+
+// Slugify for series.
+// - 默认 UTF-8 直透(中文系列名直接保留;URL 段由浏览器/UA 编码)
+// - 字符白名单:中文 \u4e00-\u9fff、小写字母、数字、连字符
+// - 连续空白/斜杠 → '-',首尾 '-' 去掉
+// - 与 design-v2.md §3.5 「series slug 格式 ^[\u4e00-\u9fa5a-z0-9-]+$」一致
+// - 不唯一化:重名由后续 admin 拍板(issue AIWORK1-255 风险 §6)
+function slugifySeries(name) {
+  return String(name).trim().toLowerCase()
+    .replace(/[\s/]+/g, '-')
+    .replace(/[^a-z0-9\u4e00-\u9fff-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '') || 'series';
 }
 
 // ============================================================
@@ -804,6 +838,107 @@ function renderTagPage(tagSlug, tagName, posts) {
   });
 }
 
+// ============================================================
+// Series aggregation (/series/ 总览 + /series/<slug>/ 单系列)
+//   - /series/             专栏卡片网格(每张卡片含专栏名 + 篇数 + series_description)
+//   - /series/<slug>/      专栏内时间线(按 series 顺序,非全局倒序)
+//   - series 字段读取自 <meta property="article:section" content="...">
+//   - series_description 字段读取自 <meta name="series:description" content="...">(可选)
+//   - slug 用 slugifySeries(中文直透);重复唯一化留待 admin 拍板(见 design-v2.md §6)
+// ============================================================
+
+// Collect series metadata: name(显示) + slug(URL) + description(可选,取首篇的) + posts(全局日期降序)
+function collectSeries(posts) {
+  const buckets = new Map(); // slug → { name, slug, description, posts: [] }
+  for (const p of posts) {
+    if (!p.series || !p.series.slug) continue;
+    const slug = p.series.slug;
+    if (!buckets.has(slug)) {
+      buckets.set(slug, { name: p.series.name, slug, description: null, posts: [] });
+    }
+    const bucket = buckets.get(slug);
+    if (!bucket.description && p.seriesDescription) bucket.description = p.seriesDescription;
+    bucket.posts.push(p);
+  }
+  for (const b of buckets.values()) {
+    b.posts = sortPosts(b.posts);
+    b.count = b.posts.length;
+    b.latestDate = b.posts[0] ? (b.posts[0].date || '') : '';
+  }
+  // 排序:最新文章日期降序,然后按 slug 字典序(稳定可重现)
+  return Array.from(buckets.values()).sort((a, b) => {
+    if (a.latestDate !== b.latestDate) return a.latestDate < b.latestDate ? 1 : -1;
+    return a.slug.localeCompare(b.slug);
+  });
+}
+
+function renderSeriesIndex(posts) {
+  const seriesList = collectSeries(posts);
+  const cards = seriesList.length === 0
+    ? `    <p class="series-empty">暂无专栏。在文章 front matter 中设置 <code>series: 名称</code> 即可开栏。</p>`
+    : seriesList.map(s => {
+        const desc = s.description
+          ? `        <p class="series-card-desc">${escapeHTML(s.description)}</p>`
+          : '';
+        return `      <a class="series-card" href="/series/${escapeHTML(s.slug)}/" data-series="${escapeHTML(s.slug)}">
+        <h3 class="series-card-title">${escapeHTML(s.name)}</h3>
+        <p class="series-card-meta"><span class="series-card-count">${s.count} 篇</span>${s.latestDate ? ` <span class="dot">·</span> <time datetime="${escapeHTML(s.latestDate)}">最近 ${escapeHTML(s.latestDate)}</time>` : ''}</p>
+${desc}
+      </a>`;
+      }).join('\n');
+  const main = `    <h1>专栏</h1>
+    <p class="series-hint">按时间线聚合的专栏。开栏方式：在文章 front matter 中加 <code>series: 专栏名</code>(可选 <code>series_description</code> 一句话简介)。</p>
+
+    <ul class="series-grid" aria-label="专栏列表">
+ ${cards}
+    </ul>
+`;
+  return pageShell({
+    title: '专栏 · itingyu',
+    description: '按时间线聚合的专栏列表。',
+    canonical: `${SITE_ORIGIN}/series/`,
+    activeNav: 'series',
+    main,
+  });
+}
+
+function renderSeriesDetail(slug, name, posts) {
+  // 单系列页:按 series 顺序(全局日期降序)显示本专栏下所有文章
+  const list = posts.map(p => `      <li>
+        <h3 class="post-title"><a href="/posts/${escapeHTML(p.slug)}/">${escapeHTML(p.title)}</a></h3>
+        <div class="post-meta">
+          <time datetime="${escapeHTML(p.date || '')}">${escapeHTML(p.date || '')}</time>
+        </div>
+        <p class="post-excerpt">${escapeHTML(p.description || p.title || '')}</p>
+      </li>`).join('\n');
+  const description = (() => {
+    for (const p of posts) if (p.seriesDescription) return p.seriesDescription;
+    return `「${name}」专栏下的全部文章。`;
+  })();
+  const main = `    <h1>专栏：${escapeHTML(name)}</h1>
+    <p><a href="/series/">← 返回全部专栏</a></p>
+    <p class="series-detail-hint">${escapeHTML(description)}</p>
+
+    <ul class="post-list">
+ ${list}
+    </ul>
+`;
+  const collectionJSONLD = renderCollectionPageJSONLD({
+    name: `${name} · itingyu`,
+    description,
+    url: `${SITE_ORIGIN}/series/${slug}/`,
+    posts: posts.map(p => ({ title: p.title, url: postURL(p), date: p.date })),
+  });
+  return pageShell({
+    title: `${name} · itingyu`,
+    description,
+    canonical: `${SITE_ORIGIN}/series/${slug}/`,
+    activeNav: 'series',
+    extraHead: collectionJSONLD,
+    main,
+  });
+}
+
 function renderRSS(posts, buildDate, rootDir = ROOT) {
   const sorted = sortPosts(posts).slice(0, RSS_LIMIT);
   const rfc822 = (d) => {
@@ -934,6 +1069,7 @@ function renderSitemap(posts) {
     { loc: `${SITE_ORIGIN}/posts/`, changefreq: 'weekly', priority: '0.9' },
     { loc: `${SITE_ORIGIN}/archive/`, changefreq: 'weekly', priority: '0.7' },
     { loc: `${SITE_ORIGIN}/tags/`, changefreq: 'monthly', priority: '0.5' },
+    { loc: `${SITE_ORIGIN}/series/`, changefreq: 'weekly', priority: '0.6' },
     { loc: `${SITE_ORIGIN}/search/`, changefreq: 'monthly', priority: '0.4' },
     { loc: `${SITE_ORIGIN}/about/`, changefreq: 'monthly', priority: '0.5' },
   ];
@@ -950,13 +1086,22 @@ function renderSitemap(posts) {
     changefreq: 'monthly',
     priority: '0.5',
   }));
+  const seriesSet = new Set();
+  for (const p of posts) {
+    if (p.series && p.series.slug) seriesSet.add(p.series.slug);
+  }
+  const seriesPages = Array.from(seriesSet).sort().map(slug => ({
+    loc: `${SITE_ORIGIN}/series/${slug}/`,
+    changefreq: 'monthly',
+    priority: '0.5',
+  }));
   const postPages = sortPosts(posts).map(p => ({
     loc: `${SITE_ORIGIN}/posts/${p.slug}/`,
     lastmod: p.date || '',
     changefreq: 'monthly',
     priority: '0.8',
   }));
-  const all = [...staticPages, ...tagPages, ...postPages];
+  const all = [...staticPages, ...tagPages, ...seriesPages, ...postPages];
   const today = new Date().toISOString().slice(0, 10);
   const urls = all.map(u => {
     const lastmod = u.lastmod || today;
@@ -1039,6 +1184,14 @@ function computeBuild(rootDir = ROOT) {
     tagPages[slug] = renderTagPage(slug, name, posts);
   }
 
+  // 专栏聚合(每系列一篇聚合页 + 1 张总览页)
+  const seriesList = collectSeries(posts);
+  const seriesIndex = renderSeriesIndex(posts);
+  const seriesPages = {};
+  for (const s of seriesList) {
+    seriesPages[s.slug] = renderSeriesDetail(s.slug, s.name, s.posts);
+  }
+
   const rss = renderRSS(posts, null, rootDir);
   const sitemap = renderSitemap(posts);
   const searchIndex = renderSearchIndex(posts, rootDir);
@@ -1068,16 +1221,20 @@ function computeBuild(rootDir = ROOT) {
       'posts/index.html': postsIndex,
       'archive/index.html': archive,
       'tags/index.html': tagsIndex,
+      'series/index.html': seriesIndex,
       'feeds/rss.xml': rss,
       'sitemap.xml': sitemap,
       'search/index.html': searchPage,
       'assets/search-index.json': searchIndex,
       ...Object.fromEntries(Object.entries(tagPages).map(([slug, content]) =>
         [`tags/${slug}/index.html`, content])),
+      ...Object.fromEntries(Object.entries(seriesPages).map(([slug, content]) =>
+        [`series/${slug}/index.html`, content])),
     },
     articlePages,
     homeReplacement,
     tagSlugs: Array.from(tagNames.keys()).sort(),
+    seriesSlugs: seriesList.map(s => s.slug).sort(),
   };
 }
 
@@ -1131,6 +1288,23 @@ function writeBuild(build, rootDir = ROOT) {
     }
   }
 
+  // prune series/<slug>/index.html that no longer exist
+  const seriesDir = path.join(rootDir, 'series');
+  if (fs.existsSync(seriesDir)) {
+    const seriesDirs = fs.readdirSync(seriesDir, { withFileTypes: true })
+      .filter(e => e.isDirectory())
+      .map(e => e.name);
+    for (const slug of seriesDirs) {
+      if (!build.seriesSlugs || !build.seriesSlugs.includes(slug)) {
+        const idxFile = path.join(seriesDir, slug, 'index.html');
+        if (fs.existsSync(idxFile)) {
+          fs.unlinkSync(idxFile);
+          removed.push(`series/${slug}/index.html`);
+        }
+      }
+    }
+  }
+
   return { written, removed };
 }
 
@@ -1173,7 +1347,7 @@ function usage() {
 
 Options:
   --check          Check for drift without writing files (exit 1 if drift)
-  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|rss|sitemap|home|article-pages|prevnext)
+  --only <name>    Only regenerate one output (posts|archive|tags|tag-pages|series|series-pages|rss|sitemap|home|article-pages|prevnext)
   --root <path>    Project root (default: cwd)
   -h, --help       Show this help
 `;
@@ -1196,7 +1370,7 @@ function run(argv) {
   const opts = parseArgs(argv);
   if (opts.help) { process.stdout.write(usage()); return 0; }
   const build = computeBuild(opts.root);
-  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
+  const allNames = ['posts', 'archive', 'tags', 'tag-pages', 'series', 'series-pages', 'rss', 'sitemap', 'home', 'article-pages', 'prevnext'];
 
   let targets = allNames;
   if (opts.only) {
@@ -1214,6 +1388,12 @@ function run(argv) {
   if (!targets.includes('tag-pages')) {
     for (const rel of Object.keys(build.files)) {
       if (rel.startsWith('tags/') && rel !== 'tags/index.html') delete build.files[rel];
+    }
+  }
+  if (!targets.includes('series')) delete build.files['series/index.html'];
+  if (!targets.includes('series-pages')) {
+    for (const rel of Object.keys(build.files)) {
+      if (rel.startsWith('series/') && rel !== 'series/index.html') delete build.files[rel];
     }
   }
   if (!targets.includes('rss')) delete build.files['feeds/rss.xml'];
@@ -1264,6 +1444,10 @@ module.exports = {
   renderArchive,
   renderTagsIndex,
   renderTagPage,
+  slugifySeries,
+  collectSeries,
+  renderSeriesIndex,
+  renderSeriesDetail,
   renderRSS,
   renderSitemap,
   renderSearchIndex,

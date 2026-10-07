@@ -1291,6 +1291,110 @@ article pre:focus-within .copy-btn,
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- series grid (/series/ 总览) ---------- */
+
+.series-hint {
+  color: var(--fg-muted);
+  text-align: center;
+  margin: 0 auto 1.5rem;
+  max-width: 640px;
+}
+.series-hint code {
+  background: var(--bg-soft);
+  padding: .12em .42em;
+  border-radius: 4px;
+  font-size: .92em;
+  border: 1px solid var(--border-soft);
+}
+
+.series-grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+.series-grid > * { margin: 0; }
+
+.series-card {
+  display: block;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg);
+  padding: 1.25rem 1.5rem;
+  color: var(--fg);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.series-card:hover,
+.series-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--accent);
+  text-decoration: none;
+  outline: none;
+}
+.series-card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.series-card-title {
+  margin: 0 0 .35rem;
+  font-family: var(--font-serif);
+  font-size: var(--step-2);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+  color: var(--fg);
+}
+.series-card-meta {
+  margin: 0 0 .65rem;
+  color: var(--fg-muted);
+  font-size: var(--step--1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.series-card-count {
+  color: var(--accent);
+  font-weight: 600;
+}
+.series-card-desc {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: var(--step-0);
+  line-height: 1.55;
+}
+
+.series-empty {
+  text-align: center;
+  color: var(--fg-muted);
+  margin: 2rem 0;
+}
+.series-empty code {
+  background: var(--bg-soft);
+  padding: .12em .42em;
+  border-radius: 4px;
+  font-size: .92em;
+  border: 1px solid var(--border-soft);
+}
+
+.series-detail-hint {
+  color: var(--fg-muted);
+  font-size: var(--step-0);
+  margin: 0 0 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .series-card { transition: none; }
+  .series-card:hover { transform: none; }
+}
+
 /* ==========================================================================
    v7 · 键盘快捷键浮层(2026-09-26 北京时间 · AIWORK1-34)
    - .keyhelp-overlay    半透明浮层(? 弹出)
