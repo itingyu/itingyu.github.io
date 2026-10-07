@@ -119,6 +119,102 @@ function escapeHtml(s) {
     .replace(/"/g, '"');
 }
 
+/* 把 frontmatter tag 名转成 URL slug(/tags/<slug>/ 用)。
+ * 与 build-index.js:slugifyTag 语义对齐:小写、空格/斜杠转 -、保留 CJK、
+ * 纯符号兜底为 "tag"。当原始名就是 '金融' 时回退到 finance,保持与历史页面兼容。
+ */
+function slugifyTagForFinance(name) {
+  const s = String(name).trim();
+  if (s === '金融' || s.toLowerCase() === 'finance') return 'finance';
+  return (
+    s
+      .toLowerCase()
+      .replace(/[\s/]+/g, '-')
+      .replace(/[^a-z0-9\u4e00-\u9fff-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || 'tag'
+  );
+}
+
+/* 解析最简 YAML frontmatter 段(若存在)。
+ *
+ * 约定:首行(去前后空白后)必须匹配 /^---+\s*$/ 才视为 frontmatter 起始;
+ *      之后逐行收集 `key: value`,再次匹配 /^---+\s*$/ 即闭合。
+ *
+ * 支持的 value 类型(最小集合,够金融小队日常用法):
+ *   - 裸字符串:   description: 2026-09-28 交易日...
+ *   - 引号字符串: title: "每日金融简报 · 2026-09-28"
+ *   - inline 数组:tags: ["finance", "daily-brief", "a-share"]
+ *   - 布尔:       draft: true / draft: false
+ *   - 数字:       date: 2026-09-28
+ *
+ * 返回 { data, endLine }:
+ *   - data: 解析后的对象,无 frontmatter 时为 null
+ *   - endLine: 闭合 `---` 的行下标(0-based),无 frontmatter 时为 0
+ *           调用方应跳过 lines[0..endLine],从 endLine + 1 开始渲染正文
+ */
+function parseFrontmatter(md) {
+  const lines = md.replace(/\r\n/g, '\n').split('\n');
+  if (lines.length === 0 || !/^---+\s*$/.test(lines[0])) {
+    return { data: null, endLine: 0 };
+  }
+  const out = {};
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^---+\s*$/.test(line)) {
+      return { data: out, endLine: i };
+    }
+    const m = line.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/);
+    if (!m) continue; // 跳过空行 / 不识别的行
+    out[m[1]] = coerceYamlValue(m[2].trim());
+  }
+  // 没有闭合 fence → 当作没有 frontmatter,避免误吞正文
+  return { data: null, endLine: 0 };
+}
+
+function coerceYamlValue(raw) {
+  if (raw === '') return '';
+  if (raw === 'true') return true;
+  if (raw === 'false') return false;
+  if (/^-?\d+(\.\d+)?$/.test(raw)) return Number(raw);
+  if (raw.startsWith('[') && raw.endsWith(']')) {
+    return parseYamlInlineArray(raw.slice(1, -1));
+  }
+  if (
+    (raw.startsWith('"') && raw.endsWith('"')) ||
+    (raw.startsWith("'") && raw.endsWith("'"))
+  ) {
+    return raw.slice(1, -1);
+  }
+  return raw;
+}
+
+/* 把 "a, b, \"c, d\"" 拆成 ["a", "b", "c, d"]。引号内的逗号不拆。 */
+function parseYamlInlineArray(inner) {
+  const out = [];
+  let buf = '';
+  let quote = null;
+  for (let i = 0; i < inner.length; i++) {
+    const c = inner[i];
+    if (quote) {
+      buf += c;
+      if (c === quote) quote = null;
+    } else if (c === '"' || c === "'") {
+      quote = c;
+      buf += c;
+    } else if (c === ',') {
+      const v = buf.trim();
+      if (v) out.push(coerceYamlValue(v));
+      buf = '';
+    } else {
+      buf += c;
+    }
+  }
+  const tail = buf.trim();
+  if (tail) out.push(coerceYamlValue(tail));
+  return out;
+}
+
 /* 把 6 位代码 + 涨跌幅(允许跨多空格)替换成 ticker/delta span。
  * 必须先 escape 再 replace,避免替换尖括号。
  *
@@ -160,13 +256,21 @@ function renderCell(text) {
   return renderInline(text);
 }
 
-/* 解析整篇 md。返回 { title, body(HTML), excerpt } */
+/* 解析整篇 md。返回 { title, body(HTML), excerpt, frontmatter } */
 function renderMarkdown(md) {
-  const lines = md.replace(/\r\n/g, '\n').split('\n');
+  const normalized = md.replace(/\r\n/g, '\n');
+  const lines = normalized.split('\n');
+
+  // 先剥离 YAML frontmatter(若有),返回 { data, endLine }
+  const { data: frontmatter, endLine: fmEndLine } = parseFrontmatter(normalized);
+  const fm = frontmatter || {};
+  let i = fmEndLine > 0 ? fmEndLine + 1 : 0;
+  // 跳过闭合 fence 后那个空行(常见的 markdown 写法)
+  if (i < lines.length && lines[i].trim() === '') i++;
+
   const out = [];
   let title = null;
   let excerpt = null;
-  let i = 0;
 
   // 表格辅助:累积表格起始/对齐/数据行,遇非表格行就 flush。
   function flushTable(buf) {
@@ -323,10 +427,12 @@ function renderMarkdown(md) {
   }
 
   if (title === null) {
-    title = '金融每日简报';
+    // 优先级:frontmatter.title > 默认占位
+    if (fm.title) title = String(fm.title);
+    else title = '金融每日简报';
   }
 
-  return { title, body: out.join('\n'), excerpt };
+  return { title, body: out.join('\n'), excerpt, frontmatter: fm };
 }
 
 /* ---------- 页面装配 ---------- */
@@ -336,11 +442,25 @@ function escapeJsonLd(s) {
   return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
 }
 
-function renderPage({ title, slug, date, excerpt, body, cover = null }) {
+function renderPage({ title, slug, date, excerpt, body, cover = null, tags = null }) {
   const canonical = `https://itingyu.github.io/posts/${slug}/`;
   const editUrl = `https://github.com/itingyu/itingyu.github.io/edit/master/posts/${slug}/index.html`;
   const dateCN = date; // YYYY-MM-DD 本身就是 ISO 排版,符合站点其他页面
   const coverURL = cover ? `https://itingyu.github.io/posts/${slug}/${cover}` : null;
+
+  // tag 渲染:frontmatter.tags 优先;缺省回退到单 tag「金融」(向后兼容 9/27 简报)
+  // tags 是 string[](原始名);每个 tag 同时:
+  //   1) 写一条 <meta property="article:tag"> 让 build-index 收下做 tags/index 聚合与 search-index
+  //   2) 在 article-header 渲一个 <a class="chip">,data-tag 用 slugified 形式供 chip 解析
+  // 第一个 tag 作为 primary(用于 chip 与 breadcrumb 决定)
+  const effectiveTags = Array.isArray(tags) && tags.length > 0 ? tags : [TAG_LABEL];
+  const tagMeta = effectiveTags
+    .map((t) => `  <meta property="article:tag" content="${escapeHtml(String(t))}" />`)
+    .join('\n');
+  const primaryTag = effectiveTags[0];
+  const primarySlug = slugifyTagForFinance(primaryTag);
+  const primaryName = String(primaryTag);
+
   const jsonLd = JSON.stringify(
     {
       '@context': 'https://schema.org',
@@ -352,7 +472,7 @@ function renderPage({ title, slug, date, excerpt, body, cover = null }) {
       url: canonical,
       description: excerpt,
       articleSection: ARTICLE_SECTION,
-      keywords: [TAG_LABEL, '金融市场', '每日简报'],
+      keywords: [...effectiveTags, '金融市场', '每日简报'],
     },
     null,
     2,
@@ -377,7 +497,7 @@ function renderPage({ title, slug, date, excerpt, body, cover = null }) {
   <meta property="og:locale" content="zh_CN" />
   <meta property="article:published_time" content="${date}" />
   <meta property="article:author" content="itingyu" />
-  <meta property="article:tag" content="${TAG_LABEL}" />${coverURL ? `\n  <meta property="og:image" content="${coverURL}" />` : ''}
+${tagMeta}${coverURL ? `\n  <meta property="og:image" content="${coverURL}" />` : ''}
 
   <!-- JSON-LD -->
   <script type="application/ld+json">
@@ -435,7 +555,7 @@ ${jsonLd}
         <div class="post-meta">
           <time datetime="${date}">${dateCN}</time>
           <span class="dot">·</span>
-          <a class="chip" href="/tags/${TAG_SLUG}/" data-tag="${TAG_SLUG}">${TAG_LABEL}</a>
+          <a class="chip" href="/tags/${primarySlug}/" data-tag="${primarySlug}">${escapeHtml(primaryName)}</a>
           <span class="dot">·</span>
           <span data-reading-time>约 1 分钟</span>
         </div>
@@ -572,10 +692,30 @@ function main() {
 
   const repoRoot = path.resolve(__dirname, '..');
   const md = fs.readFileSync(inputPath, 'utf8');
-  const { title: mdTitle, body, excerpt: mdExcerpt } = renderMarkdown(md);
+  const {
+    title: mdTitle,
+    body,
+    excerpt: mdExcerpt,
+    frontmatter: fm,
+  } = renderMarkdown(md);
 
+  // draft 跳过:与 publish.sh 兜底语义对齐,避免意外发布草稿
+  if (fm.draft === true) {
+    process.stdout.write(
+      `SKIP · draft=true,跳过生成 ${slug} (frontmatter.draft === true)\n`,
+    );
+    return;
+  }
+
+  // 优先级:CLI --title > frontmatter.title > 正文 H1 > 默认「金融每日简报」
   const title = args.title || mdTitle;
-  const excerpt = (args.excerpt || mdExcerpt || title).slice(0, 240);
+  // 优先级:CLI --excerpt > frontmatter.description > 正文首段 > 标题
+  const fmDescription = typeof fm.description === 'string' ? fm.description : null;
+  const excerpt = (args.excerpt || fmDescription || mdExcerpt || title).slice(0, 240);
+  // frontmatter.tags 是字符串数组;缺省回退到 ['金融']
+  const tags = Array.isArray(fm.tags) && fm.tags.length > 0
+    ? fm.tags.map((t) => String(t))
+    : null;
 
   const outDir = path.join(repoRoot, 'posts', slug);
   const outFile = path.join(outDir, 'index.html');
@@ -592,7 +732,7 @@ function main() {
     coverFile = coverName;
   }
 
-  const html = renderPage({ title, slug, date, excerpt, body, cover: coverFile });
+  const html = renderPage({ title, slug, date, excerpt, body, cover: coverFile, tags });
   fs.writeFileSync(outFile, html);
 
   updatePostsIndex(repoRoot, { title, slug, date, excerpt });
@@ -609,4 +749,10 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { renderMarkdown, renderInline, renderPage };
+module.exports = {
+  renderMarkdown,
+  renderInline,
+  renderPage,
+  parseFrontmatter,
+  slugifyTagForFinance,
+};
