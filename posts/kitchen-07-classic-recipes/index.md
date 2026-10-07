@@ -1,3 +1,13 @@
+---
+title: 经典菜谱精讲
+slug: kitchen-07-classic-recipes
+date: 2026-10-07
+description: 一道菜做
+tags: [cooking, kitchen, recipes]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 07 · 经典菜谱精讲
 
 > 一道菜做"会"比做"多"重要。这里讲 12 道必学菜,从原理到拆解到变体。

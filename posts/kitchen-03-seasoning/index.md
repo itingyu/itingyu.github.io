@@ -1,3 +1,13 @@
+---
+title: 调味学基础
+slug: kitchen-03-seasoning
+date: 2026-10-07
+description: 调味是烹饪的
+tags: [cooking, kitchen, seasoning]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 03 · 调味学基础
 
 > 调味是烹饪的"灵魂"。理解味,才能调好味。

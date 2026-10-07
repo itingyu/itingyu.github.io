@@ -1,3 +1,13 @@
+---
+title: 食材营养与健康
+slug: kitchen-10-nutrition
+date: 2026-10-07
+description: 选对食材 + 用对方法 = 吃得安全 + 吃出营养。
+tags: [cooking, kitchen, nutrition]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 10 · 食材营养与健康
 
 > 选对食材 + 用对方法 = 吃得安全 + 吃出营养。

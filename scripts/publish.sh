@@ -72,6 +72,10 @@ publish.sh —— 一键发布到 itingyu.github.io。
     4. git commit -m "post(<slug>): 上线|撤回 · draft <old> → <new>"
     5. git push origin <branch>
 
+本地预览:
+  npm run preview           # http://localhost:4173 启动,改 posts/*.md 自动 reload
+  npm run preview:draft     # 同上,但草稿(draft: true)也展示
+
 环境变量:
   PUBLISH_BRANCH          指定默认分支(等同 --branch)
   PUBLISH_DRY_RUN=1       跳过 commit + push(测试用)

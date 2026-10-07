@@ -1,3 +1,13 @@
+---
+title: 厨房管理与效率
+slug: kitchen-09-management
+date: 2026-10-07
+description: 会做菜 ≠ 会生活。本章讲怎么让做饭这件事变得轻松、有条理、不痛苦。
+tags: [cooking, kitchen, management]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 09 · 厨房管理与效率
 
 > 会做菜 ≠ 会生活。本章讲怎么让做饭这件事变得轻松、有条理、不痛苦。

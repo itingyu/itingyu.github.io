@@ -1,3 +1,13 @@
+---
+title: 食材识别与挑选
+slug: kitchen-02-ingredient-selection
+date: 2026-10-07
+description: 食材是烹饪的起点。会选 = 成功一半。
+tags: [cooking, kitchen, ingredient]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 02 · 食材识别与挑选
 
 > 食材是烹饪的起点。会选 = 成功一半。

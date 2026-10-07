@@ -1,3 +1,13 @@
+---
+title: 八大菜系代表菜家常做法
+slug: kitchen-13-cuisine-dishes
+date: 2026-10-07
+description: 上一份讲
+tags: [cooking, kitchen, chinese-cuisine]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 13 · 八大菜系代表菜家常做法
 
 > 上一份讲"是什么",这份讲"怎么做"。

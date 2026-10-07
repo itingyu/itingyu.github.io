@@ -1,3 +1,13 @@
+---
+title: 烹饪方法
+slug: kitchen-06-cooking-methods
+date: 2026-10-07
+description: 烹饪法 = 不同的
+tags: [cooking, kitchen, methods]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 06 · 烹饪方法
 
 > 烹饪法 = 不同的"温度场 + 时间 + 处理顺序"组合。掌握每种方法的核心逻辑,任何菜都能拆解。

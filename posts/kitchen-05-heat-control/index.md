@@ -1,3 +1,13 @@
+---
+title: 火候掌控
+slug: kitchen-05-heat-control
+date: 2026-10-07
+description: 火候是烹饪的
+tags: [cooking, kitchen, heat-control]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 05 · 火候掌控
 
 > 火候是烹饪的"灵魂"。同一种食材,大火中火小火做出完全不同的菜。

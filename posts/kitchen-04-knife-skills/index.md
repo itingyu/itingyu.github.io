@@ -1,3 +1,13 @@
+---
+title: 刀工技法
+slug: kitchen-04-knife-skills
+date: 2026-10-07
+description: 刀工是厨师的
+tags: [cooking, kitchen, knife-skills]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 04 · 刀工技法
 
 > 刀工是厨师的"基本功"。切得好 = 受热均匀 = 口感一致。

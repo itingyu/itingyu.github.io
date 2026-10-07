@@ -1,3 +1,13 @@
+---
+title: 食物相克与真禁忌速查
+slug: kitchen-11-taboos
+date: 2026-10-07
+description: 90% 的
+tags: [cooking, kitchen, food-safety]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 11 · 食物相克与真禁忌速查
 
 > **90% 的"食物相克"是假的。但 100% 的"药物禁忌"是真的。**

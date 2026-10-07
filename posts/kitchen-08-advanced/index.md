@@ -1,3 +1,13 @@
+---
+title: 进阶技法
+slug: kitchen-08-advanced
+date: 2026-10-07
+description: 从
+tags: [cooking, kitchen, advanced]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 08 · 进阶技法
 
 > 从"会做菜"到"做得精"的分水岭。掌握这些,你的菜会上一个台阶。

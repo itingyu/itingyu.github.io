@@ -1,3 +1,13 @@
+---
+title: 厨房原理总论
+slug: kitchen-01-principles
+date: 2026-10-07
+description: 烹饪的
+tags: [cooking, kitchen, principles]
+draft: false
+author: itingyu
+series: 厨房学
+---
 # 01 · 厨房原理总论
 
 > 烹饪的"理"先于"技"。理解了底层原理,任何菜谱都能举一反三。
