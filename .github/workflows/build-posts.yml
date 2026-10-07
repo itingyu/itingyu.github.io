@@ -1,0 +1,86 @@
+name: build-posts
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'posts/**/*.md'
+      - 'posts/**/*.html'
+      - 'scripts/**'
+      - '.github/workflows/build-posts.yml'
+  workflow_dispatch:
+
+# 防自激死循环:GitHub Actions bot 自己 push 的 commit / workflow 自身改动 /
+# workflow_dispatch 手动重跑 都会被下面 if: 条件放过,但 push 事件触发后 bot 又
+# commit + push 一次,第二次 push 由 bot 发起 → github.actor == 'github-actions[bot]'
+# → if 条件过滤掉,不会无限循环。
+# 三重防护(任一为真则跳过):
+#   1. actor 是 bot (github-actions[bot])               — 拦截自激 commit
+#   2. event 不是 push / workflow_dispatch              — 拦截 PR / schedule 等
+#   3. head commit message 含 'auto-build:' 哨兵        — 拦截二次自动 commit
+# 注:GitHub Actions 默认 Workflow permissions 是 Read-only;admin 已将
+# itingyu/itingyu.github.io 仓库一次性设为 Read and write(详见 README.md 与
+# design-v2.md §5.2.2)。若权限未就绪,commit/push 步骤会 403,master 保留上次稳定版本。
+concurrency:
+  group: build-posts-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build posts + commit artifacts
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, 'auto-build:'))
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: install
+        run: npm ci
+
+      - name: validate frontmatter
+        run: node scripts/validate-frontmatter.js
+
+      - name: test
+        run: npm test
+
+      - name: build
+        run: npm run build
+
+      - name: re-check after build
+        run: npm run check
+
+      - name: configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "actions@github.com"
+
+      - name: commit artifacts
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no changes to commit; skip push"
+            exit 0
+          fi
+          git commit -m "auto-build: $(date -Iseconds)"
+        env:
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: actions@github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: actions@github.com
+
+      - name: push
+        run: git push origin master
