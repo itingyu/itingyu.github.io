@@ -136,7 +136,7 @@ RSS / sitemap / 搜索索引 / per-series feed 全部由「带 front matter 的 
 | `/posts/<slug>/` | 单篇文章（22 个） | `posts/<slug>/index.html` | `_posts/<date>-<slug>.md` + `permalink: /posts/:slug/` | AC-02 |
 | `/archive/` | 按月归档 | `archive/index.html` | `archive/index.md`（`layout: archive`） | AC-05 |
 | `/tags/` | 全部标签 + 计数 | `tags/index.html` | `tags/index.md`（`layout: tags`） | AC-06 |
-| `/tags/<slug>/` | 单标签（23 个） | `tags/<slug>/index.html` | `_tags/<slug>.md`（collection `tags`） | AC-06 |
+| `/tags/<slug>/` | 单标签（24 个） | `tags/<slug>/index.html` | `_tags/<slug>.md`（collection `tags`） | AC-06 |
 | `/series/` | 专栏总览 | `series/index.html` | `series/index.md`（`layout: series`） | AC-07 |
 | `/series/厨房学/` | 单专栏 | `series/厨房学/index.html` | `_series/厨房学.md`（collection `series`，`:name` → CJK 原样） | AC-07 |
 | `/series/金融市场观察/` | 单专栏 | `series/金融市场观察/index.html` | `_series/金融市场观察.md` | AC-07 |
@@ -227,14 +227,14 @@ Phase C 的模板**必须**产出下表节点；AC-03/05/06/07/10/11 按此断�
 
 | 页面 | 必需节点 / class | v1 对照文件 |
 | --- | --- | --- |
-| 整站壳（所有页） | `div.reading-progress[data-reading-progress]`、`a.skip-link[href="#main"]`、`header.site-header`（`a.site-brand > span.site-brand-mark` + `span`）、`nav.site-nav[aria-label="主导航"]`（7 个 `<a>`：`/` `/posts/` `/archive/` `/tags/` `/series/` `/search/` `/about/` + `button.theme-toggle[data-theme-toggle]`）、`main#main.container`、`footer.site-footer > div.links`（9 个链接，含 `/feeds/rss.xml` 与 GitHub）+ `p`（版权 + 免责） | `scripts/build-index.js:47-121` |
+| 整站壳（所有页） | `a.skip-link[href="#main"]`、`header.site-header`（`a.site-brand > span.site-brand-mark` + `span`）、`nav.site-nav[aria-label="主导航"]`（7 个 `<a>`：`/` `/posts/` `/archive/` `/tags/` `/series/` `/search/` `/about/` + `button.theme-toggle[data-theme-toggle]`）、`main#main.container`、`footer.site-footer > div.links`（9 个链接，含 `/feeds/rss.xml` 与 GitHub）+ `p`（版权 + 免责）。**`div.reading-progress[data-reading-progress]` 仅文章页必备**；首页 / 归档 / 标签 / 专栏 / 搜索 / about / 404 不包含该节点（实测 `posts/welcome/index.html:78` 是唯一出处）。 | `scripts/build-index.js:47-121` |
 | 首页 | `h2.section-title`（最新文章）、`ul.post-list > li > h3.post-title > a`、`div.post-meta > time[datetime]` / `span.dot` / `a.chip[data-tag]`、`p.post-excerpt`、`<a href="/posts/">查看全部文章 →</a>`；「查看全部文章」链接必须存在 | `index.html` |
 | 文章页 | `article > header.article-header > h1`、`div.post-meta`（`time` / `span.dot` / `a.chip[data-tag]` / 有专栏时 `a.chip[data-series]` / `span[data-reading-time]` / `span.word-count[data-word-count]`）、`p.post-excerpt`、正文首行为 `blockquote`（摘要引用块）、正文 `h2/h3` 带 `id` 锚点、`footer.article-footer`（末次更新 + 「在 GitHub 上编辑」链接，**href 改指 `_posts/<file>.md`**）、`<link rel="prev">` / `<link rel="next">` | `posts/kitchen-07-classic-recipes/index.html` |
 | 归档 | `div.archive-group`（按月，月份倒序） | `archive/index.html` |
 | 标签总览 | `div.tag-cloud` + `a.chip` + `span.tag-count` | `tags/index.html` |
 | 单标签 / 单专栏 | 复用 `ul.post-list` 卡片结构 | `tags/note/index.html`、`series/厨房学/index.html` |
-| 专栏总览 | `div.series-grid > div.series-card`（`h3.series-card-title` / `p.series-card-desc` / `div.series-card-meta` / `span.series-card-count`）+ `p.series-hint` | `series/index.html` |
-| 搜索 | `div.search-box > input[data-search-input]`、`p.search-hint`、`div.search-status[data-search-status]`、`div.search-results[data-search-results]` | `search/index.html` |
+| 专栏总览 | `ul.series-grid > a.series-card`（元素名按实测：`series/index.html:64-83`，CSS 选择器按类描述；卡片内含 `h3.series-card-title` / `p.series-card-desc` / `div.series-card-meta` / `span.series-card-count`）+ `p.series-hint` | `series/index.html` |
+| 搜索 | `div.search-box > input[data-search-input]`、`p.search-hint`、`div.search-status[data-search-status]`、`ul.search-results[data-search-results]`（元素名按实测：`search/index.html:70`，CSS 选择器按类描述） | `search/index.html` |
 | 404 | `main#main.container.fourofour` | `404.html` |
 
 ### 4.6 唯一允许的 markup 增量
@@ -242,7 +242,7 @@ Phase C 的模板**必须**产出下表节点；AC-03/05/06/07/10/11 按此断�
 | # | 增量 | 理由 |
 | --- | --- | --- |
 | 1 | `<nav>` 当前项加 `aria-current="page"` | 无障碍；v1 的 `pageShell` 里 `.replace('data-nav=…')` 因 `SITE_HEADER` 字符串不含 `data-nav` 而实际是死代码，v1 页面无 `aria-current` |
-| 2 | 文章页补 `data-nav-*` 属性（v1 `SITE_HEADER` 有、页面产物里没有） | 与整站壳一致，便于前端定位 |
+| 2 | **首页 / about / 404 / 文章页** 这 4 类手写壳补 `data-nav-*` 属性（v1 `SITE_HEADER` 字符串里 `.replace('data-nav=…')` 是死代码，实测 v1 仅 archive / tags / series / search / posts/index 页面产物里有该属性；首页 / about / 404 / 文章页 4 类手写壳里没有，需补齐以维持 §D7 主题切换器 `[data-reading-time]` / `[data-word-count]` 定位锚点） | 与整站壳一致，便于前端定位 |
 | 3 | `article-footer` 的「在 GitHub 上编辑」URL 由 `posts/<slug>/index.html` 改为 `_posts/<date>-<slug>.md` | 迁移后源文件位置变了 |
 
 除以上 3 条外，v3 页面 DOM 与 v1 保持结构等价（属性顺序 / 空白不要求字节一致）。
@@ -334,13 +334,13 @@ tag: finance               # 必填，slug，必须等于文件名
 | 2 | `<meta name="description" content="X">` | `excerpt: X` | 优先用 `og:description`（更短，是 v1 的「一句话摘要」）；两者不一致时以 `og:description` 为准并记入迁移 PR 描述 |
 | 3 | `<meta property="article:published_time" content="YYYY-MM-DD">` | `date: YYYY-MM-DD HH:MM:SS +0800` | 同日多篇按 §D14 分配时间；对外仍渲染 date-only |
 | 4 | `<meta property="article:tag" content="X">` × N | `tags: [slug…]` | `金融→finance`、`随笔→note`（v1 已 slugify，chip 实测：`href="/tags/finance/" data-tag="finance">金融`）；其余已是 ASCII slug |
-| 5 | `<meta property="article:section" content="金融市场观察">` | `series: 金融市场观察` | 仅 5 篇金融 + 15 篇厨房有；sing-box / welcome 无 |
+| 5 | v1 `posts/<slug>/index.md` front matter `series: 金融市场观察` / `series: 厨房学` | v3 `_posts/<date>-<slug>.md` `series: 金融市场观察` / `series: 厨房学` | v1 HTML 产物里**均无** `article:section` meta（实测 22 篇），系列信息只在源 MD front matter；迁移仅做键名直传 |
 | 6 | `<meta name="series:description" content="X">` | `_series/<显示名>.md` 的 `description` | 从文章上移到专栏定义（文章侧不再重复） |
 | 7 | `<meta property="article:pinned" content="true">` | `pinned: true` | 22 篇实测均无 pinned → 一律 `pinned: false` |
 | 8 | `<meta property="og:image" content="X">` | `cover: X` | 22 篇实测均无 `og:image` / 无 `cover.svg` → 一律 `cover: null` |
-| 9 | `<!-- series -->` 注释 / `<a class="chip" data-series>` | `series:`（与 #5 同源） | 二者冲突时以 `<meta article:section>` 为准 |
+| 9 | v1 `posts/<slug>/index.md` front matter `series:` | v3 `_posts/<date>-<slug>.md` `series:`（与 #5 同源） | 全部以源 MD front matter 为唯一真源；HTML 渲染产物里的 `chip[data-series]` 由 Liquid 从 `page.series` 字段生成，无需从 HTML 反向提取 |
 | 10 | `posts/<slug>/index.html` | `_posts/<date>-<slug>.md` | **文件名 slug 必须 == 目录名**（`scripts/validate-frontmatter.js` 断言） |
-| 11 | 正文 HTML（22 篇） | Markdown body | 16 篇已有 `posts/<slug>/source.md` 可直接复用（15 厨房 + sing-box）；6 篇 HTML-only（5 金融 + welcome）需从 HTML 反转成 MD |
+| 11 | v1 `posts/<slug>/source.md` 正文（22 篇**全部**已有） | v3 `_posts/<date>-<slug>.md` 正文 | 实测仓库 `posts/<slug>/` 22 个目录下**全部**有 `source.md`（含 5 金融 + 15 厨房 + sing-box + welcome）。Phase B 任务 = 重命名 `posts/<slug>/source.md` → `_posts/<date>-<slug>.index.md` + 改键名 `description → excerpt` + 补 `layout: post` + 补 front matter `date` 与 `tags`。**无 HTML → MD 反转工作**。 |
 | 12 | `<time datetime>` / `dateModified` | 无独立字段 | `dateModified` 恒等于 `datePublished`（v1 语义） |
 
 ### 5.6 迁移后的文件与 URL 对照（抽样 3 条 + 全量规则）
@@ -404,7 +404,7 @@ itingyu.github.io/
 │   ├── 金融市场观察.md
 │   └── 厨房学.md
 ├── _tags/                          ← 新增：标签 collection（output: true，脚本生成）
-│   ├── a-share.md … sing-box.md（23 个）
+│   ├── a-share.md … sing-box.md（24 个）
 ├── _layouts/                       ← 新增：11 个布局
 │   ├── default.html                整站壳（head + header + main + footer）
 │   ├── home.html                   首页（pinned + 最新 10 篇）
@@ -464,6 +464,7 @@ itingyu.github.io/
 | `paginate` / `paginate_path` | `12` / `/posts/page:num/` | `/posts/` + `/posts/page2/` |
 | `markdown` / `highlighter` / `kramdown` | `kramdown` / `rouge` / `{input: GFM, auto_ids: true}` | §2.3 |
 | `plugins` | `[jekyll-paginate, jekyll-seo-tag, jekyll-optional-front-matter]` | **恰好 3 个**（§2.2，AC-01 断言不多不少） |
+| `safe` | `true`（显式声明） | GitHub Pages 默认 `--safe` 模式运行；显式 `safe: true` 避免某些第三方插件被静默启用；AC-01 断言 `safe == true` |
 | `collections` | `series: {output: true, permalink: /series/:name/}`；`tags: {output: true, permalink: /tags/:name/}` | CJK 文件名 → CJK URL（实测） |
 | `defaults` | `_posts` → `layout: post`；`path: ""`（index/about/archive/tags/series/search）→ `layout: page` | — |
 | `exclude` | `[node_modules/, package.json, package-lock.json, scripts/, README.md, design*.md, .githooks/, Gemfile, Gemfile.lock, vendor/]` | 避免把 spec / 脚本 / 测试渲进产物 |
@@ -508,7 +509,7 @@ itingyu.github.io/
 
 | 页 | v3 产出 |
 | --- | --- |
-| 首页 / about | `_includes/jsonld-person.html`：`Person`（`name` / `url` / `sameAs`）+ `Blog`（`name` / `description` / `url` / `blogPosting[]`，**数组长度 = 已发布文章数**，修正 v1 首页 `blogPosting` 只列了 2 篇的历史漂移） |
+| 首页 / about | `_includes/jsonld-person.html`：`Person`（`name` / `url` / `sameAs`）+ `Blog`（`name` / `description` / `url` / `blogPost[]`，**数组长度 = 已发布文章数**，修正 v1 首页 `blogPosting` → v3 用 `blogPost` 的字段名漂移；实测 v1 `index.html:23-50` 用 `blogPost` 不是 `blogPosting`，schema.org 二者皆合法） |
 | 文章页 | `_includes/jsonld-blogposting.html`：`BlogPosting`（`headline` / `datePublished` / `dateModified` / `author` / `url` / `description` / `articleSection`（有专栏时）/ `keywords`（tags + 系列名）/ `hasPart`（v2.1 契约））+ `_includes/jsonld-breadcrumb.html`：`BreadcrumbList`（首页 → 主标签 → 本文） |
 | 非文章页 | `{% seo %}`（`jekyll-seo-tag`） |
 
@@ -571,7 +572,7 @@ itingyu.github.io/
 | --- | --- |
 | 决策 | collection label 就叫 `tags`（目录 `_tags/`，permalink `/tags/:name/`），**接受** `site.tags` 内置哈希被覆盖这一代价 |
 | 实测代价 | 定义 `collections.tags` 后，`site.tags` 从「tag→posts 哈希」变成「collection 文档数组」；若沿用哈希写法（`{% for t in site.tags %}{{ t[0] }}`）构建**直接抛** `TypeError: 0 is not a symbol nor a string` |
-| 应对 | `/tags/` 与 tag 页一律用文档字段（`t.tag` / `t.title` / `t.url`）；计数改为 Liquid 扫描 `site.posts`（`{% if p.tags contains t.tag %}`），23 个 tag × 22 篇 = 506 次比较，渲染开销可忽略 |
+| 应对 | `/tags/` 与 tag 页一律用文档字段（`t.tag` / `t.title` / `t.url`）；计数改为 Liquid 扫描 `site.posts`（`{% if p.tags contains t.tag %}`），24 个 tag × 22 篇 = 528 次比较，渲染开销可忽略 |
 | 为何不引 `_data/tags.yml` | 有了 collection 后再放一份 `_data/tags.yml` 就是**第二份需同步的真源**，必然漂移；Jekyll 自带 `site.posts` 已经是真源 |
 | 为何不用 label `tag` | label 决定目录名（`_tag/`），与 issue §6 要求的 `_tags/` 不符；且 `site.tags` 被覆盖后在 Liquid 里「数组 / 哈希」两种写法的报错方式完全不同，统一为 collection 数组更可控 |
 
@@ -682,6 +683,9 @@ itingyu.github.io/
 | `scripts/__tests__/keys.test.js` | **保留** | `assets/keys.js` 不动 |
 | `scripts/__tests__/validate-frontmatter.test.js` | 重写 | 新 schema + 新路径 |
 | `scripts/__tests__/render-finance-brief.test.js` | **删除** | 对应脚本退役；简报迁移改由 AC-21 覆盖 |
+| `scripts/__tests__/preview-ws.test.js` | **删除** | 测的是 v2 `preview.js` + WebSocket 热重载；v3 改用 `bundle exec jekyll serve`，该 JS 不存在，依赖整个消失 |
+| `scripts/__tests__/publish-finance-brief.test.js` | **删除** | 测的是 v2 命令链（M6.4 / M6.7 / M7.2），含断言 `.github/workflows/build-posts.yml` 必须存在；v3 该 workflow 不存在且明确不引入 |
+| `scripts/__tests__/yaml-frontmatter.test.js` | **删除** | 文件首行 `const bi = require('../build-index.js')`，而 `build-index.js` 在 §8.3 被删除；此测试硬性依赖将消失 |
 | `scripts/__tests__/finance-sync-attachments.test.sh` | 保留（若 `finance-sync.sh` 仍保留则需适配新产物路径） | — |
 | 新增 `config-contract.test.js` | §9 AC-01 | `_config.yml` 契约 |
 | 新增 `build-site.test.js`（前置：跑 `jekyll build` 到临时 `_site`） | 所有渲染类 AC 的公共前置 | 一次性 build，测试复用产物 |
@@ -702,20 +706,20 @@ itingyu.github.io/
 
 | AC | 需求点 | 断言（可执行） |
 | --- | --- | --- |
-| **AC-01** | §2.2 / §6.1 配置契约 | `plugins` **恰好等于** `[jekyll-paginate, jekyll-seo-tag, jekyll-optional-front-matter]`；`permalink == "/posts/:slug/"`；`timezone == "Asia/Shanghai"`；`lang == "zh-CN"`；`baseurl == ""`；`url == "https://itingyu.github.io"`；`paginate == 12`；`paginate_path == "/posts/page:num/"`；`markdown == "kramdown"`；`highlighter == "rouge"`；`kramdown.input == "GFM"`；`collections.series.permalink == "/series/:name/"` 且 `output == true`；`collections.tags.permalink == "/tags/:name/"` 且 `output == true`；`exclude` 覆盖 `node_modules/` `scripts/` `package.json` `design*.md` |
+| **AC-01** | §2.2 / §6.1 配置契约 | `plugins` **恰好等于** `[jekyll-paginate, jekyll-seo-tag, jekyll-optional-front-matter]`；`permalink == "/posts/:slug/"`；`timezone == "Asia/Shanghai"`；`lang == "zh-CN"`；`baseurl == ""`；`url == "https://itingyu.github.io"`；`paginate == 12`；`paginate_path == "/posts/page:num/"`；`markdown == "kramdown"`；`highlighter == "rouge"`；`kramdown.input == "GFM"`；`safe == true`（§6.1 新增键，与 GitHub Pages 默认 `--safe` 对齐）；`collections.series.permalink == "/series/:name/"` 且 `output == true`；`collections.tags.permalink == "/tags/:name/"` 且 `output == true`；`exclude` 覆盖 `node_modules/` `scripts/` `package.json` `design*.md` |
 | **AC-02** | §3 URL 兼容 | §3.1 的 22 个 slug 对应 `<site>/posts/<slug>/index.html` **全部存在**；且 `<site>` 下**不存在**形如 `posts/<date>-*` 的产物（证明日期前缀已被剥离） |
 | **AC-03** | §4.5 整站壳 / 首页 | 每个页面类型（首页 / 文章 / 归档 / 标签 / 标签详情 / 专栏 / 专栏详情 / 搜索 / about / 404）都含：`div.reading-progress`、`a.skip-link[href="#main"]`、`header.site-header`、`nav.site-nav` 内 7 个 href、`button.theme-toggle[data-theme-toggle]`、`main#main.container`、`footer.site-footer > div.links` 内 9 个链接 |
 | **AC-04** | §3 / §D3 分页 | `<site>/posts/index.html` 与 `<site>/posts/page2/index.html` 都存在；两页 `h3.post-title a` 的 href 集合**不相交**且并集 == 22 个 slug |
 | **AC-05** | §3 归档 | `<site>/archive/index.html` 含 `div.archive-group`；月份分组集合 == `[2026-10, 2026-09]` 且**首组是 2026-10**（倒序） |
-| **AC-06** | §3 / §D10 标签 | `<site>/tags/index.html` 的 `a.chip` 数 == `<site>/_tags` 文档数 == 23；每个 chip 的 `href` 对应文件存在；`finance` 的计数 == 5、`kitchen` == 15、`note` == 2（对照 v1 `tags/<slug>/index.html` 计数） |
-| **AC-07** | §3 / §D2 专栏 | `<site>/series/index.html` 含 `div.series-grid > div.series-card` × 2；`<site>/series/厨房学/index.html` 与 `<site>/series/金融市场观察/index.html` 存在（**路径含 CJK 原字符**，URL 不得被 percent-encode）；厨房学页 `h3.post-title` 数 == 15、顺序 == v1 基线快照顺序 |
-| **AC-08** | §D4 JSON-LD | 首页含 `Person`（`sameAs` 含 GitHub）与 `Blog`，且 `Blog.blogPosting` 长度 == 22；文章页含 `BlogPosting` 且 `headline` / `datePublished` / `dateModified` / `author` / `url` / `description` / `keywords` 齐全、有专栏时 `articleSection == 厨房学` / `金融市场观察`；**文章页 JSON-LD 中 `BlogPosting` 恰好 1 个**（验证 seo-tag 未重复注入）；`kitchen-07` 的 `hasPart` 长度 == 14 且不含自身 URL；`welcome`（无专栏）无 `hasPart`；文章页含 `BreadcrumbList` |
+| **AC-06** | §3 / §D10 标签 | `<site>/tags/index.html` 的 `a.chip` 数 == `<site>/_tags` 文档数 == **24**；每个 chip 的 `href` 对应文件存在；`finance` 的计数 == 5、`kitchen` == 15、`note` == **1**（实测 v1 `tags/note/index.html` 仅 welcome 一篇带 note tag；`finance` / `kitchen` 计数与 v1 一致） |
+| **AC-07** | §3 / §D2 专栏 | `<site>/series/index.html` 含 `ul.series-grid > a.series-card` × 2（按实测元素名修正）；`<site>/series/厨房学/index.html` 与 `<site>/series/金融市场观察/index.html` 存在（**路径含 CJK 原字符**，URL 不得被 percent-encode）；厨房学页 `h3.post-title` 数 == 15、顺序 == v1 基线快照顺序 |
+| **AC-08** | §D4 JSON-LD | 首页含 `Person`（`sameAs` 含 GitHub）与 `Blog`，且 `Blog.blogPost` 长度 == 22（实测 v1 用 `blogPost` 非 `blogPosting`）；文章页含 `BlogPosting` 且 `headline` / `datePublished` / `dateModified` / `author` / `url` / `description` / `keywords` 齐全、有专栏时 `articleSection == 厨房学` / `金融市场观察`；**文章页 JSON-LD 中 `BlogPosting` 恰好 1 个**（验证 seo-tag 未重复注入）；`kitchen-07` 的 `hasPart` 长度 == 14 且不含自身 URL；`welcome`（无专栏）无 `hasPart`；文章页含 `BreadcrumbList` |
 | **AC-09** | §D5 搜索 | `<site>/search/index.json` 是合法 JSON，`posts` 长度 == 22，每项含 `id/url/title/description/tags/date/excerpt/content`；`content` 非空且不含 `<`；`assets/search.js` 中的索引 URL 字面量 == `/search/index.json`；`<site>/assets/search-index.json` **不存在** |
 | **AC-10** | §3 about | `<site>/about/index.html` 含 `Person` JSON-LD 与 v1 相同的 `div.callout` 节点 |
 | **AC-11** | §3 / §4.5 404 + robots | `<site>/404.html` 存在且 `main` 的 class 含 `fourofour`；`<site>/robots.txt` 与 v1 **字节相同** |
 | **AC-12** | §D9 RSS | `<site>/feeds/rss.xml` 归一化后：channel `title` / `link` / `description` / `language` / `atom:link[self]` 与 v1 等值；`atom:link[related]` 恰好 2 条且 href == 两个 per-series feed；`<item>` 集合 == 22 且**顺序 == v1 基线快照顺序** |
 | **AC-13** | §D2 / §D11 per-series RSS | `<site>/feeds/series-厨房学.xml` 的 item 集合 == 15 篇厨房文；`<site>/feeds/series-金融市场观察.xml` 的 item 集合 == 5 篇金融文；两者 `<channel><link>` 指向各自专栏 URL |
-| **AC-14** | §D9 sitemap | `<site>/sitemap.xml` 的 `<loc>` 集合 == `{/, /posts/, /archive/, /tags/, /series/, /search/, /about/, 404.html?, 22 篇文章 URL, 23 标签 URL, 2 专栏 URL, feeds}` 与 v1 集合一致（`/404.html` 是否入表以 v1 现状为准）；**有专栏的 URL 带 `<series>`（显示名原值）**，无专栏的不带；`changefreq` / `priority` 逐条与 v1 等值 |
+| **AC-14** | §D9 sitemap | `<site>/sitemap.xml` 的 `<loc>` 集合 == `{/, /posts/, /archive/, /tags/, /series/, /search/, /about/, 404.html?, 22 篇文章 URL, 24 标签 URL, 2 专栏 URL, feeds}` 与 v1 集合一致（`/404.html` 是否入表以 v1 现状为准）；**有专栏的 URL 带 `<series>`（显示名原值）**，无专栏的不带；`changefreq` / `priority` 逐条与 v1 等值 |
 | **AC-15** | §2.4 前端资产 | `assets/{style.css,theme.js,keys.js,search.js,favicon.svg}` 五个文件 **与 v1 字节相同**（除 `search.js` 的索引 URL 一行改动，按 AC-09 断言）；`_site/assets/style.css` 与仓库内一致 |
 | **AC-16** | §2.1 版本真源 | `bundle exec jekyll build` 在 **`github-pages` gem 锁定版本**下成功（不是本机 4.4.1），且 22 个 URL 全部产出 |
 | **AC-17** | §5.7 schema | 22 篇 front matter：`title` / `date` / `tags`(非空) / `excerpt` 齐全且合法；文件名 slug == v1 目录名；`series` 值都存在于 `_series/*.md` 的 `title`；`tags` 元素都存在于 `_tags/*.md` 的 `tag`；`draft` / `pinned` 仅布尔；`_posts/` 中**无** `draft: true`（AC-18 同源） |
@@ -734,7 +738,7 @@ itingyu.github.io/
 | Phase | 范围 | 角色 | 完成判定 |
 | --- | --- | --- | --- |
 | **A** | `_config.yml` + `Gemfile` + `Gemfile.lock` + `.gitignore` + `_layouts/default.html` + `_includes/{head,header,footer,theme-switcher}.html` + 最小 `index.md` | 后端 | Pages 跑通基本骨架，`/` 200 |
-| **B** | `_posts/` 22 篇 MD 迁移 + front matter schema 映射 + `_series/` 2 篇 + `_tags/` 23 篇（脚本生成）+ **v1 顺序基线快照** | 后端 | AC-17 / AC-20 基线快照落地；旧 HTML 尚在（线上零风险） |
+| **B** | `_posts/` 22 篇 MD 迁移 + front matter schema 映射 + `_series/` 2 篇 + `_tags/` 24 篇（脚本生成）+ **v1 顺序基线快照** | 后端 | AC-17 / AC-20 基线快照落地；旧 HTML 尚在（线上零风险） |
 | **C** | `_layouts/{home,posts,post,archive,tags,tag,series,series-detail,page,notfound}.html` + `_includes/{post-card,post-header,post-meta,jsonld-*,series-nav,search-ui}.html` + 聚合页切 MD + **删 22 个旧 HTML** | 前端（+ 后端配合） | AC-02/03/04/05/06/07/10/11/22 全绿 + 3 篇截图对照 |
 | **D** | RSS / per-series RSS / sitemap / JSON-LD | 后端 | AC-08/12/13/14 全绿 |
 | **E** | `/search/index.json` + `assets/search.js` 适配 | 后端 | AC-09 全绿 |
@@ -758,7 +762,7 @@ itingyu.github.io/
 | R6 | seo-tag 与手写 JSON-LD 重复注入 | JSON-LD 校验失败 | §D4 条件输出；AC-08 断言 `BlogPosting` 恰好 1 个 |
 | R7 | 草稿经 GitHub 网页直编 `_posts/` 泄漏上线 | 未完成内容公开 | `_drafts/` 结构层 + pre-push 工具层 + AC-17/18 流程层；残余风险明示（无法完全消除，Pages 侧无服务端门禁） |
 | R8 | CJK URL 被编码 / 某些客户端不接受 | 专栏链接失效 | §3.2 锁「原样输出」；AC-07 断言产物路径含 CJK 原字符 |
-| R9 | 22 篇 HTML → MD 反转丢内容（6 篇 HTML-only 无 `source.md`） | 内容缺失 | Phase B 逐篇 diff 校验（段落数 / 标题数 / 代码块数）+ 抽样截图；`git` 历史可回滚 |
+| R9 | 22 篇 HTML → MD 反转丢内容（误判风险） | 内容缺失 | 实测仓库 22 篇**全部**已有 `posts/<slug>/source.md`（含 5 金融 + 15 厨房 + sing-box + welcome），**无 HTML → MD 反转工作**；Phase B 仅做 `source.md` → `_posts/<date>-<slug>.md` 重命名 + `description → excerpt` 键名改写 + front matter `date`/`tags`/`layout` 补齐 + 与 v1 `index.html` 归一化等价回归；`git` 历史可回滚 |
 | R10 | 同日文章排序漂移 | 视觉回归 | §D14 时间戳方案 + AC-20 顺序快照 |
 | R11 | Rouge 与 v1「无高亮」观感差异 | 视觉回归 | v1 无 prism.js → 无既有高亮观感；CSS 新增 `.highlighter-rouge` 样式即可（Phase C 可选项） |
 | R12 | 大 PR（Phase C）合并后出问题 | 站点受损 | §D13 单点回滚 + 六入口巡检窗口 |
