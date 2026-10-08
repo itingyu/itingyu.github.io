@@ -2031,3 +2031,152 @@ math { font-size: 1.05em; }
 
 /* 暗色模式兼容(MathJax SVG 自带 fill 用 currentColor) */
 [data-theme="dark"] mjx-container svg { color: #e2e8f0; }
+
+/* ---------- A 股净盈亏速算工具(/tools/a-stock-pnl/) ---------- */
+
+.pnl-tool { margin: 1.5rem 0; }
+
+.pnl-controls {
+  display: flex; flex-wrap: wrap; gap: 1.25rem 2rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  align-items: center;
+}
+.pnl-ctrl-group {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: var(--step--1);
+}
+.pnl-ctrl-label {
+  font-weight: 600; color: var(--fg);
+  margin-right: .25rem;
+}
+.pnl-radio-group { display: inline-flex; gap: .75rem; }
+.pnl-radio-group label {
+  display: inline-flex; align-items: center; gap: .25rem;
+  color: var(--fg-muted); cursor: pointer;
+}
+.pnl-radio-group input[type=radio] { accent-color: var(--accent); }
+.pnl-rates { color: var(--fg-muted); font-variant-numeric: tabular-nums; }
+
+.pnl-meta {
+  padding: .75rem 1.25rem;
+  margin-bottom: 1rem;
+  font-size: var(--step--1);
+  line-height: 1.7;
+  color: var(--fg-muted);
+}
+.pnl-meta-row { margin: .15rem 0; }
+.pnl-meta b { color: var(--fg); }
+
+.pnl-caption {
+  font-size: var(--step--1); color: var(--fg-muted);
+  margin: 0 0 .5rem;
+}
+
+.pnl-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  background: var(--bg-elev);
+  max-height: 70vh;
+}
+.pnl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  font-size: .82rem;
+}
+.pnl-table th, .pnl-table td {
+  border: 1px solid var(--border-soft);
+  padding: 3px 6px;
+  text-align: right;
+  white-space: nowrap;
+}
+.pnl-table th {
+  background: var(--bg-soft);
+  color: var(--fg);
+  font-weight: 600;
+  position: sticky; top: 0; z-index: 3;
+}
+.pnl-table th .pnl-up, .pnl-table th .pnl-down, .pnl-table th .pnl-wave {
+  font-size: .9em; margin-right: 2px;
+}
+.pnl-table .pnl-up   { color: var(--pos); }
+.pnl-table .pnl-down { color: var(--neg); }
+.pnl-table .pnl-wave { color: var(--warn); }
+.pnl-table .pnl-td-p, .pnl-table .pnl-th-p {
+  text-align: right;
+  background: var(--bg-soft);
+  font-weight: 600;
+  position: sticky; left: 0; z-index: 2;
+  min-width: 80px;
+}
+.pnl-table .pnl-th-p { z-index: 4; }
+.pnl-table .pnl-td-be, .pnl-table .pnl-th-be {
+  background: color-mix(in srgb, var(--warn) 12%, var(--bg-elev));
+  color: var(--warn); font-weight: 600;
+  position: sticky; left: 80px; z-index: 1;
+  min-width: 90px;
+  text-align: right;
+}
+.pnl-table .pnl-th-be { z-index: 3; }
+.pnl-table .pnl-pos { color: var(--pos); }
+.pnl-table .pnl-neg { color: var(--neg); }
+.pnl-table .pnl-warn { color: var(--warn); font-weight: 600; }
+.pnl-table tbody tr:hover td { background: var(--bg-soft); }
+.pnl-table tbody tr:hover .pnl-td-p,
+.pnl-table tbody tr:hover .pnl-td-be { background: color-mix(in srgb, var(--accent) 8%, var(--bg-soft)); }
+
+.pnl-tip {
+  position: fixed; z-index: 999;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-size: 11px; line-height: 1.6;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  pointer-events: none;
+  white-space: pre;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
+.pnl-formula {
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  padding: .75rem 1.25rem;
+  background: var(--bg-elev);
+}
+.pnl-formula summary {
+  cursor: pointer; font-weight: 600;
+  color: var(--fg);
+}
+.pnl-formula-body { margin-top: .75rem; color: var(--fg-muted); font-size: var(--step--1); }
+.pnl-formula-body p { margin: .25rem 0; }
+.pnl-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: var(--bg-soft);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: .85em;
+  display: inline-block;
+}
+
+/* 用博客已有的颜色 token(若未定义则兜底) */
+:root {
+  --pos: #d32f2f;
+  --neg: #388e3c;
+  --warn: #d97706;
+}
+:root[data-theme="dark"] {
+  --pos: #f87171;
+  --neg: #4ade80;
+  --warn: #fbbf24;
+}
+
+@media (max-width: 900px) {
+  .pnl-controls { gap: 1rem; }
+  .pnl-table { font-size: .75rem; }
+  .pnl-table th, .pnl-table td { padding: 2px 4px; }
+}
