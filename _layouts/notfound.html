@@ -3,7 +3,6 @@ layout: default
 ---
 {%- comment -%}
   notfound.html — 404 页（main 含 fourofour class）
+  期望 page 为 404.html front matter；body 由 {{ content }} 输出。
 {%- endcomment -%}
-<h1>404</h1>
-<p>这个页面不存在。可能链接已经过期,或者地址拼错了。</p>
-<p><a href="/">← 回到首页</a></p>
+{{ content }}

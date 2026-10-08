@@ -1,45 +1,51 @@
-{%- comment -%}
-  series-nav.html — 文章页内同专栏的「上一节 / 下一节」导航。
-  仅当 page.series 非空且同专栏除自身外 ≥ 1 篇非草稿时渲染。
-  顺序：site.posts 内 series == page.title 的成员，按 site.posts 默认 date desc。
-{%- endcomment -%}
-{%- assign member_list = '' | split: '' -%}
-{%- for m in site.posts -%}
-  {%- if m.series == page.series and m.draft != true -%}
-    {%- assign member_list = member_list | push: m -%}
-  {%- endif -%}
-{%- endfor -%}
-{%- assign cur_idx = -1 -%}
-{%- for m in member_list -%}
-  {%- if m.url == page.url -%}
-    {%- assign cur_idx = forloop.index0 -%}
-  {%- endif -%}
-{%- endfor -%}
-{%- if cur_idx >= 0 and member_list.size > 1 -%}
-{%- assign prev = nil -%}
-{%- assign next = nil -%}
-{%- if cur_idx < member_list.size | minus: 1 -%}
-  {%- assign prev = member_list[cur_idx | plus: 1] -%}
-{%- endif -%}
-{%- if cur_idx > 0 -%}
-  {%- assign next = member_list[cur_idx | minus: 1] -%}
-{%- endif -%}
-{%- if prev or next -%}
+{%- assign _series = page.series -%}
+{%- if _series and _series != 'null' and _series != '' -%}
+  {%- assign _members = site.posts | where_exp: 'm', "m.series == _series" | where_exp: 'm', "m.draft != true" -%}
+  {%- assign _members_idx = 0 -%}
+  {%- assign _cur_idx = -1 -%}
+  {%- for m in _members -%}
+    {%- if m.url == page.url -%}
+      {%- assign _cur_idx = forloop.index0 -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {%- if _cur_idx >= 0 and _members.size > 1 -%}
+    {%- assign _has_prev = false -%}
+    {%- assign _has_next = false -%}
+    {%- if _cur_idx < _members.size | minus: 1 -%}
+      {%- assign _has_prev = true -%}
+    {%- endif -%}
+    {%- if _cur_idx > 0 -%}
+      {%- assign _has_next = true -%}
+    {%- endif -%}
+    {%- if _has_prev or _has_next -%}
 <nav class="post-nav series-nav" aria-label="专栏导航">
-  {%- if prev -%}
-  <a class="post-nav-prev" href="{{ prev.url }}" rel="prev" aria-label="上一节:{{ prev.title }}">
+      {%- if _has_prev -%}
+        {%- assign _pi = _cur_idx | plus: 1 -%}
+        {%- for m in _members -%}
+          {%- if forloop.index0 == _pi -%}
+  <a class="post-nav-prev" href="{{ m.url }}" rel="prev" aria-label="上一节:{{ m.title }}">
     <span class="post-nav-label">← 上一节</span>
-    <span class="post-nav-title">{{ prev.title }}</span>
-    <time class="post-nav-date" datetime="{{ prev.date | date: '%Y-%m-%d' }}">{{ prev.date | date: '%Y-%m-%d' }}</time>
+    <span class="post-nav-title">{{ m.title }}</span>
+    <time class="post-nav-date" datetime="{{ m.date | date: '%Y-%m-%d' }}">{{ m.date | date: '%Y-%m-%d' }}</time>
   </a>
-  {%- endif -%}
-  {%- if next -%}
-  <a class="post-nav-next" href="{{ next.url }}" rel="next" aria-label="下一节:{{ next.title }}">
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {%- if _has_next -%}
+        {%- assign _ni = _cur_idx | minus: 1 -%}
+        {%- for m in _members -%}
+          {%- if forloop.index0 == _ni -%}
+  <a class="post-nav-next" href="{{ m.url }}" rel="next" aria-label="下一节:{{ m.title }}">
     <span class="post-nav-label">下一节 →</span>
-    <span class="post-nav-title">{{ next.title }}</span>
-    <time class="post-nav-date" datetime="{{ next.date | date: '%Y-%m-%d' }}">{{ next.date | date: '%Y-%m-%d' }}</time>
+    <span class="post-nav-title">{{ m.title }}</span>
+    <time class="post-nav-date" datetime="{{ m.date | date: '%Y-%m-%d' }}">{{ m.date | date: '%Y-%m-%d' }}</time>
   </a>
-  {%- endif -%}
+            {%- break -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
 </nav>
-{%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
 {%- endif -%}

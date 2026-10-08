@@ -27,6 +27,9 @@
   {%- include jsonld-blogposting.html -%}
   {%- include jsonld-breadcrumb.html -%}
   {%- seo title=false -%}
+{%- elsif page.layout == 'home' or page.layout == 'page' and page.url == '/about/' -%}
+  {%- include jsonld-person.html -%}
+  {%- seo -%}
 {%- else -%}
   {%- seo -%}
 {%- endif -%}

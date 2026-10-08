@@ -6,7 +6,8 @@ layout: default
 {%- endcomment -%}
 <h1>归档</h1>
 {%- assign groups = site.posts | group_by_exp: 'item', "item.date | date: '%Y-%m'" -%}
-{%- for g in groups reversed -%}
+{%- assign groups = groups | sort: 'name' | reverse -%}
+{%- for g in groups -%}
   {%- assign parts = g.name | split: '-' -%}
   {%- assign year = parts[0] -%}
   {%- assign month = parts[1] -%}

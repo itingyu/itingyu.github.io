@@ -4,6 +4,7 @@ layout: default
 {%- comment -%}
   series-detail.html — 单专栏页（_series/<显示名>.md → /series/<显示名>/）
   复用 ul.post-list 卡片结构（§4.5 单专栏）。
+  series-nav 用于 article 页内,本页不消费。
 {%- endcomment -%}
 <h1>专栏：{{ page.title }}</h1>
 <p><a href="/series/">← 返回全部专栏</a></p>
@@ -17,3 +18,24 @@ layout: default
     {%- include post-card.html post=p show_first_tag=false -%}
   {%- endfor -%}
 </ul>
+
+{%- assign _has_prev = false -%}
+{%- assign _has_next = false -%}
+{%- for m in members -%}
+  {%- assign _idx = forloop.index0 -%}
+  {%- assign _next_idx = _idx | minus: 1 -%}
+  {%- assign _prev_idx = _idx | plus: 1 -%}
+  {%- if _next_idx >= 0 -%}{%- assign _has_next = true -%}{%- endif -%}
+  {%- if _prev_idx < members.size -%}{%- assign _has_prev = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if _has_prev or _has_next -%}
+<nav class="series-nav-row" aria-label="专栏导航">
+  <p class="series-nav-title">本专栏文章</p>
+  {%- assign _seen_cur = false -%}
+  {%- for m in members -%}
+    <a class="chip" href="{{ m.url }}" data-series="{{ page.title }}">{{ m.title }}</a>
+  {%- endfor -%}
+</nav>
+{%- endif -%}
+
+{%- include series-nav.html -%}
