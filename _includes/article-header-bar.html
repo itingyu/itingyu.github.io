@@ -1,12 +1,12 @@
 {%- comment -%}
   article-header-bar.html — 文章页顶部标题栏
+  参数: post(可选) — 文章对象,默认 page
   显示当前专栏 + 子专栏(可点击跳走)
-  替代 / 强化顶部 breadcrumb
-  视觉: 横向条, 左侧 2 段面包屑式 chip (专栏/子专栏), 右侧 stats
 {%- endcomment -%}
-{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
-{%- assign series_page = site.series | where: 'title', page.series | first -%}
-{%- assign s_count = site.posts | where_exp: 'p', 'p.series == page.series' | size -%}
+{%- assign _post = include.post | default: page -%}
+{%- assign col_page = site.columns | where: 'slug', _post.column | first -%}
+{%- assign series_page = site.series | where: 'title', _post.series | first -%}
+{%- assign s_count = site.posts | where_exp: 'p', 'p.series == _post.series' | size -%}
 
 <header class="article-bar" aria-label="专栏与子专栏">
   <div class="article-bar-main">

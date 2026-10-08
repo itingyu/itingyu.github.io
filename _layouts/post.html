@@ -3,62 +3,8 @@ layout: default
 main_class: layout-3col
 ---
 {%- comment -%}
-  post.html — 单篇文章页
-  v3 三区布局:
-    - 顶部: header bar (专栏 + 子专栏, 可点击)
-    - 左侧: 文章树 (专栏→子专栏→文章)
-    - 中央: 文章正文
-    - 右侧: 大纲 (TOC, JS 运行时构建)
-  显式章节信息(若有 chapter 字段)
-  无相关文章、无订阅
+  post.html — 单篇文章页(已用 _includes/article-body.html 提取)
+  真正的渲染逻辑在 article-body.html,接受 post 参数
+  这里是入口,传 page 进去
 {%- endcomment -%}
-{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
-{%- assign series_page = site.series | where: 'title', page.series | first -%}
-
-<div class="layout-with-sidebar">
-  {%- include sidebar-tree.html -%}
-
-  <div class="content-area">
-    {%- include article-header-bar.html -%}
-
-    <article>
-      {%- include post-header.html -%}
-      {%- if page.chapter or page.chapter_title -%}
-      <p class="chapter-meta">
-        {%- if page.chapter -%}<span class="chapter-num">{{ page.chapter }}</span> · {%- endif -%}
-        {%- if page.chapter_title -%}<span class="chapter-title">{{ page.chapter_title }}</span>{%- endif -%}
-      </p>
-      {%- endif -%}
-      {{ content }}
-      <div class="callout callout-note">
-        <strong>说明</strong> · 本站内容均为学习笔记与经验总结,所有菜谱与技法请结合实际食材、季节与个人口味灵活调整。涉及生食、营养与健康的内容仅供参考,特殊体质或疾病请咨询专业营养师/医生。
-      </div>
-    </article>
-    {%- include series-nav.html -%}
-
-    <nav class="post-nav" aria-label="文章导航">
-      {%- if page.previous -%}
-      <a class="post-nav-prev" href="{{ page.previous.url }}" rel="prev" aria-label="上一篇:{{ page.previous.title }}">
-        <span class="post-nav-label">← 上一篇</span>
-        <span class="post-nav-title">{{ page.previous.title }}</span>
-        <time class="post-nav-date" datetime="{{ page.previous.date | date: '%Y-%m-%d' }}">{{ page.previous.date | date: '%Y-%m-%d' }}</time>
-      </a>
-      {%- endif -%}
-      {%- if page.next -%}
-      <a class="post-nav-next" href="{{ page.next.url }}" rel="next" aria-label="下一篇:{{ page.next.title }}">
-        <span class="post-nav-label">下一篇 →</span>
-        <span class="post-nav-title">{{ page.next.title }}</span>
-        <time class="post-nav-date" datetime="{{ page.next.date | date: '%Y-%m-%d' }}">{{ page.next.date | date: '%Y-%m-%d' }}</time>
-      </a>
-      {%- endif -%}
-    </nav>
-
-    <footer class="article-footer">
-      <p>本页最后更新：{{ page.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ page.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
-    </footer>
-  </div>
-
-  {%- include article-toc.html -%}
-</div>
-
-<script defer src="/assets/toc.js"></script>
+{% include article-body.html post=page %}

@@ -1859,7 +1859,7 @@ h3:hover > .heading-anchor,
   box-shadow: none;
   font-size: var(--step--1);
 }
-.article-toc.is-empty { display: none; }
+.article-toc.is-empty .article-toc-nav { font-size: .9em; color: var(--fg-muted); font-style: italic; }
 .article-toc.is-collapsed .article-toc-nav { display: none; }
 .article-toc-head { display: none; }
 .article-toc-toggle {
@@ -1927,22 +1927,19 @@ h3:hover > .heading-anchor,
 .article-toc::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
 
 /* 响应式:三档 */
-/* >= 1280: 完整三栏(左树 + 中正文 + 右 TOC) */
+/* 始终保持三栏比例(左树 + 中正文 + 右 toc),宽度变化时按比例缩放,不会因目录空就回到两栏居中 */
 @media (max-width: 1279px) {
   .layout-with-sidebar {
-    grid-template-columns: 240px minmax(0, 1fr);
-    grid-template-areas: "tree content";
+    grid-template-columns: 200px minmax(0, 1fr) 180px;
+    grid-template-areas: "tree content toc";
   }
-  .layout-with-sidebar > .article-toc { display: none; }
 }
-/* 901-1024: 侧栏缩小(树还在左,只是宽度 200) */
 @media (max-width: 1024px) {
-  .layout-with-sidebar,
-  .layout-with-sidebar--2col {
-    grid-template-columns: 200px minmax(0, 1fr);
+  .layout-with-sidebar {
+    grid-template-columns: 180px minmax(0, 1fr) 160px;
   }
 }
-/* <= 900: 单列(树折叠到顶部抽屉;正文优先) */
+/* <= 900: 单列(树折叠到顶部抽屉;正文优先;右 toc 仍隐藏) */
 @media (max-width: 900px) {
   .layout-with-sidebar,
   .layout-with-sidebar--2col {
@@ -1950,7 +1947,8 @@ h3:hover > .heading-anchor,
     grid-template-areas: "content";
   }
   .layout-with-sidebar > .sidebar-tree,
-  .layout-with-sidebar--2col > .sidebar-tree { display: none; }
+  .layout-with-sidebar--2col > .sidebar-tree,
+  .layout-with-sidebar > .article-toc { display: none; }
   .article-bar { padding: .75rem 1rem; }
   .article-bar-title { font-size: var(--step--1); }
 }

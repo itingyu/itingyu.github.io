@@ -1,4 +1,16 @@
 ---
-layout: posts
-title: 文章
+layout: default
+main_class: layout-3col
+nav_active: posts
+permalink: /posts/
 ---
+{%- comment -%}
+  posts/index.html — /posts/ 直接显示最新一篇文章
+  像打开一篇文章那样,左 sidebar tree + 中内容 + 右 toc
+  老的 /posts/ 列表(分页)→ 已移到 /archive/
+{%- endcomment -%}
+{% if site.posts and site.posts.size > 0 %}
+  {% include article-body.html post=site.posts.first %}
+{% else %}
+  <p>暂无文章。</p>
+{% endif %}

@@ -1,0 +1,58 @@
+{%- comment -%}
+  article-body.html — 单篇文章主体渲染
+  接收参数: post(必填) — 一篇 post 对象
+  用法:
+    {% include article-body.html post=page %}              # 在 post layout 中
+    {% include article-body.html post=site.posts.first %}  # 在文章首页(展示最新一篇)
+  包括:左 sidebar-tree + header bar + post 主体 + post-nav + 右 article-toc
+{%- endcomment -%}
+{%- assign col_page = site.columns | where: 'slug', include.post.column | first -%}
+{%- assign series_page = site.series | where: 'title', include.post.series | first -%}
+
+<div class="layout-with-sidebar">
+  {%- include sidebar-tree.html -%}
+
+  <div class="content-area">
+    {%- include article-header-bar.html post=include.post -%}
+
+    <article>
+      {%- include post-header.html post=include.post -%}
+      {%- if include.post.chapter or include.post.chapter_title -%}
+      <p class="chapter-meta">
+        {%- if include.post.chapter -%}<span class="chapter-num">{{ include.post.chapter }}</span> · {%- endif -%}
+        {%- if include.post.chapter_title -%}<span class="chapter-title">{{ include.post.chapter_title }}</span>{%- endif -%}
+      </p>
+      {%- endif -%}
+      {{ include.post.content }}
+      <div class="callout callout-note">
+        <strong>说明</strong> · 本站内容均为学习笔记与经验总结,所有菜谱与技法请结合实际食材、季节与个人口味灵活调整。涉及生食、营养与健康的内容仅供参考,特殊体质或疾病请咨询专业营养师/医生。
+      </div>
+    </article>
+    {%- include series-nav.html post=include.post -%}
+
+    <nav class="post-nav" aria-label="文章导航">
+      {%- if include.post.previous -%}
+      <a class="post-nav-prev" href="{{ include.post.previous.url }}" rel="prev" aria-label="上一篇:{{ include.post.previous.title }}">
+        <span class="post-nav-label">← 上一篇</span>
+        <span class="post-nav-title">{{ include.post.previous.title }}</span>
+        <time class="post-nav-date" datetime="{{ include.post.previous.date | date: '%Y-%m-%d' }}">{{ include.post.previous.date | date: '%Y-%m-%d' }}</time>
+      </a>
+      {%- endif -%}
+      {%- if include.post.next -%}
+      <a class="post-nav-next" href="{{ include.post.next.url }}" rel="next" aria-label="下一篇:{{ include.post.next.title }}">
+        <span class="post-nav-label">下一篇 →</span>
+        <span class="post-nav-title">{{ include.post.next.title }}</span>
+        <time class="post-nav-date" datetime="{{ include.post.next.date | date: '%Y-%m-%d' }}">{{ include.post.next.date | date: '%Y-%m-%d' }}</time>
+      </a>
+      {%- endif -%}
+    </nav>
+
+    <footer class="article-footer">
+      <p>本页最后更新：{{ include.post.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ include.post.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
+    </footer>
+  </div>
+
+  {%- include article-toc.html -%}
+</div>
+
+<script defer src="/assets/toc.js"></script>

@@ -8,7 +8,7 @@ timezone: Asia/Shanghai
 permalink: /notes/:column/:series/:slug/
 
 paginate: 12
-paginate_path: /posts/page:num/
+paginate_path: /archive/page:num/
 
 markdown: kramdown
 highlighter: rouge

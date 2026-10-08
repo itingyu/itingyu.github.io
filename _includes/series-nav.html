@@ -1,10 +1,14 @@
-{%- assign _series = page.series -%}
+{%- comment -%}
+  series-nav.html — 同子专栏内上下节导航
+  参数: post(可选) — 文章对象,默认 page
+{%- endcomment -%}
+{%- assign _post = include.post | default: page -%}
+{%- assign _series = _post.series -%}
 {%- if _series and _series != 'null' and _series != '' -%}
-  {%- assign _members = site.posts | where_exp: 'm', "m.series == _series" | where_exp: 'm', "m.draft != true" -%}
-  {%- assign _members_idx = 0 -%}
+  {%- assign _members = site.posts | where_exp: 'm', "m.series == _series" | where_exp: 'm', 'm.draft != true' -%}
   {%- assign _cur_idx = -1 -%}
   {%- for m in _members -%}
-    {%- if m.url == page.url -%}
+    {%- if m.url == _post.url -%}
       {%- assign _cur_idx = forloop.index0 -%}
     {%- endif -%}
   {%- endfor -%}

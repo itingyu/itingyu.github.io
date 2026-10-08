@@ -1,22 +1,23 @@
 {%- comment -%}
   post-header.html — 文章页 article-header
-  渲染：h1 + post-meta(time / tags / column chip / series chip / reading-time / word-count) + post-excerpt
+  参数: post(可选) — 文章对象,默认 page
 {%- endcomment -%}
-{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
+{%- assign _post = include.post | default: page -%}
+{%- assign col_page = site.columns | where: 'slug', _post.column | first -%}
 <header class="article-header">
-  <h1>{{ page.title }}</h1>
+  <h1>{{ _post.title }}</h1>
   <div class="post-meta">
-    <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%Y-%m-%d' }}</time>
+    <time datetime="{{ _post.date | date: '%Y-%m-%d' }}">{{ _post.date | date: '%Y-%m-%d' }}</time>
     {%- if col_page -%}
     <span class="dot">·</span>
     <a class="chip" href="{{ col_page.url }}" data-column="{{ col_page.slug }}">{{ col_page.title }}</a>
     {%- endif -%}
-    {%- if page.series -%}
+    {%- if _post.series -%}
     <span class="dot">·</span>
-    <a class="chip" href="{{ '/series/' | append: page.series | append: '/' }}" data-series="{{ page.series }}">{{ page.series }}</a>
+    <a class="chip" href="{{ '/series/' | append: _post.series | append: '/' }}" data-series="{{ _post.series }}">{{ _post.series }}</a>
     {%- endif -%}
-    {%- if page.tags and page.tags.size > 0 -%}
-      {%- for t in page.tags -%}
+    {%- if _post.tags and _post.tags.size > 0 -%}
+      {%- for t in _post.tags -%}
         <span class="dot">·</span>
         {%- if t.tag -%}
           <a class="chip" href="{{ '/tags/' | append: t.tag | append: '/' }}" data-tag="{{ t.tag }}">{{ t.title | default: t.tag }}</a>
@@ -30,5 +31,5 @@
     <span class="dot">·</span>
     <span class="word-count" data-word-count>统计中…</span>
   </div>
-  <p class="post-excerpt">{{ page.excerpt }}</p>
+  <p class="post-excerpt">{{ _post.excerpt }}</p>
 </header>
