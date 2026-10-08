@@ -1,0 +1,30 @@
+{
+  "_comment": "mkdocs → Jekyll 迁移试点(5 篇,跨 4 大专栏)",
+  "items": [
+    {
+      "src": "/notes/知识宝典/01-编程语言精进/1.1.1-Go并发底层-GMP调度器源码走读.md",
+      "series": "编程语言精进",
+      "excerpt": "从 G/M/P 三角色到 schedule() 主循环,手画调度模型走读 Go 运行时源码。"
+    },
+    {
+      "src": "/notes/知识宝典/02-AI与大模型工程/2.1.1-LLM部署-vLLM-TGI-TensorRT-LLM对比.md",
+      "series": "AI 与大模型工程",
+      "excerpt": "vLLM / TGI / TensorRT-LLM 三大主流 LLM 推理框架选型对比与生产实践。"
+    },
+    {
+      "src": "/notes/AI学习笔记/01-基础筑基/Day01-Python基础速通.md",
+      "series": "AI 学习笔记",
+      "excerpt": "30 天 AI 学习计划 Day 1:Python 基础语法速通,为后续机器学习打地基。"
+    },
+    {
+      "src": "/notes/股票专栏/01-入门基础/01-A股的本质与散户生存法则.md",
+      "series": "金融市场观察",
+      "excerpt": "A 股的本质与散户生存法则:8 大机制扣 20% 资金,长期慢慢抽血。"
+    },
+    {
+      "src": "/notes/职场调研/04-2026资深程序员按学习难度排的路线图.md",
+      "series": "职场调研",
+      "excerpt": "2026 资深程序员按学习难度排的完整路线图:从基础筑基到主导能力。"
+    }
+  ]
+}
