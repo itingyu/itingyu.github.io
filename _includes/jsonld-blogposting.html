@@ -1,0 +1,65 @@
+{%- comment -%}
+  jsonld-blogposting.html — 文章页 BlogPosting JSON-LD（§D4 + AC-08）
+
+  用法：_layouts/post.html 在 <head> 内调用 {% include jsonld-blogposting.html %}
+  约束：jekyll-seo-tag 在文章页被 head.html 屏蔽（head.html 用 unless page.layout == 'post' 包住 seo 标签），
+        本 include 是文章页唯一 BlogPosting 来源，AC-08 断言「恰好 1 个」。
+
+  字段契约：
+  - 必填: headline / datePublished / dateModified / author / url / description
+  - 条件: articleSection（文章有 series 时填显示名原值）
+            keywords = tags + 系列名（如果有）
+            hasPart = 同专栏非自身非草稿（除自身外 ≥ 1 篇才出现，排除自身；kitchen-07 长度 == 14）
+
+  datePublished / dateModified 输 date-only（§D14 对外一律渲染 date-only）
+{%- endcomment -%}
+{%- assign post_url = site.url | append: page.url -%}
+{%- assign date_published = page.date | date: "%Y-%m-%d" -%}
+{%- if page.last_modified_at -%}
+{%- assign date_modified = page.last_modified_at | date: "%Y-%m-%d" -%}
+{%- else -%}
+{%- assign date_modified = date_published -%}
+{%- endif -%}
+{%- assign kw_list = "" -%}
+{%- if page.tags -%}
+{%- assign kw_list = page.tags | join: "," -%}
+{%- endif -%}
+{%- if page.series -%}
+{%- if kw_list != "" -%}
+{%- assign kw_list = kw_list | append: "," | append: page.series -%}
+{%- else -%}
+{%- assign kw_list = page.series -%}
+{%- endif -%}
+{%- endif -%}
+{%- assign kw_count = 0 -%}
+{%- assign kw_json = "" -%}
+{%- if kw_list != "" -%}
+{%- assign kw_items = kw_list | split: "," -%}
+{%- assign kw_count = kw_items | size -%}
+{%- endif -%}
+{%- assign hp_count = 0 -%}
+{%- if page.series -%}
+{%- assign hp_count = site.posts | where: "series", page.series | where_exp: "p", "p.url != page.url" | size -%}
+{%- endif -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ page.title | jsonify }},
+  "datePublished": "{{ date_published }}",
+  "dateModified": "{{ date_modified }}",
+  "author": { "@type": "Person", "name": "itingyu" },
+  "url": "{{ post_url }}",
+  "description": {{ page.excerpt | jsonify }}{%- if page.series %},
+  "articleSection": {{ page.series | jsonify }}{%- endif %}{%- if kw_count > 0 %},
+  "keywords": [{%- for kw in kw_items %}{% unless forloop.first %}, {% endunless %}{{ kw | jsonify }}{% endfor %}]{% endif %}{%- if hp_count > 0 %},
+  "hasPart": [
+{%- assign series_others = site.posts | where: "series", page.series | where_exp: "p", "p.url != page.url" -%}
+{%- for p in series_others %}    {"@type":"BlogPosting","headline":{{ p.title | jsonify }},"url":"{{ site.url }}{{ p.url }}"}
+{%- unless forloop.last -%}
+,
+{%- endunless -%}
+{%- endfor %}
+  ]{%- endif %}
+}
+</script>
