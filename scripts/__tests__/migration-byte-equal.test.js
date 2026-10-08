@@ -14,9 +14,9 @@ const FIX = path.join(__dirname, 'fixtures', 'migration-byte-equal');
 // lastmod fields and in assets/search-index.json `generated`. Without a frozen
 // build date, those bytes drift daily and byte-equality is impossible.
 //
-// M6.5 (AIWORK1-53, 329afdd) shipped the post-build golden at UTC 2026-09-26.
+// AIWORK1-82 (M6.5 收尾) shipped the post-build golden at UTC 2026-10-08.
 // Pin the build clock to that date so the byte-equal contract is reproducible.
-const MOCK_BUILD_ISO = '2026-09-26T00:00:00.000Z';
+const MOCK_BUILD_ISO = '2026-10-08T00:00:00.000Z';
 
 let _savedDate;
 function withMockedDate(fn) {
@@ -38,14 +38,22 @@ function sha256(buf) {
 }
 
 function makeProject() {
+  // M6.5 收尾后 v2 流水线已有 20 篇 posts/<slug>/index.md;为做 v2 MD→HTML
+  // 重构后的 byte-equal 回测,把所有 MD 源 + 封面图都搬到 tmp 的 posts/ 下,
+  // 这样 build 出来的产物与仓内已 build 的产物应该字节级一致。
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'migration-byte-equal-'));
   fs.mkdirSync(path.join(tmp, 'posts'), { recursive: true });
-  for (const slug of ['welcome', 'finance-2026-09-26', 'sing-box-setup-experience']) {
-    const srcDir = path.join(FIX, 'sources', slug);
+  const srcRoot = path.join(REPO_ROOT, 'posts');
+  for (const slug of fs.readdirSync(srcRoot)) {
+    const srcDir = path.join(srcRoot, slug);
+    const stat = fs.statSync(srcDir);
+    if (!stat.isDirectory()) continue;
     const dstDir = path.join(tmp, 'posts', slug);
     fs.mkdirSync(dstDir, { recursive: true });
-    fs.copyFileSync(path.join(srcDir, 'index.md'), path.join(dstDir, 'index.md'));
-    fs.copyFileSync(path.join(srcDir, 'cover.svg'), path.join(dstDir, 'cover.svg'));
+    const md = path.join(srcDir, 'index.md');
+    const cover = path.join(srcDir, 'cover.svg');
+    if (fs.existsSync(md)) fs.copyFileSync(md, path.join(dstDir, 'index.md'));
+    if (fs.existsSync(cover)) fs.copyFileSync(cover, path.join(dstDir, 'cover.svg'));
   }
   return tmp;
 }
@@ -73,9 +81,10 @@ function assertByteEqual(label, builtPath, goldenPath) {
   );
 }
 
-const SLUGS = ['welcome', 'finance-2026-09-26', 'sing-box-setup-experience'];
+const POST_SLUGS = fs.readdirSync(path.join(REPO_ROOT, 'posts'))
+  .filter(name => fs.statSync(path.join(REPO_ROOT, 'posts', name)).isDirectory());
 
-for (const slug of SLUGS) {
+for (const slug of POST_SLUGS) {
   test(`migration byte-equal: posts/${slug}/index.html`, () => {
     const tmp = makeProject();
     try {

@@ -248,7 +248,7 @@ function parseYamlFrontmatter(mdText, slug) {
   // 已知键集合(用于 typo 警告)
   const KNOWN_KEYS = new Set([
     'title', 'description', 'excerpt', 'date', 'tags',
-    'slug', 'author', 'cover', 'series', 'pinned', 'draft', 'canonical',
+    'slug', 'author', 'cover', 'series', 'seriesDescription', 'pinned', 'draft', 'canonical',
   ]);
   // typo 字典(简版)
   const TYPO = {
@@ -325,6 +325,7 @@ function parseYamlFrontmatter(mdText, slug) {
       case 'author':
       case 'cover':
       case 'series':
+      case 'seriesDescription':
       case 'canonical': {
         const v = stripQuotes(value).trim();
         if (v === '') break;
@@ -353,6 +354,8 @@ function parseYamlFrontmatter(mdText, slug) {
 
 /** 把 parseYamlFrontmatter 输出转成与 parseFrontmatter 兼容的 shape(便于 JSON-LD 5 函数复用)。 */
 function normalizePostMeta(fm, slug) {
+  const seriesRaw = fm.series || null;
+  const series = seriesRaw ? { name: seriesRaw, slug: slugifySeries(seriesRaw) } : null;
   return {
     slug,
     title: fm.title || '',
@@ -360,6 +363,8 @@ function normalizePostMeta(fm, slug) {
     date: fm.date || null,
     tags: Array.isArray(fm.tags) ? fm.tags.map(t => ({ slug: t, name: t })) : [],
     draft: !!fm.draft,
+    series,
+    seriesDescription: fm.seriesDescription || null,
     warnings: fm.warnings || [],
   };
 }
@@ -1395,12 +1400,8 @@ function renderSeriesRSS(series, posts, rootDir = ROOT) {
     const link = `${SITE_ORIGIN}/posts/${p.slug}/`;
     const pubDate = p.date ? rfc822(p.date) : lastBuild;
     const cats = (p.tags || []).map(t => `      <category>${escapeXML(t.name)}</category>`).join('\n');
-    let fullBody = '';
-    const postFile = path.join(rootDir, 'posts', p.slug, 'index.html');
-    if (fs.existsSync(postFile)) {
-      const raw = fs.readFileSync(postFile, 'utf8');
-      fullBody = extractArticleBody(raw);
-    }
+    // v2:全文从 .md 走;不依赖 build 写入的 index.html(保证 series RSS 二次构建幂等)
+    const fullBody = extractArticleBodyForPost(p, rootDir);
     return `    <item>
       <title>${escapeXML(p.title)}</title>
       <link>${link}</link>
