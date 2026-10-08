@@ -1,0 +1,56 @@
+title: itingyu · 博客
+description: itingyu 的个人博客。记录编程学习、金融市场观察与算法可视化笔记。
+lang: zh-CN
+url: https://itingyu.github.io
+baseurl: ""
+timezone: Asia/Shanghai
+
+permalink: /posts/:slug/
+
+paginate: 12
+paginate_path: /posts/page:num/
+
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  auto_ids: true
+
+plugins:
+  - jekyll-paginate
+  - jekyll-seo-tag
+  - jekyll-optional-front-matter
+
+safe: true
+
+collections:
+  series:
+    output: true
+    permalink: /series/:name/
+  tags:
+    output: true
+    permalink: /tags/:name/
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+  - scope:
+      path: ""
+    values:
+      layout: page
+
+exclude:
+  - node_modules/
+  - package.json
+  - package-lock.json
+  - scripts/
+  - README.md
+  - CHANGELOG.md
+  - design*.md
+  - .githooks/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
