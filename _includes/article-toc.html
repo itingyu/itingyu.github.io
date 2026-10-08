@@ -1,0 +1,13 @@
+{%- comment -%}
+  article-toc.html — 文章大纲(右侧)占位
+  内容由 assets/toc.js 运行时从 article 内的 H2/H3 抽取填充
+{%- endcomment -%}
+<aside class="article-toc" aria-label="本页大纲" data-toc-sidebar>
+  <div class="article-toc-head">
+    <h3>本页大纲</h3>
+    <button class="article-toc-toggle" type="button" aria-expanded="true" aria-label="折叠大纲">▾</button>
+  </div>
+  <nav class="article-toc-nav" data-toc-nav aria-live="polite">
+    <p class="article-toc-empty">载入中…</p>
+  </nav>
+</aside>

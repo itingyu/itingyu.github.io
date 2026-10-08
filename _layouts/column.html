@@ -11,7 +11,7 @@ layout: default
 {%- assign all_series = site.series | where: 'column', col_slug -%}
 {%- assign all_posts = site.posts | where: 'column', col_slug -%}
 
-<div class="layout-with-sidebar">
+<div class="layout-with-sidebar layout-with-sidebar--2col">
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">

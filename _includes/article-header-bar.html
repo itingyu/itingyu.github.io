@@ -1,0 +1,31 @@
+{%- comment -%}
+  article-header-bar.html — 文章页顶部标题栏
+  显示当前专栏 + 子专栏(可点击跳走)
+  替代 / 强化顶部 breadcrumb
+  视觉: 横向条, 左侧 2 段面包屑式 chip (专栏/子专栏), 右侧 stats
+{%- endcomment -%}
+{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
+{%- assign series_page = site.series | where: 'title', page.series | first -%}
+{%- assign s_count = site.posts | where_exp: 'p', 'p.series == page.series' | size -%}
+
+<header class="article-bar" aria-label="专栏与子专栏">
+  <div class="article-bar-main">
+    {%- if col_page -%}
+    <a class="article-bar-chip article-bar-col" href="{{ col_page.url }}" data-column="{{ col_page.slug }}">
+      <span class="article-bar-eyebrow">专栏</span>
+      <span class="article-bar-title">{{ col_page.title }}</span>
+    </a>
+    <span class="article-bar-sep" aria-hidden="true">›</span>
+    {%- endif -%}
+    {%- if series_page -%}
+    <a class="article-bar-chip article-bar-series" href="{{ series_page.url }}" data-series="{{ series_page.title }}">
+      <span class="article-bar-eyebrow">子专栏</span>
+      <span class="article-bar-title">{{ series_page.title }}</span>
+      <span class="article-bar-meta">{{ s_count }} 篇</span>
+    </a>
+    {%- endif -%}
+  </div>
+  {%- if series_page and series_page.description -%}
+  <p class="article-bar-desc">{{ series_page.description }}</p>
+  {%- endif -%}
+</header>

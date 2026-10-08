@@ -3,10 +3,13 @@ layout: default
 ---
 {%- comment -%}
   post.html — 单篇文章页
-  显式面包屑:首页 / 专栏 / 子专栏 / 文章
+  v3 三区布局:
+    - 顶部: header bar (专栏 + 子专栏, 可点击)
+    - 左侧: 文章树 (专栏→子专栏→文章)
+    - 中央: 文章正文
+    - 右侧: 大纲 (TOC, JS 运行时构建)
   显式章节信息(若有 chapter 字段)
   无相关文章、无订阅
-  v2:加侧边栏文章树(专栏→子专栏→文章)
 {%- endcomment -%}
 {%- assign col_page = site.columns | where: 'slug', page.column | first -%}
 {%- assign series_page = site.series | where: 'title', page.series | first -%}
@@ -15,19 +18,7 @@ layout: default
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">
-    <nav class="breadcrumbs" aria-label="面包屑">
-      <a href="/">首页</a>
-      <span class="bc-sep">/</span>
-      {%- if col_page -%}
-      <a href="{{ col_page.url }}">{{ col_page.title }}</a>
-      <span class="bc-sep">/</span>
-      {%- endif -%}
-      {%- if series_page -%}
-      <a href="{{ series_page.url }}">{{ series_page.title }}</a>
-      <span class="bc-sep">/</span>
-      {%- endif -%}
-      <span>{{ page.title }}</span>
-    </nav>
+    {%- include article-header-bar.html -%}
 
     <article>
       {%- include post-header.html -%}
@@ -65,4 +56,8 @@ layout: default
       <p>本页最后更新：{{ page.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ page.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
     </footer>
   </div>
+
+  {%- include article-toc.html -%}
 </div>
+
+<script defer src="/assets/toc.js"></script>

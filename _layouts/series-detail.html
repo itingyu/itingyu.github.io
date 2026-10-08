@@ -10,7 +10,7 @@ layout: default
 {%- assign col_page = site.columns | where: 'slug', page.column | first -%}
 {%- assign members = site.posts | where_exp: 'p', 'p.series == page.title' -%}
 
-<div class="layout-with-sidebar">
+<div class="layout-with-sidebar layout-with-sidebar--2col">
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">
