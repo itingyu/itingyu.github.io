@@ -2,7 +2,7 @@
 layout: post
 title: "5.3.1 Chaos Engineering 原则 + ChaosBlade / Litmus / Gremlin 对比"
 date: 2026-07-06 00:00:00 +0800
-series: "性能与可靠性"
+series: prog-eng
 tags:
   - "Chaos Engineering"
   - "ChaosBlade"
@@ -14,8 +14,8 @@ excerpt: "混沌工程全栈 —— Netflix Chaos Monkey 起源 + ChaosBlade / L
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%80%A7/531-chaos-engineering-%E5%8E%9F%E5%88%99-chaosblade-litmus-gremlin/
+column: prog
+permalink: /notes/prog/prog-eng/531-chaos-engineering-%E5%8E%9F%E5%88%99-chaosblade-litmus-gremlin/
 ---
 
 

@@ -2,7 +2,7 @@
 layout: post
 title: "2.1.4 模型蒸馏 · Knowledge Distillation 能力迁移"
 date: 2026-07-06 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "Knowledge Distillation"
   - "Teacher-Student"
@@ -14,8 +14,8 @@ excerpt: "大模型能力向小模型迁移的工程化范式 —— Logits / Fe
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/214-%E6%A8%A1%E5%9E%8B%E8%92%B8%E9%A6%8F-knowledge-distillation-%E8%83%BD%E5%8A%9B%E8%BF%81%E7%A7%BB/
+column: prog
+permalink: /notes/prog/ai-llm/214-%E6%A8%A1%E5%9E%8B%E8%92%B8%E9%A6%8F-knowledge-distillation-%E8%83%BD%E5%8A%9B%E8%BF%81%E7%A7%BB/
 ---
 
 

@@ -2,7 +2,7 @@
 layout: post
 title: "3.3.1 K8s 核心对象 · Pod / Deployment / StatefulSet / DaemonSet"
 date: 2026-07-06 00:00:00 +0800
-series: "架构设计进阶"
+series: prog-eng
 tags:
   - "K8s"
   - "Pod"
@@ -16,8 +16,8 @@ excerpt: "K8s 核心对象实战 —— Pod / Deployment / StatefulSet / DaemonS
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%BF%9B%E9%98%B6/331-k8s-%E6%A0%B8%E5%BF%83%E5%AF%B9%E8%B1%A1-pod-deployment-statefulset-daemonset/
+column: prog
+permalink: /notes/prog/prog-eng/331-k8s-%E6%A0%B8%E5%BF%83%E5%AF%B9%E8%B1%A1-pod-deployment-statefulset-daemonset/
 ---
 
 

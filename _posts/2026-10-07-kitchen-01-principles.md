@@ -4,12 +4,12 @@ title: "厨房原理总论"
 date: 2026-10-07 22:00:00 +0800
 tags: [cooking, kitchen, principles]
 excerpt: "烹饪的\"理\"先于\"技\"。理解了底层原理,任何菜谱都能举一反三。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-01-principles/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-01-principles/
 ---
 
 # 01 · 厨房原理总论

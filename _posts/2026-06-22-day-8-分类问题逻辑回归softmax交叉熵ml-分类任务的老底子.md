@@ -2,13 +2,13 @@
 layout: post
 title: "Day 8｜分类问题:逻辑回归、Softmax、交叉熵,ML 分类任务的「老底子」（AI 学习笔记 · 经典机器学习周 · 第 8 篇）"
 date: 2026-06-22 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-8-%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92softmax%E4%BA%A4%E5%8F%89%E7%86%B5ml-%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1%E7%9A%84%E8%80%81%E5%BA%95%E5%AD%90/
+column: ai
+permalink: /notes/ai/ai-basics/day-8-%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92softmax%E4%BA%A4%E5%8F%89%E7%86%B5ml-%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1%E7%9A%84%E8%80%81%E5%BA%95%E5%AD%90/
 ---
 
 

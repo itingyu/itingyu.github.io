@@ -2,7 +2,7 @@
 layout: post
 title: "1.1.3 Go 性能调优 · pprof 与 trace 工具链"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Go"
   - "pprof"
@@ -17,8 +17,8 @@ excerpt: "CPU profile / Heap profile / goroutine profile / trace 全套工具实
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/113-go-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98-pprof-%E4%B8%8E-trace-%E5%B7%A5%E5%85%B7%E9%93%BE/
+column: prog
+permalink: /notes/prog/prog-lang/113-go-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98-pprof-%E4%B8%8E-trace-%E5%B7%A5%E5%85%B7%E9%93%BE/
 ---
 
 

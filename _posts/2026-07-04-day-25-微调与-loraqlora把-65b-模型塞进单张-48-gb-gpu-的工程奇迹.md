@@ -2,13 +2,13 @@
 layout: post
 title: "Day 25｜微调与 LoRA/QLoRA:把 65B 模型塞进单张 48 GB GPU 的工程奇迹（AI 学习笔记 · 大模型与生成式 AI 周 · 第 25 篇）"
 date: 2026-07-04 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-25-%E5%BE%AE%E8%B0%83%E4%B8%8E-loraqlora%E6%8A%8A-65b-%E6%A8%A1%E5%9E%8B%E5%A1%9E%E8%BF%9B%E5%8D%95%E5%BC%A0-48-gb-gpu-%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%A5%87%E8%BF%B9/
+column: ai
+permalink: /notes/ai/ai-basics/day-25-%E5%BE%AE%E8%B0%83%E4%B8%8E-loraqlora%E6%8A%8A-65b-%E6%A8%A1%E5%9E%8B%E5%A1%9E%E8%BF%9B%E5%8D%95%E5%BC%A0-48-gb-gpu-%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%A5%87%E8%BF%B9/
 ---
 
 

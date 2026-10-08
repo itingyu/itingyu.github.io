@@ -2,7 +2,7 @@
 layout: post
 title: "1.1.4 Go 1.22+ 新特性 · Pin / range over int / timer 改进"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Go"
   - "Go 1.22"
@@ -18,8 +18,8 @@ excerpt: "Go 1.22 是一次性能与表达力的双重升级:range over integer�
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/114-go-122-%E6%96%B0%E7%89%B9%E6%80%A7-pin-range-over-int-timer-%E6%94%B9%E8%BF%9B/
+column: prog
+permalink: /notes/prog/prog-lang/114-go-122-%E6%96%B0%E7%89%B9%E6%80%A7-pin-range-over-int-timer-%E6%94%B9%E8%BF%9B/
 ---
 
 

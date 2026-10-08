@@ -2,7 +2,7 @@
 layout: post
 title: "3.3.2 K8s Operator · kubebuilder 写一个真实 Operator"
 date: 2026-07-06 00:00:00 +0800
-series: "架构设计进阶"
+series: prog-eng
 tags:
   - "K8s"
   - "Operator"
@@ -16,8 +16,8 @@ excerpt: "K8s Operator 实战 —— CRD 设计 / Controller 模式 / kubebuilde
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%BF%9B%E9%98%B6/332-k8s-operator-kubebuilder-%E5%86%99%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E-operator/
+column: prog
+permalink: /notes/prog/prog-eng/332-k8s-operator-kubebuilder-%E5%86%99%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E-operator/
 ---
 
 

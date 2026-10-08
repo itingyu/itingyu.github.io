@@ -4,12 +4,12 @@ title: "生食指南"
 date: 2026-10-07 19:00:00 +0800
 tags: [cooking, kitchen, raw-food]
 excerpt: "生食是另一个世界——清新、清甜、本色、风味在口腔。 关键:选对 + 消毒 + 不糊弄。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-02c-raw-food/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-02c-raw-food/
 ---
 
 # 02c · 可生吃食材与生食处理

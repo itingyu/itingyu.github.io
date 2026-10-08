@@ -2,7 +2,7 @@
 layout: post
 title: "2.4.1 Prompt 工程基础 · 结构化模板与 Few-Shot"
 date: 2026-07-05 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "Prompt"
   - "LLM"
@@ -12,8 +12,8 @@ excerpt: "Prompt 是 LLM 应用的代码,需要版本控制 + 测试。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/241-prompt-%E5%B7%A5%E7%A8%8B%E5%9F%BA%E7%A1%80-%E7%BB%93%E6%9E%84%E5%8C%96%E6%A8%A1%E6%9D%BF%E4%B8%8E-few-shot/
+column: prog
+permalink: /notes/prog/ai-llm/241-prompt-%E5%B7%A5%E7%A8%8B%E5%9F%BA%E7%A1%80-%E7%BB%93%E6%9E%84%E5%8C%96%E6%A8%A1%E6%9D%BF%E4%B8%8E-few-shot/
 ---
 
 

@@ -4,12 +4,12 @@ title: "烹饪方法"
 date: 2026-10-07 15:00:00 +0800
 tags: [cooking, kitchen, methods]
 excerpt: "烹饪法 = 不同的\"温度场 + 时间 + 处理顺序\"组合。掌握每种方法的核心逻辑,任何菜都能拆解。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-06-cooking-methods/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 ---
 
 # 06 · 烹饪方法

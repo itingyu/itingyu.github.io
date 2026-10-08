@@ -2,7 +2,7 @@
 layout: post
 title: "Python 类型系统 · mypy strict 在大型项目的落地"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Python"
   - "type hints"
@@ -13,8 +13,8 @@ excerpt: "500 行到 5 万行,类型系统怎么加、怎么用、怎么治理�
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/python-%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F-mypy-strict-%E5%9C%A8%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%90%BD%E5%9C%B0/
+column: prog
+permalink: /notes/prog/prog-lang/python-%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F-mypy-strict-%E5%9C%A8%E5%A4%A7%E5%9E%8B%E9%A1%B9%E7%9B%AE%E7%9A%84%E8%90%BD%E5%9C%B0/
 ---
 
 

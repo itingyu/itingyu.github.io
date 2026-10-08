@@ -2,7 +2,7 @@
 layout: post
 title: "4.1.4 分库分表 · 垂直拆分 / 水平拆分 / ShardingSphere / TiDB"
 date: 2026-07-06 00:00:00 +0800
-series: "数据与存储"
+series: prog-eng
 tags:
   - "分库分表"
   - "垂直拆分"
@@ -14,8 +14,8 @@ excerpt: "分库分表全栈实战 —— 垂直拆分 vs 水平拆分 + Shardin
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/414-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86-%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86-shardingsphere-tidb/
+column: prog
+permalink: /notes/prog/prog-eng/414-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86-%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86-shardingsphere-tidb/
 ---
 
 

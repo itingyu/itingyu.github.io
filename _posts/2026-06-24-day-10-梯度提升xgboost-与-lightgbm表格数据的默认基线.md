@@ -2,13 +2,13 @@
 layout: post
 title: "Day 10｜梯度提升:XGBoost 与 LightGBM,表格数据的「默认基线」（AI 学习笔记 · 经典机器学习周 · 第 10 篇）"
 date: 2026-06-24 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-10-%E6%A2%AF%E5%BA%A6%E6%8F%90%E5%8D%87xgboost-%E4%B8%8E-lightgbm%E8%A1%A8%E6%A0%BC%E6%95%B0%E6%8D%AE%E7%9A%84%E9%BB%98%E8%AE%A4%E5%9F%BA%E7%BA%BF/
+column: ai
+permalink: /notes/ai/ai-basics/day-10-%E6%A2%AF%E5%BA%A6%E6%8F%90%E5%8D%87xgboost-%E4%B8%8E-lightgbm%E8%A1%A8%E6%A0%BC%E6%95%B0%E6%8D%AE%E7%9A%84%E9%BB%98%E8%AE%A4%E5%9F%BA%E7%BA%BF/
 ---
 
 

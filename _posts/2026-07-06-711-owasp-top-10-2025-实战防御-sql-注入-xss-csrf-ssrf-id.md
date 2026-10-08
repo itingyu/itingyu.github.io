@@ -2,7 +2,7 @@
 layout: post
 title: "7.1.1 OWASP Top 10 2025 实战防御 · SQL 注入 / XSS / CSRF / SSRF / IDOR"
 date: 2026-07-06 00:00:00 +0800
-series: "安全与合规"
+series: prog-eng
 tags:
   - "OWASP Top 10"
   - "SQL 注入"
@@ -15,8 +15,8 @@ excerpt: "OWASP Top 10 2025 全栈实战 —— 5 大常见漏洞(SQL 注入/XSS
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E5%AE%89%E5%85%A8%E4%B8%8E%E5%90%88%E8%A7%84/711-owasp-top-10-2025-%E5%AE%9E%E6%88%98%E9%98%B2%E5%BE%A1-sql-%E6%B3%A8%E5%85%A5-xss-csrf-ssrf-id/
+column: prog
+permalink: /notes/prog/prog-eng/711-owasp-top-10-2025-%E5%AE%9E%E6%88%98%E9%98%B2%E5%BE%A1-sql-%E6%B3%A8%E5%85%A5-xss-csrf-ssrf-id/
 ---
 
 

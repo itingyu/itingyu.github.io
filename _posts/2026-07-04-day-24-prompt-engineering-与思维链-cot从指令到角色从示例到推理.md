@@ -2,13 +2,13 @@
 layout: post
 title: "Day 24｜Prompt Engineering 与思维链 CoT:从指令到角色、从示例到推理（AI 学习笔记 · 大模型与生成式 AI 周 · 第 24 篇）"
 date: 2026-07-04 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-24-prompt-engineering-%E4%B8%8E%E6%80%9D%E7%BB%B4%E9%93%BE-cot%E4%BB%8E%E6%8C%87%E4%BB%A4%E5%88%B0%E8%A7%92%E8%89%B2%E4%BB%8E%E7%A4%BA%E4%BE%8B%E5%88%B0%E6%8E%A8%E7%90%86/
+column: ai
+permalink: /notes/ai/ai-basics/day-24-prompt-engineering-%E4%B8%8E%E6%80%9D%E7%BB%B4%E9%93%BE-cot%E4%BB%8E%E6%8C%87%E4%BB%A4%E5%88%B0%E8%A7%92%E8%89%B2%E4%BB%8E%E7%A4%BA%E4%BE%8B%E5%88%B0%E6%8E%A8%E7%90%86/
 ---
 
 

@@ -2,7 +2,7 @@
 layout: post
 title: "Python 包管理 · 从 pip 到 uv 的现代工作流"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Python"
   - "pip"
@@ -14,8 +14,8 @@ excerpt: "一个项目一个 lock 文件,让依赖问题不再出现。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/python-%E5%8C%85%E7%AE%A1%E7%90%86-%E4%BB%8E-pip-%E5%88%B0-uv-%E7%9A%84%E7%8E%B0%E4%BB%A3%E5%B7%A5%E4%BD%9C%E6%B5%81/
+column: prog
+permalink: /notes/prog/prog-lang/python-%E5%8C%85%E7%AE%A1%E7%90%86-%E4%BB%8E-pip-%E5%88%B0-uv-%E7%9A%84%E7%8E%B0%E4%BB%A3%E5%B7%A5%E4%BD%9C%E6%B5%81/
 ---
 
 

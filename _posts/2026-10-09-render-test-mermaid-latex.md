@@ -2,13 +2,13 @@
 layout: post
 title: "渲染测试：Mermaid + LaTeX"
 date: 2026-10-08 16:00:00 +0800
-series: AI 学习笔记
+series: ai-basics
 excerpt: "验证 Mermaid 图和 LaTeX 公式在文章页的渲染"
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/render-test-mermaid-latex/
+column: ai
+permalink: /notes/ai/ai-basics/render-test-mermaid-latex/
 ---
 
 ## Mermaid 图测试

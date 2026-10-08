@@ -4,12 +4,12 @@ title: "食材营养与健康"
 date: 2026-10-07 11:00:00 +0800
 tags: [cooking, kitchen, nutrition]
 excerpt: "选对食材 + 用对方法 = 吃得安全 + 吃出营养。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-10-nutrition/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-10-nutrition/
 ---
 
 # 10 · 食材营养与健康

@@ -2,7 +2,7 @@
 layout: post
 title: "Python 异步深度 · asyncio 从源码到生产"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Python"
   - "asyncio"
@@ -14,8 +14,8 @@ excerpt: "30 分钟内识别任何 asyncio 错误的实战指南。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/python-%E5%BC%82%E6%AD%A5%E6%B7%B1%E5%BA%A6-asyncio-%E4%BB%8E%E6%BA%90%E7%A0%81%E5%88%B0%E7%94%9F%E4%BA%A7/
+column: prog
+permalink: /notes/prog/prog-lang/python-%E5%BC%82%E6%AD%A5%E6%B7%B1%E5%BA%A6-asyncio-%E4%BB%8E%E6%BA%90%E7%A0%81%E5%88%B0%E7%94%9F%E4%BA%A7/
 ---
 
 

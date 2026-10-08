@@ -2,7 +2,7 @@
 layout: post
 title: "Python 测试 · pytest 从入门到测试金字塔"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Python"
   - "pytest"
@@ -14,8 +14,8 @@ excerpt: "单元测试 80% + 集成 15% + E2E 5%,测试金字塔不是空话。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/python-%E6%B5%8B%E8%AF%95-pytest-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%B5%8B%E8%AF%95%E9%87%91%E5%AD%97%E5%A1%94/
+column: prog
+permalink: /notes/prog/prog-lang/python-%E6%B5%8B%E8%AF%95-pytest-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%B5%8B%E8%AF%95%E9%87%91%E5%AD%97%E5%A1%94/
 ---
 
 

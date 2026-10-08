@@ -2,7 +2,7 @@
 layout: post
 title: "2.6.1 向量检索原理 · IVF / HNSW / PQ / ScaNN"
 date: 2026-07-05 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "向量检索"
   - "Embedding"
@@ -14,8 +14,8 @@ excerpt: "RAG 时代必修,从暴力检索到 ANN 算法的工程实践。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/261-%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E5%8E%9F%E7%90%86-ivf-hnsw-pq-scann/
+column: prog
+permalink: /notes/prog/ai-llm/261-%E5%90%91%E9%87%8F%E6%A3%80%E7%B4%A2%E5%8E%9F%E7%90%86-ivf-hnsw-pq-scann/
 ---
 
 

@@ -2,13 +2,13 @@
 layout: post
 title: "Day 23｜LLM 原理与 Scaling Laws:Chinchilla 修正、涌现争议与 In-Context Learning（AI 学习笔记 · 大模型与生成式 AI 周 · 第 23 篇）"
 date: 2026-07-04 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-23-llm-%E5%8E%9F%E7%90%86%E4%B8%8E-scaling-lawschinchilla-%E4%BF%AE%E6%AD%A3%E6%B6%8C%E7%8E%B0%E4%BA%89%E8%AE%AE%E4%B8%8E-in-c/
+column: ai
+permalink: /notes/ai/ai-basics/day-23-llm-%E5%8E%9F%E7%90%86%E4%B8%8E-scaling-lawschinchilla-%E4%BF%AE%E6%AD%A3%E6%B6%8C%E7%8E%B0%E4%BA%89%E8%AE%AE%E4%B8%8E-in-c/
 ---
 
 

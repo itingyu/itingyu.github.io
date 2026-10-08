@@ -4,12 +4,12 @@ title: "经典菜谱精讲"
 date: 2026-10-07 14:00:00 +0800
 tags: [cooking, kitchen, recipes]
 excerpt: "一道菜做\"会\"比做\"多\"重要。这里讲 12 道必学菜,从原理到拆解到变体。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-07-classic-recipes/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-07-classic-recipes/
 ---
 
 # 07 · 经典菜谱精讲

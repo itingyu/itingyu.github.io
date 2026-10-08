@@ -4,12 +4,12 @@ title: "进阶技法"
 date: 2026-10-07 13:00:00 +0800
 tags: [cooking, kitchen, advanced]
 excerpt: "从\"会做菜\"到\"做得精\"的分水岭。掌握这些,你的菜会上一个台阶。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-08-advanced/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 ---
 
 # 08 · 进阶技法

@@ -2,7 +2,7 @@
 layout: post
 title: "5.4.2 SLO 驱动的告警体系 · 错误预算 + OpenTelemetry 标准化"
 date: 2026-07-06 00:00:00 +0800
-series: "性能与可靠性"
+series: prog-eng
 tags:
   - "SLO"
   - "Error Budget"
@@ -14,8 +14,8 @@ excerpt: "SLO 驱动告警体系全栈 —— Error Budget 错误预算 + Burn R
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%80%A7/542-slo-%E9%A9%B1%E5%8A%A8%E7%9A%84%E5%91%8A%E8%AD%A6%E4%BD%93%E7%B3%BB-%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97-opentelemetry-%E6%A0%87%E5%87%86%E5%8C%96/
+column: prog
+permalink: /notes/prog/prog-eng/542-slo-%E9%A9%B1%E5%8A%A8%E7%9A%84%E5%91%8A%E8%AD%A6%E4%BD%93%E7%B3%BB-%E9%94%99%E8%AF%AF%E9%A2%84%E7%AE%97-opentelemetry-%E6%A0%87%E5%87%86%E5%8C%96/
 ---
 
 

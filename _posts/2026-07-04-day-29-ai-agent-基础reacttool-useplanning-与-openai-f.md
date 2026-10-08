@@ -2,13 +2,13 @@
 layout: post
 title: "Day 29｜AI Agent 基础:ReAct、Tool Use、Planning 与 OpenAI Function Calling 实战（AI 学习笔记 · AIAgent前沿周 · 第 29 篇）"
 date: 2026-07-04 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-29-ai-agent-%E5%9F%BA%E7%A1%80reacttool-useplanning-%E4%B8%8E-openai-f/
+column: ai
+permalink: /notes/ai/ai-basics/day-29-ai-agent-%E5%9F%BA%E7%A1%80reacttool-useplanning-%E4%B8%8E-openai-f/
 ---
 
 

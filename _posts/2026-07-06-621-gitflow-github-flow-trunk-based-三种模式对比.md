@@ -2,7 +2,7 @@
 layout: post
 title: "6.2.1 GitFlow / GitHub Flow / Trunk-based 三种模式对比"
 date: 2026-07-06 00:00:00 +0800
-series: "工程效能"
+series: prog-eng
 tags:
   - "Git Flow"
   - "GitHub Flow"
@@ -14,8 +14,8 @@ excerpt: "Git 三大分支模式对比 —— GitFlow / GitHub Flow / Trunk-base
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E5%B7%A5%E7%A8%8B%E6%95%88%E8%83%BD/621-gitflow-github-flow-trunk-based-%E4%B8%89%E7%A7%8D%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94/
+column: prog
+permalink: /notes/prog/prog-eng/621-gitflow-github-flow-trunk-based-%E4%B8%89%E7%A7%8D%E6%A8%A1%E5%BC%8F%E5%AF%B9%E6%AF%94/
 ---
 
 

@@ -2,7 +2,7 @@
 layout: post
 title: "5.2.1 压测工具 · JMeter / Locust / wrk / k6 / Gatling 对比"
 date: 2026-07-06 00:00:00 +0800
-series: "性能与可靠性"
+series: prog-eng
 tags:
   - "JMeter"
   - "Locust"
@@ -15,8 +15,8 @@ excerpt: "5 大压测工具全方位对比 —— GUI 协议 / 脚本语言 / �
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%80%A7/521-%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7-jmeter-locust-wrk-k6-gatling-%E5%AF%B9%E6%AF%94/
+column: prog
+permalink: /notes/prog/prog-eng/521-%E5%8E%8B%E6%B5%8B%E5%B7%A5%E5%85%B7-jmeter-locust-wrk-k6-gatling-%E5%AF%B9%E6%AF%94/
 ---
 
 

@@ -4,12 +4,12 @@ title: "食材预处理与清洗"
 date: 2026-10-07 20:00:00 +0800
 tags: [cooking, kitchen, prep]
 excerpt: "\"会洗菜,会腌肉,会焯水\"是家常菜的隐形 80%。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-02b-prep-washing/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 ---
 
 # 02b · 食材预处理与清洗

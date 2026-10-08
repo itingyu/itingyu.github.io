@@ -2,13 +2,13 @@
 layout: post
 title: "Day 16｜PyTorch 入门:Tensor、自动求导、nn.Module（AI 学习笔记 · 深度学习周 · 第 16 篇）"
 date: 2026-06-30 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-16-pytorch-%E5%85%A5%E9%97%A8tensor%E8%87%AA%E5%8A%A8%E6%B1%82%E5%AF%BCnnmodule/
+column: ai
+permalink: /notes/ai/ai-basics/day-16-pytorch-%E5%85%A5%E9%97%A8tensor%E8%87%AA%E5%8A%A8%E6%B1%82%E5%AF%BCnnmodule/
 ---
 
 

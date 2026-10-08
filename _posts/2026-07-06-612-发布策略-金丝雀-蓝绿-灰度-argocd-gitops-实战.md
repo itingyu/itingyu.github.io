@@ -2,7 +2,7 @@
 layout: post
 title: "6.1.2 发布策略 · 金丝雀 / 蓝绿 / 灰度 + ArgoCD GitOps 实战"
 date: 2026-07-06 00:00:00 +0800
-series: "工程效能"
+series: prog-eng
 tags:
   - "Canary"
   - "Blue-Green"
@@ -14,8 +14,8 @@ excerpt: "发布策略全栈 —— 金丝雀 / 蓝绿 / 灰度 / A-B Test 4 大
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E5%B7%A5%E7%A8%8B%E6%95%88%E8%83%BD/612-%E5%8F%91%E5%B8%83%E7%AD%96%E7%95%A5-%E9%87%91%E4%B8%9D%E9%9B%80-%E8%93%9D%E7%BB%BF-%E7%81%B0%E5%BA%A6-argocd-gitops-%E5%AE%9E%E6%88%98/
+column: prog
+permalink: /notes/prog/prog-eng/612-%E5%8F%91%E5%B8%83%E7%AD%96%E7%95%A5-%E9%87%91%E4%B8%9D%E9%9B%80-%E8%93%9D%E7%BB%BF-%E7%81%B0%E5%BA%A6-argocd-gitops-%E5%AE%9E%E6%88%98/
 ---
 
 

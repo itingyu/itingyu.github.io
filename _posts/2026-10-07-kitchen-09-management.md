@@ -4,12 +4,12 @@ title: "厨房管理与效率"
 date: 2026-10-07 12:00:00 +0800
 tags: [cooking, kitchen, management]
 excerpt: "会做菜 ≠ 会生活。本章讲怎么让做饭这件事变得轻松、有条理、不痛苦。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-09-management/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-09-management/
 ---
 
 # 09 · 厨房管理与效率

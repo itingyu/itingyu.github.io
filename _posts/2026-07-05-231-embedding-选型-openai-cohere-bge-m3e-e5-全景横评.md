@@ -2,7 +2,7 @@
 layout: post
 title: "2.3.1 Embedding 选型 · OpenAI / Cohere / BGE / M3E / E5 全景横评"
 date: 2026-07-05 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "Embedding"
   - "RAG"
@@ -17,8 +17,8 @@ excerpt: "从原理到代码,Embedding 模型选型决定 RAG 召回率天花板
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/231-embedding-%E9%80%89%E5%9E%8B-openai-cohere-bge-m3e-e5-%E5%85%A8%E6%99%AF%E6%A8%AA%E8%AF%84/
+column: prog
+permalink: /notes/prog/ai-llm/231-embedding-%E9%80%89%E5%9E%8B-openai-cohere-bge-m3e-e5-%E5%85%A8%E6%99%AF%E6%A8%AA%E8%AF%84/
 ---
 
 

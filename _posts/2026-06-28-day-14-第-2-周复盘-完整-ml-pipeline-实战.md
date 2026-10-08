@@ -2,13 +2,13 @@
 layout: post
 title: "Day 14｜第 2 周复盘 + 完整 ML Pipeline 实战（AI 学习笔记 · 经典机器学习周 · 第 14 篇）"
 date: 2026-06-28 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-14-%E7%AC%AC-2-%E5%91%A8%E5%A4%8D%E7%9B%98-%E5%AE%8C%E6%95%B4-ml-pipeline-%E5%AE%9E%E6%88%98/
+column: ai
+permalink: /notes/ai/ai-basics/day-14-%E7%AC%AC-2-%E5%91%A8%E5%A4%8D%E7%9B%98-%E5%AE%8C%E6%95%B4-ml-pipeline-%E5%AE%9E%E6%88%98/
 ---
 
 

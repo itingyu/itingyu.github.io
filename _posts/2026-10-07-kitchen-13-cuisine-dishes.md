@@ -4,12 +4,12 @@ title: "八大菜系代表菜家常做法"
 date: 2026-10-07 08:00:00 +0800
 tags: [cooking, kitchen, chinese-cuisine]
 excerpt: "上一份讲\"是什么\",这份讲\"怎么做\"。 选取各菜系家庭厨房可复制的代表菜,详细到能下锅。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-13-cuisine-dishes/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 ---
 
 # 13 · 八大菜系代表菜家常做法

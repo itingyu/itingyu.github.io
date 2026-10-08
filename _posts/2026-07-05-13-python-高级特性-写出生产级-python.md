@@ -2,7 +2,7 @@
 layout: post
 title: "1.3 Python 高级特性 · 写出生产级 Python"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Python"
   - "asyncio"
@@ -13,8 +13,8 @@ excerpt: "不被\"Python 慢\"的偏见误导,在 AI 时代把 Python 写成生�
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/13-python-%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7-%E5%86%99%E5%87%BA%E7%94%9F%E4%BA%A7%E7%BA%A7-python/
+column: prog
+permalink: /notes/prog/prog-lang/13-python-%E9%AB%98%E7%BA%A7%E7%89%B9%E6%80%A7-%E5%86%99%E5%87%BA%E7%94%9F%E4%BA%A7%E7%BA%A7-python/
 ---
 
 

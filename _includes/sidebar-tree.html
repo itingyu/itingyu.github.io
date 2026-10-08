@@ -1,15 +1,17 @@
 {%- comment -%}
-  sidebar-tree.html — 侧边栏文章树（专栏 → 子专栏 → 文章）
-  展示 site 全量 6 column / 24 series / 195 post 的层次
-  - 当前专栏 + 当前子专栏 自动展开
-  - 其他默认折叠(<details>)
-  - 当前页(post / series / column)对应节点高亮
-  性能:每个 post 页 ~200 次 Liquid 迭代,build 195 页 < 60s
+  sidebar-tree.html — 侧边栏文章树(L1 专栏 → L2 子专栏 → 文章 或 L1 → 文章)
+  多层级灵活结构:
+  - L1 = site.columns(5 个)
+  - L2 = site.series(8 个,挂列)
+  - 文章 可挂 L2 也可直接挂 L1(无 L2 的 column)
+  - 当前节点自动展开,其他折叠
+  - 文档按标题排序
+  - 子层级缩进(由 CSS .tree-pad 控制)
 {%- endcomment -%}
 {%- comment -%}
-  兼容不同 layout 的当前节点识别:
+  当前节点识别:
   - post:          page.column / page.series 有值
-  - series-detail: page.column 有值，page.series 为 nil → 用 page.title
+  - series-detail: page.column 有值,page.series 为 nil → 用 page.title
   - column:        page.column 为 nil → 用 page.slug
 {%- endcomment -%}
 {%- if page.layout == 'column' -%}
@@ -34,44 +36,65 @@
     <ul class="tree-root">
       {%- for col in columns_sorted -%}
         {%- assign col_series = site.series | where: 'column', col.slug -%}
-        {%- if col_series.size == 0 -%}{%- continue -%}{%- endif -%}
+        {%- assign col_all_posts = site.posts | where: 'column', col.slug -%}
+        {%- assign col_direct_posts = '' | split: '' -%}
+        {%- for p in col_all_posts -%}
+          {%- if p.series == nil or p.series == '' -%}
+            {%- assign col_direct_posts = col_direct_posts | push: p -%}
+          {%- endif -%}
+        {%- endfor -%}
         {%- assign is_cur_col = false -%}
         {%- if cur_col and cur_col == col.slug -%}{%- assign is_cur_col = true -%}{%- endif -%}
         {%- assign col_open = is_cur_col -%}
+        {%- if col_series.size == 0 and col_direct_posts.size == 0 -%}{%- continue -%}{%- endif -%}
         <li class="tree-col">
           <details{% if col_open %} open{% endif %}>
             <summary class="tree-col-head{% if is_cur_col %} tree-cur{% endif %}">
               <span class="tree-toggle" aria-hidden="true">▸</span>
               <a class="tree-col-link" href="{{ col.url }}">{{ col.title }}</a>
-              <span class="tree-count">{{ col_series.size }}</span>
+              <span class="tree-count">{{ col_series.size | plus: col_direct_posts.size }}</span>
             </summary>
             <ul class="tree-col-list">
-              {%- for s in col_series -%}
-                {%- assign s_posts = site.posts | where_exp: 'p', 'p.series == s.title' -%}
-                {%- assign is_cur_series = false -%}
-                {%- if cur_series and cur_series == s.title -%}{%- assign is_cur_series = true -%}{%- endif -%}
-                {%- assign s_open = is_cur_series -%}
-                <li class="tree-series">
-                  <details{% if s_open %} open{% endif %}>
-                    <summary class="tree-series-head{% if is_cur_series %} tree-cur{% endif %}">
-                      <span class="tree-toggle" aria-hidden="true">▸</span>
-                      <a class="tree-series-link" href="{{ s.url }}">{{ s.title }}</a>
-                      <span class="tree-count">{{ s_posts.size }}</span>
-                    </summary>
-                    {%- if s_posts.size > 0 -%}
-                    <ul class="tree-post-list">
-                      {%- for p in s_posts -%}
-                        {%- assign is_cur_post = false -%}
-                        {%- if p.url == cur_url -%}{%- assign is_cur_post = true -%}{%- endif -%}
-                        <li class="tree-post{% if is_cur_post %} tree-cur{% endif %}">
-                          <a class="tree-post-link" href="{{ p.url }}" title="{{ p.title }}">{{ p.title }}</a>
-                        </li>
-                      {%- endfor -%}
-                    </ul>
-                    {%- endif -%}
-                  </details>
-                </li>
-              {%- endfor -%}
+              {%- if col_series.size > 0 -%}
+                {%- assign col_series_sorted = col_series | sort: 'order' -%}
+                {%- for s in col_series_sorted -%}
+                  {%- assign s_posts = site.posts | where: 'series', s.slug -%}
+                  {%- assign is_cur_series = false -%}
+                  {%- if cur_series and cur_series == s.slug -%}{%- assign is_cur_series = true -%}{%- endif -%}
+                  {%- assign s_open = is_cur_series -%}
+                  <li class="tree-series tree-pad-2">
+                    <details{% if s_open %} open{% endif %}>
+                      <summary class="tree-series-head{% if is_cur_series %} tree-cur{% endif %}">
+                        <span class="tree-toggle" aria-hidden="true">▸</span>
+                        <a class="tree-series-link" href="{{ s.url }}">{{ s.title }}</a>
+                        <span class="tree-count">{{ s_posts.size }}</span>
+                      </summary>
+                      {%- if s_posts.size > 0 -%}
+                      <ul class="tree-post-list">
+                        {%- assign s_posts_sorted = s_posts | sort: 'title' -%}
+                        {%- for p in s_posts_sorted -%}
+                          {%- assign is_cur_post = false -%}
+                          {%- if p.url == cur_url -%}{%- assign is_cur_post = true -%}{%- endif -%}
+                          <li class="tree-post tree-pad-3{% if is_cur_post %} tree-cur{% endif %}">
+                            <a class="tree-post-link" href="{{ p.url }}" title="{{ p.title }}">{{ p.title }}</a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                      {%- endif -%}
+                    </details>
+                  </li>
+                {%- endfor -%}
+              {%- endif -%}
+              {%- if col_direct_posts.size > 0 -%}
+                {%- assign col_direct_posts_sorted = col_direct_posts | sort: 'title' -%}
+                {%- for p in col_direct_posts_sorted -%}
+                  {%- assign is_cur_post = false -%}
+                  {%- if p.url == cur_url -%}{%- assign is_cur_post = true -%}{%- endif -%}
+                  <li class="tree-post tree-pad-2{% if is_cur_post %} tree-cur{% endif %}">
+                    <a class="tree-post-link" href="{{ p.url }}" title="{{ p.title }}">{{ p.title }}</a>
+                  </li>
+                {%- endfor -%}
+              {%- endif -%}
             </ul>
           </details>
         </li>

@@ -1688,6 +1688,10 @@ h3:hover > .heading-anchor,
 }
 .tree-series + .tree-series { margin-top: .1rem; }
 
+/* 子层级缩进:2 级(L2 子专栏 + 直接挂在 L1 的文章),3 级(L2 下的文章) */
+.tree-pad-2 { margin-left: .15rem; }
+.tree-pad-3 { margin-left: .15rem; }
+
 .tree-post-list {
   margin-left: .85rem;
   border-left: 1px dashed var(--border-soft);

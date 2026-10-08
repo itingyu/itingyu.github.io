@@ -2,7 +2,7 @@
 layout: post
 title: "2.2.2 Tool Use 协议 · Function Calling / Anthropic Tool / MCP"
 date: 2026-07-06 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "Tool Use"
   - "Function Calling"
@@ -14,8 +14,8 @@ excerpt: "大模型如何调用外部工具?三大协议(Function Calling / Anth
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/222-tool-use-%E5%8D%8F%E8%AE%AE-function-calling-anthropic-tool-mc/
+column: prog
+permalink: /notes/prog/ai-llm/222-tool-use-%E5%8D%8F%E8%AE%AE-function-calling-anthropic-tool-mc/
 ---
 
 

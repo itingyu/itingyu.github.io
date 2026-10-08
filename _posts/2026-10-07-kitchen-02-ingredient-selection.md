@@ -4,12 +4,12 @@ title: "食材识别与挑选"
 date: 2026-10-07 21:00:00 +0800
 tags: [cooking, kitchen, ingredient]
 excerpt: "食材是烹饪的起点。会选 = 成功一半。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-02-ingredient-selection/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 ---
 
 # 02 · 食材识别与挑选

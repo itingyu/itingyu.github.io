@@ -2,7 +2,7 @@
 layout: post
 title: "1.2.3 Java 性能与调优 · async-profiler 与 JFR 实战"
 date: 2026-07-05 00:00:00 +0800
-series: "编程语言精进"
+series: prog-lang
 tags:
   - "Java"
   - "async-profiler"
@@ -13,8 +13,8 @@ excerpt: "4 类问题 10 分钟定位。"
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/123-java-%E6%80%A7%E8%83%BD%E4%B8%8E%E8%B0%83%E4%BC%98-async-profiler-%E4%B8%8E-jfr-%E5%AE%9E%E6%88%98/
+column: prog
+permalink: /notes/prog/prog-lang/123-java-%E6%80%A7%E8%83%BD%E4%B8%8E%E8%B0%83%E4%BC%98-async-profiler-%E4%B8%8E-jfr-%E5%AE%9E%E6%88%98/
 ---
 
 

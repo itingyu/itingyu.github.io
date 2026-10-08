@@ -4,12 +4,12 @@ title: "中国八大菜系详解"
 date: 2026-10-07 09:00:00 +0800
 tags: [cooking, kitchen, chinese-cuisine]
 excerpt: "一方水土养一方菜。中国菜的差异根子源于水土、气候、食材、调味料、习俗的差异。"
-series: 厨房学
+series: life-kitchen
 pinned: false
 cover: null
 draft: false
-column: 厨房学
-permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-12-eight-cuisines/
+column: life
+permalink: /notes/life/life-kitchen/kitchen-12-eight-cuisines/
 ---
 
 # 12 · 中国八大菜系详解

@@ -2,7 +2,7 @@
 layout: post
 title: "事件驱动架构深度实战 — Event Sourcing / CQRS / Saga / Outbox"
 date: 2026-07-07 00:00:00 +0800
-series: "架构设计进阶"
+series: prog-eng
 tags:
   - "架构设计"
   - "Event Sourcing"
@@ -14,8 +14,8 @@ excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%BF%9B%E9%98%B6/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E6%B7%B1%E5%BA%A6%E5%AE%9E%E6%88%98-event-sourcing-cqrs-saga-outbox/
+column: prog
+permalink: /notes/prog/prog-eng/%E4%BA%8B%E4%BB%B6%E9%A9%B1%E5%8A%A8%E6%9E%B6%E6%9E%84%E6%B7%B1%E5%BA%A6%E5%AE%9E%E6%88%98-event-sourcing-cqrs-saga-outbox/
 ---
 
 

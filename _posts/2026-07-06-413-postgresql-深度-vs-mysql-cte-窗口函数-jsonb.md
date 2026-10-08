@@ -2,7 +2,7 @@
 layout: post
 title: "4.1.3 PostgreSQL 深度 · vs MySQL + CTE + 窗口函数 + JSONB"
 date: 2026-07-06 00:00:00 +0800
-series: "数据与存储"
+series: prog-eng
 tags:
   - "PostgreSQL"
   - "CTE"
@@ -14,8 +14,8 @@ excerpt: "PostgreSQL 深度实战 —— vs MySQL 全方位对比 + 5 大核心�
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/413-postgresql-%E6%B7%B1%E5%BA%A6-vs-mysql-cte-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0-jsonb/
+column: prog
+permalink: /notes/prog/prog-eng/413-postgresql-%E6%B7%B1%E5%BA%A6-vs-mysql-cte-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0-jsonb/
 ---
 
 

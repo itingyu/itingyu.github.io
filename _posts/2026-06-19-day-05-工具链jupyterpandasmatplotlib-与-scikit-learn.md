@@ -2,13 +2,13 @@
 layout: post
 title: "Day 05｜工具链:Jupyter、pandas、matplotlib 与 scikit-learn（AI 学习笔记 · 基础筑基周 · 第 5 篇）"
 date: 2026-06-19 00:00:00 +0800
-series: "AI 学习笔记"
+series: ai-basics
 excerpt: ""
 pinned: false
 cover: null
 draft: false
-column: AI学习笔记
-permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-05-%E5%B7%A5%E5%85%B7%E9%93%BEjupyterpandasmatplotlib-%E4%B8%8E-scikit-learn/
+column: ai
+permalink: /notes/ai/ai-basics/day-05-%E5%B7%A5%E5%85%B7%E9%93%BEjupyterpandasmatplotlib-%E4%B8%8E-scikit-learn/
 ---
 
 

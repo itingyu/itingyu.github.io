@@ -2,7 +2,7 @@
 layout: post
 title: "2.1.1 LLM 部署 · vLLM / TGI / TensorRT-LLM 对比"
 date: 2026-07-06 00:00:00 +0800
-series: "AI 与大模型工程"
+series: ai-llm
 tags:
   - "vLLM"
   - "TGI"
@@ -14,8 +14,8 @@ excerpt: "vLLM / TGI / TensorRT-LLM 三大主流 LLM 推理框架选型对比与
 pinned: false
 cover: null
 draft: false
-column: 知识宝典
-permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/211-llm-%E9%83%A8%E7%BD%B2-vllm-tgi-tensorrt-llm-%E5%AF%B9%E6%AF%94/
+column: prog
+permalink: /notes/prog/ai-llm/211-llm-%E9%83%A8%E7%BD%B2-vllm-tgi-tensorrt-llm-%E5%AF%B9%E6%AF%94/
 ---
 
 
