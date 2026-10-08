@@ -247,6 +247,31 @@ hr {
   box-shadow: var(--shadow-sm);
   font-weight: 600;
 }
+.site-nav-search {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 2.2rem; height: 2.2rem; padding: 0;
+  border-radius: 999px;
+}
+.site-nav-search svg { display: block; }
+.site-nav-search:hover { color: var(--fg); background: var(--bg-soft); }
+
+/* /posts/ 顶部的"其他浏览方式"小行 */
+.posts-browse-row {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  margin: 1rem 0 1.5rem;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+.posts-browse-row .label { margin-right: .25rem; }
+.posts-browse-row a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: .15rem .55rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  transition: all .15s ease;
+}
+.posts-browse-row a:hover { color: var(--accent); border-color: var(--accent); }
 
 /* 主题切换按钮 */
 .theme-toggle {

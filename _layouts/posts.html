@@ -6,6 +6,13 @@ layout: default
   顶部 tag-row（带计数的所有 tag chip） + ul.post-list
 {%- endcomment -%}
 <h1>文章</h1>
+<p class="posts-browse-row">
+  <span class="label">其他浏览方式：</span>
+  <a href="/archive/">按月归档</a>
+  <a href="/tags/">按标签</a>
+  <a href="/series/">按专栏</a>
+  <a href="/search/">搜索</a>
+</p>
 {%- assign tag_counts = '' | split: '' -%}
 {%- assign _seen = '' | split: '' -%}
 {%- for p in site.posts -%}
