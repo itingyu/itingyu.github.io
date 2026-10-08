@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-const KEYS_JS = fs.readFileSync(path.join(__dirname, '..', '..', 'assets', 'keys.js'), 'utf8');
+const KEYS_JS = fs.readFileSync(path.join(__dirname, '..', 'assets', 'keys.js'), 'utf8');
 
 function makeEnv({ reducedMotion = false, fakeTimers = false } = {}) {
   const listeners = {};

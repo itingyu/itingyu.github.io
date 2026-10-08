@@ -1,13 +1,14 @@
 {
   "name": "itingyu-blog",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "个人博客（itingyu.github.io）的纯静态站点 — 无运行时依赖，使用 Node 内置 node:test 跑测试。",
+  "description": "个人博客（itingyu.github.io）· Jekyll 原生 MD 直渲（spec v3）· Node 仅承载契约测试（node:test）。",
   "scripts": {
-    "test": "node --test scripts/__tests__/*.test.js",
-    "build": "node scripts/build-index.js",
-    "check": "node scripts/build-index.js --check",
-    "build:home": "node scripts/build-index.js --only home",
-    "build:rss": "node scripts/build-index.js --only rss"
+    "test": "node --test __tests__/*.test.js",
+    "test:contract": "node --test __tests__/build-site.test.js __tests__/config-contract.test.js __tests__/url-compat.test.js __tests__/templates.test.js __tests__/jsonld.test.js __tests__/feed-sitemap.test.js __tests__/search-index.test.js __tests__/sync-scripts.test.js __tests__/migration-byte-equal.test.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "yaml": "^2.5.0"
   }
 }
