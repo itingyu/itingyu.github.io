@@ -1,10 +1,10 @@
 ---
 layout: default
-main_class: layout-3col
 ---
 {%- comment -%}
   post.html — 单篇文章页(已用 _includes/article-body.html 提取)
   真正的渲染逻辑在 article-body.html,接受 post 参数
   这里是入口,传 page 进去
+  2026-10-09 改回 2 栏(左 sidebar + 中 content),admin 反馈右 aside 目录冗余
 {%- endcomment -%}
 {% include article-body.html post=page %}

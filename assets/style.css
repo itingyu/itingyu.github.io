@@ -1927,19 +1927,20 @@ h3:hover > .heading-anchor,
 .article-toc::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
 
 /* 响应式:三档 */
-/* 始终保持三栏比例(左树 + 中正文 + 右 toc),宽度变化时按比例缩放,不会因目录空就回到两栏居中 */
+/* 2 栏(左树 + 中正文);admin 反馈右侧 aside 文章目录冗余,2026-10-09 移除右 toc */
 @media (max-width: 1279px) {
-  .layout-with-sidebar {
-    grid-template-columns: 200px minmax(0, 1fr) 180px;
-    grid-template-areas: "tree content toc";
+  .layout-with-sidebar,
+  .layout-with-sidebar--2col {
+    grid-template-columns: 240px minmax(0, 1fr);
   }
 }
 @media (max-width: 1024px) {
-  .layout-with-sidebar {
-    grid-template-columns: 180px minmax(0, 1fr) 160px;
+  .layout-with-sidebar,
+  .layout-with-sidebar--2col {
+    grid-template-columns: 200px minmax(0, 1fr);
   }
 }
-/* <= 900: 单列(树折叠到顶部抽屉;正文优先;右 toc 仍隐藏) */
+/* <= 900: 单列(树折叠到顶部抽屉;正文优先) */
 @media (max-width: 900px) {
   .layout-with-sidebar,
   .layout-with-sidebar--2col {
@@ -1947,8 +1948,7 @@ h3:hover > .heading-anchor,
     grid-template-areas: "content";
   }
   .layout-with-sidebar > .sidebar-tree,
-  .layout-with-sidebar--2col > .sidebar-tree,
-  .layout-with-sidebar > .article-toc { display: none; }
+  .layout-with-sidebar--2col > .sidebar-tree { display: none; }
   .article-bar { padding: .75rem 1rem; }
   .article-bar-title { font-size: var(--step--1); }
 }

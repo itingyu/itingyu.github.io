@@ -4,12 +4,13 @@
   用法:
     {% include article-body.html post=page %}              # 在 post layout 中
     {% include article-body.html post=site.posts.first %}  # 在文章首页(展示最新一篇)
-  包括:左 sidebar-tree + header bar + post 主体 + post-nav + 右 article-toc
+  包括:左 sidebar-tree + header bar + post 主体 + post-nav
+  (admin 反馈:右侧 article-toc 是冗余的,2026-10-09 移除)
 {%- endcomment -%}
 {%- assign col_page = site.columns | where: 'slug', include.post.column | first -%}
 {%- assign series_page = site.series | where: 'title', include.post.series | first -%}
 
-<div class="layout-with-sidebar">
+<div class="layout-with-sidebar layout-with-sidebar--2col">
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">
@@ -51,8 +52,5 @@
       <p>本页最后更新：{{ include.post.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ include.post.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
     </footer>
   </div>
-
-  {%- include article-toc.html -%}
 </div>
 
-<script defer src="/assets/toc.js"></script>
