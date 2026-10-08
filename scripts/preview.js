@@ -3,24 +3,31 @@
 /*
  * scripts/preview.js
  *
- * itingyu.github.io local preview server.
+ * itingyu.github.io local preview server with WebSocket hot-reload.
  *
  * Public API:
- *   startPreview({ port = 8080, includeDraft = false, rootDir?, host = '127.0.0.1' })
- *     -> Promise<{ httpServer, wss, watcher, close }>
+ *   startPreview({ port = 4173, includeDraft = false, host = '127.0.0.1', rootDir? })
+ *     -> Promise<{ httpServer, wss, watcher, port, host, rootDir, includeDraft, close() }>
  *
  * CLI:
- *   node scripts/preview.js [--port N] [--include-draft]
- *   PORT=8080 INCLUDE_DRAFT=1 npm run preview
+ *   node scripts/preview.js [--port N] [--include-draft] [--host H]
+ *   npm run preview
+ *   npm run preview:draft
  *
- * Constraints (per design-v2.md §5.2.4 + §6.6):
- *   - Listen on 127.0.0.1 only (no LAN exposure).
- *   - Node built-ins + `ws@8` devDep only — NO marked / markdown-it / chokidar.
- *   - Default strict: draft:true posts return 404.
- *   - `--include-draft` / INCLUDE_DRAFT=1 → render drafts.
- *   - Hot reload: fs.watch(rootDir, {recursive: true}) + ws@8 /ws.
- *
- * 浏览器 WS 客户端由本文件注入到 HTML 响应(`<!-- preview:ws-client -->` marker,幂等)。
+ * 设计要点:
+ *   - 监听 127.0.0.1 默认,仅 --host 0.0.0.0 显式开启 LAN 暴露
+ *   - Node 内置 + ws@8 唯一第三方依赖(peerDependenciesMeta 可选 bufferutil / utf-8-validate 不装)
+ *   - 路由:
+ *       /                          → index.html
+ *       /posts/<slug>/             → 优先 index.md (走 buildArticlePageFromMd),否则 index.html
+ *       /posts/<slug>/index.html   → 301 到 /posts/<slug>/
+ *       /archive/ /tags/ /series/ /search/ /assets/ /feeds/ /sitemap.xml /404.html → 静态
+ *   - WS 端点 /__ws:广播 {type:"reload", file:"<相对 rootDir 路径>"}
+ *   - 文件监听 fs.watch(rootDir,{recursive:true}) 过滤 posts/** + scripts/**
+ *     100ms 防抖后广播
+ *   - HTML 响应注入 <script src="/assets/dev-reload.js" defer></script>
+ *     (marker 幂等),仅当 dev-reload.js 存在时注入;assets/dev-reload.js 内置
+ *     localhost-only 短路,生产域名 noop。
  */
 
 const http = require('node:http');
@@ -31,11 +38,16 @@ const { WebSocketServer } = require('ws');
 
 const ROOT_DEFAULT = path.resolve(__dirname, '..');
 
+const DEFAULT_PORT = 4173;
+const DEFAULT_HOST = '127.0.0.1';
+const WS_PATH = '/__ws';
+
 const POSTS_RE = /^\/posts\/([^/]+)\/?$/;
 const POSTS_INDEX_HTML_RE = /^\/posts\/([^/]+)\/index\.html$/;
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
+  '.htm':  'text/html; charset=utf-8',
   '.css':  'text/css; charset=utf-8',
   '.js':   'text/javascript; charset=utf-8',
   '.mjs':  'text/javascript; charset=utf-8',
@@ -55,40 +67,10 @@ const MIME = {
   '.map':  'application/json; charset=utf-8',
 };
 
-const WS_CLIENT_MARKER = '<!-- preview:ws-client -->';
-const WS_CLIENT_SCRIPT = `${WS_CLIENT_MARKER}
-<script>
-(function(){
-  if (window.__previewWsInjected) return;
-  window.__previewWsInjected = true;
-  var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  var url = proto + '//' + location.host + '/ws';
-  var ws = null;
-  var reloadTimer = null;
-  function connect() {
-    try {
-      ws = new WebSocket(url);
-    } catch (_) { scheduleReconnect(); return; }
-    ws.addEventListener('message', function(ev) {
-      try {
-        var msg = JSON.parse(ev.data);
-        if (msg && msg.t === 'reload') {
-          if (reloadTimer) clearTimeout(reloadTimer);
-          reloadTimer = setTimeout(function(){ location.reload(); }, 80);
-        }
-      } catch (_) {}
-    });
-    ws.addEventListener('close', scheduleReconnect);
-    ws.addEventListener('error', function() { try { ws.close(); } catch(_){} });
-  }
-  function scheduleReconnect() {
-    setTimeout(function(){
-      if (!ws || ws.readyState === WebSocket.CLOSED) connect();
-    }, 1000);
-  }
-  connect();
-})();
-</script>`;
+const DEV_RELOAD_SRC = '/assets/dev-reload.js';
+const DEV_RELOAD_MARKER = '<!-- preview:dev-reload -->';
+const DEV_RELOAD_TAG =
+  `${DEV_RELOAD_MARKER}<script src="${DEV_RELOAD_SRC}" defer></script>`;
 
 function mimeFor(filePath) {
   const ext = path.extname(filePath).toLowerCase();
@@ -105,15 +87,15 @@ function safeJoin(rootDir, urlPath) {
   return full;
 }
 
-function injectWsClient(html) {
+function injectDevReload(html) {
   if (!html || typeof html !== 'string') return html;
-  if (html.includes(WS_CLIENT_MARKER)) return html;
+  if (html.includes(DEV_RELOAD_MARKER)) return html;
   const idx = html.toLowerCase().lastIndexOf('</body>');
-  if (idx === -1) return html + WS_CLIENT_SCRIPT;
-  return html.slice(0, idx) + WS_CLIENT_SCRIPT + html.slice(idx);
+  if (idx === -1) return html + DEV_RELOAD_TAG;
+  return html.slice(0, idx) + DEV_RELOAD_TAG + html.slice(idx);
 }
 
-async function renderPostPage({ slug, rootDir, allPosts, includeDraft, bi, md }) {
+async function renderPostPageMd({ slug, rootDir, allPosts, includeDraft, bi }) {
   const slugSafe = String(slug).replace(/[^a-zA-Z0-9_\-]/g, '');
   if (!slugSafe) throw Object.assign(new Error('bad slug'), { statusCode: 400 });
 
@@ -144,10 +126,37 @@ async function renderPostPage({ slug, rootDir, allPosts, includeDraft, bi, md })
   };
 
   const html = bi.buildArticlePageFromMd(post, allPosts, rootDir);
-  return injectWsClient(html);
+  return injectDevReload(html);
 }
 
-async function serveStatic({ rootDir, urlPath, res, req }) {
+function sendFile({ fullPath, res }) {
+  return new Promise((resolve) => {
+    const ext = path.extname(fullPath).toLowerCase();
+    if (ext === '.md') {
+      res.writeHead(403, { 'content-type': 'text/plain; charset=utf-8' });
+      res.end('403 raw .md forbidden — preview renders .md to HTML');
+      return resolve();
+    }
+    res.setHeader('content-type', mimeFor(fullPath));
+    res.setHeader('cache-control', 'no-store');
+    if (ext === '.html' || ext === '.htm') {
+      fs.readFile(fullPath, 'utf8', (err, data) => {
+        if (err) {
+          res.writeHead(500); res.end('read error'); return resolve();
+        }
+        res.end(injectDevReload(data));
+        resolve();
+      });
+      return;
+    }
+    const stream = fs.createReadStream(fullPath);
+    stream.on('error', () => { res.writeHead(500); res.end('read error'); resolve(); });
+    stream.on('end', resolve);
+    stream.pipe(res);
+  });
+}
+
+async function serveStatic({ rootDir, urlPath, res }) {
   const fullPath = safeJoin(rootDir, urlPath);
   if (!fullPath) {
     res.writeHead(400); res.end('bad path'); return;
@@ -165,7 +174,7 @@ async function serveStatic({ rootDir, urlPath, res, req }) {
     try {
       const idxStat = fs.statSync(indexPath);
       if (idxStat.isFile()) {
-        await sendFile({ fullPath: indexPath, res, req });
+        await sendFile({ fullPath: indexPath, res });
         return;
       }
     } catch (_) {
@@ -174,40 +183,11 @@ async function serveStatic({ rootDir, urlPath, res, req }) {
       return;
     }
   } else if (stat.isFile()) {
-    await sendFile({ fullPath, res, req });
+    await sendFile({ fullPath, res });
     return;
   }
   res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
   res.end('404 not found');
-}
-
-function sendFile({ fullPath, res, req }) {
-  return new Promise((resolve) => {
-    if (path.extname(fullPath).toLowerCase() === '.md') {
-      res.writeHead(403, { 'content-type': 'text/plain; charset=utf-8' });
-      res.end('403 raw .md forbidden — preview renders .md to HTML');
-      return resolve();
-    }
-    const ext = path.extname(fullPath).toLowerCase();
-    const isHtml = ext === '.html' || ext === '.htm';
-    res.setHeader('content-type', mimeFor(fullPath));
-    res.setHeader('cache-control', 'no-store');
-    if (isHtml) {
-      fs.readFile(fullPath, 'utf8', (err, data) => {
-        if (err) {
-          res.writeHead(500); res.end('read error'); return resolve();
-        }
-        const out = injectWsClient(data);
-        res.end(out);
-        resolve();
-      });
-      return;
-    }
-    const stream = fs.createReadStream(fullPath);
-    stream.on('error', () => { res.writeHead(500); res.end('read error'); resolve(); });
-    stream.on('end', resolve);
-    stream.pipe(res);
-  });
 }
 
 async function handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi }) {
@@ -219,14 +199,13 @@ async function handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi
 
   if (pathname === '/') pathname = '/index.html';
 
-  // 1) /posts/<slug>/  (with trailing slash)
   const postDirMatch = pathname.match(POSTS_RE);
   if (postDirMatch) {
     const slug = postDirMatch[1];
     const mdPath = path.join(rootDir, 'posts', slug, 'index.md');
     if (fs.existsSync(mdPath)) {
       try {
-        const html = await renderPostPage({
+        const html = await renderPostPageMd({
           slug, rootDir, allPosts, includeDraft, bi,
         });
         res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
@@ -240,7 +219,7 @@ async function handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi
     }
     const htmlPath = path.join(rootDir, 'posts', slug, 'index.html');
     if (fs.existsSync(htmlPath)) {
-      await sendFile({ fullPath: htmlPath, res, req });
+      await sendFile({ fullPath: htmlPath, res });
       return;
     }
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
@@ -248,7 +227,6 @@ async function handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi
     return;
   }
 
-  // 2) /posts/<slug>/index.html  → redirect to /posts/<slug>/
   const postIdxMatch = pathname.match(POSTS_INDEX_HTML_RE);
   if (postIdxMatch) {
     const slug = postIdxMatch[1];
@@ -257,12 +235,11 @@ async function handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi
     return;
   }
 
-  // 3) 静态资源
-  await serveStatic({ rootDir, urlPath: pathname, res, req });
+  await serveStatic({ rootDir, urlPath: pathname, res });
 }
 
 function createRequestHandler(opts) {
-  const { rootDir, allPosts, includeDraft, bi, onReload } = opts;
+  const { rootDir, allPosts, includeDraft, bi } = opts;
   return async function onRequest(req, res) {
     try {
       await handleHttpRequest({ req, res, rootDir, allPosts, includeDraft, bi });
@@ -277,22 +254,25 @@ function createRequestHandler(opts) {
 }
 
 function parseArgs(argv) {
-  const out = { port: null, includeDraft: false };
+  const out = { port: null, host: null, includeDraft: false };
   for (let i = 0; i < argv.length; i += 1) {
     const a = argv[i];
     if (a === '--port' || a === '-p') {
       out.port = Number(argv[++i]);
+    } else if (a === '--host' || a === '-H') {
+      out.host = String(argv[++i]);
     } else if (a === '--include-draft') {
       out.includeDraft = true;
     } else if (a === '--help' || a === '-h') {
       out.help = true;
     }
   }
-  if (out.port == null || !Number.isFinite(out.port)) {
+  if (out.port == null || !Number.isFinite(out.port) || out.port <= 0) {
     const envPort = Number(process.env.PORT);
     if (Number.isFinite(envPort) && envPort > 0) out.port = envPort;
   }
-  if (out.port == null) out.port = 8080;
+  if (out.port == null) out.port = DEFAULT_PORT;
+  if (out.host == null) out.host = process.env.HOST || DEFAULT_HOST;
   if (!out.includeDraft) {
     out.includeDraft = process.env.INCLUDE_DRAFT === '1'
       || process.env.INCLUDE_DRAFT === 'true';
@@ -301,24 +281,35 @@ function parseArgs(argv) {
 }
 
 function showHelp() {
-  process.stdout.write(`Usage: node scripts/preview.js [--port N] [--include-draft]
+  process.stdout.write(
+`Usage: node scripts/preview.js [--port N] [--include-draft] [--host H]
 
 Options:
-  --port, -p       TCP port (default: env PORT or 8080)
+  --port, -p       TCP port (default: env PORT or 4173)
+  --host, -H       Listen host (default: 127.0.0.1; use 0.0.0.0 for LAN)
   --include-draft  Include draft:true posts (default: env INCLUDE_DRAFT=1)
   --help, -h       Show this help
 
 Examples:
   npm run preview
   npm run preview -- --port 9090
+  npm run preview -- --host 0.0.0.0
   npm run preview -- --include-draft
-  INCLUDE_DRAFT=1 PORT=9000 npm run preview
+  INCLUDE_DRAFT=1 HOST=0.0.0.0 PORT=9000 npm run preview
 `);
 }
 
+function shouldBroadcastFile(relPosix) {
+  if (!relPosix) return false;
+  if (relPosix.startsWith('posts/')) return true;
+  if (relPosix.startsWith('scripts/')) return true;
+  return false;
+}
+
 function startPreview(opts = {}) {
-  const port = Number.isFinite(opts.port) && opts.port > 0 ? opts.port : 8080;
-  const host = opts.host || '127.0.0.1';
+  const port = Number.isFinite(opts.port) && opts.port >= 0
+    ? opts.port : DEFAULT_PORT;
+  const host = opts.host || DEFAULT_HOST;
   const includeDraft = !!opts.includeDraft;
   const rootDir = path.resolve(opts.rootDir || ROOT_DEFAULT);
 
@@ -332,28 +323,23 @@ function startPreview(opts = {}) {
 
   const onRequest = createRequestHandler({
     rootDir, allPosts, includeDraft, bi,
-    onReload: () => {},
   });
 
   const httpServer = http.createServer(onRequest);
+  const wss = new WebSocketServer({ server: httpServer, path: WS_PATH });
 
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
-
-  // per-file debounce:同一文件 100ms 内多次事件合并为一次广播
   const debounceMap = new Map();
   const DEBOUNCE_MS = 100;
 
-  const watcher = fs.watch(rootDir, { recursive: true }, (eventType, filename) => {
+  const watcher = fs.watch(rootDir, { recursive: true }, (_eventType, filename) => {
     if (!filename) return;
     const f = String(filename).split(path.sep).join('/');
-    if (!/\.md$/i.test(f)) return;
-    if (!/(^|\/)posts\/[^/]+\/index\.md$/i.test(f)) return;
+    if (!shouldBroadcastFile(f)) return;
 
-    const key = f;
-    if (debounceMap.has(key)) clearTimeout(debounceMap.get(key));
-    debounceMap.set(key, setTimeout(() => {
-      debounceMap.delete(key);
-      const payload = JSON.stringify({ t: 'reload', p: key });
+    if (debounceMap.has(f)) clearTimeout(debounceMap.get(f));
+    debounceMap.set(f, setTimeout(() => {
+      debounceMap.delete(f);
+      const payload = JSON.stringify({ type: 'reload', file: f });
       for (const client of wss.clients) {
         if (client.readyState === 1) {
           try { client.send(payload); } catch (_) {}
@@ -363,7 +349,9 @@ function startPreview(opts = {}) {
   });
 
   wss.on('connection', (ws) => {
-    try { ws.send(JSON.stringify({ t: 'hello', p: 'preview-ws' })); } catch (_) {}
+    try {
+      ws.send(JSON.stringify({ type: 'hello', file: 'preview-ws' }));
+    } catch (_) {}
   });
 
   return new Promise((resolve, reject) => {
@@ -378,7 +366,8 @@ function startPreview(opts = {}) {
       process.stderr.write(
         `preview listening on http://${host}:${actualPort}` +
         (includeDraft ? ' (include-draft)' : '') + '\n' +
-        `  root: ${rootDir}\n`
+        `  ws:    ${WS_PATH}\n` +
+        `  root:  ${rootDir}\n`
       );
       resolve({
         httpServer,
@@ -406,6 +395,7 @@ function runCli() {
   if (args.help) { showHelp(); return 0; }
   startPreview({
     port: args.port,
+    host: args.host,
     includeDraft: args.includeDraft,
     rootDir: ROOT_DEFAULT,
   }).catch((err) => {
@@ -423,11 +413,15 @@ function runCli() {
 module.exports = {
   startPreview,
   parseArgs,
+  showHelp,
   _internals: {
-    injectWsClient,
+    injectDevReload,
     safeJoin,
     mimeFor,
-    renderPostPage,
+    renderPostPageMd,
+    shouldBroadcastFile,
+    DEV_RELOAD_TAG,
+    WS_PATH,
   },
 };
 
