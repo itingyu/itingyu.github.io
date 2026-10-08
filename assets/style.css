@@ -268,6 +268,8 @@ hr {
 
 .container       { max-width: 1104px; margin: 3rem auto; padding: 0 1.5rem; }
 .container-wide  { max-width: 1296px; margin: 3rem auto; padding: 0 1.5rem; }
+/* 3 栏(左树 + 中正文 + 右 TOC)专用:占视口 ~90%,居中,呼吸感更足 */
+.layout-3col     { max-width: min(90vw, 1440px); margin: 2rem auto; padding: 0 1.5rem; }
 
 /* ---------- typography ---------- */
 
@@ -1824,11 +1826,12 @@ h3:hover > .heading-anchor,
   top: 1rem;
   max-height: calc(100vh - 2rem);
   overflow-y: auto;
-  background: var(--bg-elev);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--r-lg);
-  padding: .85rem 1rem;
-  box-shadow: var(--shadow-sm);
+  background: transparent;
+  border: 0;
+  border-left: 1px solid var(--border-soft);
+  border-radius: 0;
+  padding: .85rem .85rem .85rem 1.1rem;
+  box-shadow: none;
   font-size: var(--step--1);
 }
 .article-toc.is-empty { display: none; }
