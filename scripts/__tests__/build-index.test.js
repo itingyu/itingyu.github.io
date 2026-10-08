@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
-const bi = require('../build-index.js');
+const bi = require('../lib.js');
 const {
   parseFrontmatter,
   scanPosts, sortPosts, sortPostsAsc,
@@ -1167,7 +1167,7 @@ test('build: --only prevnext runs without error and refreshes article pages', ()
     // 再次执行 --only prevnext(模拟 PR 反馈后只跑这一档)
     const { spawnSync } = require('node:child_process');
     const r = spawnSync(process.execPath,
-      [path.join(__dirname, '..', 'build-index.js'), '--only', 'prevnext', '--root', tmp],
+      [path.join(__dirname, '..', 'lib.js'), '--only', 'prevnext', '--root', tmp],
       { encoding: 'utf8' });
     assert.equal(r.status, 0, `cli should exit 0, got ${r.status}: ${r.stderr}`);
     // 写盘后 checkDrift 应为空

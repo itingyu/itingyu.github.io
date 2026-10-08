@@ -10,7 +10,7 @@
  *   - 输出文件名由 --slug 决定,落在 posts/<slug>/index.html。
  *   - 同时把原始 .md 复制为 posts/<slug>/source.md,沿用 sing-box 实践。
  *   - frontmatter 全进 <meta> + JSON-LD;不入 HTML 注释。
- *   - 每篇都标记 article:section=厨房学 + series:description,让 build-index.js
+ *   - 每篇都标记 article:section=厨房学 + series:description,让 lib.js
  *     自动聚合成第二个专栏(/series/厨房学/index.html)。
  *   - 不自动 commit / push。完成后打印 git 命令,让人 review。
  *

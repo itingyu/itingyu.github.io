@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { parseFrontmatter } = require('../build-index.js');
+const { parseFrontmatter } = require('../lib.js');
 
 const FIX = path.join(__dirname, 'fixtures');
 

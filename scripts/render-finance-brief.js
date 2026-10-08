@@ -120,7 +120,7 @@ function escapeHtml(s) {
 }
 
 /* 把 frontmatter tag 名转成 URL slug(/tags/<slug>/ 用)。
- * 与 build-index.js:slugifyTag 语义对齐:小写、空格/斜杠转 -、保留 CJK、
+ * 与 lib.js:slugifyTag 语义对齐:小写、空格/斜杠转 -、保留 CJK、
  * 纯符号兜底为 "tag"。当原始名就是 '金融' 时回退到 finance,保持与历史页面兼容。
  */
 function slugifyTagForFinance(name) {

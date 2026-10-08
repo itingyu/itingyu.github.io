@@ -8,7 +8,7 @@
 #   - 不自动 push master(永远让人 review 后合并)
 #   - 不引入 curl/wget/gh(只用 multica CLI + node + git)
 #   - 跑前先 sanity-check:worktree 在仓库根、有 npm/multica/git
-#   - 与 finance-sync.sh + render-finance-brief.js + build-index.js 同源契约
+#   - 与 finance-sync.sh + render-finance-brief.js + lib.js 同源契约
 #
 # 用法:
 #   ./scripts/publish-finance-brief.sh --latest
@@ -56,7 +56,7 @@ publish-finance-brief.sh —— 金融小队队长一键发布每日简报到 it
   - scripts/publish.sh(同目录,可执行)
 
 约束:
-  - 不修改 finance-sync.sh / render-finance-brief.js / build-index.js / package.json
+  - 不修改 finance-sync.sh / render-finance-brief.js / lib.js / package.json
   - 不自动 push master(违反 review 门禁):默认 --branch 上游
   - 不自动 git config(沿用 multica 注入的工作树配置)
 EOF
@@ -158,7 +158,7 @@ COMMIT_MSG="post(blog): 金融简报 $SLUG
 
 来源:Multica 金融小队${ISSUE_ID:+issue=$ISSUE_ID}${ATTACHMENT_ID:+attachment=$ATTACHMENT_ID}
 渲染:scripts/render-finance-brief.js(零依赖)
-聚合:scripts/build-index.js(自动重生成 index/posts/archive/tags/feed/sitemap)
+聚合:scripts/lib.js(自动重生成 index/posts/archive/tags/feed/sitemap)
 质量门:npm test 90/90(由 scripts/publish.sh 执行);npm run check no drift
 review:@SDD技术总监 / @SDD测试工程师 请审
 

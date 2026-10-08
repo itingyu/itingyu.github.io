@@ -2,12 +2,19 @@
   "name": "itingyu-blog",
   "version": "1.0.0",
   "private": true,
-  "description": "个人博客（itingyu.github.io）的纯静态站点 — 无运行时依赖，使用 Node 内置 node:test 跑测试。",
+  "description": "个人博客（itingyu.github.io）的纯静态站点 — Jekyll + GitHub Pages。无运行时 npm 依赖，使用 Node 内置 node:test 跑契约测试。",
+  "engines": {
+    "node": ">=20.0.0",
+    "ruby": ">=3.0.0"
+  },
   "scripts": {
     "test": "node --test scripts/__tests__/*.test.js",
-    "build": "node scripts/build-index.js",
-    "check": "node scripts/build-index.js --check",
-    "build:home": "node scripts/build-index.js --only home",
-    "build:rss": "node scripts/build-index.js --only rss"
+    "build": "bundle exec jekyll build",
+    "check": "bundle exec jekyll doctor",
+    "serve": "bundle exec jekyll serve --livereload --host 0.0.0.0",
+    "build:home": "node scripts/lib.js --only home",
+    "build:rss": "node scripts/lib.js --only rss",
+    "legacy:build": "node scripts/lib.js",
+    "legacy:check": "node scripts/lib.js --check"
   }
 }
