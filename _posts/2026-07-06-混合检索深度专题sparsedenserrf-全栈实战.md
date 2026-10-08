@@ -1418,6 +1418,7 @@ BEIR benchmark 推演:不必把稀疏侧和密集侧都用最强模型——有�
 ### 12.5 工业实战:Elasticsearch Hybrid RRF 配置示例
 
 ```json
+{% raw %}
 {
   "retriever": {
     "rrf": {
@@ -1447,6 +1448,7 @@ BEIR benchmark 推演:不必把稀疏侧和密集侧都用最强模型——有�
     }
   }
 }
+{% endraw %}
 ```
 
 ### 12.6 Pinecone Hybrid Search 调用范式

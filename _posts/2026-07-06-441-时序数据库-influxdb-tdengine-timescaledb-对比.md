@@ -625,6 +625,7 @@ receivers:
 ### 6.5 Prometheus 告警规则示例
 
 ```yaml
+{% raw %}
 # prometheus_alerts.yml
 groups:
   - name: node_alerts
@@ -644,6 +645,7 @@ groups:
         for: 10m
         labels:
           severity: critical
+{% endraw %}
 ```
 
 ### 6.6 真实案例:某电商万台服务器监控

@@ -1037,6 +1037,7 @@ setup.ilm.rollover_alias: "logs-app-write"
 ```
 
 ```json
+{% raw %}
 // Ingest Pipeline(数据预处理)
 PUT _ingest/pipeline/app-log-pipeline
 {
@@ -1048,6 +1049,7 @@ PUT _ingest/pipeline/app-log-pipeline
     { "remove": { "field": "raw" } }
   ]
 }
+{% endraw %}
 ```
 
 Kibana 操作:`Stack Management → Index Patterns → logs-* → @timestamp`
@@ -1512,6 +1514,7 @@ index.indexing.slowlog.threshold.index.warn: 10s
 将常用查询参数化:
 
 ```bash
+{% raw %}
 # 注册模板
 POST /_scripts/search_products
 {
@@ -1544,6 +1547,7 @@ GET /products/_search/template
     "size": 20
   }
 }
+{% endraw %}
 ```
 
 ---

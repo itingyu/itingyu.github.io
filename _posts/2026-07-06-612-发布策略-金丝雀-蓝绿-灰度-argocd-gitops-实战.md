@@ -627,6 +627,7 @@ spec:
 ### 7.5 GitOps 发布流程(配合 ArgoCD + Image Updater)
 
 ```bash
+{% raw %}
 # 1. CI 构建镜像并推送到仓库
 docker build -t registry.example.com/order:v1.3.0 .
 docker push registry.example.com/order:v1.3.0
@@ -642,6 +643,7 @@ git push
 
 # 3. ArgoCD 自动检测 Git 变更 → 同步到集群(每 3s)
 # 4. 同步完成后,CI 通过 webhook 通知 Slack/钉钉
+{% endraw %}
 ```
 
 ```yaml

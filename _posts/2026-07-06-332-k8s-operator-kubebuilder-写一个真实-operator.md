@@ -258,6 +258,7 @@ spec:
 **Reconcile 不是"if create / if update"**,它的核心心智是:**当前对象是不是已经是 spec 描述的样子?不是就调,调完再看**。每次 Reconcile 都从零开始判断:拿到完整对象 → 列出它应该拥有的所有子资源 → 比对实际 → 创建缺失 / 删除多余 / 更新漂移。事件只是"再来一遍"的触发器。
 
 ```mermaid
+{% raw %}
 flowchart TB
     A["Get CR"]
     B["List 子资源"]
@@ -270,6 +271,7 @@ flowchart TB
     C -- "有差异" --> D
     D --> E --> F
     F -. "下次 Reconcile" .-> A
+{% endraw %}
 ```
 
 返回 `(ctrl.Result{}, nil)` = 调完当前 Reconcile 后立即退出,等下次事件。返回 `(ctrl.Result{RequeueAfter: 30*time.Second}, nil)` = 30 秒后再调一次(适合周期对账)。返回 `(ctrl.Result{}, err)` = 出错,**workqueue 会按指数退避重试**。
@@ -440,6 +442,7 @@ flowchart TB
 `internal/controller/statefulset_helpers.go`:
 
 ```go
+{% raw %}
 func (r *EtcdClusterReconciler) statefulSetForEtcd(ec *etcdv1.EtcdCluster) *appsv1.StatefulSet {
     replicas := ec.Spec.Size
     labels := map[string]string{
@@ -505,6 +508,7 @@ func (r *EtcdClusterReconciler) statefulSetForEtcd(ec *etcdv1.EtcdCluster) *apps
         },
     }
 }
+{% endraw %}
 ```
 
 ### 5.3 本地调试:envtest
@@ -805,6 +809,7 @@ flowchart LR
 ### 9.1 ASCII 决策树
 
 ```mermaid
+{% raw %}
 flowchart TB
     root{{"要管理 K8s 上的什么?"}}
     s1["无状态应用<br/>(HTTP API)"]
@@ -828,6 +833,7 @@ flowchart TB
     b1a --> d1
     b1b --> d2
     c1 --> d3
+{% endraw %}
 ```
 
 ### 9.2 5 维度对比表

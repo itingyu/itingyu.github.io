@@ -1138,6 +1138,7 @@ DLedger 心跳断流,Pulsar Bookie 受机房网络影响 JM(latency variation)�
 **解决方案**:
 
 ```yaml
+{% raw %}
 # Prometheus 关键告警规则
 groups:
 - name: mq-alerts
@@ -1156,6 +1157,7 @@ groups:
   - alert: PulsarBacklogQuotaExceeded
     expr: pulsar_backlog_quota_exceeded_total > 0
     for: 5m
+{% endraw %}
 ```
 
 扩容流程:先确认是 Consumer 慢还是 Producer 突增;再扩 Consumer 副本数(>Partition 数无效);

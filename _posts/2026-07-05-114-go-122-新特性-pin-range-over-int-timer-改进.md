@@ -243,6 +243,7 @@ slog.Info("http request",
 ### 2.5 testing/slogtest:为 slog handler 写断言
 
 ```go
+{% raw %}
 // Go 1.21+ 提供 testing/slogtest,自动验证 handler 是否合规
 import "testing/slogtest"
 
@@ -254,6 +255,7 @@ func TestMyHandler(t *testing.T) {
         t.Fatal(err)
     }
 }
+{% endraw %}
 ```
 
 **意义**:第三方写自定义 handler 时(比如写到 Kafka / Loki),`slogtest` 自动测试各种边界条件(嵌套 group / ReplaceAttr / 错误处理),**省 200 行单测**。

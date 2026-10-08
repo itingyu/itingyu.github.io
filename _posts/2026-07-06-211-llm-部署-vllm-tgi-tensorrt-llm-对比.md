@@ -404,6 +404,7 @@ Llama-3-8B 在 1×A100,GSM8K 准确率 FP16 **76.2%** vs INT8 **75.9%**(精度�
 ## 8. 选型决策树
 
 ```mermaid
+{% raw %}
 flowchart TD
     Start{{"开始选型"}} --> N1{"需要 NVIDIA GPU 推理?"}
 
@@ -431,6 +432,7 @@ flowchart TD
     style R6 fill:#fce7f3,stroke:#db2777
     style R7 fill:#f3e8ff,stroke:#9333ea
     style R5 fill:#f3f4f6,stroke:#9ca3af
+{% endraw %}
 ```
 
 ### 5 维度对比表(决策依据)

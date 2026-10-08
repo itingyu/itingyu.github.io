@@ -214,6 +214,7 @@ groups:
 当月度 Error Budget 耗尽(剩余 ≤ 0),应自动触发**发布冻结 (Release Freeze)**,直到下个周期。这是 SRE 体系最具革命性的实践之一 —— **用预算约束倒逼可靠性改进**。
 
 ```yaml
+{% raw %}
 # alertmanager_freeze_release.yaml
 # 预算耗尽 → 冻结发布
 
@@ -238,6 +239,7 @@ groups:
               2. 启动可靠性改进专项 (reliability sprint)
               3. 复盘本月所有故障,识别根因
           runbook_url: "https://wiki.internal/runbooks/slo-budget-freeze"
+{% endraw %}
 ```
 
 ### 3.4 真实案例:某 SaaS 公司预算耗尽事件
@@ -303,6 +305,7 @@ flowchart LR
 ### 4.4 完整 Burn Rate PromQL
 
 ```yaml
+{% raw %}
 # burn_rate_calculation.yaml
 # Burn Rate 计算 + 多档告警阈值
 
@@ -362,6 +365,7 @@ groups:
           burn_rate: "6x"
         annotations:
           summary: "SLO 慢速烧:6h 窗口 Burn Rate {{ $value }}x"
+{% endraw %}
 ```
 
 ---
@@ -523,6 +527,7 @@ Cindy Sridharan 在 *Distributed Systems Observability* 中指出:**告警规则
 ### 6.3 OTel Alerting Rule 标准结构
 
 ```yaml
+{% raw %}
 # otel_alerting_rule.yaml
 # OpenTelemetry 标准化告警规则
 
@@ -586,6 +591,7 @@ spec:
             signal: log
           annotations:
             summary: "OTel 检测到 ERROR 日志暴增 [{{ $labels.service_name }}]"
+{% endraw %}
 ```
 
 ### 6.4 跨语言 SDK 代码示例 (Python + Go)

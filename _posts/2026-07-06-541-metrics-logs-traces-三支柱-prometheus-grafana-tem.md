@@ -614,6 +614,7 @@ TraceID: a1b2c3d4e5f6 (全局唯一,贯穿全链路)
 OpenTelemetry(OTel)是 CNCF 标准化项目,**同时输出 Metrics / Logs / Traces / Baggage** 4 大信号,是可观测性未来的事实标准。
 
 ```python
+{% raw %}
 # Python OpenTelemetry SDK 完整示例
 from opentelemetry import trace, metrics
 from opentelemetry.sdk.trace import TracerProvider
@@ -685,6 +686,7 @@ def place_order(order_id: str, user_id: str):
             request_duration.record(duration, {"endpoint": "/place_order"})
             # 关键:把 TraceID 写入日志,实现 3 支柱联动
             print(f'{{"trace_id":"{trace_id_hex}","msg":"order done","duration":{duration}}}')
+{% endraw %}
 ```
 
 ### 5.4 Jaeger 部署

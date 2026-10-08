@@ -449,6 +449,7 @@ export function checkout() {
 ### 6.4 CI/CD 集成(GitHub Actions 示例)
 
 ```yaml
+{% raw %}
 name: perf-gate
 on: [pull_request]
 jobs:
@@ -466,6 +467,7 @@ jobs:
             --summary-trend-stats="avg,min,med,p(90),p(99)" \
             --summary-export=summary.json
           jq '.root_group.checks' summary.json
+{% endraw %}
 ```
 
 ### 6.5 Grafana + Prometheus 集成

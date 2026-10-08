@@ -362,6 +362,7 @@ flowchart TB
 ### 4.3 Self-Instruct 数据生成(单条调用)
 
 ```python
+{% raw %}
 import openai
 import json
 
@@ -384,6 +385,7 @@ def generate_instruction(seed: str) -> dict:
         response_format={"type": "json_object"},
     )
     return json.loads(response.choices[0].message.content)
+{% endraw %}
 ```
 
 ### 4.4 Self-Instruct 并发生成
@@ -452,6 +454,7 @@ def build_distillation_dataset(target_size: int) -> List[Dict]:
 ### 4.6 GPT-4 质量打分过滤
 
 ```python
+{% raw %}
 def filter_dataset_with_gpt4(dataset: List[Dict]) -> List[Dict]:
     """用 GPT-4 对蒸馏数据打分,过滤低质量样本(强烈推荐)"""
     filtered = []
@@ -473,6 +476,7 @@ def filter_dataset_with_gpt4(dataset: List[Dict]) -> List[Dict]:
         except Exception:
             filtered.append(item)  # 打分失败保留,避免过度过滤
     return filtered
+{% endraw %}
 ```
 
 ### 4.7 Self-Consistency 数据过滤(防幻觉)
@@ -912,6 +916,7 @@ def bertscore_consistency(teacher_answers, student_answers):
 ### 6.6 GPT-4 Judge 一致性评估
 
 ```python
+{% raw %}
 def gpt4_judge_consistency(prompts, teacher_answers, student_answers):
     """用 GPT-4 当裁判评估 Teacher vs Student 一致性"""
     scores = []
@@ -931,6 +936,7 @@ Student: {s_ans}
     avg = sum(scores) / len(scores)
     print(f"GPT-4 Judge avg: {avg:.2f} / 10")
     return avg
+{% endraw %}
 ```
 
 ### 6.7 分布偏移检测
@@ -992,6 +998,7 @@ def detect_distribution_shift(teacher_outputs, student_outputs):
 **场景**: 单一 Teacher(GPT-4)有风格偏见。某法律咨询公司希望 Student 学会"GPT-4 的严谨 + Claude 的可读性 + Gemini 的简洁"。
 
 ```python
+{% raw %}
 def multi_teacher_distill(prompt: str) -> Dict:
     """同时用 GPT-4 / Claude / Gemini 生成,投票 + 融合"""
     responses = {
@@ -1005,6 +1012,7 @@ def multi_teacher_distill(prompt: str) -> Dict:
     best = json.loads(openai_call(judge_prompt))['best']
     return {"instruction": prompt, "output": responses[best],
             "teacher": best, "all_candidates": responses}
+{% endraw %}
 ```
 
 **实测收益**:
@@ -1038,6 +1046,7 @@ Stage 4: Llama-3-70B-Instruct + RLHF + 蒸馏融合 → 8B → MMLU 78%
 ### 8.1 ASCII 决策树
 
 ```mermaid
+{% raw %}
 flowchart TD
     START(["START"])
     Q1{"Q1: 能访问<br/>Teacher logits 吗?"}
@@ -1080,6 +1089,7 @@ flowchart TD
     class Q1,Q2,Q3 q
     class WH,BH,F1,F2,F3,RB,SOTA,LAND leaf
     class START,BP best
+{% endraw %}
 ```
 
 ### 8.2 五维度对比表

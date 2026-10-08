@@ -1247,6 +1247,7 @@ def benchmarks(session):
 #### 6.4.1 GitHub Actions 模板
 
 ```yaml
+{% raw %}
 # .github/workflows/test.yml
 name: tests
 
@@ -1283,6 +1284,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         if: always()
+{% endraw %}
 ```
 
 #### 6.4.2 GitLab CI 模板

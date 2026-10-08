@@ -1358,6 +1358,7 @@ kompose convert -f docker-compose.yml
 
 **CI/CD 集成(GitHub Actions)**:
 ```yaml
+{% raw %}
 name: Deploy
 on: {push: {branches: [main]}}
 jobs:
@@ -1374,6 +1375,7 @@ jobs:
         echo "${{ secrets.KUBECONFIG }}" > /tmp/kc
         KUBECONFIG=/tmp/kc kubectl set image deploy/web web=myorg/web:${{ github.sha }}
         KUBECONFIG=/tmp/kc kubectl rollout status deploy/web
+{% endraw %}
 ```
 
 ### 9.5 选型决策树

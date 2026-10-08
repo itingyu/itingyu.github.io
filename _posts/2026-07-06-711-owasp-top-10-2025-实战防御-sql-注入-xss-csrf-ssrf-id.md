@@ -316,10 +316,12 @@ http://victim.local/page#name=<img src=x onerror=alert(document.cookie)>
 #### 3.4.1 输出转义(按上下文)
 
 ```python
+{% raw %}
 # ✅ Python Jinja2 —— 默认开启 HTML 转义
 from markupsafe import escape
 {{ user_input | escape }}
 # 渲染 < → &lt; , > → &gt; , " → &#34;
+{% endraw %}
 ```
 
 ```javascript
@@ -348,8 +350,10 @@ add_header Content-Security-Policy "
 ```
 
 ```html
+{% raw %}
 <!-- HTML 内联脚本必须带 nonce -->
 <script nonce="{{ nonce }}">doWork()</script>
+{% endraw %}
 ```
 
 #### 3.4.3 HttpOnly + Secure + SameSite Cookie

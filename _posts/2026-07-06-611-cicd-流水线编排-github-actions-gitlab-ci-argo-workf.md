@@ -138,6 +138,7 @@ GitHub Actions 是 GitHub 内置的 CI/CD 引擎,**YAML 写 workflow,与代码�
 ### 3.2 完整 GitHub Actions YAML 实战(Node + Docker + K8s)
 
 ```yaml
+{% raw %}
 # .github/workflows/ci-cd.yml
 name: CI/CD Pipeline
 
@@ -255,6 +256,7 @@ jobs:
             --set image.tag=${{ github.sha }} \
             --set replicaCount=6 \
             --wait --timeout 5m
+{% endraw %}
 ```
 
 ### 3.3 Self-hosted Runner 注册
@@ -291,6 +293,7 @@ sudo ./svc.sh start
 ### 3.5 Composite Action 自封装
 
 ```yaml
+{% raw %}
 # .github/actions/setup-node-ci/action.yml
 name: 'Setup Node CI'
 description: 'Reusable Node.js setup with cache and lint'
@@ -310,11 +313,13 @@ runs:
       shell: bash
     - run: npm run lint
       shell: bash
+{% endraw %}
 ```
 
 ### 3.6 Matrix 策略高级用法
 
 ```yaml
+{% raw %}
 # 含 include / exclude 的精细 matrix
 test:
   runs-on: ubuntu-latest
@@ -340,11 +345,13 @@ test:
     - run: npm test
       env:
         EXPERIMENTAL: ${{ matrix.experimental }}
+{% endraw %}
 ```
 
 ### 3.7 Reusable Workflow(跨仓库调用)
 
 ```yaml
+{% raw %}
 # .github/workflows/reusable-deploy.yml
 name: Reusable Deploy
 on:
@@ -366,9 +373,11 @@ jobs:
         run: ./deploy.sh ${{ inputs.environment }}
         env:
           KUBECONFIG: ${{ secrets.KUBECONFIG }}
+{% endraw %}
 ```
 
 ```yaml
+{% raw %}
 # 调用方 .github/workflows/main.yml
 jobs:
   deploy-prod:
@@ -377,6 +386,7 @@ jobs:
       environment: production
     secrets:
       KUBECONFIG: ${{ secrets.PROD_KUBECONFIG }}
+{% endraw %}
 ```
 
 ---
@@ -618,6 +628,7 @@ Argo Workflows 是 **Kubernetes 原生的 DAG 工作流引擎**,每个 step 跑�
 ### 5.2 完整 Argo Workflows YAML(DAG + artifact)
 
 ```yaml
+{% raw %}
 # workflow.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -773,6 +784,7 @@ spec:
           - |
             kubectl set image deployment/app app=registry.example.com/app:{{workflow.parameters.image-tag}} -n prod
             kubectl rollout status deployment/app -n prod --timeout=600s
+{% endraw %}
 ```
 
 ### 5.3 真实案例:字节跳动 / Netflix
@@ -783,6 +795,7 @@ spec:
 ### 5.4 Argo Workflows Step Template(顺序步骤)
 
 ```yaml
+{% raw %}
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -808,6 +821,7 @@ spec:
         image: busybox
         command: [echo]
         args: ["{{inputs.parameters.message}}"]
+{% endraw %}
 ```
 
 ### 5.5 Argo Events 事件驱动触发
@@ -1635,6 +1649,7 @@ kubectl get deploy "$APP" -n "$NS" -o jsonpath='{.spec.template.spec.containers[
 ### 10.8 Argo Rollouts 金丝雀发布
 
 ```yaml
+{% raw %}
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
@@ -1691,6 +1706,7 @@ spec:
             sum(rate(http_requests_total{service="{{args.service-name}}",status!~"5.."}[2m]))
             /
             sum(rate(http_requests_total{service="{{args.service-name}}"}[2m]))
+{% endraw %}
 ```
 
 ---
