@@ -6,6 +6,7 @@ description: 2026-09-30 节前最后交易日简报：央行四箭齐发 PSL 降
 tags: [finance, daily-brief, a-share]
 draft: false
 author: itingyu
+cover: posts/finance-2026-09-30/cover.svg
 series: 金融市场观察
 ---
 > 时间基准：**北京时间 2026-09-30 08:00**（Asia/Shanghai）。本日 A 股**节前最后一个交易日**（周三），10/1-7 国庆休市，10/8（周三）起恢复交易。

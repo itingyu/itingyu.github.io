@@ -6,6 +6,7 @@ description: 烹饪法 = 不同的
 tags: [cooking, kitchen, methods]
 draft: false
 author: itingyu
+cover: posts/kitchen-06-cooking-methods/cover.svg
 series: 厨房学
 ---
 # 06 · 烹饪方法

@@ -3,9 +3,10 @@ title: 每日金融简报 · 2026-09-28（星期一 · 交易日）
 slug: finance-2026-09-28
 date: 2026-09-28
 description: 2026-09-28 交易日简报：中美八点共识 / 美债 30Y 突破 5.5% / AI 与半导体主线 / 短线选股 4 只
-tags: [金融]
+tags: [finance, daily-brief, a-share]
 draft: false
 author: itingyu
+cover: posts/finance-2026-09-28/cover.svg
 series: 金融市场观察
 ---
 > 时间基准：**北京时间 2026-09-28 08:00**（Asia/Shanghai）。本日 A 股正常开市（国庆调休工作日）。

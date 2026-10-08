@@ -6,6 +6,7 @@ description: 烹饪的
 tags: [cooking, kitchen, principles]
 draft: false
 author: itingyu
+cover: posts/kitchen-01-principles/cover.svg
 series: 厨房学
 ---
 # 01 · 厨房原理总论

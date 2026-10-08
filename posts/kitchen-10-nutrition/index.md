@@ -6,6 +6,7 @@ description: 选对食材 + 用对方法 = 吃得安全 + 吃出营养。
 tags: [cooking, kitchen, nutrition]
 draft: false
 author: itingyu
+cover: posts/kitchen-10-nutrition/cover.svg
 series: 厨房学
 ---
 # 10 · 食材营养与健康

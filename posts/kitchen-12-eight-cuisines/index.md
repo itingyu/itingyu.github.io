@@ -6,6 +6,7 @@ description: 一方水土养一方菜。中国菜的差异根子源于水土、�
 tags: [cooking, kitchen, chinese-cuisine]
 draft: false
 author: itingyu
+cover: posts/kitchen-12-eight-cuisines/cover.svg
 series: 厨房学
 ---
 # 12 · 中国八大菜系详解

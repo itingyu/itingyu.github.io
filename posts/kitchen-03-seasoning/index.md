@@ -6,6 +6,7 @@ description: 调味是烹饪的
 tags: [cooking, kitchen, seasoning]
 draft: false
 author: itingyu
+cover: posts/kitchen-03-seasoning/cover.svg
 series: 厨房学
 ---
 # 03 · 调味学基础

@@ -6,6 +6,7 @@ description: 刀工是厨师的
 tags: [cooking, kitchen, knife-skills]
 draft: false
 author: itingyu
+cover: posts/kitchen-04-knife-skills/cover.svg
 series: 厨房学
 ---
 # 04 · 刀工技法

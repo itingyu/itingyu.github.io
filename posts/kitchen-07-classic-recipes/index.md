@@ -6,6 +6,7 @@ description: 一道菜做
 tags: [cooking, kitchen, recipes]
 draft: false
 author: itingyu
+cover: posts/kitchen-07-classic-recipes/cover.svg
 series: 厨房学
 ---
 # 07 · 经典菜谱精讲

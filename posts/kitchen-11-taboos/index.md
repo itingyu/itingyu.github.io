@@ -6,6 +6,7 @@ description: 90% 的
 tags: [cooking, kitchen, food-safety]
 draft: false
 author: itingyu
+cover: posts/kitchen-11-taboos/cover.svg
 series: 厨房学
 ---
 # 11 · 食物相克与真禁忌速查

@@ -6,6 +6,7 @@ description: 食材是烹饪的起点。会选 = 成功一半。
 tags: [cooking, kitchen, ingredient]
 draft: false
 author: itingyu
+cover: posts/kitchen-02-ingredient-selection/cover.svg
 series: 厨房学
 ---
 # 02 · 食材识别与挑选

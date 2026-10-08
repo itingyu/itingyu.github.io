@@ -6,6 +6,7 @@ description: 上一份讲
 tags: [cooking, kitchen, chinese-cuisine]
 draft: false
 author: itingyu
+cover: posts/kitchen-13-cuisine-dishes/cover.svg
 series: 厨房学
 ---
 # 13 · 八大菜系代表菜家常做法

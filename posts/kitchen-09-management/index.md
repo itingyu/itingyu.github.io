@@ -6,6 +6,7 @@ description: 会做菜 ≠ 会生活。本章讲怎么让做饭这件事变得�
 tags: [cooking, kitchen, management]
 draft: false
 author: itingyu
+cover: posts/kitchen-09-management/cover.svg
 series: 厨房学
 ---
 # 09 · 厨房管理与效率

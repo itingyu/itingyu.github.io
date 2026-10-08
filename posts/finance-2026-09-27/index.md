@@ -3,9 +3,10 @@ title: 非交易日情报简报 · 2026-09-27（星期日）
 slug: finance-2026-09-27
 date: 2026-09-27
 description: *简报生成：金融小队队长｜今日为非交易日，未启用短线选股模块。*
-tags: [金融]
+tags: [finance, daily-brief]
 draft: false
 author: itingyu
+cover: posts/finance-2026-09-27/cover.svg
 series: 金融市场观察
 ---
 > 交易日标记：**非交易日**（星期日，A 股市场休市）。

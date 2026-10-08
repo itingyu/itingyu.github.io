@@ -6,6 +6,7 @@ description: 2026-09-29 交易日简报：中美 600 亿美元降税 / 特朗普
 tags: [finance, daily-brief, a-share]
 draft: false
 author: itingyu
+cover: posts/finance-2026-09-29/cover.svg
 series: 金融市场观察
 ---
 > 时间基准：**北京时间 2026-09-29 08:00**（Asia/Shanghai）。本日 A 股正常开市（周二），9/30 周三为国庆前最后交易日，10/1-7 国庆休市。

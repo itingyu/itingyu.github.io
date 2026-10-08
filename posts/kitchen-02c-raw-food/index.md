@@ -6,6 +6,7 @@ description: 生食是另一个世界——清新、清甜、本色、风味在�
 tags: [cooking, kitchen, raw-food]
 draft: false
 author: itingyu
+cover: posts/kitchen-02c-raw-food/cover.svg
 series: 厨房学
 ---
 # 02c · 可生吃食材与生食处理

@@ -6,6 +6,7 @@ description: 从
 tags: [cooking, kitchen, advanced]
 draft: false
 author: itingyu
+cover: posts/kitchen-08-advanced/cover.svg
 series: 厨房学
 ---
 # 08 · 进阶技法

@@ -6,6 +6,7 @@ description: 火候是烹饪的
 tags: [cooking, kitchen, heat-control]
 draft: false
 author: itingyu
+cover: posts/kitchen-05-heat-control/cover.svg
 series: 厨房学
 ---
 # 05 · 火候掌控
