@@ -1,0 +1,65 @@
+---
+layout: default
+---
+{%- comment -%}
+  posts.html — 文章分页列表（jekyll-paginate 模板，§D3 实测必须 .html）
+  顶部 tag-row（带计数的所有 tag chip） + ul.post-list
+{%- endcomment -%}
+<h1>文章</h1>
+{%- assign tag_counts = '' | split: '' -%}
+{%- assign _seen = '' | split: '' -%}
+{%- for p in site.posts -%}
+  {%- for t in p.tags -%}
+    {%- assign slug = t.tag | default: t -%}
+    {%- if _seen contains slug -%}{%- continue -%}
+    {%- endif -%}
+    {%- assign _seen = _seen | push: slug -%}
+    {%- assign count = 0 -%}
+    {%- for q in site.posts -%}
+      {%- for tt in q.tags -%}
+        {%- if tt.tag -%}
+          {%- if tt.tag == slug -%}{%- assign count = count | plus: 1 -%}{%- endif -%}
+        {%- else -%}
+          {%- if tt == slug -%}{%- assign count = count | plus: 1 -%}{%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- assign _entry = slug | append: '|' | append: count -%}
+    {%- assign tag_counts = tag_counts | push: _entry -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign tag_counts = tag_counts | sort -%}
+<div class="tag-row">
+  {%- for entry in tag_counts -%}
+    {%- assign parts = entry | split: '|' -%}
+    {%- assign slug = parts[0] -%}
+    {%- assign count = parts[1] -%}
+    {%- assign display = slug -%}
+    {%- for p in site.posts -%}
+      {%- for t in p.tags -%}
+        {%- if t.tag and t.tag == slug and t.title -%}
+          {%- assign display = t.title -%}
+        {%- elsif t == slug -%}
+          {%- assign display = t -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+  <a class="chip" href="{{ '/tags/' | append: slug | append: '/' }}" data-tag="{{ slug }}">{{ display }} <span style="opacity:.6">· {{ count }}</span></a>
+  {%- endfor -%}
+</div>
+<ul class="post-list">
+  {%- for p in paginator.posts -%}
+    {%- include post-card.html post=p -%}
+  {%- endfor -%}
+</ul>
+{%- if paginator.total_pages > 1 -%}
+<nav class="pagination" aria-label="分页">
+  {%- if paginator.previous_page -%}
+  <a class="pagination-prev" href="{{ paginator.previous_page_path | relative_url }}">← 上一页</a>
+  {%- endif -%}
+  <span class="pagination-meta">第 {{ paginator.page }} / {{ paginator.total_pages }} 页</span>
+  {%- if paginator.next_page -%}
+  <a class="pagination-next" href="{{ paginator.next_page_path | relative_url }}">下一页 →</a>
+  {%- endif -%}
+</nav>
+{%- endif -%}

@@ -1,0 +1,32 @@
+{%- comment -%}
+  head.html — 整站 <head> 公共部分
+  - FOUC 内联字节沿用 v1（位置在 <link rel="stylesheet"> 之前）
+  - {% seo %} 仅在非文章页生效（避免与手写 BlogPosting 重复，§D4）
+  - jekyll-seo-tag 默认会注入 BlogPosting；文章页必须用 unless 跳过
+{%- endcomment -%}
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>{% if page.title %}{{ page.title }} · itingyu{% else %}{{ site.title | default: 'itingyu · 博客' }}{% endif %}</title>
+<meta name="author" content="{{ site.author.name | default: 'itingyu' }}" />
+
+<script>
+  (function(){
+    try {
+      var t = localStorage.getItem('itingyu-theme');
+      if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    } catch (_) {}
+  })();
+</script>
+<link rel="stylesheet" href="/assets/style.css" />
+<script defer src="/assets/theme.js"></script>
+<script defer src="/assets/keys.js"></script>
+
+{%- if page.layout == 'post' -%}
+  {%- include post-meta.html -%}
+  {%- include jsonld-blogposting.html -%}
+  {%- include jsonld-breadcrumb.html -%}
+  {%- seo title=false -%}
+{%- else -%}
+  {%- seo -%}
+{%- endif -%}

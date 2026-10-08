@@ -1,0 +1,30 @@
+{%- comment -%}
+  post-header.html — 文章页 article-header
+  期望 page 对象是 _posts/<date>-<slug>.md。
+  渲染：h1 + post-meta（time / dot / chip[data-tag] / chip[data-series] / reading-time / word-count）+ post-excerpt
+{%- endcomment -%}
+<header class="article-header">
+  <h1>{{ page.title }}</h1>
+  <div class="post-meta">
+    <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%Y-%m-%d' }}</time>
+    {%- if page.tags and page.tags.size > 0 -%}
+      {%- for t in page.tags -%}
+        <span class="dot">·</span>
+        {%- if t.tag -%}
+          <a class="chip" href="{{ '/tags/' | append: t.tag | append: '/' }}" data-tag="{{ t.tag }}">{{ t.title | default: t.tag }}</a>
+        {%- else -%}
+          <a class="chip" href="{{ '/tags/' | append: t | append: '/' }}" data-tag="{{ t }}">{{ t }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif -%}
+    {%- if page.series -%}
+    <span class="dot">·</span>
+    <a class="chip" href="{{ '/series/' | append: page.series | append: '/' }}" data-series="{{ page.series }}">{{ page.series }}</a>
+    {%- endif -%}
+    <span class="dot">·</span>
+    <span data-reading-time>约 1 分钟</span>
+    <span class="dot">·</span>
+    <span class="word-count" data-word-count>统计中…</span>
+  </div>
+  <p class="post-excerpt">{{ page.excerpt }}</p>
+</header>

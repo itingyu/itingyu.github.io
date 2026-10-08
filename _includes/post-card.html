@@ -1,0 +1,35 @@
+{%- comment -%}
+  post-card.html — 列表卡片（首页 / 归档 / 标签 / 专栏 复用）
+  用法：{% include post-card.html post=post %}
+  期望 post 对象至少有 url / title / date / excerpt / tags（数组，slug+name）。
+  单一标签 chip 的展示由 caller 决定（通过 show_first_tag 控制）。
+{%- endcomment -%}
+{%- assign p = include.post -%}
+{%- assign show_first_tag = include.show_first_tag | default: false -%}
+<li>
+  <h3 class="post-title"><a href="{{ p.url }}">{{ p.title }}</a></h3>
+  <div class="post-meta">
+    <time datetime="{{ p.date | date: '%Y-%m-%d' }}">{{ p.date | date: '%Y-%m-%d' }}</time>
+    {%- if show_first_tag and p.tags and p.tags.size > 0 -%}
+    <span class="dot">·</span>
+    {%- assign _t0 = p.tags[0] -%}
+    {%- assign _slug0 = _t0.tag | default: _t0 -%}
+    {%- assign _disp0 = _t0.title | default: _slug0 -%}
+    <a class="chip" href="{{ '/tags/' | append: _slug0 | append: '/' }}" data-tag="{{ _slug0 }}">{{ _disp0 }}</a>
+    {%- endif -%}
+    {%- unless show_first_tag -%}
+      {%- if p.tags and p.tags.size > 0 -%}
+        {%- for t in p.tags -%}
+          <span class="dot">·</span>
+          {%- comment -%} tags 数组可能是 slug（_tags collection）或 {slug,name} 对象；优先按 slug 渲染 chip 名（tag.md title） {%- endcomment -%}
+          {%- if t.tag -%}
+            <a class="chip" href="{{ '/tags/' | append: t.tag | append: '/' }}" data-tag="{{ t.tag }}">{{ t.title | default: t.tag }}</a>
+          {%- else -%}
+            <a class="chip" href="{{ '/tags/' | append: t | append: '/' }}" data-tag="{{ t }}">{{ t }}</a>
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endunless -%}
+  </div>
+  <p class="post-excerpt">{{ p.excerpt | default: p.title }}</p>
+</li>

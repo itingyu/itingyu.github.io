@@ -1,0 +1,39 @@
+---
+layout: default
+---
+{%- comment -%}
+  series.html — 专栏总览（/series/，ul.series-grid > a.series-card）
+  AC-07：grid 数 == _series collection 文档数；卡片含 series-card-title / series-card-meta / series-card-count / series-card-desc（可选）
+{%- endcomment -%}
+<h1>专栏</h1>
+<p class="series-hint">按时间线聚合的专栏。开栏方式：在文章 front matter 中加 <code>series: 专栏名</code>(可选 <code>series_description</code> 一句话简介)。</p>
+
+<ul class="series-grid" aria-label="专栏列表">
+  {%- assign series_list = '' | split: '' -%}
+  {%- for s in site.series -%}
+    {%- assign _entry = s.title | append: '|' | append: s.path -%}
+    {%- assign series_list = series_list | push: _entry -%}
+  {%- endfor -%}
+  {%- assign series_list = series_list | sort -%}
+  {%- for entry in series_list -%}
+    {%- assign parts = entry | split: '|' -%}
+    {%- assign s_title = parts[0] -%}
+    {%- assign s_path = parts[1] -%}
+    {%- assign s_doc = site.series | where: 'title', s_title | first -%}
+    {%- assign count = 0 -%}
+    {%- assign latest = '' -%}
+    {%- for p in site.posts -%}
+      {%- if p.series == s_title and p.draft != true -%}
+        {%- assign count = count | plus: 1 -%}
+        {%- if latest == '' or p.date > latest -%}{%- assign latest = p.date -%}{%- endif -%}
+      {%- endif -%}
+    {%- endfor -%}
+  <a class="series-card" href="{{ '/series/' | append: s_title | append: '/' }}" data-series="{{ s_title }}">
+    <h3 class="series-card-title">{{ s_title }}</h3>
+    <p class="series-card-meta"><span class="series-card-count">{{ count }} 篇</span>{% if latest != '' %} <span class="dot">·</span> <time datetime="{{ latest | date: '%Y-%m-%d' }}">最近 {{ latest | date: '%Y-%m-%d' }}</time>{% endif %}</p>
+    {%- if s_doc and s_doc.description -%}
+    <p class="series-card-desc">{{ s_doc.description }}</p>
+    {%- endif -%}
+  </a>
+  {%- endfor -%}
+</ul>

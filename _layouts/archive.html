@@ -1,0 +1,24 @@
+---
+layout: default
+---
+{%- comment -%}
+  archive.html — 按月归档（div.archive-group 按月倒序，§D3 实测 group_by_exp + reversed）
+{%- endcomment -%}
+<h1>归档</h1>
+{%- assign groups = site.posts | group_by_exp: 'item', "item.date | date: '%Y-%m'" -%}
+{%- for g in groups reversed -%}
+  {%- assign parts = g.name | split: '-' -%}
+  {%- assign year = parts[0] -%}
+  {%- assign month = parts[1] -%}
+  <div class="archive-group">
+    <h3>{{ year }} 年 {{ month }} 月</h3>
+    <ul>
+      {%- for p in g.items -%}
+      <li>
+        <time datetime="{{ p.date | date: '%Y-%m-%d' }}">{{ p.date | date: '%m-%d' }}</time>
+        <a href="{{ p.url }}">{{ p.title }}</a>
+      </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+{%- endfor -%}

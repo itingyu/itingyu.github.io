@@ -1,0 +1,16 @@
+{%- comment -%}
+  search-ui.html — 搜索框 + 状态 + 结果容器（与 v1 search/index.html 完全等价 DOM）
+{%- endcomment -%}
+<h1>搜索</h1>
+<p class="search-hint">输入关键词搜索标题、标签、描述与正文。支持空格分隔多个关键词。</p>
+
+<div class="search-box">
+  <input type="search" data-search-input
+         placeholder="试试搜索：金融 / 算法 / 入门..."
+         aria-label="搜索关键词"
+         autocomplete="off" autocorrect="off" autocapitalize="off"
+         spellcheck="false" />
+  <p class="search-status" data-search-status aria-live="polite">正在加载索引…</p>
+</div>
+
+<ul class="search-results" data-search-results aria-label="搜索结果"></ul>

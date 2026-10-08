@@ -1,0 +1,51 @@
+---
+layout: default
+---
+{%- comment -%}
+  post.html — 单篇文章页
+  §4.5 DOM：article > header.article-header > h1 + post-meta + excerpt + 正文 + footer.article-footer
+  JSON-LD（BlogPosting + BreadcrumbList）由 _includes/head.html 自动产出
+{%- endcomment -%}
+<article>
+  {%- include post-header.html -%}
+  {{ content }}
+  <div class="callout callout-note">
+    <strong>说明</strong> · 本站内容均为学习笔记与经验总结,所有菜谱与技法请结合实际食材、季节与个人口味灵活调整。涉及生食、营养与健康的内容仅供参考,特殊体质或疾病请咨询专业营养师/医生。
+  </div>
+</article>
+<aside class="related" aria-label="相关文章">
+  <p class="related-title">相关文章</p>
+  <ul class="related-grid">
+    {%- assign related = site.posts | where_exp: 'p', "p.url != page.url" | limit: 3 -%}
+    {%- for r in related -%}
+    <li>
+      <a class="related-card" href="{{ r.url }}">
+        <p class="related-card-title">{{ r.title }}</p>
+        <p class="related-card-meta"><time datetime="{{ r.date | date: '%Y-%m-%d' }}">{{ r.date | date: '%Y-%m-%d' }}</time></p>
+        <p class="related-card-excerpt">{{ r.excerpt | default: r.title }}</p>
+      </a>
+    </li>
+    {%- endfor -%}
+  </ul>
+</aside>
+
+<nav class="post-nav" aria-label="文章导航">
+  {%- if page.previous -%}
+  <a class="post-nav-prev" href="{{ page.previous.url }}" rel="prev" aria-label="上一篇:{{ page.previous.title }}">
+    <span class="post-nav-label">← 上一篇</span>
+    <span class="post-nav-title">{{ page.previous.title }}</span>
+    <time class="post-nav-date" datetime="{{ page.previous.date | date: '%Y-%m-%d' }}">{{ page.previous.date | date: '%Y-%m-%d' }}</time>
+  </a>
+  {%- endif -%}
+  {%- if page.next -%}
+  <a class="post-nav-next" href="{{ page.next.url }}" rel="next" aria-label="下一篇:{{ page.next.title }}">
+    <span class="post-nav-label">下一篇 →</span>
+    <span class="post-nav-title">{{ page.next.title }}</span>
+    <time class="post-nav-date" datetime="{{ page.next.date | date: '%Y-%m-%d' }}">{{ page.next.date | date: '%Y-%m-%d' }}</time>
+  </a>
+  {%- endif -%}
+</nav>
+
+<footer class="article-footer">
+  <p>本页最后更新：{{ page.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ page.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
+</footer>

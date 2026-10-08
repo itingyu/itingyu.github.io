@@ -1,0 +1,28 @@
+---
+layout: default
+---
+{%- comment -%}
+  home.html — 首页（hero + 最新文章 + 「查看全部文章 →」）
+  AC-03 / §4.5：h2.section-title + ul.post-list + 「查看全部文章」链接
+{%- endcomment -%}
+<section class="hero">
+  <span class="hero-eyebrow">个人博客</span>
+  <h1>写代码，看市场，做可视化。</h1>
+  <p class="lead">Hi，我是 itingyu。这里记录编程、金融、算法三类东西。</p>
+  <div class="hero-actions">
+    <a class="hero-btn hero-btn-primary" href="/posts/">读文章 →</a>
+    <a class="hero-btn hero-btn-ghost" href="/about/">关于我</a>
+  </div>
+</section>
+
+<h2 class="section-title">最新文章</h2>
+<ul class="post-list">
+  {%- assign pinned = site.posts | where: 'pinned', true -%}
+  {%- assign top = pinned | concat: site.posts -%}
+  {%- assign limit = 3 -%}
+  {%- for p in top limit: limit -%}
+    {%- include post-card.html post=p show_first_tag=true -%}
+  {%- endfor -%}
+</ul>
+
+<p style="margin-top: 1.5rem;"><a href="/posts/">查看全部文章 →</a></p>

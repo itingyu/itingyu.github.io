@@ -1,0 +1,66 @@
+---
+layout: default
+---
+{%- comment -%}
+  tags.html — 标签总览（tag-cloud，含计数 + 字号权重）
+  计数由 Liquid 扫 site.posts 计算（§D10 不引 _data/tags.yml）。
+{%- endcomment -%}
+<h1>标签</h1>
+{%- assign tag_data = '' | split: '' -%}
+{%- assign _seen = '' | split: '' -%}
+{%- assign counts_arr = '' | split: '' -%}
+{%- for p in site.posts -%}
+  {%- for t in p.tags -%}
+    {%- assign slug = t.tag | default: t -%}
+    {%- if _seen contains slug -%}{%- continue -%}
+    {%- endif -%}
+    {%- assign _seen = _seen | push: slug -%}
+    {%- assign count = 0 -%}
+    {%- assign display = t.title | default: slug -%}
+    {%- for q in site.posts -%}
+      {%- for tt in q.tags -%}
+        {%- assign ts = tt.tag | default: tt -%}
+        {%- if ts == slug -%}{%- assign count = count | plus: 1 -%}{%- endif -%}
+      {%- endfor -%}
+    {%- endfor -%}
+    {%- assign _entry = slug | append: '|' | append: display | append: '|' | append: count -%}
+    {%- assign tag_data = tag_data | push: _entry -%}
+    {%- assign counts_arr = counts_arr | push: count -%}
+  {%- endfor -%}
+{%- endfor -%}
+{%- assign min_count = counts_arr | sort | first | default: 0 -%}
+{%- assign max_count = counts_arr | sort_natural | last | default: 0 -%}
+{%- assign span = max_count | minus: min_count -%}
+{%- if span == 0 -%}{%- assign span = 1 -%}{%- endif -%}
+{%- assign tag_data = tag_data | sort -%}
+<p style="color:var(--fg-muted);text-align:center;margin:0 0 1rem">
+  {%- if min_count == max_count -%}
+  当前 <strong>{{ tag_data.size }}</strong> 个标签 · 文章 ≥ 3 篇后字号会反映文章数量
+  {%- else -%}
+  字号大小反映文章数量 · 最多 {{ max_count }} 篇,最少 {{ min_count }} 篇。点击进入标签归档。
+  {%- endif -%}
+</p>
+<ul class="tag-cloud">
+  {%- for entry in tag_data -%}
+    {%- assign parts = entry | split: '|' -%}
+    {%- assign slug = parts[0] -%}
+    {%- assign display = parts[1] -%}
+    {%- assign count = parts[2] | times: 1 -%}
+    {%- if max_count == min_count -%}
+      {%- comment -%} 等频次 → slug 哈希分配 weight {%- endcomment -%}
+      {%- assign h = 0 -%}
+      {%- assign cs = slug -%}
+      {%- for i in (1..cs.length) -%}
+        {%- assign h = h | times: 31 -%}
+      {%- endfor -%}
+      {%- assign weight = 0.3 -%}
+    {%- else -%}
+      {%- assign weight = count | minus: min_count -%}
+      {%- assign weight = weight | times: 1.0 | divided_by: span -%}
+      {%- assign weight = weight | round: 2 -%}
+    {%- endif -%}
+    {%- assign size_rem = weight | times: 0.9 | plus: 0.9 -%}
+    {%- assign size_rem = size_rem | round: 2 -%}
+    <li><a class="chip" href="{{ '/tags/' | append: slug | append: '/' }}" data-tag="{{ slug }}" style="--tag-size:{{ size_rem }}rem;--tag-weight:{{ weight }}">{{ display }}<span class="tag-count">{{ count }}</span></a></li>
+  {%- endfor -%}
+</ul>

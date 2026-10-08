@@ -1,0 +1,19 @@
+---
+layout: default
+---
+{%- comment -%}
+  series-detail.html — 单专栏页（_series/<显示名>.md → /series/<显示名>/）
+  复用 ul.post-list 卡片结构（§4.5 单专栏）。
+{%- endcomment -%}
+<h1>专栏：{{ page.title }}</h1>
+<p><a href="/series/">← 返回全部专栏</a></p>
+{%- if page.description -%}
+<p class="series-detail-hint">{{ page.description }}</p>
+{%- endif -%}
+
+<ul class="post-list">
+  {%- assign members = site.posts | where_exp: 'p', 'p.series == page.title' -%}
+  {%- for p in members -%}
+    {%- include post-card.html post=p show_first_tag=false -%}
+  {%- endfor -%}
+</ul>

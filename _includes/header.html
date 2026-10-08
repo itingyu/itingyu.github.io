@@ -1,0 +1,36 @@
+{%- comment -%}
+  header.html — 整站顶栏（site-header + nav.site-nav + theme-toggle）
+  Phase C deltas（§4.6 #1 #2）：
+    1. aria-current="page"（当前 nav 项）
+    2. data-nav-* 属性（v1 实测 archive / tags / series / search / posts 5 个有；首页 / about / 404 / 文章页 4 类手写壳缺失；v3 全部补齐）
+  nav_active 取值：home / posts / archive / tags / series / search / about / post
+    home=首页、posts=文章、archive=归档、tags=标签、series=专栏、search=搜索、about=关于、post=文章页(无匹配高亮)
+{%- endcomment -%}
+{%- assign nav_active = page.nav_active | default: layout.nav_active | default: '' -%}
+{%- comment -%} 按 page.layout 推导 nav_active fallback（detail layout 不高亮 nav） {%- endcomment -%}
+{%- if nav_active == '' -%}
+  {%- if page.url == '/' -%}{%- assign nav_active = 'home' -%}
+  {%- elsif page.url contains '/posts/' and page.layout == 'posts' -%}{%- assign nav_active = 'posts' -%}
+  {%- elsif page.url contains '/archive/' -%}{%- assign nav_active = 'archive' -%}
+  {%- elsif page.url contains '/tags/' and page.layout == 'tags' -%}{%- assign nav_active = 'tags' -%}
+  {%- elsif page.url contains '/series/' and page.layout == 'series' -%}{%- assign nav_active = 'series' -%}
+  {%- elsif page.url contains '/search/' -%}{%- assign nav_active = 'search' -%}
+  {%- elsif page.url contains '/about/' -%}{%- assign nav_active = 'about' -%}
+  {%- endif -%}
+{%- endif -%}
+<header class="site-header">
+  <a class="site-brand" href="/">
+    <span class="site-brand-mark">i</span>
+    <span>itingyu</span>
+  </a>
+  <nav class="site-nav" aria-label="主导航">
+    <a href="/"{% if nav_active == 'home' %} aria-current="page"{% endif %} data-nav-home data-nav="home">首页</a>
+    <a href="/posts/"{% if nav_active == 'posts' %} aria-current="page"{% endif %} data-nav-posts data-nav="posts">文章</a>
+    <a href="/archive/"{% if nav_active == 'archive' %} aria-current="page"{% endif %} data-nav-archive data-nav="archive">归档</a>
+    <a href="/tags/"{% if nav_active == 'tags' %} aria-current="page"{% endif %} data-nav-tags data-nav="tags">标签</a>
+    <a href="/series/"{% if nav_active == 'series' %} aria-current="page"{% endif %} data-nav-series data-nav="series">专栏</a>
+    <a href="/search/"{% if nav_active == 'search' %} aria-current="page"{% endif %} data-nav-search data-nav="search">搜索</a>
+    <a href="/about/"{% if nav_active == 'about' %} aria-current="page"{% endif %} data-nav-about data-nav="about">关于</a>
+    {%- include theme-switcher.html -%}
+  </nav>
+</header>
