@@ -22,6 +22,29 @@
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/keys.js"></script>
 
+<!-- MathJax 3 (LaTeX 渲染) -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath:  [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      processEscapes: true,
+      processEnvironments: true
+    },
+    options: {
+      skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+      ignoreHtmlClass: 'no-math',
+      processHtmlClass: 'math'
+    },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+
+<!-- Mermaid (图渲染) -->
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script defer src="/assets/mermaid-init.js"></script>
+
 {%- if page.layout == 'post' -%}
   {%- include post-meta.html -%}
   {%- include jsonld-blogposting.html -%}

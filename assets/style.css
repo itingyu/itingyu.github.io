@@ -1528,23 +1528,27 @@ h3:hover > .heading-anchor,
 
 /* 打印时不显示锚点(规则合并到全局 print 块,避免单文件多处 print block 断言失败) */
 
-/* ---------- sidebar tree (3-level hierarchy) ---------- */
+/* ---------- layout with sidebars (3-zone) ---------- */
+/* 用 grid-template-areas 显式命名,保证 sidebar-tree 永远在左,正文在中,TOC 在右 */
 
 .layout-with-sidebar {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr) 220px;
+  grid-template-areas: "tree content toc";
   gap: 2rem;
   align-items: start;
 }
 
+.layout-with-sidebar > .sidebar-tree { grid-area: tree; }
+.layout-with-sidebar > .content-area { grid-area: content; min-width: 0; }
+.layout-with-sidebar > .article-toc  { grid-area: toc; }
+
 /* 2-column 变体:无右栏(series/column 页用) */
 .layout-with-sidebar--2col {
   grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-areas: "tree content";
 }
-
-.layout-with-sidebar > .content-area {
-  min-width: 0;
-}
+.layout-with-sidebar--2col > .article-toc { display: none; }
 
 .sidebar-tree {
   position: sticky;
@@ -1910,21 +1914,92 @@ h3:hover > .heading-anchor,
 }
 .article-toc::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
 
-/* 响应式:中等屏关右栏,小屏关左右栏(留 header bar) */
-@media (max-width: 1280px) {
+/* 响应式:三档 */
+/* >= 1280: 完整三栏(左树 + 中正文 + 右 TOC) */
+@media (max-width: 1279px) {
   .layout-with-sidebar {
     grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-areas: "tree content";
   }
   .layout-with-sidebar > .article-toc { display: none; }
 }
+/* 901-1024: 侧栏缩小(树还在左,只是宽度 200) */
+@media (max-width: 1024px) {
+  .layout-with-sidebar,
+  .layout-with-sidebar--2col {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+}
+/* <= 900: 单列(树折叠到顶部抽屉;正文优先) */
 @media (max-width: 900px) {
   .layout-with-sidebar,
   .layout-with-sidebar--2col {
     grid-template-columns: 1fr;
-    gap: 0;
+    grid-template-areas: "content";
   }
   .layout-with-sidebar > .sidebar-tree,
   .layout-with-sidebar--2col > .sidebar-tree { display: none; }
   .article-bar { padding: .75rem 1rem; }
   .article-bar-title { font-size: var(--step--1); }
 }
+
+/* ---------- Mermaid diagrams ---------- */
+
+.mermaid {
+  display: block;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  text-align: center;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-md);
+  overflow-x: auto;
+  font-size: .9em;
+}
+.mermaid svg { max-width: 100%; height: auto; }
+.mermaid svg .nodeLabel,
+.mermaid svg .edgeLabel { color: var(--fg); }
+.mermaid svg .edgePath path,
+.mermaid svg .flowchart-link { stroke: var(--fg-muted); }
+
+/* dark 主题下 mermaid 自动适配(主题 dark) */
+[data-theme="dark"] .mermaid {
+  background: var(--bg-elev);
+  border-color: var(--border-soft);
+}
+
+/* Mermaid 加载失败回退样式 */
+.mermaid-error {
+  color: #d97706;
+  font-family: var(--font-mono);
+  font-size: .9em;
+  border-left: 3px solid #d97706;
+  background: color-mix(in srgb, #d97706 6%, var(--bg-elev));
+  padding: .5rem .75rem;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+/* ---------- LaTeX / MathJax ---------- */
+
+mjx-container, .MathJax, .math {
+  display: inline-block;
+}
+mjx-container[display="true"] {
+  display: block;
+  margin: 1rem auto;
+  text-align: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+mjx-container[display="true"][data-latex] {
+  /* 块级公式略加底色便于识别 */
+  padding: .75rem 1rem;
+  background: var(--bg-soft);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border-soft);
+}
+mjx-container svg { vertical-align: middle; max-width: 100%; }
+math { font-size: 1.05em; }
+
+/* 暗色模式兼容(MathJax SVG 自带 fill 用 currentColor) */
+[data-theme="dark"] mjx-container svg { color: #e2e8f0; }
