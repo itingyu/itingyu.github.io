@@ -29,6 +29,14 @@
     const list = document.createElement('ol');
     list.className = 'article-toc-list';
 
+    // theme.js 会在 H2/H3 注入 <a class="heading-anchor">🔗</a>
+    // 取文本时克隆节点再去掉锚点,避免目录项被 🔗 污染
+    function headingText(h) {
+      const clone = h.cloneNode(true);
+      clone.querySelectorAll('.heading-anchor').forEach(el => el.remove());
+      return clone.textContent.replace(/^[\d.\s]+/, '').trim();
+    }
+
     let currentH2 = null;
     headings.forEach(h => {
       // 保证 id(可能 kramdown 没生成)
@@ -40,7 +48,7 @@
         li.className = 'article-toc-item article-toc-h2';
         const a = document.createElement('a');
         a.href = '#' + h.id;
-        a.textContent = h.textContent.replace(/^[\d.\s]+/, '').trim();
+        a.textContent = headingText(h);
         a.className = 'article-toc-link';
         a.dataset.target = h.id;
         li.appendChild(a);
@@ -58,7 +66,7 @@
         li.className = 'article-toc-item article-toc-h3';
         const a = document.createElement('a');
         a.href = '#' + h.id;
-        a.textContent = h.textContent.replace(/^[\d.\s]+/, '').trim();
+        a.textContent = headingText(h);
         a.className = 'article-toc-link';
         a.dataset.target = h.id;
         li.appendChild(a);

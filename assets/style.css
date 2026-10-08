@@ -1861,23 +1861,7 @@ h3:hover > .heading-anchor,
 }
 .article-toc.is-empty { display: none; }
 .article-toc.is-collapsed .article-toc-nav { display: none; }
-.article-toc-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: .5rem;
-  padding-bottom: .4rem;
-  border-bottom: 1px solid var(--border-soft);
-}
-.article-toc-head h3 {
-  margin: 0;
-  font-size: var(--step--1);
-  font-weight: 600;
-  font-family: var(--font-sans);
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--fg-muted);
-}
+.article-toc-head { display: none; }
 .article-toc-toggle {
   appearance: none;
   background: transparent;
