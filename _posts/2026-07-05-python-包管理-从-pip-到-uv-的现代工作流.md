@@ -15,6 +15,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/python-%E5%8C%85%E7%AE%A1%E7%90%86-%E4%BB%8E-pip-%E5%88%B0-uv-%E7%9A%84%E7%8E%B0%E4%BB%A3%E5%B7%A5%E4%BD%9C%E6%B5%81/
 ---
 
 

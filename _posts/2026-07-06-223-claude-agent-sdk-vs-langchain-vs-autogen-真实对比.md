@@ -15,6 +15,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/223-claude-agent-sdk-vs-langchain-vs-autogen-%E7%9C%9F%E5%AE%9E%E5%AF%B9%E6%AF%94/
 ---
 
 

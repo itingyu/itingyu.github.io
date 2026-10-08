@@ -18,6 +18,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/113-go-%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98-pprof-%E4%B8%8E-trace-%E5%B7%A5%E5%85%B7%E9%93%BE/
 ---
 
 

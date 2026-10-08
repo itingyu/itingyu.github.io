@@ -16,6 +16,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/212-%E9%97%AD%E6%BA%90-api-%E9%80%89%E5%9E%8B%E7%9F%A9%E9%98%B5-gpt-4o-claude-gemini-%E5%9B%BD%E4%BA%A7/
 ---
 
 

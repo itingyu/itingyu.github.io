@@ -14,6 +14,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/%E6%90%9C%E7%B4%A2%E5%BC%95%E6%93%8E-es-%E4%B8%8E-opensearch-%E6%B7%B1%E5%BA%A6%E5%AF%B9%E6%AF%94/
 ---
 
 

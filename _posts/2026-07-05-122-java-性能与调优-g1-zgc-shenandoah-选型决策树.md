@@ -14,6 +14,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/122-java-%E6%80%A7%E8%83%BD%E4%B8%8E%E8%B0%83%E4%BC%98-g1-zgc-shenandoah-%E9%80%89%E5%9E%8B%E5%86%B3%E7%AD%96%E6%A0%91/
 ---
 
 

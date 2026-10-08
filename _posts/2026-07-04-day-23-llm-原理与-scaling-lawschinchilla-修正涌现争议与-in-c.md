@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-23-llm-%E5%8E%9F%E7%90%86%E4%B8%8E-scaling-lawschinchilla-%E4%BF%AE%E6%AD%A3%E6%B6%8C%E7%8E%B0%E4%BA%89%E8%AE%AE%E4%B8%8E-in-c/
 ---
 
 

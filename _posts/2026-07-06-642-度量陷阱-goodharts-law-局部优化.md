@@ -14,6 +14,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E5%B7%A5%E7%A8%8B%E6%95%88%E8%83%BD/642-%E5%BA%A6%E9%87%8F%E9%99%B7%E9%98%B1-goodharts-law-%E5%B1%80%E9%83%A8%E4%BC%98%E5%8C%96/
 ---
 
 

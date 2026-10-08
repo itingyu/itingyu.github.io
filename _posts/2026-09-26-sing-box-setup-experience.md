@@ -9,6 +9,7 @@ column: 其他
 pinned: false
 cover: null
 draft: false
+permalink: /notes/%E5%85%B6%E4%BB%96/%E5%85%B6%E4%BB%96/sing-box-setup-experience/
 ---
 
 从机场订阅 → sing-box 1.14 稳定运行 → zashboard 可视化 → chromium 走代理，本文记录全过程踩过的坑。配置目标是：国内域名走直连、国外域名走最低延迟节点、节点失效自动切换、浏览器一键切换代理模式。

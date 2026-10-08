@@ -13,6 +13,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/151-rust-%E6%89%80%E6%9C%89%E6%9D%83%E7%B3%BB%E7%BB%9F-borrow-checker-%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B/
 ---
 
 

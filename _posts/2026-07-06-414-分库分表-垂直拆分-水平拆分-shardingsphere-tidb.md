@@ -15,6 +15,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/414-%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-%E5%9E%82%E7%9B%B4%E6%8B%86%E5%88%86-%E6%B0%B4%E5%B9%B3%E6%8B%86%E5%88%86-shardingsphere-tidb/
 ---
 
 

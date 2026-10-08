@@ -15,6 +15,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/413-postgresql-%E6%B7%B1%E5%BA%A6-vs-mysql-cte-%E7%AA%97%E5%8F%A3%E5%87%BD%E6%95%B0-jsonb/
 ---
 
 

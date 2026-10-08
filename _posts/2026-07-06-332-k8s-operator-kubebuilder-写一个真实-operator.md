@@ -17,6 +17,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%BF%9B%E9%98%B6/332-k8s-operator-kubebuilder-%E5%86%99%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E-operator/
 ---
 
 

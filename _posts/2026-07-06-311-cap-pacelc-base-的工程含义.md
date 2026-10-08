@@ -15,6 +15,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E8%BF%9B%E9%98%B6/311-cap-pacelc-base-%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%90%AB%E4%B9%89/
 ---
 
 

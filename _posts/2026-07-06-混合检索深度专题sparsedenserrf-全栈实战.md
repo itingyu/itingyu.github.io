@@ -16,6 +16,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/AI%20%E4%B8%8E%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%B7%A5%E7%A8%8B/%E6%B7%B7%E5%90%88%E6%A3%80%E7%B4%A2%E6%B7%B1%E5%BA%A6%E4%B8%93%E9%A2%98sparsedenserrf-%E5%85%A8%E6%A0%88%E5%AE%9E%E6%88%98/
 ---
 
 

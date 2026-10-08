@@ -14,6 +14,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-07-%E7%AC%AC-1-%E5%91%A8%E5%A4%8D%E7%9B%98%E4%B8%8E-kaggle-titanic-%E5%AE%9E%E6%88%98%E6%8A%8A-6-%E5%A4%A9%E9%9B%B6%E4%BB%B6%E6%8B%BC%E6%88%90%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4-pi/
 ---
 
 

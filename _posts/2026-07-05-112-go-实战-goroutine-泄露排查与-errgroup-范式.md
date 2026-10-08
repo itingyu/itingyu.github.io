@@ -17,6 +17,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80%E7%B2%BE%E8%BF%9B/112-go-%E5%AE%9E%E6%88%98-goroutine-%E6%B3%84%E9%9C%B2%E6%8E%92%E6%9F%A5%E4%B8%8E-errgroup-%E8%8C%83%E5%BC%8F/
 ---
 
 

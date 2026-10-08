@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-18-rnn-lstm-gru%E5%BA%8F%E5%88%97%E5%BB%BA%E6%A8%A1%E4%B8%8E%E4%BC%A0%E9%80%81%E5%B8%A6%E6%9C%BA%E5%88%B6/
 ---
 
 

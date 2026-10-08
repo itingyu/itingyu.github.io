@@ -16,6 +16,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%95%B0%E6%8D%AE%E4%B8%8E%E5%AD%98%E5%82%A8/442-%E5%9B%BE%E6%95%B0%E6%8D%AE%E5%BA%93-neo4j-nebulagraph-janusgraph-%E5%AF%B9%E6%AF%94/
 ---
 
 

@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-14-%E7%AC%AC-2-%E5%91%A8%E5%A4%8D%E7%9B%98-%E5%AE%8C%E6%95%B4-ml-pipeline-%E5%AE%9E%E6%88%98/
 ---
 
 

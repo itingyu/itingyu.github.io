@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-8-%E5%88%86%E7%B1%BB%E9%97%AE%E9%A2%98%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92softmax%E4%BA%A4%E5%8F%89%E7%86%B5ml-%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1%E7%9A%84%E8%80%81%E5%BA%95%E5%AD%90/
 ---
 
 

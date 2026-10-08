@@ -9,6 +9,7 @@ pinned: false
 cover: null
 draft: false
 column: 厨房学
+permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-04-knife-skills/
 ---
 
 # 04 · 刀工技法

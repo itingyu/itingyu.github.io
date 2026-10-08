@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-29-ai-agent-%E5%9F%BA%E7%A1%80reacttool-useplanning-%E4%B8%8E-openai-f/
 ---
 
 

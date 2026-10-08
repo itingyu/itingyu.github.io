@@ -8,6 +8,7 @@ pinned: false
 cover: null
 draft: false
 column: AI学习笔记
+permalink: /notes/AI%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/AI%20%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/day-22-%E9%A2%84%E8%AE%AD%E7%BB%83%E8%8C%83%E5%BC%8F%E4%B8%8E-tokenizationgpt-vs-bertbpe-%E7%AE%97%E6%B3%95%E4%B8%8E-4-%E7%A7%8D%E5%AD%90%E8%AF%8D/
 ---
 
 

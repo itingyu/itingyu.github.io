@@ -9,6 +9,7 @@ pinned: false
 cover: null
 draft: false
 column: 厨房学
+permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-02-ingredient-selection/
 ---
 
 # 02 · 食材识别与挑选

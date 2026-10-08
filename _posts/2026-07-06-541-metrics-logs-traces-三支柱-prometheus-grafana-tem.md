@@ -17,6 +17,7 @@ pinned: false
 cover: null
 draft: false
 column: 知识宝典
+permalink: /notes/%E7%9F%A5%E8%AF%86%E5%AE%9D%E5%85%B8/%E6%80%A7%E8%83%BD%E4%B8%8E%E5%8F%AF%E9%9D%A0%E6%80%A7/541-metrics-logs-traces-%E4%B8%89%E6%94%AF%E6%9F%B1-prometheus-grafana-tem/
 ---
 
 

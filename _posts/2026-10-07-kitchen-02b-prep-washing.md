@@ -9,6 +9,7 @@ pinned: false
 cover: null
 draft: false
 column: 厨房学
+permalink: /notes/%E5%8E%A8%E6%88%BF%E5%AD%A6/%E5%8E%A8%E6%88%BF%E5%AD%A6/kitchen-02b-prep-washing/
 ---
 
 # 02b · 食材预处理与清洗
