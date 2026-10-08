@@ -8,6 +8,7 @@ series: 厨房学
 pinned: false
 cover: null
 draft: false
+column: 厨房学
 ---
 
 # 02 · 食材识别与挑选

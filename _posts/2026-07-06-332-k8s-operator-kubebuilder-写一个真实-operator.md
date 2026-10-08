@@ -16,6 +16,7 @@ excerpt: "K8s Operator 实战 —— CRD 设计 / Controller 模式 / kubebuilde
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

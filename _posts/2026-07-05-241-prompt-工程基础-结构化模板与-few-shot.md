@@ -12,6 +12,7 @@ excerpt: "Prompt 是 LLM 应用的代码,需要版本控制 + 测试。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

@@ -4,16 +4,32 @@ layout: default
 {%- comment -%}
   series-detail.html — 单专栏页（_series/<显示名>.md → /series/<显示名>/）
   复用 ul.post-list 卡片结构（§4.5 单专栏）。
-  series-nav 用于 article 页内,本页不消费。
+  无相关文章、无订阅
 {%- endcomment -%}
-<h1>专栏：{{ page.title }}</h1>
-<p><a href="/series/">← 返回全部专栏</a></p>
+{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
+{%- assign members = site.posts | where_exp: 'p', 'p.series == page.title' -%}
+
+<nav class="breadcrumbs" aria-label="面包屑">
+  <a href="/">首页</a>
+  <span class="bc-sep">/</span>
+  {%- if col_page -%}
+  <a href="{{ col_page.url }}">{{ col_page.title }}</a>
+  <span class="bc-sep">/</span>
+  {%- endif -%}
+  <a href="/series/">子专栏</a>
+  <span class="bc-sep">/</span>
+  <span>{{ page.title }}</span>
+</nav>
+
+<h1>子专栏：{{ page.title }}</h1>
 {%- if page.description -%}
 <p class="series-detail-hint">{{ page.description }}</p>
 {%- endif -%}
+{%- if col_page -%}
+<p class="series-detail-parent">归属：<a href="{{ col_page.url }}">{{ col_page.title }}</a></p>
+{%- endif -%}
 
 <ul class="post-list">
-  {%- assign members = site.posts | where_exp: 'p', 'p.series == page.title' -%}
   {%- for p in members -%}
     {%- include post-card.html post=p show_first_tag=false -%}
   {%- endfor -%}
@@ -29,8 +45,8 @@ layout: default
   {%- if _prev_idx < members.size -%}{%- assign _has_prev = true -%}{%- endif -%}
 {%- endfor -%}
 {%- if _has_prev or _has_next -%}
-<nav class="series-nav-row" aria-label="专栏导航">
-  <p class="series-nav-title">本专栏文章</p>
+<nav class="series-nav-row" aria-label="子专栏导航">
+  <p class="series-nav-title">本子专栏文章</p>
   {%- assign _seen_cur = false -%}
   {%- for m in members -%}
     <a class="chip" href="{{ m.url }}" data-series="{{ page.title }}">{{ m.title }}</a>

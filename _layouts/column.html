@@ -1,0 +1,55 @@
+---
+layout: default
+---
+{%- comment -%}
+  column.html — 顶层专栏页（_columns/<slug>.md → /column/<slug>/）
+  展示该 column 下所有子系列,每个子系列带文章数
+{%- endcomment -%}
+{%- assign col_title = page.title -%}
+{%- assign col_slug = page.slug -%}
+{%- assign all_series = site.series | where: 'column', col_slug -%}
+{%- assign all_posts = site.posts | where: 'column', col_slug -%}
+
+<nav class="breadcrumbs" aria-label="面包屑">
+  <a href="/">首页</a>
+  <span class="bc-sep">/</span>
+  <a href="/series/">专栏</a>
+  <span class="bc-sep">/</span>
+  <span>{{ page.title }}</span>
+</nav>
+
+<h1>{{ page.title }}</h1>
+{%- if page.description -%}
+<p class="column-hint">{{ page.description }}</p>
+{%- endif -%}
+<p class="column-stats">共 {{ all_series.size }} 个子专栏 · {{ all_posts.size }} 篇文章</p>
+
+<section class="column-children">
+  <h2>子专栏</h2>
+  <ul class="column-list">
+    {%- for s in all_series -%}
+      {%- assign s_posts = site.posts | where_exp: 'p', 'p.series == s.title' -%}
+      <li>
+        <a class="column-card" href="{{ s.url }}">
+          <p class="column-card-title">{{ s.title }}</p>
+          {%- if s.description -%}
+          <p class="column-card-desc">{{ s.description }}</p>
+          {%- endif -%}
+          <p class="column-card-meta">{{ s_posts.size }} 篇</p>
+        </a>
+      </li>
+    {%- endfor -%}
+  </ul>
+</section>
+
+<section class="column-posts">
+  <h2>全部文章</h2>
+  <ul class="post-list">
+    {%- for p in all_posts limit: 50 -%}
+      {%- include post-card.html post=p show_first_tag=true -%}
+    {%- endfor -%}
+  </ul>
+  {%- if all_posts.size > 50 -%}
+  <p><a href="/series/">按子专栏查看 →</a></p>
+  {%- endif -%}
+</section>

@@ -5,7 +5,7 @@ url: https://itingyu.github.io
 baseurl: ""
 timezone: Asia/Shanghai
 
-permalink: /posts/:slug/
+permalink: /notes/:column/:series/:slug/
 
 paginate: 12
 paginate_path: /posts/page:num/
@@ -21,12 +21,15 @@ plugins:
   - jekyll-seo-tag
   - jekyll-optional-front-matter
 
-safe: true
+safe: false
 
 collections:
   series:
     output: true
     permalink: /series/:name/
+  columns:
+    output: true
+    permalink: /column/:name/
   tags:
     output: true
     permalink: /tags/:name/
@@ -37,6 +40,16 @@ defaults:
       type: posts
     values:
       layout: post
+  - scope:
+      path: ""
+      type: series
+    values:
+      layout: series-detail
+  - scope:
+      path: ""
+      type: columns
+    values:
+      layout: column
   - scope:
       path: ""
     values:

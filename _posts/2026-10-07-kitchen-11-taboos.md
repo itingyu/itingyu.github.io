@@ -8,6 +8,7 @@ series: 厨房学
 pinned: false
 cover: null
 draft: false
+column: 厨房学
 ---
 
 # 11 · 食物相克与真禁忌速查

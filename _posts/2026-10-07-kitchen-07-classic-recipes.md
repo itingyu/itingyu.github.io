@@ -8,6 +8,7 @@ series: 厨房学
 pinned: false
 cover: null
 draft: false
+column: 厨房学
 ---
 
 # 07 · 经典菜谱精讲

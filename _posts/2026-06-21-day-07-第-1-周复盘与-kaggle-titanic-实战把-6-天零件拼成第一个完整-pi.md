@@ -13,6 +13,7 @@ excerpt: ""
 pinned: false
 cover: null
 draft: false
+column: AI学习笔记
 ---
 
 

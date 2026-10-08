@@ -15,6 +15,7 @@ excerpt: "5 大压测工具全方位对比 —— GUI 协议 / 脚本语言 / �
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

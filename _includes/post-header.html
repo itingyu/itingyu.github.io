@@ -1,12 +1,20 @@
 {%- comment -%}
   post-header.html — 文章页 article-header
-  期望 page 对象是 _posts/<date>-<slug>.md。
-  渲染：h1 + post-meta（time / dot / chip[data-tag] / chip[data-series] / reading-time / word-count）+ post-excerpt
+  渲染：h1 + post-meta(time / tags / column chip / series chip / reading-time / word-count) + post-excerpt
 {%- endcomment -%}
+{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
 <header class="article-header">
   <h1>{{ page.title }}</h1>
   <div class="post-meta">
     <time datetime="{{ page.date | date: '%Y-%m-%d' }}">{{ page.date | date: '%Y-%m-%d' }}</time>
+    {%- if col_page -%}
+    <span class="dot">·</span>
+    <a class="chip" href="{{ col_page.url }}" data-column="{{ col_page.slug }}">{{ col_page.title }}</a>
+    {%- endif -%}
+    {%- if page.series -%}
+    <span class="dot">·</span>
+    <a class="chip" href="{{ '/series/' | append: page.series | append: '/' }}" data-series="{{ page.series }}">{{ page.series }}</a>
+    {%- endif -%}
     {%- if page.tags and page.tags.size > 0 -%}
       {%- for t in page.tags -%}
         <span class="dot">·</span>
@@ -16,10 +24,6 @@
           <a class="chip" href="{{ '/tags/' | append: t | append: '/' }}" data-tag="{{ t }}">{{ t }}</a>
         {%- endif -%}
       {%- endfor -%}
-    {%- endif -%}
-    {%- if page.series -%}
-    <span class="dot">·</span>
-    <a class="chip" href="{{ '/series/' | append: page.series | append: '/' }}" data-series="{{ page.series }}">{{ page.series }}</a>
     {%- endif -%}
     <span class="dot">·</span>
     <span data-reading-time>约 1 分钟</span>

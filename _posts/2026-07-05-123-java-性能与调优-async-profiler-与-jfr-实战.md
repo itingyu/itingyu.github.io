@@ -13,6 +13,7 @@ excerpt: "4 类问题 10 分钟定位。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

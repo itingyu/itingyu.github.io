@@ -16,6 +16,7 @@ excerpt: "可观测性三大支柱 —— Metrics(指标)+ Logs(日志)+ Traces(
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

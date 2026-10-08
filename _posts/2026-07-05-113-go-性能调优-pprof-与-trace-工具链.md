@@ -17,6 +17,7 @@ excerpt: "CPU profile / Heap profile / goroutine profile / trace 全套工具实
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

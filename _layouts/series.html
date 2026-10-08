@@ -2,38 +2,41 @@
 layout: default
 ---
 {%- comment -%}
-  series.html — 专栏总览（/series/，ul.series-grid > a.series-card）
-  AC-07：grid 数 == _series collection 文档数；卡片含 series-card-title / series-card-meta / series-card-count / series-card-desc（可选）
+  series.html — 专栏树总览（/series/）
+  按 column 分组展示 24 个子专栏
 {%- endcomment -%}
-<h1>专栏</h1>
-<p class="series-hint">按时间线聚合的专栏。开栏方式：在文章 front matter 中加 <code>series: 专栏名</code>(可选 <code>series_description</code> 一句话简介)。</p>
+<nav class="breadcrumbs" aria-label="面包屑">
+  <a href="/">首页</a>
+  <span class="bc-sep">/</span>
+  <span>专栏</span>
+</nav>
 
-<ul class="series-grid" aria-label="专栏列表">
-  {%- assign series_list = '' | split: '' -%}
-  {%- for s in site.series -%}
-    {%- assign _entry = s.title | append: '|' | append: s.path -%}
-    {%- assign series_list = series_list | push: _entry -%}
-  {%- endfor -%}
-  {%- assign series_list = series_list | sort -%}
-  {%- for entry in series_list -%}
-    {%- assign parts = entry | split: '|' -%}
-    {%- assign s_title = parts[0] -%}
-    {%- assign s_path = parts[1] -%}
-    {%- assign s_doc = site.series | where: 'title', s_title | first -%}
-    {%- assign count = 0 -%}
-    {%- assign latest = '' -%}
-    {%- for p in site.posts -%}
-      {%- if p.series == s_title and p.draft != true -%}
-        {%- assign count = count | plus: 1 -%}
-        {%- if latest == '' or p.date > latest -%}{%- assign latest = p.date -%}{%- endif -%}
-      {%- endif -%}
-    {%- endfor -%}
-  <a class="series-card" href="{{ '/series/' | append: s_title | append: '/' }}" data-series="{{ s_title }}">
-    <h3 class="series-card-title">{{ s_title }}</h3>
-    <p class="series-card-meta"><span class="series-card-count">{{ count }} 篇</span>{% if latest != '' %} <span class="dot">·</span> <time datetime="{{ latest | date: '%Y-%m-%d' }}">最近 {{ latest | date: '%Y-%m-%d' }}</time>{% endif %}</p>
-    {%- if s_doc and s_doc.description -%}
-    <p class="series-card-desc">{{ s_doc.description }}</p>
+<h1>专栏树</h1>
+<p class="series-hint">按「<strong>专栏</strong> → <strong>子专栏</strong> → <strong>文章</strong>」三层组织。共 {{ site.columns.size }} 个专栏 · {{ site.series.size }} 个子专栏 · {{ site.posts.size }} 篇文章。</p>
+
+{%- assign columns_sorted = site.columns | sort: 'order' -%}
+{%- for col in columns_sorted -%}
+  {%- assign col_series = site.series | where: 'column', col.slug -%}
+  {%- if col_series.size == 0 -%}{%- continue -%}{%- endif -%}
+  <section class="column-tree">
+    <h2 class="column-tree-title">
+      <a href="{{ col.url }}">{{ col.title }}</a>
+      <span class="column-tree-meta">{{ col_series.size }} 个子专栏</span>
+    </h2>
+    {%- if col.description -%}
+    <p class="column-tree-desc">{{ col.description }}</p>
     {%- endif -%}
-  </a>
-  {%- endfor -%}
-</ul>
+    <ul class="series-grid" aria-label="{{ col.title }} 子专栏">
+      {%- for s in col_series -%}
+        {%- assign s_count = site.posts | where_exp: 'p', 'p.series == s.title' | size -%}
+      <a class="series-card" href="{{ s.url }}" data-series="{{ s.title }}">
+        <h3 class="series-card-title">{{ s.title }}</h3>
+        <p class="series-card-meta"><span class="series-card-count">{{ s_count }} 篇</span></p>
+        {%- if s.description -%}
+        <p class="series-card-desc">{{ s.description }}</p>
+        {%- endif -%}
+      </a>
+      {%- endfor -%}
+    </ul>
+  </section>
+{%- endfor -%}

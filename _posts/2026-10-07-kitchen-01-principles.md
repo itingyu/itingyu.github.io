@@ -8,6 +8,7 @@ series: 厨房学
 pinned: false
 cover: null
 draft: false
+column: 厨房学
 ---
 
 # 01 · 厨房原理总论

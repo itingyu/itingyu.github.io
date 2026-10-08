@@ -13,6 +13,7 @@ excerpt: "锁的本质是状态机,AQS 是所有锁的基类。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

@@ -14,6 +14,7 @@ excerpt: "分库分表全栈实战 —— 垂直拆分 vs 水平拆分 + Shardin
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

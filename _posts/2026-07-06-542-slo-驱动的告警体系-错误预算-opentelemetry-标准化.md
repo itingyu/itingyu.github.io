@@ -14,6 +14,7 @@ excerpt: "SLO 驱动告警体系全栈 —— Error Budget 错误预算 + Burn R
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

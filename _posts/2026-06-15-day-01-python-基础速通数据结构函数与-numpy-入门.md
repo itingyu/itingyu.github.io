@@ -7,6 +7,7 @@ excerpt: "30 天 AI 学习计划 Day 1:Python 基础语法速通,为后续机器
 pinned: false
 cover: null
 draft: false
+column: AI学习笔记
 ---
 
 

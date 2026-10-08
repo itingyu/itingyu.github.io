@@ -13,6 +13,7 @@ excerpt: "Rust 异步是 zero-cost abstraction。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

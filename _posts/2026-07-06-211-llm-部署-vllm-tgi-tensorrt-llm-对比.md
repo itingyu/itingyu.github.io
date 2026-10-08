@@ -14,6 +14,7 @@ excerpt: "vLLM / TGI / TensorRT-LLM 三大主流 LLM 推理框架选型对比与
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

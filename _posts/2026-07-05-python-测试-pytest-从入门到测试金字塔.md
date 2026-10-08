@@ -14,6 +14,7 @@ excerpt: "单元测试 80% + 集成 15% + E2E 5%,测试金字塔不是空话。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

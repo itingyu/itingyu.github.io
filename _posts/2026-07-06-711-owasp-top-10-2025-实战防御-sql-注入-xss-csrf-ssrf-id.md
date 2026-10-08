@@ -15,6 +15,7 @@ excerpt: "OWASP Top 10 2025 全栈实战 —— 5 大常见漏洞(SQL 注入/XSS
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

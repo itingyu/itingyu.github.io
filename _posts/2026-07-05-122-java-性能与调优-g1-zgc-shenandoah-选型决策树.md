@@ -13,6 +13,7 @@ excerpt: "选 GC 不靠玄学,看堆大小 + 延迟要求 + 吞吐量。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

@@ -16,6 +16,7 @@ excerpt: "goroutine 不会自动死,channel 没关闭 + context 没传透 = 内�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

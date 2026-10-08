@@ -14,6 +14,7 @@ excerpt: "PostgreSQL 深度实战 —— vs MySQL 全方位对比 + 5 大核心�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

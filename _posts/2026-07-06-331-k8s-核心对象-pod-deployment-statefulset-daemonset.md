@@ -16,6 +16,7 @@ excerpt: "K8s 核心对象实战 —— Pod / Deployment / StatefulSet / DaemonS
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

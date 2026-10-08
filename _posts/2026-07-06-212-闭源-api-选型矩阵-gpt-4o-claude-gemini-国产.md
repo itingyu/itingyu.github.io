@@ -15,6 +15,7 @@ excerpt: "全球主流闭源 LLM API 选型矩阵 —— 价格、上下文、�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

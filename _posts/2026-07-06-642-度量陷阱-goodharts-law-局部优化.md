@@ -13,6 +13,7 @@ excerpt: "度量陷阱全栈 —— Goodhart's Law + 5 大常见度量陷阱 + �
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

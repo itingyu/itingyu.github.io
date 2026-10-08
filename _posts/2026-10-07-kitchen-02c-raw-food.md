@@ -8,6 +8,7 @@ series: 厨房学
 pinned: false
 cover: null
 draft: false
+column: 厨房学
 ---
 
 # 02c · 可生吃食材与生食处理

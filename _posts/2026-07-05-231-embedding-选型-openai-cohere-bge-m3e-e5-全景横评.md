@@ -17,6 +17,7 @@ excerpt: "从原理到代码,Embedding 模型选型决定 RAG 召回率天花板
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

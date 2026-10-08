@@ -14,6 +14,7 @@ excerpt: "30% 的代码占用 90% 的时间,找到那 30% 然后榨干它。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

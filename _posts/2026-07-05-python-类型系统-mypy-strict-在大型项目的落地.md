@@ -13,6 +13,7 @@ excerpt: "500 行到 5 万行,类型系统怎么加、怎么用、怎么治理�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

@@ -18,6 +18,7 @@ excerpt: "Go 1.22 是一次性能与表达力的双重升级:range over integer�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

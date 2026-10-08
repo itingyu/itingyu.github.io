@@ -14,6 +14,7 @@ excerpt: "大模型如何调用外部工具?三大协议(Function Calling / Anth
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

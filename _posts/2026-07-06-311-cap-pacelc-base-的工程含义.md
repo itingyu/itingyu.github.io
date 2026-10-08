@@ -14,6 +14,7 @@ excerpt: "分布式系统的三大理论基石 —— CAP 三选二 / PACELC 扩
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

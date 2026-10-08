@@ -14,6 +14,7 @@ excerpt: "大模型能力向小模型迁移的工程化范式 —— Logits / Fe
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

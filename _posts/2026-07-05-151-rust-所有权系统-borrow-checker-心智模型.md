@@ -12,6 +12,7 @@ excerpt: "Rust 用编译期检查换取运行时安全。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

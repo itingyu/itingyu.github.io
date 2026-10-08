@@ -13,6 +13,7 @@ excerpt: "不被\"Python 慢\"的偏见误导,在 AI 时代把 Python 写成生�
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

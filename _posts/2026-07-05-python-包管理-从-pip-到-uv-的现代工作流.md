@@ -14,6 +14,7 @@ excerpt: "一个项目一个 lock 文件,让依赖问题不再出现。"
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

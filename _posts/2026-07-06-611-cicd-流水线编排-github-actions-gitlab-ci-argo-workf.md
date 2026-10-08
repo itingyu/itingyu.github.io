@@ -14,6 +14,7 @@ excerpt: "CI/CD 三大流水线编排工具对比 —— GitHub Actions / GitLab
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 

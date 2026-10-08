@@ -3,32 +3,41 @@ layout: default
 ---
 {%- comment -%}
   post.html — 单篇文章页
-  §4.5 DOM：article > header.article-header > h1 + post-meta + excerpt + 正文 + footer.article-footer
-  JSON-LD（BlogPosting + BreadcrumbList）由 _includes/head.html 自动产出
+  显式面包屑:首页 / 专栏 / 子专栏 / 文章
+  显式章节信息(若有 chapter 字段)
+  无相关文章、无订阅
 {%- endcomment -%}
+{%- assign col_page = site.columns | where: 'slug', page.column | first -%}
+{%- assign series_page = site.series | where: 'title', page.series | first -%}
+
+<nav class="breadcrumbs" aria-label="面包屑">
+  <a href="/">首页</a>
+  <span class="bc-sep">/</span>
+  {%- if col_page -%}
+  <a href="{{ col_page.url }}">{{ col_page.title }}</a>
+  <span class="bc-sep">/</span>
+  {%- endif -%}
+  {%- if series_page -%}
+  <a href="{{ series_page.url }}">{{ series_page.title }}</a>
+  <span class="bc-sep">/</span>
+  {%- endif -%}
+  <span>{{ page.title }}</span>
+</nav>
+
 <article>
   {%- include post-header.html -%}
+  {%- if page.chapter or page.chapter_title -%}
+  <p class="chapter-meta">
+    {%- if page.chapter -%}<span class="chapter-num">{{ page.chapter }}</span> · {%- endif -%}
+    {%- if page.chapter_title -%}<span class="chapter-title">{{ page.chapter_title }}</span>{%- endif -%}
+  </p>
+  {%- endif -%}
   {{ content }}
   <div class="callout callout-note">
     <strong>说明</strong> · 本站内容均为学习笔记与经验总结,所有菜谱与技法请结合实际食材、季节与个人口味灵活调整。涉及生食、营养与健康的内容仅供参考,特殊体质或疾病请咨询专业营养师/医生。
   </div>
 </article>
 {%- include series-nav.html -%}
-<aside class="related" aria-label="相关文章">
-  <p class="related-title">相关文章</p>
-  <ul class="related-grid">
-    {%- assign related = site.posts | where_exp: 'p', "p.url != page.url" | limit: 3 -%}
-    {%- for r in related -%}
-    <li>
-      <a class="related-card" href="{{ r.url }}">
-        <p class="related-card-title">{{ r.title }}</p>
-        <p class="related-card-meta"><time datetime="{{ r.date | date: '%Y-%m-%d' }}">{{ r.date | date: '%Y-%m-%d' }}</time></p>
-        <p class="related-card-excerpt">{{ r.excerpt | default: r.title }}</p>
-      </a>
-    </li>
-    {%- endfor -%}
-  </ul>
-</aside>
 
 <nav class="post-nav" aria-label="文章导航">
   {%- if page.previous -%}

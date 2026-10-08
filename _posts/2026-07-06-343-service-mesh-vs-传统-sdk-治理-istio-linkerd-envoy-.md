@@ -15,6 +15,7 @@ excerpt: "微服务治理范式之争 —— Service Mesh vs Spring Cloud/Dubbo 
 pinned: false
 cover: null
 draft: false
+column: 知识宝典
 ---
 
 
