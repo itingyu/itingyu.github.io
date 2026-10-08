@@ -1185,6 +1185,7 @@ blockquote p:last-child { margin-bottom: 0; }
   .heading-anchor { display: none !important; }
   a { color: #000; text-decoration: underline; }
   pre, blockquote { border: 1px solid #ccc; page-break-inside: avoid; }
+  .sidebar-tree, .layout-with-sidebar > .sidebar-tree, .sidebar-tree-toggle { display: none !important; }
 }
 
 /* ==========================================================================
@@ -1526,3 +1527,215 @@ h3:hover > .heading-anchor,
 }
 
 /* 打印时不显示锚点(规则合并到全局 print 块,避免单文件多处 print block 断言失败) */
+
+/* ---------- sidebar tree (3-level hierarchy) ---------- */
+
+.layout-with-sidebar {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.layout-with-sidebar > .content-area {
+  min-width: 0;
+}
+
+.sidebar-tree {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-sm);
+  font-size: var(--step--1);
+}
+
+.sidebar-tree-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+.sidebar-tree-head h3 {
+  margin: 0;
+  font-size: var(--step-0);
+  font-weight: 600;
+  font-family: var(--font-sans);
+  letter-spacing: .04em;
+}
+.sidebar-tree-all {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: var(--step--1);
+}
+.sidebar-tree-all:hover { text-decoration: underline; }
+
+.tree ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tree-root > .tree-col { margin-bottom: .25rem; }
+
+/* <details> 默认样式重置 */
+.tree details > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem 0;
+  border-radius: var(--r-sm);
+  transition: background-color .12s ease;
+}
+.tree details > summary::-webkit-details-marker { display: none; }
+.tree details > summary::marker { display: none; }
+.tree details > summary:hover { background: var(--bg-soft); }
+
+.tree-toggle {
+  display: inline-block;
+  width: 1em;
+  font-size: .7em;
+  color: var(--fg-muted);
+  transition: transform .15s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+.tree details[open] > summary > .tree-toggle {
+  transform: rotate(90deg);
+}
+
+.tree-col-head {
+  font-weight: 600;
+  color: var(--fg);
+  padding-left: .25rem;
+}
+.tree-col-link, .tree-series-link {
+  color: inherit;
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-col-link:hover, .tree-series-link:hover {
+  color: var(--accent);
+}
+
+.tree-count {
+  font-size: .78em;
+  color: var(--fg-muted);
+  background: var(--bg-soft);
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.tree-col-list {
+  margin-left: .85rem;
+  border-left: 1px dashed var(--border-soft);
+  padding-left: .65rem;
+}
+
+.tree-series-head {
+  font-weight: 500;
+  color: var(--fg);
+  padding-left: .25rem;
+}
+.tree-series + .tree-series { margin-top: .1rem; }
+
+.tree-post-list {
+  margin-left: .85rem;
+  border-left: 1px dashed var(--border-soft);
+  padding-left: .65rem;
+}
+.tree-post {
+  margin: 0;
+  padding: 0;
+}
+.tree-post-link {
+  display: block;
+  padding: .2rem .4rem;
+  color: var(--fg-muted);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  font-size: .92em;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  transition: background-color .12s ease, color .12s ease;
+}
+.tree-post-link:hover {
+  color: var(--accent);
+  background: var(--bg-soft);
+}
+
+/* 高亮:当前节点(专栏/子专栏/文章) */
+.tree-cur > summary,
+.tree-cur.tree-post {
+  background: var(--accent-bg, color-mix(in srgb, var(--accent) 8%, var(--bg-elev)));
+  color: var(--accent);
+  font-weight: 600;
+}
+.tree-cur.tree-post .tree-post-link { color: var(--accent); font-weight: 600; }
+
+/* 移动端:侧栏折叠到顶部按钮 */
+@media (max-width: 900px) {
+  .layout-with-sidebar {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .sidebar-tree {
+    position: static;
+    max-height: none;
+    margin-bottom: 1.5rem;
+  }
+  .sidebar-tree.is-collapsed .tree { display: none; }
+  .sidebar-tree-toggle {
+    display: block;
+    width: 100%;
+    padding: .65rem 1rem;
+    margin-bottom: .75rem;
+    background: var(--bg-elev);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-md);
+    color: var(--fg);
+    font-size: var(--step-0);
+    text-align: left;
+    cursor: pointer;
+  }
+  .sidebar-tree-toggle::after {
+    content: '▼';
+    float: right;
+    transition: transform .15s ease;
+  }
+  .sidebar-tree.is-collapsed .sidebar-tree-toggle::after {
+    transform: rotate(-90deg);
+  }
+}
+@media (min-width: 901px) {
+  .sidebar-tree-toggle { display: none; }
+}
+
+/* 滚动条美化(只在支持的环境) */
+.sidebar-tree::-webkit-scrollbar { width: 6px; }
+.sidebar-tree::-webkit-scrollbar-track { background: transparent; }
+.sidebar-tree::-webkit-scrollbar-thumb {
+  background: var(--border-soft);
+  border-radius: 3px;
+}
+.sidebar-tree::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+/* 打印时隐藏 sidebar:规则已合并到上面主 print 块 */
