@@ -1,5 +1,5 @@
 ---
 layout: tag
-title: daily-brief
+title: 每日简报
 tag: daily-brief
 ---

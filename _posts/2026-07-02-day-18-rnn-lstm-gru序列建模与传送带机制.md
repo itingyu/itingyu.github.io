@@ -3,6 +3,7 @@ layout: post
 title: "Day 18｜RNN / LSTM / GRU:序列建模与「传送带」机制（AI 学习笔记 · 深度学习周 · 第 18 篇）"
 date: 2026-07-02 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

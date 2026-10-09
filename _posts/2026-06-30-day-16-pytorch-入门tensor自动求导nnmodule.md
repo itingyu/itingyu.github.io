@@ -3,6 +3,7 @@ layout: post
 title: "Day 16｜PyTorch 入门:Tensor、自动求导、nn.Module（AI 学习笔记 · 深度学习周 · 第 16 篇）"
 date: 2026-06-30 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

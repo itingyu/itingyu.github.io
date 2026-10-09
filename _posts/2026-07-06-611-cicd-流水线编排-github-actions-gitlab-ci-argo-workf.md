@@ -8,7 +8,7 @@ tags:
   - "GitLab CI"
   - "Argo Workflows"
   - "Jenkins"
-  - "CI/CD"
+  - "CI-CD"
   - "Pipeline"
 excerpt: "CI/CD 三大流水线编排工具对比 —— GitHub Actions / GitLab CI / Argo Workflows + Jenkins 经典 / 7 维度对比矩阵"
 pinned: false
