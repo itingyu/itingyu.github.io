@@ -3,6 +3,7 @@ layout: post
 title: "Day 12｜聚类与降维:K-Means、PCA、t-SNE 三件套（AI 学习笔记 · 经典机器学习周 · 第 12 篇）"
 date: 2026-06-26 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

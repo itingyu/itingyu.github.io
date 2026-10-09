@@ -3,6 +3,7 @@ layout: post
 title: "Day 26｜RAG 检索增强生成:Embedding、向量数据库与 LangChain 实战（AI 学习笔记 · 大模型与生成式AI周 · 第 26 篇）"
 date: 2026-07-04 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

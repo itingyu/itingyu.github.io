@@ -1,7 +1,13 @@
 {%- comment -%}
   post-header.html — 文章页 article-header
   参数: post(可选) — 文章对象,默认 page
+  Tag chip：仅当 `_tags/<slug>.md` 存在（site.tags | where: "tag", slug | first）才渲染 <a href>；
+            否则渲染纯文本 <span class="chip chip-text">，避免 404 死链。
 {%- endcomment -%}
+<style>
+  .chip-text{cursor:default}
+  .chip-text:hover{color:var(--fg-muted);border-color:var(--border);background:var(--bg-elev);transform:none}
+</style>
 {%- assign _post = include.post | default: page -%}
 {%- assign col_page = site.columns | where: 'slug', _post.column | first -%}
 <header class="article-header">
@@ -19,10 +25,13 @@
     {%- if _post.tags and _post.tags.size > 0 -%}
       {%- for t in _post.tags -%}
         <span class="dot">·</span>
-        {%- if t.tag -%}
-          <a class="chip" href="{{ '/tags/' | append: t.tag | append: '/' }}" data-tag="{{ t.tag }}">{{ t.title | default: t.tag }}</a>
+        {%- assign _slug = t.tag | default: t -%}
+        {%- assign _disp = t.title | default: _slug -%}
+        {%- assign _tag_doc = site.tags | where: "tag", _slug | first -%}
+        {%- if _tag_doc -%}
+          <a class="chip" href="{{ '/tags/' | append: _slug | append: '/' }}" data-tag="{{ _slug }}">{{ _disp }}</a>
         {%- else -%}
-          <a class="chip" href="{{ '/tags/' | append: t | append: '/' }}" data-tag="{{ t }}">{{ t }}</a>
+          <span class="chip chip-text" data-tag="{{ _slug }}">{{ _disp }}</span>
         {%- endif -%}
       {%- endfor -%}
     {%- endif -%}

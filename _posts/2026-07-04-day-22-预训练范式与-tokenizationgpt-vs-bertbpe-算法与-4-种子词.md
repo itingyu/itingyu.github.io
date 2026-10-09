@@ -3,6 +3,7 @@ layout: post
 title: "Day 22｜预训练范式与 Tokenization:GPT vs BERT、BPE 算法与 4 种子词切分（AI 学习笔记 · 大模型与生成式 AI 周 · 第 22 篇）"
 date: 2026-07-04 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

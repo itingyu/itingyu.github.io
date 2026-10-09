@@ -3,6 +3,7 @@ layout: post
 title: "Day 8｜分类问题:逻辑回归、Softmax、交叉熵,ML 分类任务的「老底子」（AI 学习笔记 · 经典机器学习周 · 第 8 篇）"
 date: 2026-06-22 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null
