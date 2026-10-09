@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  var INDEX_URL = '/assets/search-index.json';
+  var INDEX_URL = '/search/index.json';
 
   var inputEl = document.querySelector('[data-search-input]');
   var statusEl = document.querySelector('[data-search-status]');
@@ -30,7 +30,7 @@
   function score(post, tokens) {
     var titleLow = (post.title || '').toLowerCase();
     var descLow = (post.description || '').toLowerCase();
-    var bodyLow = (post.excerpt || '').toLowerCase();
+    var bodyLow = (post.content || '').toLowerCase();
     var tagsLow = (post.tags || []).join(' ').toLowerCase();
     var dateLow = (post.date || '').toLowerCase();
     var s = 0;
@@ -63,10 +63,10 @@
 
   function hitHTML(post, tokens) {
     var titleHTML = esc(post.title);
-    var desc = (post.excerpt || post.description || '').trim();
+    var desc = (post.content || '').trim();
     var snip = esc(snippet(desc, tokens, 140));
     return '<li class="search-hit">'
-      + '<h3 class="search-hit-title"><a href="/posts/' + esc(post.slug) + '/">' + titleHTML + '</a></h3>'
+      + '<h3 class="search-hit-title"><a href="' + esc(post.url) + '">' + titleHTML + '</a></h3>'
       + '<div class="search-hit-meta">'
       + '<time datetime="' + esc(post.date) + '">' + esc(post.date) + '</time>'
       + (post.tags && post.tags.length
