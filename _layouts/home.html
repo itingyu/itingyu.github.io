@@ -2,8 +2,9 @@
 layout: default
 ---
 {%- comment -%}
-  home.html — 首页（hero + 最新文章 + 「查看全部文章 →」）
+  home.html — 首页（hero + 最新文章 + 专栏卡片 + 「查看全部文章 →」）
   AC-03 / §4.5：h2.section-title + ul.post-list + 「查看全部文章」链接
+  AIWORK1-99（2026-10-09）：加专栏卡片(8 个 L2)区,缩短专栏发现路径;复用 _layouts/series.html 的 .series-grid 样式
 {%- endcomment -%}
 <section class="hero">
   <span class="hero-eyebrow">个人博客</span>
@@ -27,3 +28,20 @@ layout: default
 </ul>
 
 <p style="margin-top: 1.5rem;"><a href="/archive/">查看全部文章 →</a></p>
+
+<h2 class="section-title">专栏</h2>
+{%- assign series_sorted = site.series | sort: 'order' -%}
+<ul class="series-grid" aria-label="所有专栏">
+  {%- for s in series_sorted -%}
+    {%- assign s_count = site.posts | where: 'series', s.slug | size -%}
+  <a class="series-card" href="{{ s.url }}" data-series="{{ s.title }}">
+    <h3 class="series-card-title">{{ s.title }}</h3>
+    <p class="series-card-meta"><span class="series-card-count">{{ s_count }} 篇</span></p>
+    {%- if s.description -%}
+    <p class="series-card-desc">{{ s.description }}</p>
+    {%- endif -%}
+  </a>
+  {%- endfor -%}
+</ul>
+
+<p style="margin-top: 1rem;"><a href="/series/">查看全部专栏 →</a></p>

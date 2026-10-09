@@ -1742,6 +1742,10 @@ h3:hover > .heading-anchor,
     max-height: none;
     margin-bottom: 1.5rem;
   }
+  /* AIWORK1-99:默认收起,避免 FOUC;由 JS 按需加 .is-expanded 展开 */
+  .sidebar-tree .tree { display: none; }
+  .sidebar-tree.is-expanded .tree { display: block; }
+  /* 兼容旧 is-collapsed(主题切换时 transient) */
   .sidebar-tree.is-collapsed .tree { display: none; }
   .sidebar-tree-toggle {
     display: block;
@@ -1761,6 +1765,14 @@ h3:hover > .heading-anchor,
     float: right;
     transition: transform .15s ease;
   }
+  /* 默认收起时,箭头朝右 */
+  .sidebar-tree:not(.is-expanded) .sidebar-tree-toggle::after {
+    transform: rotate(-90deg);
+  }
+  .sidebar-tree.is-expanded .sidebar-tree-toggle::after {
+    transform: rotate(0deg);
+  }
+  /* 兼容旧 is-collapsed */
   .sidebar-tree.is-collapsed .sidebar-tree-toggle::after {
     transform: rotate(-90deg);
   }
@@ -1951,8 +1963,11 @@ h3:hover > .heading-anchor,
     grid-template-columns: 1fr;
     grid-template-areas: "content";
   }
+  /* 侧栏树:不整段隐藏,而是默认收起,顶部显示 toggle 按钮;点击展开 */
+  /* AIWORK1-99:之前这里 display:none 会把 .sidebar-tree-toggle 一起藏掉,改为让上方
+     (max-width: 900px) 块里的 .is-collapsed / .sidebar-tree-toggle 接管 */
   .layout-with-sidebar > .sidebar-tree,
-  .layout-with-sidebar--2col > .sidebar-tree { display: none; }
+  .layout-with-sidebar--2col > .sidebar-tree { display: block; }
   .article-bar { padding: .75rem 1rem; }
   .article-bar-title { font-size: var(--step--1); }
 }

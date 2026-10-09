@@ -42,6 +42,9 @@
 
     // 文章页 <pre> 复制按钮
     initCopyButtons();
+
+    // 移动端侧栏树抽屉(AIWORK1-99)
+    initSidebarDrawer();
   });
 
   // ---------- 阅读进度条 ----------
@@ -314,5 +317,57 @@
       document.body.removeChild(ta);
       cb();
     } catch (_) { /* swallow */ }
+  }
+
+  // ---------- 移动端侧栏树抽屉(AIWORK1-99) ----------
+
+  function initSidebarDrawer() {
+    var tree = document.querySelector('[data-sidebar-tree]');
+    if (!tree) return;
+    var btn = tree.querySelector('[data-sidebar-tree-toggle]');
+    if (!btn) return;
+
+    var mq = window.matchMedia('(max-width: 900px)');
+
+    function setOpen(open) {
+      if (open) {
+        tree.classList.add('is-expanded');
+        tree.classList.remove('is-collapsed');
+        btn.setAttribute('aria-expanded', 'true');
+      } else {
+        tree.classList.remove('is-expanded');
+        tree.classList.add('is-collapsed');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    function sync() {
+      if (mq.matches) {
+        // 窄屏:默认收起(CSS 默认就是收起;JS 只是确保状态正确)
+        if (!tree.classList.contains('is-collapsed') && !tree.classList.contains('is-expanded')) {
+          setOpen(false);
+        }
+        btn.hidden = false;
+      } else {
+        // 宽屏:始终展开,按钮隐藏(CSS 兜底)
+        tree.classList.remove('is-collapsed');
+        tree.classList.add('is-expanded');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      setOpen(!open);
+    });
+
+    // 视口跨断点切换时,重置状态(避免横竖屏切换后状态残留)
+    if (mq.addEventListener) {
+      mq.addEventListener('change', sync);
+    } else if (mq.addListener) {
+      mq.addListener(sync); // Safari < 14
+    }
+
+    sync();
   }
 })();

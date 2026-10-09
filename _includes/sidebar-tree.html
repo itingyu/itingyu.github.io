@@ -27,12 +27,15 @@
 {%- assign cur_url = page.url -%}
 {%- assign columns_sorted = site.columns | sort: 'order' -%}
 
-<aside class="sidebar-tree" aria-label="文章导航">
+<aside class="sidebar-tree" aria-label="文章导航" data-sidebar-tree>
+  <button class="sidebar-tree-toggle" type="button" data-sidebar-tree-toggle aria-controls="sidebar-tree-nav" aria-expanded="false">
+    专栏导航
+  </button>
   <div class="sidebar-tree-head">
     <h3>专栏导航</h3>
     <a class="sidebar-tree-all" href="/series/">总览 →</a>
   </div>
-  <nav class="tree">
+  <nav class="tree" id="sidebar-tree-nav">
     <ul class="tree-root">
       {%- for col in columns_sorted -%}
         {%- assign col_series = site.series | where: 'column', col.slug -%}

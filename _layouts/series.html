@@ -28,7 +28,7 @@ layout: default
     {%- endif -%}
     <ul class="series-grid" aria-label="{{ col.title }} 子专栏">
       {%- for s in col_series -%}
-        {%- assign s_count = site.posts | where_exp: 'p', 'p.series == s.title' | size -%}
+        {%- assign s_count = site.posts | where: 'series', s.slug | size -%}
       <a class="series-card" href="{{ s.url }}" data-series="{{ s.title }}">
         <h3 class="series-card-title">{{ s.title }}</h3>
         <p class="series-card-meta"><span class="series-card-count">{{ s_count }} 篇</span></p>
