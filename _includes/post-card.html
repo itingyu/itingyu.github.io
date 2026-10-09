@@ -45,5 +45,5 @@
       {%- endif -%}
     {%- endunless -%}
   </div>
-  <p class="post-excerpt">{{ p.excerpt | default: p.title }}</p>
+  <p class="post-excerpt">{{ p.excerpt | default: p.content | strip_html | normalize_whitespace | truncate: 100 }}</p>
 </li>

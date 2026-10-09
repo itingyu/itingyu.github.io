@@ -1,13 +1,25 @@
 {%- comment -%}
   head.html — 整站 <head> 公共部分
-  - FOUC 内联字节沿用 v1（位置在 <link rel="stylesheet"> 之前）
-  - {% seo %} 仅在非文章页生效（避免与手写 BlogPosting 重复，§D4）
-  - jekyll-seo-tag 默认会注入 BlogPosting；文章页必须用 unless 跳过
+  - FOUC 内联字节沿用 v1(位置在 <link rel="stylesheet"> 之前)
+  - {% seo %} 仅在非文章页生效(避免与手写 BlogPosting 重复,§D4)
+  - jekyll-seo-tag 默认会注入 BlogPosting;文章页必须用 unless 跳过
+  - favicon 全站统一(2026-10-09 批次:从 post-meta 上移)
+  - MathJax / Mermaid 仅含对应内容的页面注入(避免 ~2MB 列表页空转,2026-10-09 批次)
+    - MathJax 触发条件:page.content 含 '$'(便宜子串匹配,误报可接受)
+    - Mermaid 触发条件:page.content 含 'language-mermaid'(kramdown 把 ```mermaid
+      代码块渲染成 <pre><code class="language-mermaid">;spec 的两个标记——'```mermaid'
+      与 '<pre class="mermaid"'——在本仓 kramdown 产物中都不命中,只有
+      'language-mermaid' 能精确识别 fenced-mermaid 代码块且不误中含 'mermaid'
+      单词的正文)
+  - CDN 域名加 preconnect,弱网首字节更稳
 {%- endcomment -%}
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>{% if page.title %}{{ page.title }} · itingyu{% else %}{{ site.title | default: 'itingyu · 博客' }}{% endif %}</title>
 <meta name="author" content="{{ site.author.name | default: 'itingyu' }}" />
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
 <script>
   (function(){
@@ -22,6 +34,7 @@
 <script defer src="/assets/theme.js"></script>
 <script defer src="/assets/keys.js"></script>
 
+{%- if page.content contains '$' -%}
 <!-- MathJax 3 (LaTeX 渲染) -->
 <script>
   window.MathJax = {
@@ -40,10 +53,13 @@
   };
 </script>
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script"></script>
+{%- endif -%}
 
+{%- if page.content contains 'language-mermaid' -%}
 <!-- Mermaid (图渲染) -->
 <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script defer src="/assets/mermaid-init.js"></script>
+{%- endif -%}
 
 {%- if page.layout == 'post' -%}
   {%- include post-meta.html -%}

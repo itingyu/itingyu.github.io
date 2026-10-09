@@ -5,7 +5,6 @@
     {% include article-body.html post=page %}              # 在 post layout 中
     {% include article-body.html post=site.posts.first %}  # 在文章首页(展示最新一篇)
   包括:左 sidebar-tree + header bar + post 主体 + post-nav
-  (admin 反馈:右侧 article-toc 是冗余的,2026-10-09 移除)
 {%- endcomment -%}
 {%- assign col_page = site.columns | where: 'slug', include.post.column | first -%}
 {%- assign series_page = site.series | where: 'title', include.post.series | first -%}

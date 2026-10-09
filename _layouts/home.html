@@ -18,8 +18,9 @@ layout: default
 
 <h2 class="section-title">最新文章</h2>
 <ul class="post-list">
-  {%- assign pinned = site.posts | where: 'pinned', true -%}
-  {%- assign top = pinned | concat: site.posts -%}
+{%- assign pinned = site.posts | where: 'pinned', true -%}
+{%- assign rest = site.posts | where_exp: 'p', 'p.pinned != true' -%}
+{%- assign top = pinned | concat: rest -%}
   {%- assign limit = 3 -%}
   {%- for p in top limit: limit -%}
     {%- include post-card.html post=p show_first_tag=true -%}

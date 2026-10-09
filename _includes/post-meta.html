@@ -5,7 +5,6 @@
 {%- endcomment -%}
 {%- assign canonical = page.url | absolute_url -%}
 <link rel="canonical" href="{{ canonical }}" />
-<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
 
 {%- if page.previous -%}
 <link rel="prev" href="{{ page.previous.url | absolute_url }}" />
@@ -16,7 +15,7 @@
 
 <meta property="og:type" content="article" />
 <meta property="og:title" content="{{ page.title }}" />
-<meta property="og:description" content="{{ page.excerpt }}" />
+<meta property="og:description" content="{{ page.excerpt | default: page.content | strip_html | normalize_whitespace | truncate: 100 }}" />
 <meta property="og:url" content="{{ canonical }}" />
 <meta property="og:locale" content="zh_CN" />
 <meta property="article:published_time" content="{{ page.date | date: '%Y-%m-%d' }}" />
@@ -31,4 +30,4 @@
 
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="{{ page.title }}" />
-<meta name="twitter:description" content="{{ page.excerpt }}" />
+<meta name="twitter:description" content="{{ page.excerpt | default: page.content | strip_html | normalize_whitespace | truncate: 100 }}" />

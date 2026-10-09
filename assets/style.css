@@ -1568,14 +1568,12 @@ h3:hover > .heading-anchor,
 
 .layout-with-sidebar > .sidebar-tree { grid-area: tree; }
 .layout-with-sidebar > .content-area { grid-area: content; min-width: 0; }
-.layout-with-sidebar > .article-toc  { grid-area: toc; }
 
 /* 2-column 变体:无右栏(series/column 页用) */
 .layout-with-sidebar--2col {
   grid-template-columns: 260px minmax(0, 1fr);
   grid-template-areas: "tree content";
 }
-.layout-with-sidebar--2col > .article-toc { display: none; }
 
 .sidebar-tree {
   position: sticky;
@@ -1847,88 +1845,6 @@ h3:hover > .heading-anchor,
   font-style: italic;
   line-height: 1.5;
 }
-
-/* ---------- article TOC (right sidebar, JS-built) ---------- */
-
-.article-toc {
-  position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 2rem);
-  overflow-y: auto;
-  background: transparent;
-  border: 0;
-  border-left: 1px solid var(--border-soft);
-  border-radius: 0;
-  padding: .85rem .85rem .85rem 1.1rem;
-  box-shadow: none;
-  font-size: var(--step--1);
-}
-.article-toc.is-empty .article-toc-nav { font-size: .9em; color: var(--fg-muted); font-style: italic; }
-.article-toc.is-collapsed .article-toc-nav { display: none; }
-.article-toc-head { display: none; }
-.article-toc-toggle {
-  appearance: none;
-  background: transparent;
-  border: 0;
-  color: var(--fg-muted);
-  cursor: pointer;
-  padding: 0 .25rem;
-  font-size: .9em;
-  line-height: 1;
-}
-.article-toc-toggle:hover { color: var(--accent); }
-.article-toc-empty {
-  margin: 0;
-  color: var(--fg-muted);
-  font-size: .9em;
-  font-style: italic;
-}
-.article-toc-list, .article-toc-sublist {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.article-toc-item { margin: 0; }
-.article-toc-link {
-  display: block;
-  padding: .25rem .4rem;
-  color: var(--fg-muted);
-  text-decoration: none;
-  border-radius: var(--r-sm);
-  border-left: 2px solid transparent;
-  font-size: .92em;
-  line-height: 1.4;
-  transition: color .12s ease, background-color .12s ease, border-color .12s ease;
-}
-.article-toc-link:hover {
-  color: var(--accent);
-  background: var(--bg-soft);
-}
-.article-toc-link.is-active {
-  color: var(--accent);
-  border-left-color: var(--accent);
-  background: var(--accent-bg, color-mix(in srgb, var(--accent) 8%, transparent));
-  font-weight: 600;
-}
-.article-toc-link.is-active-parent {
-  color: var(--accent);
-  font-weight: 600;
-}
-.article-toc-sublist { margin-left: .85rem; }
-.article-toc-sublist .article-toc-link {
-  font-size: .85em;
-  padding: .2rem .4rem;
-  color: var(--fg-muted);
-}
-.article-toc-sublist .article-toc-link.is-active { font-weight: 600; }
-
-.article-toc::-webkit-scrollbar { width: 5px; }
-.article-toc::-webkit-scrollbar-track { background: transparent; }
-.article-toc::-webkit-scrollbar-thumb {
-  background: var(--border-soft);
-  border-radius: 3px;
-}
-.article-toc::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
 
 /* 响应式:三档 */
 /* 2 栏(左树 + 中正文);admin 反馈右侧 aside 文章目录冗余,2026-10-09 移除右 toc */

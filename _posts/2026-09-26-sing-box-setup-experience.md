@@ -4,7 +4,6 @@ title: "sing-box 代理搭建经验：从 0 到稳定上网"
 date: 2026-09-26 12:00:00 +0800
 tags: [sing-box, proxy, linux, network]
 excerpt: "从机场订阅到 zashboard dashboard,完整记录 sing-box 1.14 代理配置、DNS fakeip、订阅自动更新、CORS 反代等实战经验。"
-series: ""
 column: misc
 pinned: false
 cover: null

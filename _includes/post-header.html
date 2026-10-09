@@ -40,5 +40,5 @@
     <span class="dot">·</span>
     <span class="word-count" data-word-count>统计中…</span>
   </div>
-  <p class="post-excerpt">{{ _post.excerpt }}</p>
+  <p class="post-excerpt">{{ _post.excerpt | default: _post.content | strip_html | normalize_whitespace | truncate: 100 }}</p>
 </header>
