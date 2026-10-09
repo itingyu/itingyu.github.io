@@ -3,6 +3,7 @@ layout: post
 title: "渲染测试：Mermaid + LaTeX"
 date: 2026-10-08 16:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: "验证 Mermaid 图和 LaTeX 公式在文章页的渲染"
 pinned: false
 cover: null

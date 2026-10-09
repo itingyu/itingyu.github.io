@@ -3,6 +3,7 @@ layout: post
 title: "Day 19｜Transformer 深入:Self-Attention 与位置编码,LLM 时代的入口（AI 学习笔记 · 深度学习周 · 第 19 篇）"
 date: 2026-07-03 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null

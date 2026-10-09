@@ -3,6 +3,7 @@ layout: post
 title: "Day 01｜Python 基础速通:数据结构、函数与 NumPy 入门（AI 学习笔记 · 基础筑基周 · 第 1 篇）"
 date: 2026-06-15 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: "30 天 AI 学习计划 Day 1:Python 基础语法速通,为后续机器学习打地基。"
 pinned: false
 cover: null

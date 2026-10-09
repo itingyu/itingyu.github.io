@@ -3,6 +3,7 @@ layout: post
 title: "Day 10｜梯度提升:XGBoost 与 LightGBM,表格数据的「默认基线」（AI 学习笔记 · 经典机器学习周 · 第 10 篇）"
 date: 2026-06-24 00:00:00 +0800
 series: ai-basics
+tags: []
 excerpt: ""
 pinned: false
 cover: null
