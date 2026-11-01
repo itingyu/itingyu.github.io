@@ -1,0 +1,33 @@
+{%- comment -%}
+  jsonld-person.html — 首页 / about 的 Person + Blog JSON-LD
+  AC-08：首页含 Person（sameAs 含 GitHub）与 Blog，Blog.blogPost 长度 == 已发布文章数。
+{%- endcomment -%}
+{%- assign posts_count = site.posts | size -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": {{ site.author.name | default: 'itingyu' | jsonify }},
+  "url": {{ '/' | absolute_url | jsonify }},
+  "sameAs": [{{ site.author.same_as | default: 'https://github.com/itingyu' | jsonify }}]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "name": {{ site.title | default: 'itingyu · 博客' | jsonify }},
+  "description": {{ site.description | jsonify }},
+  "url": {{ '/' | absolute_url | jsonify }},
+  "blogPost": [
+    {%- for p in site.posts limit: 22 -%}
+    {
+      "@type": "BlogPosting",
+      "headline": {{ p.title | jsonify }},
+      "url": {{ p.url | absolute_url | jsonify }},
+      "datePublished": {{ p.date | date: '%Y-%m-%d' | jsonify }}
+    }{%- unless forloop.last -%},{%- endunless -%}
+    {%- endfor -%}
+  ]
+}
+</script>

@@ -1,0 +1,37 @@
+{%- comment -%}
+  post-header.html — 文章页 article-header
+  参数: post(可选) — 文章对象,默认 page
+  标签以纯文本 chip 展示（不可点、不参与搜索/筛选）。
+{%- endcomment -%}
+<style>
+  .chip-text{cursor:default}
+  .chip-text:hover{color:var(--fg-muted);border-color:var(--border);background:var(--bg-elev);transform:none}
+</style>
+{%- assign _post = include.post | default: page -%}
+{%- assign col_page = site.columns | where: 'slug', _post.column | first -%}
+<header class="article-header">
+  <h1>{{ _post.title }}</h1>
+  <div class="post-meta">
+    <time datetime="{{ _post.date | date: '%Y-%m-%d' }}">{{ _post.date | date: '%Y-%m-%d' }}</time>
+    {%- if col_page -%}
+    <span class="dot">·</span>
+    <a class="chip" href="{{ col_page.url }}" data-column="{{ col_page.slug }}">{{ col_page.title }}</a>
+    {%- endif -%}
+    {%- if _post.series -%}
+    {%- assign _series_doc = site.series | where: 'slug', _post.series | first -%}
+    <span class="dot">·</span>
+    <a class="chip" href="{{ '/series/' | append: _post.series | append: '/' }}" data-series="{{ _post.series }}">{{ _series_doc.title | default: _post.series }}</a>
+    {%- endif -%}
+    {%- if _post.tags and _post.tags.size > 0 -%}
+      {%- for t in _post.tags -%}
+        {%- assign _slug = t.tag | default: t -%}
+        <span class="dot">·</span><span class="chip chip-text" data-tag="{{ _slug }}">{{ t.title | default: _slug }}</span>
+      {%- endfor -%}
+    {%- endif -%}
+    <span class="dot">·</span>
+    <span data-reading-time>约 1 分钟</span>
+    <span class="dot">·</span>
+    <span class="word-count" data-word-count>统计中…</span>
+  </div>
+  <p class="post-excerpt">{{ _post.excerpt }}</p>
+</header>

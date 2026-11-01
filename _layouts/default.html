@@ -1,0 +1,32 @@
+{%- comment -%}
+  default.html — 整站壳（head + skip-link + header + main + footer）
+  Phase A 也创建本文件；这里写完整版与 Phase A 并行合并兼容。
+  reading-progress 仅文章页必备（§4.5 DOM 契约）。
+  main.class：默认 container；首页用 container-wide（与 v1 index.html 等价）。
+{%- endcomment -%}
+<!doctype html>
+<html lang="{{ site.lang | default: 'zh-CN' }}">
+<head>
+  {%- include head.html -%}
+</head>
+<body>
+  {%- if page.layout == 'post' -%}
+  <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+  {%- endif -%}
+  {%- if page.layout == 'post' or page.layout == 'home' or page.layout == 'archive' or page.layout == 'tags' or page.layout == 'tag' or page.layout == 'series' or page.layout == 'series-detail' or page.layout == 'posts' or page.layout == 'page' or page.layout == 'notfound' or page.url == '/' or page.url == '/404.html' -%}
+  <a class="skip-link" href="#main">跳到正文</a>
+  {%- endif -%}
+  {%- include header.html -%}
+  {%- assign main_class = page.main_class | default: layout.main_class | default: 'container' -%}
+  {%- if page.url == '/' or page.layout == 'home' -%}
+    {%- assign main_class = 'container-wide' -%}
+  {%- endif -%}
+  {%- if page.layout == 'notfound' or page.url == '/404.html' -%}
+    {%- assign main_class = main_class | append: ' fourofour' -%}
+  {%- endif -%}
+  <main id="main" class="{{ main_class }}">
+    {{ content }}
+  </main>
+  {%- include footer.html -%}
+</body>
+</html>

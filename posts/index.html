@@ -1,0 +1,23 @@
+---
+layout: default
+nav_active: posts
+title: 文章
+permalink: /posts/
+---
+{%- comment -%}
+  posts/index.html — /posts/  文章列表页（按时间倒序）
+  完整历史见 /archive/（按月分组）
+{%- endcomment -%}
+<h1>文章</h1>
+<p class="list-note">共 {{ site.posts.size }} 篇，按更新时间倒序。更早的按月份翻，去 <a href="/archive/">归档</a>。</p>
+
+{%- assign recent = site.posts | slice: 0, 30 -%}
+<ul class="post-list">
+  {%- for p in recent -%}
+    {%- include post-card.html post=p -%}
+  {%- endfor -%}
+</ul>
+
+{%- if site.posts.size > 30 -%}
+<p class="home-more">只列了最近 30 篇，剩下 {{ site.posts.size | minus: 30 }} 篇在 <a href="/archive/">按月归档</a> 里。</p>
+{%- endif -%}

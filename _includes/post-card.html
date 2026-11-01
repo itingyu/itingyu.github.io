@@ -1,0 +1,24 @@
+{%- comment -%}
+  post-card.html — 列表卡片（首页 / 归档 / 标签 / 专栏 复用）
+  用法：{% include post-card.html post=post %}
+  期望 post 对象至少有 url / title / date / excerpt / tags。
+  标签以纯文本 chip 展示（不可点、不参与搜索/筛选）。
+{%- endcomment -%}
+<style>
+  .chip-text{cursor:default}
+  .chip-text:hover{color:var(--fg-muted);border-color:var(--border);background:var(--bg-elev);transform:none}
+</style>
+{%- assign p = include.post -%}
+<li>
+  <h3 class="post-title"><a href="{{ p.url }}">{{ p.title }}</a></h3>
+  <div class="post-meta">
+    <time datetime="{{ p.date | date: '%Y-%m-%d' }}">{{ p.date | date: '%Y-%m-%d' }}</time>
+    {%- if p.tags and p.tags.size > 0 -%}
+      {%- for t in p.tags -%}
+        {%- assign _slug = t.tag | default: t -%}
+        <span class="dot">·</span><span class="chip chip-text" data-tag="{{ _slug }}">{{ t.title | default: _slug }}</span>
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+  <p class="post-excerpt">{{ p.excerpt | default: p.title }}</p>
+</li>

@@ -1,0 +1,36 @@
+{%- comment -%}
+  header.html — 整站顶栏（site-header + nav.site-nav + theme-toggle）
+  Phase C deltas（§4.6 #1 #2）：
+    1. aria-current="page"（当前 nav 项）
+    2. 顶栏入口：首页 / 文章 / 归档 / 专栏 / 工具 / 搜索 / 主题切换
+  nav_active 取值：home / posts / archive / series / tools / search / post
+    home=首页、posts=文章、archive=归档、series=专栏、tools=工具、search=搜索、post=文章页(无匹配高亮)
+{%- endcomment -%}
+{%- assign nav_active = page.nav_active | default: layout.nav_active | default: '' -%}
+{%- comment -%} 按 page.layout 推导 nav_active fallback（detail layout 不高亮 nav） {%- endcomment -%}
+{%- if nav_active == '' -%}
+  {%- if page.url == '/' -%}{%- assign nav_active = 'home' -%}
+  {%- elsif page.url contains '/posts/' and page.layout == 'posts' -%}{%- assign nav_active = 'posts' -%}
+  {%- elsif page.url contains '/archive/' -%}{%- assign nav_active = 'archive' -%}
+  {%- elsif page.url contains '/series/' and page.layout == 'series' -%}{%- assign nav_active = 'series' -%}
+  {%- elsif page.url contains '/search/' -%}{%- assign nav_active = 'search' -%}
+  {%- elsif page.url contains '/tools/' -%}{%- assign nav_active = 'tools' -%}
+  {%- endif -%}
+{%- endif -%}
+<header class="site-header">
+  <a class="site-brand" href="/">
+    <span class="site-brand-mark">i</span>
+    <span>itingyu</span>
+  </a>
+  <nav class="site-nav" aria-label="主导航">
+    <a href="/"{% if nav_active == 'home' %} aria-current="page"{% endif %} data-nav-home data-nav="home">首页</a>
+    <a href="/posts/"{% if nav_active == 'posts' %} aria-current="page"{% endif %} data-nav-posts data-nav="posts">文章</a>
+    <a href="/archive/"{% if nav_active == 'archive' %} aria-current="page"{% endif %} data-nav-archive data-nav="archive">归档</a>
+    <a href="/series/"{% if nav_active == 'series' %} aria-current="page"{% endif %} data-nav-series data-nav="series">专栏</a>
+    <a href="/tools/a-stock-pnl/"{% if nav_active == 'tools' %} aria-current="page"{% endif %} data-nav-tools data-nav="tools">工具</a>
+    <a class="site-nav-search" href="/search/"{% if nav_active == 'search' %} aria-current="page"{% endif %} data-nav-search data-nav="search" aria-label="搜索">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </a>
+    {%- include theme-switcher.html -%}
+  </nav>
+</header>

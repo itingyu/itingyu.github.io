@@ -1,0 +1,17 @@
+{
+  "name": "itingyu-blog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "个人博客（itingyu.github.io）的纯静态站点 — Jekyll + GitHub Pages。无运行时 npm 依赖，使用 Node 内置 node:test 跑契约测试。",
+  "engines": {
+    "node": ">=20.0.0",
+    "ruby": ">=3.0.0"
+  },
+  "scripts": {
+    "test": "node --test scripts/__tests__/*.test.js",
+    "validate": "node scripts/validate-frontmatter.js",
+    "import": "node scripts/import-md.js",
+    "publish": "bash scripts/publish.sh",
+    "serve": "bundle exec jekyll serve --livereload --host 0.0.0.0"
+  }
+}

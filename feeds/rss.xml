@@ -1,0 +1,5 @@
+---
+permalink: /feeds/rss.xml
+sitemap: false
+---
+{% include feed-rss.xml %}

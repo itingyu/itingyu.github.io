@@ -1,0 +1,48 @@
+---
+layout: default
+---
+{%- comment -%}
+  home.html — 首页：hero + 站点概览 + 最近更新 + 专栏入口
+  顺序：先给内容（最近更新），再给分类（专栏）。
+{%- endcomment -%}
+<section class="hero">
+  <span class="hero-eyebrow">itingyu 的笔记</span>
+  <h1>写代码，顺便写点笔记。</h1>
+  <p class="lead">工程实践、算法学习，和一些不那么正经的记录。共 {{ site.posts.size }} 篇，按专栏分类，随时可搜。</p>
+  <div class="hero-actions">
+    <a class="hero-btn hero-btn-primary" href="/posts/">浏览文章 →</a>
+    <a class="hero-btn hero-btn-ghost" href="/archive/">按月归档</a>
+  </div>
+</section>
+
+<ul class="hero-stats">
+  <li><strong>{{ site.posts.size }}</strong> 篇文章</li>
+  <li><strong>{{ site.columns.size }}</strong> 个专栏</li>
+  <li><strong>{{ site.series.size }}</strong> 个系列</li>
+  <li>最后更新 <strong>{{ site.posts.first.date | date: '%Y-%m-%d' }}</strong></li>
+</ul>
+
+<h2 class="section-title">最近更新</h2>
+<ul class="post-list">
+  {%- for p in site.posts limit: 4 -%}
+    {%- include post-card.html post=p -%}
+  {%- endfor -%}
+</ul>
+<p class="home-more"><a href="/posts/">查看最近 30 篇 →</a></p>
+
+<h2 class="section-title">专栏</h2>
+<ul class="column-grid">
+  {%- assign cols = site.columns | sort: 'order' -%}
+  {%- for c in cols -%}
+  {%- assign cnt = site.posts | where: 'column', c.slug | size -%}
+  <li>
+    <a class="column-card" href="{{ c.url }}">
+      <span class="column-card-title">{{ c.title }}</span>
+      <span class="column-card-desc">{{ c.description }}</span>
+      <span class="column-card-count">{{ cnt }} 篇 →</span>
+    </a>
+  </li>
+  {%- endfor -%}
+</ul>
+
+<p class="home-more"><a href="/archive/">按月份翻完这 {{ site.posts.size }} 篇 →</a></p>
