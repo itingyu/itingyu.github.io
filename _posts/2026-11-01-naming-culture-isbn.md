@@ -2,7 +2,7 @@
 layout: post
 slug: naming-culture-isbn
 title: 命名系统（7）：知识与文化——书的身份证与颜色的方言
-date: 2026-11-01 14:00:00 +0800
+date: 2026-11-01 15:00:00 +0800
 column: naming
 series: naming-all
 tags:

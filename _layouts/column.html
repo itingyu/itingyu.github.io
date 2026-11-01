@@ -9,7 +9,9 @@ layout: default
 {%- assign col_title = page.title -%}
 {%- assign col_slug = page.slug -%}
 {%- assign all_series = site.series | where: 'column', col_slug -%}
+{%- assign col_meta = site.columns | where: 'slug', col_slug | first -%}
 {%- assign all_posts = site.posts | where: 'column', col_slug -%}
+{%- if col_meta.sort == 'asc' -%}{%- assign all_posts = all_posts | sort: 'date' -%}{%- endif -%}
 
 <div class="layout-with-sidebar layout-with-sidebar--2col">
   {%- include sidebar-tree.html -%}

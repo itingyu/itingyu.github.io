@@ -2,7 +2,7 @@
 layout: post
 slug: naming-industry-codes
 title: 命名系统（4）：工业制造——把参数刻进型号
-date: 2026-11-01 17:00:00 +0800
+date: 2026-11-01 12:00:00 +0800
 column: naming
 series: naming-all
 tags:

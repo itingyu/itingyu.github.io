@@ -2,7 +2,7 @@
 layout: post
 slug: naming-medicine-inn
 title: 命名系统（3）：医药健康——把药理写进名字
-date: 2026-11-01 18:00:00 +0800
+date: 2026-11-01 11:00:00 +0800
 column: naming
 series: naming-all
 tags:

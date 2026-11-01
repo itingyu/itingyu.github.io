@@ -2,7 +2,7 @@
 layout: post
 slug: naming-commerce-gs1
 title: 命名系统（5）：商贸与金融——条码、税则与代码
-date: 2026-11-01 16:00:00 +0800
+date: 2026-11-01 13:00:00 +0800
 column: naming
 series: naming-all
 tags:

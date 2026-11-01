@@ -2,7 +2,7 @@
 layout: post
 slug: naming-transport-codes
 title: 命名系统（6）：交通与地理——从机场三字码到车架号
-date: 2026-11-01 15:00:00 +0800
+date: 2026-11-01 14:00:00 +0800
 column: naming
 series: naming-all
 tags:

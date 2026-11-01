@@ -8,7 +8,9 @@ layout: default
   v2:加侧边栏文章树
 {%- endcomment -%}
 {%- assign col_page = site.columns | where: 'slug', page.column | first -%}
+{%- assign s_meta = site.series | where: 'slug', page.slug | first -%}
 {%- assign members = site.posts | where_exp: 'p', 'p.series == page.slug' -%}
+{%- if s_meta.sort == 'asc' -%}{%- assign members = members | sort: 'date' -%}{%- endif -%}
 
 <div class="layout-with-sidebar layout-with-sidebar--2col">
   {%- include sidebar-tree.html -%}

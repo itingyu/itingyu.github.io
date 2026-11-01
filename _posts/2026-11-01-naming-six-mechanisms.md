@@ -2,7 +2,7 @@
 layout: post
 slug: naming-six-mechanisms
 title: 命名系统（1）：名字是怎么被造出来的
-date: 2026-11-01 20:00:00 +0800
+date: 2026-11-01 09:00:00 +0800
 column: naming
 series: naming-all
 tags:

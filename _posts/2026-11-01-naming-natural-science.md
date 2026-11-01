@@ -2,7 +2,7 @@
 layout: post
 slug: naming-natural-science
 title: 命名系统（2）：自然科学——从分子到星系
-date: 2026-11-01 19:00:00 +0800
+date: 2026-11-01 10:00:00 +0800
 column: naming
 series: naming-all
 tags:

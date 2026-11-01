@@ -6,7 +6,6 @@
 {%- assign _series = _post.series -%}
 {%- if _series and _series != 'null' and _series != '' -%}
   {%- assign _members = site.posts | where: 'series', _series -%}
-  <!-- SERNAV series={{ _series }} n={{ _members.size }} -->
   {%- assign _cur_idx = -1 -%}
   {%- for m in _members -%}
     {%- if m.url == _post.url -%}
