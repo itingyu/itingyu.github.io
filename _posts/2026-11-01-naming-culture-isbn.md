@@ -4,7 +4,7 @@ slug: naming-culture-isbn
 title: 命名系统（7）：知识与文化——书的身份证与颜色的方言
 date: 2026-11-01 14:00:00 +0800
 column: naming
-series: naming-culture
+series: naming-all
 tags:
   - 命名系统
   - 出版
@@ -14,7 +14,7 @@ excerpt: 最后一篇讲文化产品。这一类的麻烦在于： 对象本身�
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-culture/naming-culture-isbn/
+permalink: /notes/naming/naming-all/naming-culture-isbn/
 ---
 
 # 命名系统（7）：知识与文化——书的身份证与颜色的方言
