@@ -15,6 +15,7 @@ import datetime
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -23,11 +24,39 @@ def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, cwd=ROOT, check=check, text=True, capture_output=True)
 
 
+def sync_skill(root: Path) -> None:
+    """把 Minis skill 归档到 docs/skills/，避免仓库手册与实际脚本脱节。
+
+    权威源在 /var/minis/skills/blog-publish/SKILL.md（仓库外），同步时加上归档说明头。
+    """
+    src = Path("/var/minis/skills/blog-publish/SKILL.md")
+    dst = root / "docs" / "skills" / "blog-publish.md"
+    if not src.exists():
+        return
+    body = src.read_text(encoding="utf-8")
+    head = (
+        "# 博客发布 Skill（归档副本）\n\n"
+        "> 本文是 Minis skill `blog-publish` 的归档副本，权威源在 "
+        "`/var/minis/skills/blog-publish/SKILL.md`。\n"
+        "> 目的：让仓库本身自带操作手册，不依赖外部 skill 也能照着发文章。\n\n"
+        "---\n\n## 原 skill 定义\n\n```yaml\n"
+        + body.split("---", 2)[1].strip() + "\n```\n\n"
+    )
+    content = head + body.split("---", 2)[2].lstrip("\n")
+    if dst.exists() and dst.read_text(encoding="utf-8") == content:
+        return
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    dst.write_text(content, encoding="utf-8")
+    print(f"已同步 skill 归档: {dst}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="校验并提交博客变更")
     parser.add_argument("-m", "--message", default="")
     parser.add_argument("--push", action="store_true")
     opts = parser.parse_args()
+
+    sync_skill(Path.cwd())
 
     print("→ 校验 front matter")
     proc = run([sys.executable, os.path.join("scripts", "validate_frontmatter.py")], check=False)

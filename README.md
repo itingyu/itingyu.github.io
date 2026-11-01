@@ -80,7 +80,9 @@ ruby scripts/lint-liquid.rb .     # 模板 Liquid 语法检查（GitHub 构建�
 │   ├── lint-liquid.rb        ← Liquid 模板语法静态检查
 │   └── __tests__/            ← node:test（58 条）
 ├── inbox/             md 投放区（导入后可清空）
-├── docs/archive/      v1–v3 设计文档存档，不参与构建
+├── docs/               文档存档（不参与构建）
+│   ├── skills/         发布/修改/下架操作手册（blog-publish skill 副本）
+│   └── archive/        v1–v3 设计文档存档
 ├── _config.yml        Jekyll 唯一配置
 └── Gemfile            锁 github-pages gem
 ```
@@ -108,5 +110,5 @@ bundle exec jekyll serve --livereload   # http://127.0.0.1:4000
 ## 已知约定
 
 - **permalink 冻结**：26 篇早期文章 URL 里保留旧的 `prog` 段（例如 `/notes/prog/ai-llm/...`），但 `column` 字段已修正为正确栏目，避免断链。
-- 前端设计规范见 `docs/archive/design-v3-spec.md`（v1/v2 见同目录）；变更记录见 `CHANGELOG.md`。
+- 前端设计规范见 `docs/archive/design-v3-spec.md`（v1/v2 见同目录）；发布操作手册见 `docs/skills/blog-publish.md`；变更记录见 `CHANGELOG.md`。
 - 不接评论、不做服务端搜索、不引 CI。
