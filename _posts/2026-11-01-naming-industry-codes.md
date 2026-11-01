@@ -4,7 +4,7 @@ slug: naming-industry-codes
 title: 命名系统（4）：工业制造——把参数刻进型号
 date: 2026-11-01 17:00:00 +0800
 column: naming
-series: naming-industry
+series: naming-all
 tags:
   - 命名系统
   - 工业
@@ -14,7 +14,7 @@ excerpt: 制造业命名的主流做法很直接： 把关键参数编码进型�
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-industry/naming-industry-codes/
+permalink: /notes/naming/naming-all/naming-industry-codes/
 ---
 
 # 命名系统（4）：工业制造——把参数刻进型号
