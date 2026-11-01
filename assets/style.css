@@ -2215,3 +2215,101 @@ math { font-size: 1.05em; }
   .pnl-table { font-size: .75rem; }
   .pnl-table th, .pnl-table td { padding: 2px 4px; }
 }
+
+/* ==========================================================================
+   首页统计面板(home.html)
+   ========================================================================== */
+
+.stats-hero {
+  margin: 2.5rem 0 3rem;
+  padding: 2.25rem 0;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.stat-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 1.5rem 1rem;
+}
+
+.stat-cell strong {
+  display: block;
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-cell span {
+  display: block;
+  margin-top: .25rem;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.stats-meta {
+  margin: 1.75rem 0 0;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+}
+
+.dist-list {
+  list-style: none;
+  margin: 0 0 2.5rem;
+  padding: 0;
+}
+
+.dist-row {
+  display: grid;
+  grid-template-columns: 9rem 1fr 7rem;
+  align-items: center;
+  gap: .9rem;
+  padding: .5rem 0;
+}
+
+.dist-label {
+  font-size: var(--step--1);
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dist-label:hover { color: var(--accent); }
+
+.dist-bar {
+  height: .5rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dist-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.dist-num {
+  text-align: right;
+  font-size: var(--step--1);
+  color: var(--fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.home-more {
+  margin: 2.5rem 0 0;
+  font-size: var(--step--1);
+}
+.home-more a { color: var(--accent); }
+
+@media (max-width: 640px) {
+  .dist-row { grid-template-columns: 5.2rem 1fr 4.6rem; gap: .6rem; }
+  .stat-grid { gap: 1.25rem .75rem; }
+}
