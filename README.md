@@ -6,38 +6,45 @@
 - URL：`/notes/<column>/<series>/<slug>/`
 - 构建：GitHub Pages 内置 Jekyll，**无 CI、无 npm 渲染链**
 
-## 三种发布方式
+## 文章管理（发布 / 修改 / 下架）
 
-### 1. 直接上传 md（推荐）
+统一入口 `scripts/post.js`（等价 `npm run post -- <子命令>`）。裸 md 就能发：标题取 `# H1` 或文件名，日期取今天，摘要取首段，slug 自动转写（纯中文名退化为 `post-<hash>`）。
 
-任意 md（带不带 front matter 都行）丢进 `inbox/`，一条命令补齐 front matter、落库、校验：
+| 子命令 | 作用 | 示例 |
+|:--|:--|:--|
+| `publish` | 发布：补全 front matter → 校验 → 写入 `_posts/` | `node scripts/post.js publish inbox/a.md --column prog --series prog-eng --tags jekyll --push` |
+| `list` | 列出文章（可按专栏 / 关键词过滤） | `node scripts/post.js list --column finance --search 复盘` |
+| `show` | 查看某篇（标题、元数据、正文开头） | `node scripts/post.js show welcome` |
+| `set` | 改元数据：标题 / 专栏 / 子专栏 / 标签 / 日期 / 置顶 | `node scripts/post.js set welcome --title "新标题" --tags 随笔 --column life --push` |
+| `body` | 换正文（自动重算摘要） | `node scripts/post.js body welcome new-body.md --push` |
+| `remove` | 下架：删文件并提交（原 URL 失效） | `node scripts/post.js remove welcome --push` |
+
+通用开关：`--dry-run` 只预览不落盘；`--push` 改完自动校验 → commit → 推送到 master。
+
+发布参数：`--column` 必填（`prog` / `ai` / `finance` / `life` / `misc`），`--series` 选填（`prog-eng` `prog-lang` `ai-basics` `ai-llm` `fin-stock` `life-kitchen` `life-work` `life-driving`），`--tags` 逗号分隔，`--slug` 覆盖默认 slug。
+
+改 `column` / `series` / `slug` 时 permalink 会同步重算（如 `/notes/ai/ai-llm/xxx/`）。批量发布：`node scripts/post.js publish inbox/ --column finance --push`。
+
+底层导入脚本仍可单独使用（等价 `publish`）：
 
 ```bash
 node scripts/import-md.js inbox/我的文章.md --column prog --series prog-eng --tags jekyll,ssg
-# 或整目录批量
-node scripts/import-md.js inbox/ --column ai
-# 只看会写成什么，不落盘
-node scripts/import-md.js inbox/x.md --column finance --dry-run
-# 校验通过后直接提交并推送
-node scripts/import-md.js inbox/x.md --column life --push
 ```
 
-脚本会：生成 `title`（取 `# H1` 或文件名）、`date`（今天）、`slug`（文件名转写，纯中文名退化为 `post-<hash>`）、`excerpt`（首段自动截断）、`permalink`；写入 `_posts/` 后跑 `validate-frontmatter.js`，**校验不过自动回滚**。
-
-需要指定自定义 slug 时用 `--slug my-post`。
-
-### 2. 手写 front matter 后提交
+手写 front matter 的老办法也仍然可用：
 
 ```bash
 git add _posts/<date>-<slug>.md && ./scripts/publish.sh --push
 ```
 
-### 3. 校验
+### 校验
 
 ```bash
-npm run validate        # 全量 front matter 校验，0 error 才算过
-npm test                # 51 条契约测试
+npm run validate                  # 全量 front matter 校验，0 error 才算过
+npm test                          # 契约测试
+ruby scripts/lint-liquid.rb .     # 模板 Liquid 语法检查（GitHub 构建日志需登录才能看详情，本地先查更快）
 ```
+
 
 ## Front matter 契约
 
@@ -61,15 +68,17 @@ npm test                # 51 条契约测试
 ├── _drafts/          草稿，不渲染
 ├── _columns/         5 个顶层栏目
 ├── _series/          8 个专栏
-├── _layouts/         11 个布局（posts / post / archive / column / series / tags …）
+├── _layouts/         布局（home / post / page / archive / column / series …）
 ├── _includes/        12 个片段
 ├── assets/           style.css / theme.js / keys.js / search.js / search-index.json（构建时生成）
 ├── scripts/
-│   ├── import-md.js          ← 任意 md → 规范文章（新增，主入口）
+│   ├── post.js               ← 文章管理主入口：publish/set/body/remove/list/show
+│   ├── import-md.js          ← 裸 md → 规范文章（post.js publish 的底层）
 │   ├── frontmatter.js        ← front matter 解析/序列化，唯一实现
 │   ├── validate-frontmatter.js ← schema 校验
 │   ├── publish.sh            ← 校验 → 暂存 → 提交 → 推送
-│   └── __tests__/            ← node:test（51 条）
+│   ├── lint-liquid.rb        ← Liquid 模板语法静态检查
+│   └── __tests__/            ← node:test（58 条）
 ├── inbox/             md 投放区（导入后可清空）
 ├── docs/archive/      v1–v3 设计文档存档，不参与构建
 ├── _config.yml        Jekyll 唯一配置

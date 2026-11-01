@@ -1,5 +1,18 @@
 require 'liquid'
 
+# jekyll-seo-tag 是 Jekyll 插件，纯 Liquid 解析器不认识 {% seo %}。
+# 这里注册一个空实现占位，只为让语法检查能继续解析模板其余部分。
+class SeoStub < Liquid::Tag
+  def initialize(tag_name, markup, tokens)
+    super
+  end
+
+  def render(_context)
+    ''
+  end
+end
+Liquid::Template.register_tag('seo', SeoStub)
+
 ROOT = ARGV[0] || '.'
 files = Dir.glob(File.join(ROOT, '_layouts', '*.html')) +
         Dir.glob(File.join(ROOT, '_includes', '*.html'))
@@ -17,4 +30,5 @@ files.each do |f|
     puts "OTHER (#{f}): #{e.class}: #{e.message.lines.first(2).join}"
   end
 end
-puts files.size == bad ? "ALL BROKEN" : "checked #{files.size} templates, #{bad} broken"
+puts bad.zero? ? "checked #{files.size} templates, 0 broken" : "checked #{files.size} templates, #{bad} broken"
+exit(bad.zero? ? 0 : 1)
