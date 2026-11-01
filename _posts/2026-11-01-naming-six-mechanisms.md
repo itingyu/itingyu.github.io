@@ -4,7 +4,7 @@ slug: naming-six-mechanisms
 title: 命名系统（1）：名字是怎么被造出来的
 date: 2026-11-01 20:00:00 +0800
 column: naming
-series: naming-basics
+series: naming-all
 tags:
   - 命名系统
   - 编码设计
@@ -12,7 +12,7 @@ excerpt: 两年前我给一批设备做资产台账，卡在一个很具体的�
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-basics/naming-six-mechanisms/
+permalink: /notes/naming/naming-all/naming-six-mechanisms/
 ---
 
 # 命名系统（1）：名字是怎么被造出来的
