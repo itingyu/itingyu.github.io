@@ -11,3 +11,5 @@ node_modules/
 .vscode/
 .idea/
 Gemfile.lock
+__pycache__/
+*.pyc
