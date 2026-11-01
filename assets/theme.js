@@ -201,14 +201,17 @@
     var title = document.createElement('div');
     title.className = 'toc-title';
     title.textContent = '目录';
+    title.setAttribute('role', 'button');
+    title.setAttribute('tabindex', '0');
+    title.setAttribute('aria-expanded', 'true');
     aside.appendChild(title);
 
-    var toggleBtn = document.createElement('button');
-    toggleBtn.type = 'button';
-    toggleBtn.className = 'toc-toggle';
-    toggleBtn.setAttribute('data-toc-toggle', '');
-    toggleBtn.textContent = '展开目录';
-    aside.appendChild(toggleBtn);
+    // 去掉注入的 🔗 锚点字符,目录条目只留标题文字
+    function headingText(h) {
+      var clone = h.cloneNode(true);
+      clone.querySelectorAll('.heading-anchor').forEach(function (el) { el.remove(); });
+      return clone.textContent.replace(/^#+\s*/, '').trim();
+    }
 
     var list = document.createElement('ul');
     list.className = 'toc-list';
@@ -219,7 +222,7 @@
       var a = document.createElement('a');
       a.className = 'toc-link';
       a.href = '#' + h.id;
-      a.textContent = h.textContent.replace(/^#+\s*/, '').trim();
+      a.textContent = headingText(h);
       a.dataset.target = h.id;
       li.appendChild(a);
       list.appendChild(li);
@@ -228,17 +231,20 @@
     aside.appendChild(list);
     article.parentNode.insertBefore(aside, article);
 
-    // 移动端折叠
-    toggleBtn.addEventListener('click', function () {
-      var collapsed = aside.getAttribute('data-collapsed') === 'true';
-      aside.setAttribute('data-collapsed', collapsed ? 'false' : 'true');
-      toggleBtn.textContent = collapsed ? '收起目录' : '展开目录';
+    // 标题行自带 ▸/▾ 箭头,点标题即可折叠,不再另设「展开目录」按钮
+    function setCollapsed(collapsed) {
+      aside.setAttribute('data-collapsed', collapsed ? 'true' : 'false');
+      title.setAttribute('aria-expanded', String(!collapsed));
+    }
+    function toggleCollapsed() {
+      setCollapsed(aside.getAttribute('data-collapsed') === 'true');
+    }
+    title.addEventListener('click', toggleCollapsed);
+    title.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleCollapsed(); }
     });
     // 默认移动端折叠
-    if (window.matchMedia('(max-width: 1180px)').matches) {
-      aside.setAttribute('data-collapsed', 'true');
-      toggleBtn.textContent = '展开目录';
-    }
+    if (window.matchMedia('(max-width: 1180px)').matches) setCollapsed(true);
 
     // IntersectionObserver 高亮当前
     if ('IntersectionObserver' in window) {
