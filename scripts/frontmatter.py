@@ -119,6 +119,16 @@ def stringify_frontmatter(fm: dict) -> str:
     return "\n".join(out)
 
 
+def normalize_date(s: str) -> str:
+    """把 YYYY-MM-DD[ HH:MM[:SS]] 规范成 'YYYY-MM-DD HH:MM:SS'；非法返回空串。"""
+    m = re.match(
+        r"^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2})(?::(\d{2}))?)?$", (s or "").strip()
+    )
+    if not m:
+        return ""
+    return f"{m.group(1)} {m.group(2) or '00:00'}:{m.group(3) or '00'}"
+
+
 def slugify(name: str) -> str:
     """文件名 → slug。纯中文名无法转写时退回稳定短哈希。"""
     base = re.sub(r"\.(md|markdown|txt)$", "", str(name), flags=re.I)

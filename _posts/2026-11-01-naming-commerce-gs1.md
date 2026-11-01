@@ -1,8 +1,8 @@
 ---
 layout: post
 slug: naming-commerce-gs1
-title: 命名系统（五）：商贸与金融——条码、税则与代码
-date: 2026-11-01 00:00:00 +0800
+title: 命名系统（5）：商贸与金融——条码、税则与代码
+date: 2026-11-01 16:00:00 +0800
 column: naming
 series: naming-commerce
 tags:
@@ -17,7 +17,7 @@ draft: false
 permalink: /notes/naming/naming-commerce/naming-commerce-gs1/
 ---
 
-# 命名系统（五）：商贸与金融——条码、税则与代码
+# 命名系统（5）：商贸与金融——条码、税则与代码
 
 商品和钱一旦跨境，命名问题就从「好不好读」变成了「对不对得上」。这一篇讲三套体系：给商品发号的 GS1、给货物归类的 HS、给金融工具定身份的各类代码。
 

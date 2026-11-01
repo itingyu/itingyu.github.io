@@ -1,8 +1,8 @@
 ---
 layout: post
 slug: naming-transport-codes
-title: 命名系统（六）：交通与地理——从机场三字码到车架号
-date: 2026-11-01 00:00:00 +0800
+title: 命名系统（6）：交通与地理——从机场三字码到车架号
+date: 2026-11-01 15:00:00 +0800
 column: naming
 series: naming-transport
 tags:
@@ -16,7 +16,7 @@ draft: false
 permalink: /notes/naming/naming-transport/naming-transport-codes/
 ---
 
-# 命名系统（六）：交通与地理——从机场三字码到车架号
+# 命名系统（6）：交通与地理——从机场三字码到车架号
 
 交通和地理的编码有个共同要求：**终身唯一**。船可以改名换旗，车可以过户转籍，人可以在城市间迁徙，但底层的号不能变。变一次，海关、保险、事故记录就全断了。
 

@@ -32,7 +32,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from frontmatter import (  # noqa: E402
-    first_heading, make_excerpt, parse_frontmatter, slugify, stringify_frontmatter,
+    first_heading, make_excerpt, normalize_date, parse_frontmatter, slugify,
+    stringify_frontmatter,
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -120,8 +121,11 @@ def build(file: str, opts) -> dict:
     date = opts.date or (
         fm["date"][:10] if isinstance(fm.get("date"), str) else ""
     ) or today()
-    if not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
-        raise ValueError(f"{os.path.basename(file)}: --date 必须是 YYYY-MM-DD")
+    date = normalize_date(date)
+    if not date:
+        raise ValueError(
+            f"{os.path.basename(file)}: --date 必须是 YYYY-MM-DD 或 'YYYY-MM-DD HH:MM[:SS]'"
+        )
 
     slug = opts.slug or fm.get("slug") or slugify(os.path.basename(file))
     if not re.match(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$", slug):
@@ -142,7 +146,7 @@ def build(file: str, opts) -> dict:
         "layout": "post",
         "slug": slug,
         "title": title,
-        "date": f"{date} 00:00:00 +0800",
+        "date": f"{date} +0800",
         "column": column,
         "series": series or None,
         "tags": tags,

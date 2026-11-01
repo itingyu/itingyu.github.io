@@ -34,7 +34,8 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from frontmatter import (  # noqa: E402
-    make_excerpt, parse_frontmatter, slugify, stringify_frontmatter,
+    make_excerpt, normalize_date, parse_frontmatter, slugify,
+    stringify_frontmatter,
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -395,6 +396,13 @@ def cmd_set(opts) -> int:
     if opts.tags is not None:
         meta["tags"] = [t.strip() for t in opts.tags.split(",") if t.strip()]
         changed.append("tags")
+    if opts.date:
+        nd = normalize_date(opts.date)
+        if not nd:
+            print("错误: --date 必须是 YYYY-MM-DD 或 'YYYY-MM-DD HH:MM[:SS]'", file=sys.stderr)
+            return 1
+        meta["date"] = f"{nd} +0800"
+        changed.append("date")
     if opts.column:
         if opts.column not in columns():
             print(f"错误: --column 取值必须是 {'|'.join(sorted(columns()))}", file=sys.stderr)
@@ -498,6 +506,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("slug")
     sp.add_argument("--title")
     sp.add_argument("--tags")
+    sp.add_argument("--date", help="YYYY-MM-DD 或 'YYYY-MM-DD HH:MM[:SS]'")
     sp.add_argument("--column", choices=sorted(columns()))
     sp.add_argument("--series")
     sp.add_argument("--pinned", action="store_true")

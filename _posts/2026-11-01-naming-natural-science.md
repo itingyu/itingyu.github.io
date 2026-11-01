@@ -1,8 +1,8 @@
 ---
 layout: post
 slug: naming-natural-science
-title: 命名系统（二）：自然科学——从分子到星系
-date: 2026-11-01 00:00:00 +0800
+title: 命名系统（2）：自然科学——从分子到星系
+date: 2026-11-01 19:00:00 +0800
 column: naming
 series: naming-science
 tags:
@@ -17,7 +17,7 @@ draft: false
 permalink: /notes/naming/naming-science/naming-natural-science/
 ---
 
-# 命名系统（二）：自然科学——从分子到星系
+# 命名系统（2）：自然科学——从分子到星系
 
 自然科学是命名规则最严密的地方。原因很朴素：这里的对象数量以亿计，而且跨越几百年、几十种语言，如果不靠规则而靠约定，早就乱成一锅粥了。
 

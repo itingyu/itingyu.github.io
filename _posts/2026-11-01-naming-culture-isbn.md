@@ -1,8 +1,8 @@
 ---
 layout: post
 slug: naming-culture-isbn
-title: 命名系统（七）：知识与文化——书的身份证与颜色的方言
-date: 2026-11-01 00:00:00 +0800
+title: 命名系统（7）：知识与文化——书的身份证与颜色的方言
+date: 2026-11-01 14:00:00 +0800
 column: naming
 series: naming-culture
 tags:
@@ -17,7 +17,7 @@ draft: false
 permalink: /notes/naming/naming-culture/naming-culture-isbn/
 ---
 
-# 命名系统（七）：知识与文化——书的身份证与颜色的方言
+# 命名系统（7）：知识与文化——书的身份证与颜色的方言
 
 最后一篇讲文化产品。这一类的麻烦在于：**对象本身没有清晰的边界**。一本书有精装平装、一个作品有不同版本、一种颜色在不同介质上根本不是同一个东西。
 

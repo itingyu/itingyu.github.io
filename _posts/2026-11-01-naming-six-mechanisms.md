@@ -1,8 +1,8 @@
 ---
 layout: post
 slug: naming-six-mechanisms
-title: 命名系统（一）：名字是怎么被造出来的
-date: 2026-11-01 00:00:00 +0800
+title: 命名系统（1）：名字是怎么被造出来的
+date: 2026-11-01 20:00:00 +0800
 column: naming
 series: naming-basics
 tags:
@@ -15,7 +15,7 @@ draft: false
 permalink: /notes/naming/naming-basics/naming-six-mechanisms/
 ---
 
-# 命名系统（一）：名字是怎么被造出来的
+# 命名系统（1）：名字是怎么被造出来的
 
 两年前我给一批设备做资产台账，卡在一个很具体的问题上：同一台电机，采购单上叫「三相异步电动机 Y2-132M-4」，仓库标签写「电机 7.5kW」，维修记录里是「3# 线主驱」。三个名字，指的是同一个东西，但没有一个能在系统之间直接对上。
 
