@@ -1541,44 +1541,12 @@ article pre:focus-within .copy-btn,
 
 /* ==========================================================================
    v8 · heading 深链 + 一键复制锚点(2026-09-26 北京时间 · AIWORK1-36)
-   - .heading-anchor 桌面 hover 露,移动端常显,点击 flash
+   - 2026-11-01 按反馈:标题后面不再显示链接图标,锚点整体隐藏
+   - 标题跳转仍由右侧目录承担,不影响深链定位
    ========================================================================== */
 
 .heading-anchor {
-  display: inline-block;
-  margin-left: .35em;
-  text-decoration: none;
-  color: var(--fg-faint);
-  font-weight: 400;
-  opacity: 0;
-  transition: opacity var(--t-base) ease, color var(--t-base) ease, transform var(--t-base) ease;
-  vertical-align: baseline;
-  font-size: .75em;
-}
-
-h2:hover > .heading-anchor,
-h3:hover > .heading-anchor,
-.heading-anchor:focus-visible {
-  opacity: 1;
-}
-
-.heading-anchor:hover {
-  color: var(--accent);
-  transform: translateY(-1px);
-}
-
-.heading-anchor.is-flashed {
-  opacity: 1;
-  color: #16a34a;
-}
-
-@media (max-width: 640px) {
-  .heading-anchor { opacity: .65; font-size: .85em; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .heading-anchor { transition: none; }
-  .heading-anchor:hover { transform: none; }
+  display: none;
 }
 
 /* 打印时不显示锚点(规则合并到全局 print 块,避免单文件多处 print block 断言失败) */
