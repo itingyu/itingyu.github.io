@@ -2,47 +2,47 @@
 
 个人博客：<https://itingyu.github.io/> · Jekyll + GitHub Pages，内容源只有 Markdown，`git push` 即上线。
 
-- 文章：`_posts/<YYYY-MM-DD>-<slug>.md`（196 篇）
+- 文章：`_posts/<YYYY-MM-DD>-<slug>.md`（200+ 篇）
 - URL：`/notes/<column>/<series>/<slug>/`
 - 构建：GitHub Pages 内置 Jekyll，**无 CI、无 npm 渲染链**
 
-## 文章管理（发布 / 修改 / 下架）
+## 文章管理（发布 / 修改 / 下架 / 专栏）
 
-统一入口 `scripts/post.js`（等价 `npm run post -- <子命令>`）。裸 md 就能发：标题取 `# H1` 或文件名，日期取今天，摘要取首段，slug 自动转写（纯中文名退化为 `post-<hash>`）。
+统一入口 `scripts/post.py`（Python 3 标准库，无第三方依赖，不需要 Node）。裸 md 就能发：标题取 `# H1` 或文件名，日期取今天，摘要取首段，slug 自动转写（纯中文名退化为 `post-<hash>`）。
 
 | 子命令 | 作用 | 示例 |
 |:--|:--|:--|
-| `publish` | 发布：补全 front matter → 校验 → 写入 `_posts/` | `node scripts/post.js publish inbox/a.md --column prog --series prog-eng --tags jekyll --push` |
-| `list` | 列出文章（可按专栏 / 关键词过滤） | `node scripts/post.js list --column finance --search 复盘` |
-| `show` | 查看某篇（标题、元数据、正文开头） | `node scripts/post.js show welcome` |
-| `set` | 改元数据：标题 / 专栏 / 子专栏 / 标签 / 日期 / 置顶 | `node scripts/post.js set welcome --title "新标题" --tags 随笔 --column life --push` |
-| `body` | 换正文（自动重算摘要） | `node scripts/post.js body welcome new-body.md --push` |
-| `remove` | 下架：删文件并提交（原 URL 失效） | `node scripts/post.js remove welcome --push` |
+| `publish` | 发布：补全 front matter → 校验 → 写入 `_posts/` | `python3 scripts/post.py publish inbox/a.md --column prog --series prog-eng --tags jekyll` |
+| `list` | 列出文章（可按专栏 / 关键词过滤） | `python3 scripts/post.py list --column finance --search 复盘` |
+| `show` | 查看某篇（标题、元数据、正文开头） | `python3 scripts/post.py show welcome` |
+| `set` | 改元数据：标题 / 专栏 / 子专栏 / 标签 / 置顶 | `python3 scripts/post.py set welcome --title "新标题" --tags 随笔` |
+| `body` | 换正文（自动重算摘要） | `python3 scripts/post.py body welcome new-body.md` |
+| `remove` | 下架：删文件并提交（原 URL 失效） | `python3 scripts/post.py remove welcome` |
+| `column` | 新建 / 列出专栏 | `python3 scripts/post.py column new naming --title "命名系统"` |
+| `series` | 新建 / 列出子专栏 | `python3 scripts/post.py series new naming-basics --title "总纲与机制" --column naming` |
+| `push` | 把本地提交一次性推送到远程 | `python3 scripts/post.py push` |
+| `status` | 查看未提交改动 / 待推送提交 | `python3 scripts/post.py status` |
 
-通用开关：`--dry-run` 只预览不落盘；`--push` 改完自动校验 → commit → 推送到 master。
+通用开关：`--dry-run` 只预览不落盘；`--push` 本条命令结束后推一次远程。
 
-发布参数：`--column` 必填（`prog` / `ai` / `finance` / `life` / `misc`），`--series` 选填（`prog-eng` `prog-lang` `ai-basics` `ai-llm` `fin-stock` `life-kitchen` `life-work` `life-driving`），`--tags` 逗号分隔，`--slug` 覆盖默认 slug。
+**推送策略**：以上命令默认只写盘 + 本地 commit，不推远程。一批内容全部就绪后跑一次 `push`，避免每篇一推导致 GitHub Pages 部署撞车。
 
-改 `column` / `series` / `slug` 时 permalink 会同步重算（如 `/notes/ai/ai-llm/xxx/`）。批量发布：`node scripts/post.js publish inbox/ --column finance --push`。
+发布参数：`--column` 取值即 `_columns/` 下的文件名（新增专栏无需改脚本），`--series` 必须对应 `_series/<slug>.md`，`--tags` 逗号分隔，`--slug` 覆盖默认 slug。
+
+改 `column` / `series` / `slug` 时 permalink 会同步重算（如 `/notes/ai/ai-llm/xxx/`）。批量发布：`python3 scripts/post.py publish inbox/ --column finance`。
 
 底层导入脚本仍可单独使用（等价 `publish`）：
 
 ```bash
-node scripts/import-md.js inbox/我的文章.md --column prog --series prog-eng --tags jekyll,ssg
-```
-
-手写 front matter 的老办法也仍然可用：
-
-```bash
-git add _posts/<date>-<slug>.md && ./scripts/publish.sh --push
+python3 scripts/import_md.py inbox/我的文章.md --column prog --series prog-eng --tags jekyll,ssg
 ```
 
 ### 校验
 
 ```bash
-npm run validate                  # 全量 front matter 校验，0 error 才算过
-npm test                          # 契约测试
-ruby scripts/lint-liquid.rb .     # 模板 Liquid 语法检查（GitHub 构建日志需登录才能看详情，本地先查更快）
+python3 scripts/validate_frontmatter.py   # 全量 front matter 校验，0 error 才算过
+python3 -m unittest discover scripts/tests  # 契约测试
+ruby scripts/lint-liquid.rb .             # 模板 Liquid 语法检查（GitHub 构建日志需登录才能看详情，本地先查更快）
 ```
 
 
@@ -54,7 +54,7 @@ ruby scripts/lint-liquid.rb .     # 模板 Liquid 语法检查（GitHub 构建�
 | `date` | ✅ | `YYYY-MM-DD` 或 `YYYY-MM-DD HH:MM:SS +0800` |
 | `tags` | ✅ | 数组，非空、无重复；仅用于卡片/文章页展示 |
 | `excerpt` | ✅ | ≤ 500 字，单行 |
-| `column` | ✅ | `prog` / `finance` / `ai` / `life` / `misc` |
+| `column` | ✅ | 必须对应 `_columns/<slug>.md`（现有 prog / ai / finance / life / misc / naming） |
 | `series` | — | 必须对应 `_series/<slug>.md`（也可写该文件的 title） |
 | `permalink` | — | 缺省为 `/notes/<column>/<series|column>/<slug>/` |
 | `pinned` / `cover` / `draft` | — | 布尔 / 图片路径 / 布尔 |
