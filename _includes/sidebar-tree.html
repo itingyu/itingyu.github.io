@@ -71,7 +71,9 @@
                       </summary>
                       {%- if s_posts.size > 0 -%}
                       <ul class="tree-post-list">
-                        {%- assign s_posts_sorted = s_posts | sort: 'title' -%}
+                        {%- assign s_nav_mode = site.data.nav.series[s.slug] -%}
+{%- assign s_posts_sorted = s_posts -%}
+{%- if s_nav_mode == 'asc' -%}{%- assign s_posts_sorted = s_posts | sort: 'date' -%}{%- else -%}{%- assign s_posts_sorted = s_posts | sort: 'title' -%}{%- endif -%}
                         {%- for p in s_posts_sorted -%}
                           {%- assign is_cur_post = false -%}
                           {%- if p.url == cur_url -%}{%- assign is_cur_post = true -%}{%- endif -%}

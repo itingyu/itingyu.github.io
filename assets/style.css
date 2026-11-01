@@ -1645,7 +1645,7 @@ h3:hover > .heading-anchor,
   padding: 0;
   margin: 0;
 }
-.tree-root > .tree-col { margin-bottom: .25rem; }
+.tree-root > .tree-col { margin-bottom: .5rem; }
 
 /* <details> 默认样式重置 */
 .tree details > summary {
@@ -1675,10 +1675,22 @@ h3:hover > .heading-anchor,
   transform: rotate(90deg);
 }
 
+/* L1 专栏:加粗 + 前置色条,与子专栏拉开层级 */
 .tree-col-head {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 1.04em;
+  letter-spacing: .01em;
   color: var(--fg);
-  padding-left: .25rem;
+  padding-left: .3rem;
+  min-height: 1.9em;
+}
+.tree-col-head::before {
+  content: "";
+  width: 3px;
+  height: 1em;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 45%, transparent));
+  flex-shrink: 0;
 }
 .tree-col-link, .tree-series-link {
   color: inherit;
@@ -1703,27 +1715,40 @@ h3:hover > .heading-anchor,
   flex-shrink: 0;
 }
 
+/* 层级轨道:专栏下的子级用实线,文章下再用虚线,一眼看出挂载关系 */
 .tree-col-list {
-  margin-left: .85rem;
-  border-left: 1px dashed var(--border-soft);
-  padding-left: .65rem;
+  margin-left: 1rem;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 22%, var(--border-soft));
+  padding-left: .7rem;
 }
 
+/* L2 子专栏:缩一号 + 空心方块标记,明显弱于专栏 */
 .tree-series-head {
-  font-weight: 500;
-  color: var(--fg);
-  padding-left: .25rem;
+  font-weight: 600;
+  font-size: .95em;
+  color: var(--fg-muted);
+  padding-left: .3rem;
+  min-height: 1.7em;
 }
-.tree-series + .tree-series { margin-top: .1rem; }
+.tree-series-head::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  opacity: .65;
+  flex-shrink: 0;
+}
+.tree-series + .tree-series { margin-top: .35rem; }
 
 /* 子层级缩进:2 级(L2 子专栏 + 直接挂在 L1 的文章),3 级(L2 下的文章) */
-.tree-pad-2 { margin-left: .15rem; }
-.tree-pad-3 { margin-left: .15rem; }
+.tree-pad-2 { margin-left: 0; }
+.tree-pad-3 { margin-left: 0; }
 
 .tree-post-list {
   margin-left: .85rem;
   border-left: 1px dashed var(--border-soft);
-  padding-left: .65rem;
+  padding-left: .6rem;
 }
 .tree-post {
   margin: 0;
@@ -1735,8 +1760,8 @@ h3:hover > .heading-anchor,
   color: var(--fg-muted);
   text-decoration: none;
   border-radius: var(--r-sm);
-  font-size: .92em;
-  line-height: 1.35;
+  font-size: .88em;
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
