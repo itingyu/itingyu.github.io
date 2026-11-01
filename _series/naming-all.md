@@ -5,6 +5,6 @@ title: 完整系列（七篇）
 column: naming
 description: 从命名机制到各行业实践 · 七篇连载
 permalink: /series/naming-all/
-order: 8
+order: 2
 ---
 
