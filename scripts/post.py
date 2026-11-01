@@ -30,7 +30,7 @@ from frontmatter import (  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTS = os.path.join(ROOT, "_posts")
-COLUMNS = {"prog", "ai", "finance", "life", "misc"}
+COLUMNS = {"prog", "ai", "finance", "life", "misc", "naming"}
 
 
 # ---------- 基础操作 ----------
