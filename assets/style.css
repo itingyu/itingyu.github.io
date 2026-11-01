@@ -870,6 +870,11 @@ button:focus-visible,
 
 /* ---------- table of contents ---------- */
 
+/* 折叠:桌面与窄屏一致,收起即隐藏列表;标题行始终带 ▸/▾ 提示 */
+.toc[data-collapsed="true"] .toc-list { display: none; }
+.toc[data-collapsed="true"] .toc-title::after { content: " \25B8"; }
+.toc[data-collapsed="false"] .toc-title::after { content: " \25BE"; }
+
 /* 与左侧导航同层级:同 sticky 偏移、同可视高度、同卡片外观 */
 .toc {
   position: sticky;
@@ -937,7 +942,7 @@ button:focus-visible,
     position: sticky;
     top: 0;
     z-index: 40;
-    max-height: none;
+    max-height: 70vh;
     margin: 0 0 1.25rem;
     border-radius: 0;
     border-top: 0;

@@ -244,7 +244,8 @@
       title.setAttribute('aria-expanded', String(!collapsed));
     }
     function toggleCollapsed() {
-      setCollapsed(aside.getAttribute('data-collapsed') === 'true');
+      // 取反当前状态:折叠 -> 展开,展开 -> 折叠
+      setCollapsed(aside.getAttribute('data-collapsed') !== 'true');
     }
     title.addEventListener('click', toggleCollapsed);
     title.addEventListener('keydown', function (e) {
