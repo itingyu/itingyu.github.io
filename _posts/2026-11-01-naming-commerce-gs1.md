@@ -4,7 +4,7 @@ slug: naming-commerce-gs1
 title: 命名系统（5）：商贸与金融——条码、税则与代码
 date: 2026-11-01 16:00:00 +0800
 column: naming
-series: naming-commerce
+series: naming-all
 tags:
   - 命名系统
   - GS1
@@ -14,7 +14,7 @@ excerpt: 商品和钱一旦跨境，命名问题就从「好不好读」变成�
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-commerce/naming-commerce-gs1/
+permalink: /notes/naming/naming-all/naming-commerce-gs1/
 ---
 
 # 命名系统（5）：商贸与金融——条码、税则与代码
