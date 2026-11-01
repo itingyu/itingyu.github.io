@@ -13,13 +13,13 @@
 任意 md（带不带 front matter 都行）丢进 `inbox/`，一条命令补齐 front matter、落库、校验：
 
 ```bash
-./scripts/import-md.sh inbox/我的文章.md --column prog --series prog-eng --tags jekyll,ssg
+node scripts/import-md.js inbox/我的文章.md --column prog --series prog-eng --tags jekyll,ssg
 # 或整目录批量
-./scripts/import-md.sh inbox/ --column ai
+node scripts/import-md.js inbox/ --column ai
 # 只看会写成什么，不落盘
-./scripts/import-md.sh inbox/x.md --column finance --dry-run
+node scripts/import-md.js inbox/x.md --column finance --dry-run
 # 校验通过后直接提交并推送
-./scripts/import-md.sh inbox/x.md --column life --push
+node scripts/import-md.js inbox/x.md --column life --push
 ```
 
 脚本会：生成 `title`（取 `# H1` 或文件名）、`date`（今天）、`slug`（文件名转写，纯中文名退化为 `post-<hash>`）、`excerpt`（首段自动截断）、`permalink`；写入 `_posts/` 后跑 `validate-frontmatter.js`，**校验不过自动回滚**。
