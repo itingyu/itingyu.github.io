@@ -71,7 +71,14 @@ def series_of(column: str | None = None) -> list[dict]:
 # ---------- 基础操作 ----------
 
 def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess:
-    return subprocess.run(cmd, cwd=ROOT, check=check, text=True, capture_output=True)
+    p = subprocess.run(cmd, cwd=ROOT, check=False, text=True, capture_output=True)
+    if check and p.returncode != 0:
+        # subprocess 的 check=True 会吞掉 stderr，这里先打出来再抛，排查才有线索
+        if p.stderr.strip():
+            print(p.stderr.strip(), file=sys.stderr)
+        print(f"命令失败（exit {p.returncode}）：{' '.join(cmd)}", file=sys.stderr)
+        raise subprocess.CalledProcessError(p.returncode, cmd)
+    return p
 
 
 def load_posts() -> list[dict]:
