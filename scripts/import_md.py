@@ -38,7 +38,14 @@ from frontmatter import (  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTS = os.path.join(ROOT, "_posts")
 SERIES = os.path.join(ROOT, "_series")
-COLUMNS = {"prog", "ai", "finance", "life", "misc", "naming"}
+COLUMNS_DIR = os.path.join(ROOT, "_columns")
+
+
+def columns() -> set[str]:
+    """专栏白名单 = _columns/ 下的文件名，新增专栏无需改脚本。"""
+    if not os.path.isdir(COLUMNS_DIR):
+        return set()
+    return {n[:-3] for n in os.listdir(COLUMNS_DIR) if n.endswith(".md")}
 
 
 def today() -> str:
@@ -67,10 +74,10 @@ def collect(paths: list[str]) -> list[str]:
 def infer_column(file: str, fm: dict, column: str | None) -> str | None:
     if column:
         return column
-    if fm.get("column") in COLUMNS:
+    if fm.get("column") in columns():
         return fm["column"]
     for seg in file.split(os.sep):
-        if seg in COLUMNS:
+        if seg in columns():
             return seg
     return None
 
@@ -83,10 +90,10 @@ def build(file: str, opts) -> dict:
     body = (parsed["body"] if parsed["fm"] else raw).lstrip("\n")
 
     column = infer_column(file, fm, opts.column)
-    if not column or column not in COLUMNS:
+    if not column or column not in columns():
         raise ValueError(
             f"{os.path.basename(file)}: 无法确定 column，请用 --column 指定 "
-            f"({'|'.join(sorted(COLUMNS))})"
+            f"({'|'.join(sorted(columns()))})"
         )
 
     series = opts.series if opts.series is not None else (fm.get("series") or "")
@@ -168,8 +175,8 @@ def main() -> int:
     parser.add_argument("--push", action="store_true")
     opts = parser.parse_args()
 
-    if opts.column and opts.column not in COLUMNS:
-        print(f"错误: --column 取值必须是 {'|'.join(sorted(COLUMNS))}", file=sys.stderr)
+    if opts.column and opts.column not in columns():
+        print(f"错误: --column 取值必须是 {'|'.join(sorted(columns()))}", file=sys.stderr)
         return 1
 
     files = collect(opts.files)

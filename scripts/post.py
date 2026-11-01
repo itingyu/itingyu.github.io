@@ -1,17 +1,26 @@
 #!/usr/bin/env python3
-"""post.py —— 文章管理命令行：发布 / 下架 / 修改 / 查看。
+"""post.py —— 文章 / 专栏 / 子专栏管理：发布 / 修改 / 下架 / 查看 / 推送。
 
 用法：
+    python3 scripts/post.py publish <file.md|目录> [--column c] [--series s] [--tags a,b]
+    python3 scripts/post.py set    <slug> [--title T] [--tags a,b] [--column c] [--series s]
+    python3 scripts/post.py body   <slug> <file.md>
+    python3 scripts/post.py remove <slug> [<slug> ...]
+
+    python3 scripts/post.py column list
+    python3 scripts/post.py column new <slug> --title T [--description D] [--order N]
+    python3 scripts/post.py series list [--column c]
+    python3 scripts/post.py series new <slug> --title T --column c [--description D] [--order N]
+
     python3 scripts/post.py list   [--column c] [--search kw] [--limit n]
     python3 scripts/post.py show   <slug>
-    python3 scripts/post.py publish <file.md|目录> [--column c] [--series s] [--tags a,b] [--push]
-    python3 scripts/post.py set    <slug> [--title T] [--tags a,b] [--column c] [--series s] [--push]
-    python3 scripts/post.py body   <slug> <file.md> [--push]
-    python3 scripts/post.py remove <slug> [<slug> ...] [--push]
+    python3 scripts/post.py status
+    python3 scripts/post.py push   [--dry-run]
 
-通用开关：
-    --dry-run   只打印将要发生的变更，不写盘、不提交
-    --push      变更后自动 git commit + push（发布前会跑全站校验）
+推送策略（重要）：
+    默认只写盘 + 本地 commit，不推远程。一批内容全部就绪后，跑一次 `push` 统一推送。
+    加 --push 表示本条命令结束时推一次——即使批量发布多篇，也只推一次。
+    专栏/子专栏的结构改动同样走这条链路：先建好、再发文章、最后 push 一次。
 """
 
 from __future__ import annotations
@@ -30,7 +39,32 @@ from frontmatter import (  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POSTS = os.path.join(ROOT, "_posts")
-COLUMNS = {"prog", "ai", "finance", "life", "misc", "naming"}
+COLUMNS_DIR = os.path.join(ROOT, "_columns")
+SERIES_DIR = os.path.join(ROOT, "_series")
+SLUG_RE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$")
+
+
+def columns() -> set[str]:
+    """专栏白名单 = _columns/ 下的文件名。新增专栏无需改脚本。"""
+    if not os.path.isdir(COLUMNS_DIR):
+        return set()
+    return {n[:-3] for n in os.listdir(COLUMNS_DIR) if n.endswith(".md")}
+
+
+def series_of(column: str | None = None) -> list[dict]:
+    """读取 _series/*.md 的元数据，可按 column 过滤。"""
+    out: list[dict] = []
+    if not os.path.isdir(SERIES_DIR):
+        return out
+    for name in sorted(os.listdir(SERIES_DIR)):
+        if not name.endswith(".md"):
+            continue
+        with open(os.path.join(SERIES_DIR, name), encoding="utf-8") as fh:
+            fm = parse_frontmatter(fh.read())["fm"] or {}
+        if column and fm.get("column") != column:
+            continue
+        out.append({"slug": name[:-3], "fm": fm})
+    return out
 
 
 # ---------- 基础操作 ----------
@@ -109,8 +143,26 @@ def validate_all() -> bool:
     return proc.returncode == 0
 
 
+def push_now(dry_run: bool = False) -> None:
+    """把本地领先的提交一次性推到远程。没有待推提交就安静返回。"""
+    ahead = run(["git", "rev-list", "--count", "origin/master..HEAD"], check=False).stdout.strip()
+    n = int(ahead or 0)
+    if n == 0:
+        print("远程已是最新，无需推送。")
+        return
+    behind = run(["git", "rev-list", "--count", "HEAD..origin/master"], check=False).stdout.strip()
+    if int(behind or 0) > 0:
+        print(f"警告：本地落后远程 {behind} 个提交，先 git pull --rebase 再推。", file=sys.stderr)
+        raise SystemExit(1)
+    if dry_run:
+        print(f"[dry-run] 将推送 {n} 个提交到 origin/master")
+        return
+    run(["git", "push", "origin", "master"])
+    print(f"已推送 {n} 个提交到 master，GitHub Pages 通常 60s 内完成构建。")
+
+
 def finalize(opts, message: str, paths: list[str] | None = None) -> None:
-    """校验 → 提交 → （可选）推送。校验不过则中止，文件已写入需人工回滚。"""
+    """校验 → 本地提交 → （仅在 --push 时）推送。校验不过则中止，文件已写入需人工回滚。"""
     if not validate_all():
         print("\n校验未通过，已中止提交。修正后重新执行。", file=sys.stderr)
         raise SystemExit(1)
@@ -119,19 +171,150 @@ def finalize(opts, message: str, paths: list[str] | None = None) -> None:
     staged = run(["git", "diff", "--cached", "--name-only"], check=False).stdout.split()
     if not staged:
         print("没有需要提交的变更。")
-        return
-    run(["git", "commit", "-m", message])
-    # 以实际提交内容计数，避免把先前遗留的暂存项算进来
-    committed = run(["git", "show", "--name-only", "--format=", "HEAD"], check=False).stdout.split()
-    print(f"已提交 {len(committed)} 个文件：{message}")
-    if opts.push:
-        run(["git", "push", "origin", "master"])
-        print("已推送到 master，GitHub Pages 通常 60s 内完成构建。")
     else:
-        print("尚未推送：git push origin master")
+        run(["git", "commit", "-m", message])
+        # 以实际提交内容计数，避免把先前遗留的暂存项算进来
+        committed = run(["git", "show", "--name-only", "--format=", "HEAD"], check=False).stdout.split()
+        print(f"已提交 {len(committed)} 个文件：{message}")
+    if getattr(opts, "push", False):
+        push_now(getattr(opts, "dry_run", False))
+    elif not getattr(opts, "dry_run", False):
+        ahead = run(["git", "rev-list", "--count", "origin/master..HEAD"], check=False).stdout.strip()
+        print(f"本地待推送 {ahead} 个提交。全部就绪后跑一次：python3 scripts/post.py push")
 
 
 # ---------- 子命令 ----------
+
+def _read_fm(path: str) -> dict:
+    with open(path, encoding="utf-8") as fh:
+        return parse_frontmatter(fh.read())["fm"] or {}
+
+
+def _next_order(dirpath: str) -> int:
+    """目录里已有条目的最大 order + 1。"""
+    mx = 0
+    if os.path.isdir(dirpath):
+        for name in os.listdir(dirpath):
+            if not name.endswith(".md"):
+                continue
+            try:
+                mx = max(mx, int(_read_fm(os.path.join(dirpath, name)).get("order") or 0))
+            except (TypeError, ValueError):
+                pass
+    return mx + 1
+
+
+def cmd_column(opts) -> int:
+    if opts.act == "list":
+        posts = load_posts()
+        rows = []
+        for name in columns():
+            fm = _read_fm(os.path.join(COLUMNS_DIR, f"{name}.md"))
+            n = sum(1 for p in posts if p["column"] == name)
+            rows.append((int(fm.get("order") or 99), name, fm.get("title") or "", n))
+        for order, name, title, n in sorted(rows):
+            print(f"{order:>2}  {name:<14} {title:<14} {n:>3} 篇")
+        return 0
+
+    slug = opts.slug
+    if not SLUG_RE.match(slug):
+        print(f'错误: slug "{slug}" 不合法（只允许小写字母、数字、连字符）', file=sys.stderr)
+        return 1
+    path = os.path.join(COLUMNS_DIR, f"{slug}.md")
+    rel = os.path.join("_columns", f"{slug}.md")
+    if os.path.exists(path) and not opts.force:
+        print(f"错误: 专栏已存在 {rel}（加 --force 覆盖）", file=sys.stderr)
+        return 1
+    order = opts.order or _next_order(COLUMNS_DIR)
+    meta = {
+        "layout": "column",
+        "title": opts.title,
+        "slug": slug,
+        "description": opts.description or "",
+        "order": order,
+        "permalink": f"/column/{slug}/",
+    }
+    text = stringify_frontmatter(meta) + "\n"
+    if opts.dry_run:
+        print(f"[dry-run] 将创建 {rel}：\n{text}")
+        return 0
+    os.makedirs(COLUMNS_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    print(f"已创建专栏 {rel}（order={order}）")
+    finalize(opts, f"column: 新增 {slug}", [rel])
+    return 0
+
+
+def cmd_series(opts) -> int:
+    if opts.act == "list":
+        posts = load_posts()
+        rows = []
+        for s in series_of(opts.column):
+            fm = s["fm"]
+            n = sum(1 for p in posts if p["series"] == s["slug"])
+            rows.append((int(fm.get("order") or 99), s["slug"],
+                         fm.get("column") or "", fm.get("title") or "", n))
+        for order, slug, col, title, n in sorted(rows):
+            print(f"{order:>2}  {slug:<18} {col:<10} {title:<14} {n:>3} 篇")
+        return 0
+
+    slug = opts.slug
+    if not SLUG_RE.match(slug):
+        print(f'错误: slug "{slug}" 不合法（只允许小写字母、数字、连字符）', file=sys.stderr)
+        return 1
+    if opts.column not in columns():
+        print(f'错误: 专栏 "{opts.column}" 不存在。可选：{", ".join(sorted(columns()))}', file=sys.stderr)
+        return 1
+    path = os.path.join(SERIES_DIR, f"{slug}.md")
+    rel = os.path.join("_series", f"{slug}.md")
+    if os.path.exists(path) and not opts.force:
+        print(f"错误: 子专栏已存在 {rel}（加 --force 覆盖）", file=sys.stderr)
+        return 1
+    order = opts.order or _next_order(SERIES_DIR)
+    meta = {
+        "layout": "series-detail",
+        "title": opts.title,
+        "slug": slug,
+        "permalink": f"/series/{slug}/",
+        "column": opts.column,
+        "description": opts.description or "",
+        "order": order,
+    }
+    text = stringify_frontmatter(meta) + "\n"
+    if opts.dry_run:
+        print(f"[dry-run] 将创建 {rel}：\n{text}")
+        return 0
+    os.makedirs(SERIES_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    print(f"已创建子专栏 {rel}（column={opts.column}, order={order}）")
+    finalize(opts, f"series: 新增 {slug}", [rel])
+    return 0
+
+
+def cmd_status(opts) -> int:
+    dirty = run(["git", "status", "--porcelain"], check=False).stdout.strip()
+    ahead = run(["git", "rev-list", "--count", "origin/master..HEAD"], check=False).stdout.strip()
+    behind = run(["git", "rev-list", "--count", "HEAD..origin/master"], check=False).stdout.strip()
+    print(f"未提交改动: {'有' if dirty else '无'}")
+    for line in dirty.splitlines()[:10]:
+        print("  " + line)
+    print(f"待推送提交: {ahead}")
+    print(f"落后远程:   {behind}")
+    print(f"最新提交:   {run(['git', 'log', '-1', '--format=%h %s'], check=False).stdout.strip()}")
+    return 0
+
+
+def cmd_push(opts) -> int:
+    dirty = run(["git", "status", "--porcelain"], check=False).stdout.strip()
+    if dirty:
+        print("提示: 工作区有未提交改动，它们不会进这次推送：", file=sys.stderr)
+        for line in dirty.splitlines()[:5]:
+            print("  " + line, file=sys.stderr)
+    push_now(opts.dry_run)
+    return 0
+
 
 def cmd_list(opts) -> int:
     posts = load_posts()
@@ -213,8 +396,8 @@ def cmd_set(opts) -> int:
         meta["tags"] = [t.strip() for t in opts.tags.split(",") if t.strip()]
         changed.append("tags")
     if opts.column:
-        if opts.column not in COLUMNS:
-            print(f"错误: --column 取值必须是 {'|'.join(sorted(COLUMNS))}", file=sys.stderr)
+        if opts.column not in columns():
+            print(f"错误: --column 取值必须是 {'|'.join(sorted(columns()))}", file=sys.stderr)
             return 1
         meta["column"] = opts.column
         changed.append("column")
@@ -281,15 +464,16 @@ def cmd_remove(opts) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="文章管理：发布 / 修改 / 下架 / 查看")
+    parser = argparse.ArgumentParser(description="文章 / 专栏 / 子专栏管理")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     def add_common(sp):
         sp.add_argument("--dry-run", action="store_true", help="只预览不落盘")
-        sp.add_argument("--push", action="store_true", help="变更后自动提交并推送")
+        sp.add_argument("--push", action="store_true",
+                        help="本轮结束后推一次远程（默认只本地提交，攒完用 push 统一推）")
 
     sp = sub.add_parser("list", help="列出文章")
-    sp.add_argument("--column", choices=sorted(COLUMNS))
+    sp.add_argument("--column", choices=sorted(columns()))
     sp.add_argument("--search", help="按标题/标签模糊匹配")
     sp.add_argument("--limit", type=int, default=20)
     sp.set_defaults(func=cmd_list)
@@ -300,7 +484,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("publish", help="发布新文章（裸 md 即可）")
     sp.add_argument("files", nargs="+")
-    sp.add_argument("--column", choices=sorted(COLUMNS))
+    sp.add_argument("--column", choices=sorted(columns()))
     sp.add_argument("--series")
     sp.add_argument("--tags")
     sp.add_argument("--title")
@@ -314,7 +498,7 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("slug")
     sp.add_argument("--title")
     sp.add_argument("--tags")
-    sp.add_argument("--column", choices=sorted(COLUMNS))
+    sp.add_argument("--column", choices=sorted(columns()))
     sp.add_argument("--series")
     sp.add_argument("--pinned", action="store_true")
     sp.add_argument("--unpinned", action="store_true")
@@ -331,6 +515,44 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("slugs", nargs="+")
     add_common(sp)
     sp.set_defaults(func=cmd_remove)
+
+    # ---- 专栏 ----
+    spc = sub.add_parser("column", help="专栏：新建 / 列出")
+    csub = spc.add_subparsers(dest="act", required=True)
+    c = csub.add_parser("list", help="列出所有专栏")
+    c.set_defaults(func=cmd_column)
+    c = csub.add_parser("new", help="新建专栏")
+    c.add_argument("slug", help="英文标识，用于 URL（a-z0-9-）")
+    c.add_argument("--title", required=True, help="站上显示名")
+    c.add_argument("--description", default="", help="一句话描述")
+    c.add_argument("--order", type=int, help="排序，默认排到最后")
+    c.add_argument("--force", action="store_true", help="覆盖同名专栏")
+    add_common(c)
+    c.set_defaults(func=cmd_column)
+
+    # ---- 子专栏 ----
+    sps = sub.add_parser("series", help="子专栏：新建 / 列出")
+    ssub = sps.add_subparsers(dest="act", required=True)
+    s = ssub.add_parser("list", help="列出子专栏")
+    s.add_argument("--column", choices=sorted(columns()), help="只看某个专栏下")
+    s.set_defaults(func=cmd_series)
+    s = ssub.add_parser("new", help="新建子专栏")
+    s.add_argument("slug", help="英文标识，用于 URL（a-z0-9-）")
+    s.add_argument("--title", required=True, help="站上显示名")
+    s.add_argument("--column", required=True, choices=sorted(columns()), help="所属专栏")
+    s.add_argument("--description", default="", help="一句话描述")
+    s.add_argument("--order", type=int, help="排序，默认排到最后")
+    s.add_argument("--force", action="store_true", help="覆盖同名子专栏")
+    add_common(s)
+    s.set_defaults(func=cmd_series)
+
+    # ---- 推送与状态 ----
+    sp = sub.add_parser("push", help="把本地提交一次性推送到远程")
+    sp.add_argument("--dry-run", action="store_true", help="只显示将推送多少个提交")
+    sp.set_defaults(func=cmd_push)
+
+    sp = sub.add_parser("status", help="查看未提交改动 / 待推送提交")
+    sp.set_defaults(func=cmd_status)
 
     return parser
 
