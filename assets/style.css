@@ -870,18 +870,20 @@ button:focus-visible,
 
 /* ---------- table of contents ---------- */
 
+/* 与左侧导航同层级:同 sticky 偏移、同可视高度、同卡片外观 */
 .toc {
-  position: sticky; top: 5rem;
-  float: right;
-  width: 16rem;
-  margin: 0 -18rem 1.5rem 1.5rem;
-  padding: 1rem 1.1rem;
+  position: sticky;
+  top: 1rem;
+  width: auto;
+  margin: 0;
+  float: none;
+  padding: 1rem 1.25rem;
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
   font-size: var(--step--1);
-  max-height: calc(100vh - 6rem);
+  max-height: calc(100vh - 2rem);
   overflow-y: auto;
 }
 .toc-title {
@@ -923,11 +925,25 @@ button:focus-visible,
 }
 .toc-list .toc-sub { padding-left: 1rem; font-size: .92em; }
 
-/* mobile: 标题行(带 ▸/▾)即折叠开关 */
+/* 窄屏:标题行(带 ▸/▾)即折叠开关;目录通栏置顶并吸顶 */
 @media (max-width: 1180px) {
-  .toc {
-    position: static; float: none;
-    width: auto; margin: 1.5rem 0;
+  .layout-with-sidebar.has-toc {
+    grid-template-columns: var(--tree-w) minmax(0, 1fr);
+    grid-template-areas:
+      "toc toc"
+      "tree content";
+  }
+  .layout-with-sidebar.has-toc > .toc {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    max-height: none;
+    margin: 0 0 1.25rem;
+    border-radius: 0;
+    border-top: 0;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: var(--shadow-sm);
   }
   .toc-title { margin-bottom: 0; }
   .toc[data-collapsed="true"] .toc-list { display: none; }
@@ -1552,23 +1568,29 @@ article pre:focus-within .copy-btn,
 /* 用 grid-template-areas 显式命名,保证 sidebar-tree 永远在左,正文在中,TOC 在右 */
 
 .layout-with-sidebar {
+  --tree-w: 260px;              /* 左右两栏同宽,视觉同一层级 */
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) 220px;
-  grid-template-areas: "tree content toc";
+  grid-template-columns: var(--tree-w) minmax(0, 1fr);
+  grid-template-areas: "tree content";
   gap: 2rem;
   align-items: start;
 }
 
+/* 目录就位后展开第三列(JS 加 has-toc) */
+.layout-with-sidebar.has-toc {
+  grid-template-columns: var(--tree-w) minmax(0, 1fr) var(--tree-w);
+  grid-template-areas: "tree content toc";
+}
+
 .layout-with-sidebar > .sidebar-tree { grid-area: tree; }
 .layout-with-sidebar > .content-area { grid-area: content; min-width: 0; }
-.layout-with-sidebar > .article-toc  { grid-area: toc; }
+.layout-with-sidebar > .toc { grid-area: toc; }
 
 /* 2-column 变体:无右栏(series/column 页用) */
 .layout-with-sidebar--2col {
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: var(--tree-w) minmax(0, 1fr);
   grid-template-areas: "tree content";
 }
-.layout-with-sidebar--2col > .article-toc { display: none; }
 
 .sidebar-tree {
   position: sticky;
@@ -1951,16 +1973,10 @@ article pre:focus-within .copy-btn,
 /* 响应式:三档 */
 /* 2 栏(左树 + 中正文);admin 反馈右侧 aside 文章目录冗余,2026-10-09 移除右 toc */
 @media (max-width: 1279px) {
-  .layout-with-sidebar,
-  .layout-with-sidebar--2col {
-    grid-template-columns: 240px minmax(0, 1fr);
-  }
+  .layout-with-sidebar { --tree-w: 240px; }
 }
 @media (max-width: 1024px) {
-  .layout-with-sidebar,
-  .layout-with-sidebar--2col {
-    grid-template-columns: 200px minmax(0, 1fr);
-  }
+  .layout-with-sidebar { --tree-w: 200px; }
 }
 /* <= 900: 单列(树折叠到顶部抽屉;正文优先) */
 @media (max-width: 900px) {
@@ -1968,6 +1984,10 @@ article pre:focus-within .copy-btn,
   .layout-with-sidebar--2col {
     grid-template-columns: 1fr;
     grid-template-areas: "content";
+  }
+  .layout-with-sidebar.has-toc {
+    grid-template-columns: 1fr;
+    grid-template-areas: "toc" "content";
   }
   .layout-with-sidebar > .sidebar-tree,
   .layout-with-sidebar--2col > .sidebar-tree { display: none; }

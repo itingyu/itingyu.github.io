@@ -229,7 +229,14 @@
     });
 
     aside.appendChild(list);
-    article.parentNode.insertBefore(aside, article);
+    // 放进布局容器的第三列,与左侧导航同层级(有则加 has-toc 展开三列)
+    var host = article.closest('.layout-with-sidebar');
+    if (host) {
+      host.classList.add('has-toc');
+      host.appendChild(aside);
+    } else {
+      article.parentNode.insertBefore(aside, article);
+    }
 
     // 标题行自带 ▸/▾ 箭头,点标题即可折叠,不再另设「展开目录」按钮
     function setCollapsed(collapsed) {

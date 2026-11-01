@@ -10,7 +10,7 @@
 {%- assign col_page = site.columns | where: 'slug', include.post.column | first -%}
 {%- assign series_page = site.series | where: 'title', include.post.series | first -%}
 
-<div class="layout-with-sidebar layout-with-sidebar--2col">
+<div class="layout-with-sidebar">
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">

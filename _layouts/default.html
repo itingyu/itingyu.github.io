@@ -21,6 +21,9 @@
   {%- if page.url == '/' or page.layout == 'home' -%}
     {%- assign main_class = 'container-wide' -%}
   {%- endif -%}
+  {%- if page.layout == 'post' -%}
+    {%- assign main_class = 'layout-3col' -%}
+  {%- endif -%}
   {%- if page.layout == 'notfound' or page.url == '/404.html' -%}
     {%- assign main_class = main_class | append: ' fourofour' -%}
   {%- endif -%}
