@@ -4,7 +4,7 @@ slug: naming-transport-codes
 title: 命名系统（6）：交通与地理——从机场三字码到车架号
 date: 2026-11-01 15:00:00 +0800
 column: naming
-series: naming-transport
+series: naming-all
 tags:
   - 命名系统
   - 交通
@@ -13,7 +13,7 @@ excerpt: 交通和地理的编码有个共同要求： 终身唯一 。船可以
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-transport/naming-transport-codes/
+permalink: /notes/naming/naming-all/naming-transport-codes/
 ---
 
 # 命名系统（6）：交通与地理——从机场三字码到车架号
