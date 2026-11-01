@@ -1,4 +1,6 @@
 title: itingyu · 博客
+# 静态资源版本号:改动 assets/ 后 bump 一次,浏览器立刻拿到新文件
+asset_version: 20261101a
 description: itingyu 的个人博客。记录编程学习、金融市场观察与算法可视化笔记。
 lang: zh-CN
 url: https://itingyu.github.io
