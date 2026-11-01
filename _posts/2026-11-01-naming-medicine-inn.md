@@ -4,7 +4,7 @@ slug: naming-medicine-inn
 title: 命名系统（3）：医药健康——把药理写进名字
 date: 2026-11-01 18:00:00 +0800
 column: naming
-series: naming-medicine
+series: naming-all
 tags:
   - 命名系统
   - 医药
@@ -14,7 +14,7 @@ excerpt: 医药行业的命名有个别的行业没有的特点： 名字本身�
 pinned: false
 cover: null
 draft: false
-permalink: /notes/naming/naming-medicine/naming-medicine-inn/
+permalink: /notes/naming/naming-all/naming-medicine-inn/
 ---
 
 # 命名系统（3）：医药健康——把药理写进名字
