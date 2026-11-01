@@ -295,7 +295,12 @@
         copyText(text, btn);
       });
 
-      pre.appendChild(btn);
+      // 按钮放进不滚动的外层:钉在代码块右上角,不随代码横向滚动跑掉
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrap';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+      wrap.appendChild(btn);
     });
   }
 

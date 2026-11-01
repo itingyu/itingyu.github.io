@@ -1310,6 +1310,12 @@ article pre {
   position: relative;
 }
 
+/* 代码块外层:不横向滚动,复制按钮钉在右上角 */
+article .code-wrap {
+  position: relative;
+}
+article .code-wrap > pre { margin: 0; }
+
 .copy-btn {
   position: absolute;
   top: .55rem; right: .65rem;
