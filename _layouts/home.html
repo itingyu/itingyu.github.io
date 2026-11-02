@@ -28,7 +28,8 @@ layout: default
 
 <h2 class="section-title">专栏分布</h2>
 <ul class="dist-list">
-  {%- for c in site.columns | sort: 'order' -%}
+  {%- assign sorted_columns = site.columns | sort: "order" -%}
+  {%- for c in sorted_columns -%}
     {%- assign cnt = site.posts | where: 'column', c.slug | size -%}
     {%- assign pct = 0 -%}
     {%- if total > 0 -%}{%- assign pct = cnt | times: 100 | divided_by: total -%}{%- endif -%}

@@ -302,7 +302,7 @@ hr {
 .container       { max-width: 1104px; margin: 3rem auto; padding: 0 1.5rem; }
 .container-wide  { max-width: 1296px; margin: 3rem auto; padding: 0 1.5rem; }
 /* 3 栏(左树 + 中正文 + 右 TOC)专用:占视口 ~90%,居中,呼吸感更足 */
-.layout-3col     { max-width: min(100vw, 1760px); margin: 2rem auto; padding: 0 .5rem; }
+.layout-3col     { max-width: min(100vw, 1760px); margin: 2rem auto; padding: 0; }
 
 /* ---------- typography ---------- */
 
@@ -1588,20 +1588,21 @@ article pre:focus-within .copy-btn,
 /* 用 grid-template-areas 显式命名,保证 sidebar-tree 永远在左,正文在中,TOC 在右 */
 
 .layout-with-sidebar {
-  --tree-w: clamp(240px, 18vw, 300px);   /* 左右两栏同宽,随视口加宽 */
+  --tree-w: clamp(250px, 19vw, 340px);   /* 左右两栏同宽,随视口加宽 */
   --content-w: 880px;                     /* 正文列宽度固定,加宽侧栏不影响它 */
   display: grid;
   grid-template-columns: var(--tree-w) minmax(0, var(--content-w));
   grid-template-areas: "tree content";
   gap: 1.5rem;
   align-items: start;
-  justify-content: center;   /* 列宽固定后剩余空间左右均分 */
+  justify-content: space-between;   /* 左右栏贴到屏幕边缘,剩余空间归正文两侧 */
 }
 
 /* 目录就位后展开第三列(JS 加 has-toc) */
 .layout-with-sidebar.has-toc {
   grid-template-columns: var(--tree-w) minmax(0, var(--content-w)) var(--tree-w);
   grid-template-areas: "tree content toc";
+  justify-content: space-between;   /* 三列:两侧栏贴边,正文居中 */
 }
 
 .layout-with-sidebar > .sidebar-tree { grid-area: tree; }
