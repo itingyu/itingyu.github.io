@@ -9,8 +9,18 @@
 {%- endcomment -%}
 {%- assign col_page = site.columns | where: 'slug', include.post.column | first -%}
 {%- assign series_page = site.series | where: 'title', include.post.series | first -%}
+{%- comment -%}
+  目录外壳在服务端判断是否渲染,而不是等 JS 注入 —— 否则首屏没有这一格,
+  JS 注入后格子出现,正文会被往下挤一段(窄屏尤其明显)。
+  这里按正文里 h2/h3 数量预判,和 JS 的 2 条门槛保持一致。
+{%- endcomment -%}
+{%- assign _h2 = include.post.content | split: '<h2' | size | minus: 1 -%}
+{%- assign _h3 = include.post.content | split: '<h3' | size | minus: 1 -%}
+{%- assign _toc_n = _h2 | plus: _h3 -%}
+{%- assign _has_toc = false -%}
+{%- if _toc_n >= 2 -%}{%- assign _has_toc = true -%}{%- endif -%}
 
-<div class="layout-with-sidebar">
+<div class="layout-with-sidebar{% if _has_toc %} has-toc{% endif %}">
   {%- include sidebar-tree.html -%}
 
   <div class="content-area">
@@ -56,5 +66,13 @@
       <p>本页最后更新：{{ include.post.date | date: '%Y-%m-%d' }} · 发现错别字？<a href="https://github.com/itingyu/itingyu.github.io/edit/master/{{ include.post.path }}" rel="noopener">在 GitHub 上编辑</a>。</p>
     </footer>
   </div>
+
+  {%- if _has_toc -%}
+  {%- comment -%}目录外壳:标题行直接输出,列表由 JS 填充;首屏高度即为折叠态高度{%- endcomment -%}
+  <aside class="toc" aria-label="文章目录" data-collapsed="false">
+    <div class="toc-title" role="button" tabindex="0" aria-expanded="true">目录</div>
+    <ul class="toc-list"></ul>
+  </aside>
+  {%- endif -%}
 </div>
 

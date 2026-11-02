@@ -918,6 +918,8 @@ button:focus-visible,
   border-radius: var(--r-sm);
 }
 .toc-list { list-style: none; padding: 0; margin: 0; }
+/* 首屏还没填条目时不占高度,避免空列表撑出内边距 */
+.toc-list:empty { display: none; }
 .toc-list li { margin: 0; }
 .toc-link {
   display: block;
@@ -1634,18 +1636,19 @@ article pre:focus-within .copy-btn,
   --tree-w: clamp(250px, 19vw, 340px);   /* 左右两栏同宽,随视口加宽 */
   --content-w: 880px;                     /* 正文列宽度固定,加宽侧栏不影响它 */
   display: grid;
-  grid-template-columns: var(--tree-w) minmax(0, var(--content-w));
-  grid-template-areas: "tree content";
+  /* 始终按三轨排版,第三轨留给目录:目录由 JS 注入,若等到注入后才加第三列,
+     首屏正文会先被 space-between 推到右侧再跳回来(闪一下)。
+     预留空轨后,目录只是"占位填内容",正文位置从第一帧起就固定 */
+  grid-template-columns: var(--tree-w) minmax(0, var(--content-w)) var(--tree-w);
+  grid-template-areas: "tree content .";
   gap: 1.5rem;
   align-items: start;
-  justify-content: space-between;   /* 左右栏贴到屏幕边缘,剩余空间归正文两侧 */
+  justify-content: space-between;   /* 左右栏贴屏幕边缘,剩余空间归正文两侧 */
 }
 
-/* 目录就位后展开第三列(JS 加 has-toc) */
+/* 目录就位后只把第三轨命名出来,列宽不变 -> 无横向位移 */
 .layout-with-sidebar.has-toc {
-  grid-template-columns: var(--tree-w) minmax(0, var(--content-w)) var(--tree-w);
   grid-template-areas: "tree content toc";
-  justify-content: space-between;   /* 三列:两侧栏贴边,正文居中 */
 }
 
 .layout-with-sidebar > .sidebar-tree { grid-area: tree; }

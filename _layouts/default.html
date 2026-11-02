@@ -17,6 +17,12 @@
   <a class="skip-link" href="#main">跳到正文</a>
   {%- endif -%}
   {%- include header.html -%}
+  {%- comment -%}
+    同步量一次顶栏高度并写进 CSS 变量,赶在正文绘制之前 ——
+    否则 --header-h 先用默认值,JS 稍后测出真值,吸顶元素会先错位再跳。
+    这段必须内联且紧跟 header,不能用 defer。
+  {%- endcomment -%}
+  <script>(function(){var h=document.querySelector('.site-header');if(h){document.documentElement.style.setProperty('--header-h',h.getBoundingClientRect().height+'px');}})();</script>
   {%- assign main_class = page.main_class | default: layout.main_class | default: 'container' -%}
   {%- if page.url == '/' or page.layout == 'home' -%}
     {%- assign main_class = 'container-wide' -%}

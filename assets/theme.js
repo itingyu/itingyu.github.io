@@ -135,11 +135,6 @@
   // 标题栏放在正文容器内(不与正文分离),sticky 吸顶时正文从它下方穿过并被遮挡,
   // 不会出现标题栏与正文之间那段空隙里漏出内容
   var bar = document.querySelector('.article-bar');
-  var content = document.querySelector('.content-area');
-  if (bar && content && bar.parentElement !== content) {
-    content.insertBefore(bar, content.firstChild);
-  }
-
   // 顶栏高度随视口变化(窄屏会换行变高),实测后写入 CSS 变量,
   // 让树/目录/标题栏三者的吸顶位置始终对齐顶栏下沿
   function syncHeaderHeight() {
@@ -217,19 +212,13 @@
     // 复用已生成的 heading id(initHeadingAnchors 已经跑过)
     ensureHeadingIds(headings);
 
-    // 构建 TOC DOM
-    var aside = document.createElement('aside');
-    aside.className = 'toc';
-    aside.setAttribute('aria-label', '文章目录');
-    aside.setAttribute('data-collapsed', 'false');
-
-    var title = document.createElement('div');
-    title.className = 'toc-title';
-    title.textContent = '目录';
-    title.setAttribute('role', 'button');
-    title.setAttribute('tabindex', '0');
-    title.setAttribute('aria-expanded', 'true');
-    aside.appendChild(title);
+    // 目录外壳已在服务端输出(避免注入时挤动正文),这里只取引用并填充列表
+    var aside = article.closest('.layout-with-sidebar');
+    aside = aside ? aside.querySelector('aside.toc') : null;
+    if (!aside) return;
+    var title = aside.querySelector('.toc-title');
+    var list = aside.querySelector('.toc-list');
+    if (!title || !list) return;
 
     // 去掉注入的 🔗 锚点字符,目录条目只留标题文字
     function headingText(h) {
@@ -237,9 +226,6 @@
       clone.querySelectorAll('.heading-anchor').forEach(function (el) { el.remove(); });
       return clone.textContent.replace(/^#+\s*/, '').trim();
     }
-
-    var list = document.createElement('ul');
-    list.className = 'toc-list';
 
     headings.forEach(function (h) {
       var li = document.createElement('li');
@@ -253,15 +239,6 @@
       list.appendChild(li);
     });
 
-    aside.appendChild(list);
-    // 放进布局容器的第三列,与左侧导航同层级(有则加 has-toc 展开三列)
-    var host = article.closest('.layout-with-sidebar');
-    if (host) {
-      host.classList.add('has-toc');
-      host.appendChild(aside);
-    } else {
-      article.parentNode.insertBefore(aside, article);
-    }
 
     // 标题行自带 ▸/▾ 箭头,点标题即可折叠,不再另设「展开目录」按钮
     function setCollapsed(collapsed) {
