@@ -42,6 +42,16 @@ PRoot 走的是另一条路：**ptrace**。
 
 所以它不是隔离，是**翻译**。这个区别决定后面所有的事。
 
+```mermaid
+flowchart LR
+    A[App 进程<br/>Android app uid] -->|ptrace 改写路径参数| B[guest 进程<br/>uid=0 假 root]
+    B --> C[rootfs]
+    B --> D[bind mount 的宿主目录]
+    B -->|execve 命中 handler| A
+```
+
+同一个进程，两套路径视图。`open("/etc/passwd")` 被翻译成 `open("<rootfs>/etc/passwd")`，程序拿到的文件描述符是真的，只是它指向的位置被换过了。
+
 ## 三、要伪造的三样东西
 
 一个正常的 Linux 程序，启动时会确认三件事：我是谁、文件在哪、网络通不通。沙箱要让它对这三件事都得到满意的答案。
