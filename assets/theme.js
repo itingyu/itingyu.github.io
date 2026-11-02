@@ -132,11 +132,12 @@
     });
   }
 
-  // 把文章标题栏提升为栅格独立项:与左右栏同层吸顶,窄屏时排在目录之上
+  // 标题栏放在正文容器内(不与正文分离),sticky 吸顶时正文从它下方穿过并被遮挡,
+  // 不会出现标题栏与正文之间那段空隙里漏出内容
   var bar = document.querySelector('.article-bar');
-  var host2 = document.querySelector('.layout-with-sidebar');
-  if (bar && host2 && bar.parentElement !== host2) {
-    host2.insertBefore(bar, host2.firstChild);
+  var content = document.querySelector('.content-area');
+  if (bar && content && bar.parentElement !== content) {
+    content.insertBefore(bar, content.firstChild);
   }
 
   // 顶栏高度随视口变化(窄屏会换行变高),实测后写入 CSS 变量,
@@ -146,6 +147,8 @@
     if (h) document.documentElement.style.setProperty('--header-h', Math.round(h.getBoundingClientRect().height) + 'px');
     var b = document.querySelector('.article-bar');
     if (b) document.documentElement.style.setProperty('--bar-h', Math.round(b.getBoundingClientRect().height) + 'px');
+    var t = document.querySelector('aside.toc');
+    if (t) document.documentElement.style.setProperty('--toc-h', Math.round(t.getBoundingClientRect().height) + 'px');
   }
   syncHeaderHeight();
   window.addEventListener('resize', syncHeaderHeight);
