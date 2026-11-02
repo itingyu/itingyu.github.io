@@ -1,9 +1,9 @@
 ---
 layout: series-detail
 slug: agent-eng-anatomy
-title: 一个助手的内脏
+title: Agent 为什么能干活
 column: agent-eng
-description: 以 Minis v1.15 官方源码为样本，逐层拆开一次工具调用的完整链路
+description: 八个原理，一条从 token 到副作用的完整链路
 permalink: /series/agent-eng-anatomy/
 order: 1
 ---
