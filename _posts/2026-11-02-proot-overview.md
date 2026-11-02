@@ -76,15 +76,13 @@ case 0:                       /* child */
 一次路径系统调用的完整链路：
 
 ```mermaid
-flowchart LR
-    A["tracee 执行 openat"] --> B["ptrace stop"]
-    B --> C["event_loop: waitpid"]
-    C --> D["translate_syscall"]
-    D --> E["translate_syscall_enter"]
-    E --> F["translate_path"]
-    F --> G["canonicalize + binding"]
-    E --> H["扩展: fake_id0 / link2symlink"]
-    D --> I["PTRACE_SYSCALL 继续"]
+flowchart TD
+    A["openat 进入"] --> B["ptrace stop"]
+    B --> C["event_loop / translate_syscall"]
+    C --> D["translate_path"]
+    D --> E["canonicalize + binding"]
+    C --> F["扩展: fake_id0 等"]
+    E --> G["写回参数, PTRACE_SYSCALL 继续"]
 ```
 
 ## 它靠什么成立
