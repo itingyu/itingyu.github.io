@@ -22,7 +22,7 @@
     {%- assign main_class = 'container-wide' -%}
   {%- endif -%}
   {%- if page.layout == 'post' or page.layout == 'column' or page.layout == 'series-detail' -%}
-    {#- 专栏/子专栏页与文章页同宽同列位,点进文章不发生跳变 -#}
+    {%- comment -%}专栏/子专栏页与文章页同宽同列位,点进文章不发生跳变{%- endcomment -%}
     {%- assign main_class = 'layout-3col' -%}
   {%- endif -%}
   {%- if page.layout == 'notfound' or page.url == '/404.html' -%}
