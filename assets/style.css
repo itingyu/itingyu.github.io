@@ -8,8 +8,8 @@
 :root {
   /* 顶栏高度:theme.js 会按实测值覆写,这里是兜底 */
   --header-h: 68px;
-  /* 吸顶元素的统一起始位置(顶栏下方) */
-  --sticky-top: calc(var(--header-h) + .75rem);
+  /* 吸顶元素的统一起始位置:紧贴顶栏下沿,不留裸露缝隙 */
+  --sticky-top: var(--header-h);
   /* 标题栏高度(JS 实测覆写):窄屏时目录要排在它下面 */
   --bar-h: 0px;
   /* 目录高度(JS 实测覆写):窄屏时标题栏排在它下面 */
@@ -217,10 +217,10 @@ hr {
   padding: .9rem 1.5rem;
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 1rem;
-  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  background: var(--bg);
   backdrop-filter: saturate(180%) blur(14px);
   -webkit-backdrop-filter: saturate(180%) blur(14px);
-  position: sticky; top: 0; z-index: 10;
+  position: sticky; top: 0; z-index: 60;
 }
 
 .site-brand {
