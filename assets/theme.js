@@ -132,6 +132,28 @@
     });
   }
 
+  // 把文章标题栏提升为栅格独立项:与左右栏同层吸顶,窄屏时排在目录之上
+  var bar = document.querySelector('.article-bar');
+  var host2 = document.querySelector('.layout-with-sidebar');
+  if (bar && host2 && bar.parentElement !== host2) {
+    host2.insertBefore(bar, host2.firstChild);
+  }
+
+  // 顶栏高度随视口变化(窄屏会换行变高),实测后写入 CSS 变量,
+  // 让树/目录/标题栏三者的吸顶位置始终对齐顶栏下沿
+  function syncHeaderHeight() {
+    var h = document.querySelector('.site-header');
+    if (h) document.documentElement.style.setProperty('--header-h', Math.round(h.getBoundingClientRect().height) + 'px');
+    var b = document.querySelector('.article-bar');
+    if (b) document.documentElement.style.setProperty('--bar-h', Math.round(b.getBoundingClientRect().height) + 'px');
+  }
+  syncHeaderHeight();
+  window.addEventListener('resize', syncHeaderHeight);
+  if (window.ResizeObserver) {
+    var hd = document.querySelector('.site-header');
+    if (hd) new ResizeObserver(syncHeaderHeight).observe(hd);
+  }
+
   function initHeadingAnchors() {
     var article = document.querySelector('article');
     if (!article) return;

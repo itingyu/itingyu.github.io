@@ -6,6 +6,12 @@
    ========================================================================== */
 
 :root {
+  /* 顶栏高度:theme.js 会按实测值覆写,这里是兜底 */
+  --header-h: 68px;
+  /* 吸顶元素的统一起始位置(顶栏下方) */
+  --sticky-top: calc(var(--header-h) + .75rem);
+  /* 标题栏高度(JS 实测覆写):窄屏时目录要排在它下面 */
+  --bar-h: 0px;
   /* 排版尺度 */
   --step--1: clamp(0.85rem, 0.81rem + 0.20vw, 0.96rem);
   --step-0:  clamp(1.00rem, 0.95rem + 0.25vw, 1.13rem);
@@ -878,7 +884,7 @@ button:focus-visible,
 /* 与左侧导航同层级:同 sticky 偏移、同可视高度、同卡片外观 */
 .toc {
   position: sticky;
-  top: 1rem;
+  top: var(--sticky-top);
   width: auto;
   margin: 0;
   float: none;
@@ -888,7 +894,7 @@ button:focus-visible,
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
   font-size: var(--step--1);
-  max-height: calc(100vh - 2rem);
+  max-height: calc(100vh - var(--header-h) - 1.5rem);
   overflow-y: auto;
 }
 .toc-title {
@@ -935,12 +941,13 @@ button:focus-visible,
   .layout-with-sidebar.has-toc {
     grid-template-columns: var(--tree-w) minmax(0, 1fr);
     grid-template-areas:
+      "bar bar"
       "toc toc"
       "tree content";
   }
   .layout-with-sidebar.has-toc > .toc {
     position: sticky;
-    top: 0;
+    top: calc(var(--header-h) + var(--bar-h));
     z-index: 40;
     max-height: 70vh;
     margin: 0 0 1.25rem;
@@ -1582,7 +1589,9 @@ article pre:focus-within .copy-btn,
   --tree-w: 260px;              /* 左右两栏同宽,视觉同一层级 */
   display: grid;
   grid-template-columns: var(--tree-w) minmax(0, 1fr);
-  grid-template-areas: "tree content";
+  grid-template-areas:
+    "tree bar"
+    "tree content";
   gap: 1.5rem;
   align-items: start;
 }
@@ -1590,23 +1599,28 @@ article pre:focus-within .copy-btn,
 /* 目录就位后展开第三列(JS 加 has-toc) */
 .layout-with-sidebar.has-toc {
   grid-template-columns: var(--tree-w) minmax(0, 1fr) var(--tree-w);
-  grid-template-areas: "tree content toc";
+  grid-template-areas:
+    "tree bar toc"
+    "tree content toc";
 }
 
 .layout-with-sidebar > .sidebar-tree { grid-area: tree; }
+.layout-with-sidebar > .article-bar { grid-area: bar; }
 .layout-with-sidebar > .content-area { grid-area: content; min-width: 0; }
 .layout-with-sidebar > .toc { grid-area: toc; }
 
 /* 2-column 变体:无右栏(series/column 页用) */
 .layout-with-sidebar--2col {
   grid-template-columns: var(--tree-w) minmax(0, 1fr);
-  grid-template-areas: "tree content";
+  grid-template-areas:
+    "tree bar"
+    "tree content";
 }
 
 .sidebar-tree {
   position: sticky;
-  top: 1rem;
-  max-height: calc(100vh - 2rem);
+  top: var(--sticky-top);
+  max-height: calc(100vh - var(--header-h) - 1.5rem);
   overflow-y: auto;
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
@@ -1833,7 +1847,11 @@ article pre:focus-within .copy-btn,
 
 /* ---------- article header bar (column + series, top) ---------- */
 
+/* 标题栏与左右栏同层吸顶,滚动不消失 */
 .article-bar {
+  position: sticky;
+  top: var(--sticky-top);
+  z-index: 20;
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-lg);
@@ -1994,11 +2012,11 @@ article pre:focus-within .copy-btn,
   .layout-with-sidebar,
   .layout-with-sidebar--2col {
     grid-template-columns: 1fr;
-    grid-template-areas: "content";
+    grid-template-areas: "bar" "content";
   }
   .layout-with-sidebar.has-toc {
     grid-template-columns: 1fr;
-    grid-template-areas: "toc" "content";
+    grid-template-areas: "bar" "toc" "content";
   }
   .layout-with-sidebar > .sidebar-tree,
   .layout-with-sidebar--2col > .sidebar-tree { display: none; }
