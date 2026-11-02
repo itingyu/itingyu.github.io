@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: agent-cache
-title: 缓存利用率：为什么同样的前缀要重算两遍
+title: 缓存利用率：前缀复用与失效代价
 date: 2026-11-02 11:00:00 +0800
 column: agent-eng
 series: agent-eng-anatomy
@@ -16,7 +16,7 @@ draft: false
 permalink: /notes/agent-eng/agent-eng-anatomy/agent-cache/
 ---
 
-# 缓存利用率：为什么同样的前缀要重算两遍
+# 缓存利用率：前缀复用与失效代价
 
 一次长对话跑到第五轮，账单上的输入是八万 token。
 

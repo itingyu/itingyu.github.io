@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: agent-session
-title: 会话保持：中断之后怎么接上
+title: 会话保持：中断、恢复与状态一致
 date: 2026-11-02 10:00:00 +0800
 column: agent-eng
 series: agent-eng-anatomy
@@ -16,7 +16,7 @@ draft: false
 permalink: /notes/agent-eng/agent-eng-anatomy/agent-session/
 ---
 
-# 会话保持：中断之后怎么接上
+# 会话保持：中断、恢复与状态一致
 
 聊到一半切出去接了个电话，回来点开 App，界面还在，最后一条消息停在"正在执行命令"。
 
