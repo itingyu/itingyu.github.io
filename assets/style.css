@@ -888,23 +888,23 @@ button:focus-visible,
   width: auto;
   margin: 0;
   float: none;
-  padding: 1rem 1.25rem;
+  padding: .6rem .75rem;
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-sm);
-  font-size: var(--step--1);
+  font-size: .84rem;
   max-height: calc(100vh - var(--header-h) - 1.5rem);
   overflow-y: auto;
 }
 .toc-title {
   font-family: var(--font-sans);
-  font-size: var(--step--1);
+  font-size: .78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .12em;
+  letter-spacing: .1em;
   color: var(--fg-muted);
-  margin: 0 0 .65rem;
+  margin: 0 0 .4rem;
   cursor: pointer;
   user-select: none;
   width: fit-content;
@@ -919,7 +919,7 @@ button:focus-visible,
 .toc-list li { margin: 0; }
 .toc-link {
   display: block;
-  padding: .3rem .5rem;
+  padding: .16rem .4rem;
   color: var(--fg-muted);
   text-decoration: none;
   border-radius: var(--r-sm);
@@ -934,7 +934,7 @@ button:focus-visible,
   background: var(--accent-bg);
   font-weight: 600;
 }
-.toc-list .toc-sub { padding-left: 1rem; font-size: .92em; }
+.toc-list .toc-sub { padding-left: .8rem; font-size: .92em; }
 
 /* 窄屏:标题行(带 ▸/▾)即折叠开关;目录通栏置顶并吸顶 */
 @media (max-width: 1180px) {
@@ -1625,9 +1625,9 @@ article pre:focus-within .copy-btn,
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-lg);
-  padding: 1rem 1.25rem;
+  padding: .6rem .75rem;
   box-shadow: var(--shadow-sm);
-  font-size: var(--step--1);
+  font-size: .84rem;
 }
 
 .sidebar-tree-head {
@@ -1690,11 +1690,11 @@ article pre:focus-within .copy-btn,
 /* L1 专栏:加粗 + 前置色条,与子专栏拉开层级 */
 .tree-col-head {
   font-weight: 700;
-  font-size: 1.04em;
+  font-size: .95em;
   letter-spacing: .01em;
   color: var(--fg);
-  padding-left: .3rem;
-  min-height: 1.9em;
+  padding-left: .25rem;
+  min-height: 1.6em;
 }
 .tree-col-head::before {
   content: "";
@@ -1718,10 +1718,10 @@ article pre:focus-within .copy-btn,
 }
 
 .tree-count {
-  font-size: .78em;
+  font-size: .72em;
   color: var(--fg-muted);
   background: var(--bg-soft);
-  padding: 1px 6px;
+  padding: 0 5px;
   border-radius: 999px;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
@@ -1729,18 +1729,18 @@ article pre:focus-within .copy-btn,
 
 /* 层级轨道:专栏下的子级用实线,文章下再用虚线,一眼看出挂载关系 */
 .tree-col-list {
-  margin-left: 1rem;
+  margin-left: .7rem;
   border-left: 2px solid color-mix(in srgb, var(--accent) 22%, var(--border-soft));
-  padding-left: .7rem;
+  padding-left: .5rem;
 }
 
 /* L2 子专栏:缩一号 + 空心方块标记,明显弱于专栏 */
 .tree-series-head {
   font-weight: 600;
-  font-size: .95em;
+  font-size: .88em;
   color: var(--fg-muted);
-  padding-left: .3rem;
-  min-height: 1.7em;
+  padding-left: .25rem;
+  min-height: 1.5em;
 }
 .tree-series-head::before {
   content: "";
@@ -1758,9 +1758,9 @@ article pre:focus-within .copy-btn,
 .tree-pad-3 { margin-left: 0; }
 
 .tree-post-list {
-  margin-left: .85rem;
+  margin-left: .6rem;
   border-left: 1px dashed var(--border-soft);
-  padding-left: .6rem;
+  padding-left: .45rem;
 }
 .tree-post {
   margin: 0;
@@ -1768,11 +1768,11 @@ article pre:focus-within .copy-btn,
 }
 .tree-post-link {
   display: block;
-  padding: .2rem .4rem;
+  padding: .12rem .35rem;
   color: var(--fg-muted);
   text-decoration: none;
   border-radius: var(--r-sm);
-  font-size: .88em;
+  font-size: .84em;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1855,21 +1855,21 @@ article pre:focus-within .copy-btn,
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-lg);
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.75rem;
+  padding: .5rem .7rem;
+  margin-bottom: 1.1rem;
   box-shadow: var(--shadow-sm);
 }
 .article-bar-main {
   display: flex;
   align-items: center;
-  gap: .65rem;
+  gap: .4rem;
   flex-wrap: wrap;
 }
 .article-bar-chip {
   display: inline-flex;
   align-items: center;
-  gap: .5rem;
-  padding: .4rem .8rem;
+  gap: .35rem;
+  padding: .18rem .5rem;
   background: var(--bg-soft);
   border: 1px solid var(--border-soft);
   border-radius: var(--r-md);
@@ -1883,7 +1883,7 @@ article pre:focus-within .copy-btn,
   color: var(--accent);
 }
 .article-bar-eyebrow {
-  font-size: .68em;
+  font-size: .62em;
   text-transform: uppercase;
   letter-spacing: .12em;
   color: var(--fg-muted);
@@ -1891,12 +1891,12 @@ article pre:focus-within .copy-btn,
   font-family: var(--font-sans);
 }
 .article-bar-title {
-  font-size: var(--step-0);
+  font-size: var(--step--1);
   font-weight: 600;
   font-family: var(--font-sans);
 }
 .article-bar-meta {
-  font-size: .78em;
+  font-size: .7em;
   color: var(--fg-muted);
   background: var(--bg);
   padding: 1px 6px;
@@ -1905,12 +1905,12 @@ article pre:focus-within .copy-btn,
 }
 .article-bar-sep {
   color: var(--fg-muted);
-  font-size: 1.1em;
+  font-size: .95em;
   user-select: none;
 }
 .article-bar-desc {
-  margin: .6rem 0 0;
-  font-size: var(--step--1);
+  margin: .35rem 0 0;
+  font-size: .8rem;
   color: var(--fg-muted);
   font-family: var(--font-serif);
   font-style: italic;
