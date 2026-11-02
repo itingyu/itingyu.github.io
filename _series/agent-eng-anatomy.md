@@ -1,9 +1,9 @@
 ---
 layout: series-detail
 slug: agent-eng-anatomy
-title: Agent 为什么能干活
+title: Agent 运行原理
 column: agent-eng
-description: 八个原理，一条从 token 到副作用的完整链路
+description: 八个机制，一条从工具调用到系统副作用的完整链路
 permalink: /series/agent-eng-anatomy/
 order: 1
 ---
