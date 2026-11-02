@@ -1609,13 +1609,13 @@ article pre:focus-within .copy-btn,
 .layout-with-sidebar > .content-area { grid-area: content; min-width: 0; scroll-padding-top: calc(var(--header-h) + 6rem); }
 .layout-with-sidebar > .toc { grid-area: toc; }
 
-/* 2-column 变体:无右栏(series/column 页用)
-   justify-content 用 start:左树与正文的起始位置和文章页完全一致,
-   从专栏页点进文章时只有右侧目录出现,主体不位移 */
+/* 2-column 变体:页面本身无目录(series/column 页用)
+   仍按三栏模板排版,第三栏留空 —— 这样左树位置和正文宽度与文章页逐像素一致,
+   从专栏页点进文章时只有右侧目录"出现",正文不会跳动或改宽 */
 .layout-with-sidebar--2col {
-  grid-template-columns: var(--tree-w) minmax(0, var(--content-w));
-  grid-template-areas: "tree content";
-  justify-content: start;
+  grid-template-columns: var(--tree-w) minmax(0, var(--content-w)) var(--tree-w);
+  grid-template-areas: "tree content .";
+  justify-content: space-between;
 }
 
 .sidebar-tree {
