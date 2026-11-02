@@ -58,7 +58,7 @@ REA 的 Evidence 就是为这句话设计的。
 
 **`authority` 有五种**：`shipped-artifact`、`controlled-replay`、`historical-reference`、`external-service`、`analyst-inference`。它回答的是"这份材料从哪来"：随包发布的二进制、受控重放、历史参考、外部服务，还是分析者自己的推断。置信度和权威是两条轴，不能互相替代。
 
-**`limitations` 和 `relationship_coverage` 是必填的。** 覆盖度只有 `complete`、`partial`、`unknown` 三态；partial 还要说明是 callers 还是 callees 方向不全。没有"默认完整"这种选项。
+**`limitations` 和 `relationship_coverage` 是必填的。** 覆盖度有 `complete`、`partial`、`unknown` 三态；`partial` 至少要给出一条限制说明（可以指出 callers / callees 方向不全），而没有报告时字段是 `null`，读取方会把它当成"提供者未报告覆盖度"的限制。没有"默认完整"这种选项。
 
 ## ID 是内容哈希，不是自增号
 

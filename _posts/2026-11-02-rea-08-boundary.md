@@ -47,7 +47,7 @@ REA 的做法不是"过滤恶意字符串"——那永远过滤不完——而�
 
 ## 进程：有主，有组，有期限
 
-所有外部引擎都通过 `spawnOwnedProviderProcess` 启动，POSIX 上进入独立进程组，Windows 上进入 Job Object。关闭时：
+REA 启动的引擎进程都进入 owned 进程模型：POSIX 上是独立进程组，Windows 上是 Job Object。关闭时：
 
 ```text
 SIGTERM → 等 250 ms → SIGKILL → 等 1 s → 仍不退则返回 incomplete
@@ -64,8 +64,8 @@ SIGTERM → 等 250 ms → SIGKILL → 等 1 s → 仍不退则返回 incomplete
 打开目标、读证据、写快照，路径都要先过 schema：
 
 - 必须是绝对路径，相对路径直接拒绝。
-- 打开文件时 `symlinks: "reject"`，不跟随符号链接。
-- 读取用 `withRegularFile` + 有界读取，文件在读取过程中变化会被检测到。
+- 文件读取用 `withRegularFile` 检查普通文件、所有者与稳定性；是否跟随符号链接由具体 artifact 读取器声明，关键读取默认拒绝。
+- 读取带字节上限，文件在读取过程中变化会被检测到。
 - 关键写入（快照、配置）用临时文件 + 原子替换，避免写一半留下垃圾。
 
 这些规则听起来琐碎，但它们挡住的是最常见的一类事故：Agent 把 `~/.ssh/id_rsa` 当成"配置文件"读进来，或者把证据写到目标目录里覆盖了原文件。
