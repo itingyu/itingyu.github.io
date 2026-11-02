@@ -1685,22 +1685,32 @@ article pre:focus-within .copy-btn,
   transform: rotate(90deg);
 }
 
-/* L1 专栏:加粗 + 前置色条,与子专栏拉开层级 */
+/* L1 专栏:做成带底色的分组卡,左侧主色竖条,一眼区分于下级 */
 .tree-col-head {
   font-weight: 700;
-  font-size: .95em;
-  letter-spacing: .01em;
+  font-size: 1em;
+  letter-spacing: .02em;
   color: var(--fg);
-  padding-left: .25rem;
+  padding: .32rem .5rem .32rem .45rem;
+  margin: .15rem 0 .4rem;
   min-height: 1.6em;
   cursor: pointer;
+  background: color-mix(in srgb, var(--accent) 7%, var(--bg-elev));
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  border-radius: var(--r-sm);
+  transition: background-color .12s ease, border-color .12s ease;
+}
+.tree-col-head:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 .tree-col-head::before {
   content: "";
   width: 3px;
-  height: 1em;
+  align-self: stretch;
+  min-height: 1.05em;
   border-radius: 2px;
-  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 45%, transparent));
+  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 40%, transparent));
   flex-shrink: 0;
 }
 .tree-col-link, .tree-series-link {
@@ -1741,6 +1751,18 @@ article pre:focus-within .copy-btn,
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
+/* 专栏徽章:主色实底;子专栏徽章:描边中性,两级计数一眼可分 */
+.tree-col-head .tree-count {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  font-weight: 600;
+}
+.tree-series-head .tree-count {
+  color: var(--fg-muted);
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  font-weight: 500;
+}
 
 /* 层级轨道:专栏下的子级用实线,文章下再用虚线,一眼看出挂载关系 */
 .tree-col-list {
@@ -1749,25 +1771,30 @@ article pre:focus-within .copy-btn,
   padding-left: .5rem;
 }
 
-/* L2 子专栏:缩一号 + 空心方块标记,明显弱于专栏 */
+/* L2 子专栏:实心菱形标记 + 独立徽章,与专栏卡片明显区分 */
 .tree-series-head {
   font-weight: 600;
   font-size: .88em;
   color: var(--fg-muted);
-  padding-left: .25rem;
+  padding: .22rem .4rem .22rem .3rem;
+  margin: .1rem 0 .15rem;
   min-height: 1.5em;
   cursor: pointer;
+}
+.tree-series-head:hover {
+  background: var(--bg-soft);
+  color: var(--accent);
 }
 .tree-series-head::before {
   content: "";
   width: 6px;
   height: 6px;
-  border: 1.5px solid currentColor;
-  border-radius: 2px;
-  opacity: .65;
+  background: color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 1px;
+  transform: rotate(45deg);
   flex-shrink: 0;
 }
-.tree-series + .tree-series { margin-top: .35rem; }
+.tree-series + .tree-series { margin-top: .4rem; }
 
 /* 子层级缩进:2 级(L2 子专栏 + 直接挂在 L1 的文章),3 级(L2 下的文章) */
 .tree-pad-2 { margin-left: 0; }
@@ -1784,7 +1811,7 @@ article pre:focus-within .copy-btn,
 }
 .tree-post-link {
   display: block;
-  padding: .12rem .35rem;
+  padding: .14rem .35rem .14rem .55rem;
   color: var(--fg-muted);
   text-decoration: none;
   border-radius: var(--r-sm);
@@ -1797,6 +1824,21 @@ article pre:focus-within .copy-btn,
   -webkit-box-orient: vertical;
   white-space: normal;
   transition: background-color .12s ease, color .12s ease;
+  position: relative;
+}
+/* L3 文章:左侧短横线标记,hover 时才显色 */
+.tree-post-link::before {
+  content: "";
+  position: absolute;
+  left: .15rem;
+  top: .62em;
+  width: .5rem;
+  height: 1px;
+  background: var(--border-soft);
+  transition: background-color .12s ease;
+}
+.tree-post-link:hover::before {
+  background: var(--accent);
 }
 .tree-post-link:hover {
   color: var(--accent);
@@ -1811,6 +1853,17 @@ article pre:focus-within .copy-btn,
   font-weight: 600;
 }
 .tree-cur.tree-post .tree-post-link { color: var(--accent); font-weight: 600; }
+
+/* 当前所在专栏:卡片整体描边加亮 */
+.tree-col-head.tree-cur {
+  background: color-mix(in srgb, var(--accent) 15%, var(--bg-elev));
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+}
+/* 当前所在子专栏:菱形填实 */
+.tree-series-head.tree-cur::before {
+  background: var(--accent);
+}
 
 /* 移动端:侧栏折叠到顶部按钮 */
 @media (max-width: 900px) {
