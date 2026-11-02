@@ -294,7 +294,7 @@ hr {
 .container       { max-width: 1104px; margin: 3rem auto; padding: 0 1.5rem; }
 .container-wide  { max-width: 1296px; margin: 3rem auto; padding: 0 1.5rem; }
 /* 3 栏(左树 + 中正文 + 右 TOC)专用:占视口 ~90%,居中,呼吸感更足 */
-.layout-3col     { max-width: min(90vw, 1440px); margin: 2rem auto; padding: 0 1.5rem; }
+.layout-3col     { max-width: min(98vw, 1720px); margin: 2rem auto; padding: 0 .75rem; }
 
 /* ---------- typography ---------- */
 
@@ -1583,7 +1583,7 @@ article pre:focus-within .copy-btn,
   display: grid;
   grid-template-columns: var(--tree-w) minmax(0, 1fr);
   grid-template-areas: "tree content";
-  gap: 2rem;
+  gap: 1.5rem;
   align-items: start;
 }
 
