@@ -1693,6 +1693,7 @@ article pre:focus-within .copy-btn,
   color: var(--fg);
   padding-left: .25rem;
   min-height: 1.6em;
+  cursor: pointer;
 }
 .tree-col-head::before {
   content: "";
@@ -1710,9 +1711,25 @@ article pre:focus-within .copy-btn,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 .tree-col-link:hover, .tree-series-link:hover {
   color: var(--accent);
+}
+
+/* 展开列表末尾的「查看全部」入口 */
+.tree-all-link {
+  display: block;
+  padding: .12rem .35rem;
+  font-size: .78em;
+  color: var(--fg-muted);
+  text-decoration: none;
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+}
+.tree-all-link:hover {
+  color: var(--accent);
+  background: var(--bg-soft);
 }
 
 .tree-count {
@@ -1739,6 +1756,7 @@ article pre:focus-within .copy-btn,
   color: var(--fg-muted);
   padding-left: .25rem;
   min-height: 1.5em;
+  cursor: pointer;
 }
 .tree-series-head::before {
   content: "";

@@ -51,7 +51,7 @@
           <details{% if col_open %} open{% endif %}>
             <summary class="tree-col-head{% if is_cur_col %} tree-cur{% endif %}">
               <span class="tree-toggle" aria-hidden="true">▸</span>
-              <a class="tree-col-link" href="{{ col.url }}">{{ col.title }}</a>
+              <span class="tree-col-link">{{ col.title }}</span>
               <span class="tree-count">{{ col_series.size | plus: col_direct_posts.size }}</span>
             </summary>
             <ul class="tree-col-list">
@@ -66,7 +66,7 @@
                     <details{% if s_open %} open{% endif %}>
                       <summary class="tree-series-head{% if is_cur_series %} tree-cur{% endif %}">
                         <span class="tree-toggle" aria-hidden="true">▸</span>
-                        <a class="tree-series-link" href="{{ s.url }}">{{ s.title }}</a>
+                        <span class="tree-series-link">{{ s.title }}</span>
                         <span class="tree-count">{{ s_posts.size }}</span>
                       </summary>
                       {%- if s_posts.size > 0 -%}
@@ -83,6 +83,7 @@
                         {%- endfor -%}
                       </ul>
                       {%- endif -%}
+                      <li class="tree-all tree-pad-3"><a class="tree-all-link" href="{{ s.url }}">本系列全部 →</a></li>
                     </details>
                   </li>
                 {%- endfor -%}
@@ -97,6 +98,7 @@
                   </li>
                 {%- endfor -%}
               {%- endif -%}
+              <li class="tree-all tree-pad-2"><a class="tree-all-link" href="{{ col.url }}">本专栏全部 →</a></li>
             </ul>
           </details>
         </li>
