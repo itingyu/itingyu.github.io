@@ -99,7 +99,7 @@ int set_sysarg_path(Tracee *tracee, const char path[PATH_MAX], Reg reg)
 栈指针在出口阶段会被还原（`restore_original_regs`）。但如果 seccomp 判定这次不需要出口 stop，PRoot 就得在入口自己还回去：
 
 ```c
-/* src/syscall/syscall.c:143 */
+/* src/syscall/syscall.c:147 */
 if (tracee->restart_how == PTRACE_CONT) {
     tracee->status = 0;
     poke_reg(tracee, STACK_POINTER,
@@ -127,7 +127,7 @@ status = process_vm_readv(tracee->pid, &local, 1, &remote, 1, 0);
 `getcwd` 返回的必须是 guest 路径，而内核只知道宿主路径。PRoot 干脆不让内核执行：
 
 ```c
-/* src/syscall/enter.c:196 */
+/* src/syscall/enter.c:214 */
 case PR_getcwd:
     set_sysnum(tracee, PR_void);
     status = 0;
