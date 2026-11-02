@@ -79,7 +79,7 @@ REA 的答案是一张欠账清单：`build_reconstruction_obligation_ledger`。
 1. **唯一 owner**：一个义务只能绑定一个实现 owner。两个实现都声称负责，不算关闭，算冲突。
 2. **必需类型齐全**：parser、schema、domain type 该有的都要有。
 3. **用例齐全**：`required_case_kinds` 里的每一类都要有 fixture。
-4. **验证器通过且权威可比**：验证器必须枚举 obligations ID，结果必须出现在输入 bundle 里；fixture 和 verifier 的证明还要绑定到 owner 的实现摘要和义务版本。
+4. **验证器通过且权威可比**：验证器必须枚举 obligation ID，结果必须出现在输入 bundle 里；fixture 和 verifier 的证明还要绑定到 owner 的实现摘要和义务版本。
 
 任何一条不满足，义务保持 `open`；出现矛盾、重复定义、缺依赖、未知项未关，账本会变成 `failed` 或 `unknown`。
 
@@ -92,6 +92,7 @@ if (obligations.length === 0) return "unknown";
 const requiredOpen = obligations.filter(
   ({ required, status }) => required && status !== "verified",
 );
+// 简化：实际还会检查 verifier-failed / fixture-failed 诊断
 if (requiredOpen.some(({ status }) => status === "contradicted")) return "failed";
 if (limitations.length > 0) return "unknown";
 if (requiredOpen.some(({ status }) => status === "unknown")) return "unknown";
