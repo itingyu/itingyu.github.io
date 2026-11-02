@@ -2,7 +2,7 @@
 layout: post
 slug: agent-browser
 title: 浏览器操作：感知、定位与动作空间
-date: 2026-11-02 16:00:00 +0800
+date: 2026-11-02 15:30:00 +0800
 column: agent-eng
 series: agent-eng-anatomy
 tags:
