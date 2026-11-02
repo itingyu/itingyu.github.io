@@ -65,7 +65,7 @@ return 0;
 最麻烦的不是读，是写。一个 uid 为 1000 的进程要往 root 拥有的目录里写文件，内核会拒绝。`fake_id0` 的办法是**临时改权限**：
 
 ```c
-/* src/extension/fake_id0/fake_id0.c:160 */
+/* src/extension/fake_id0/fake_id0.c:166 */
 new_mode = perms.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO);
 new_mode |= (S_IRUSR | S_IWUSR);              /* 加 u+rw */
 if (S_ISDIR(perms.st_mode))
@@ -110,7 +110,7 @@ case PR_link:
 它的做法是「降级系统调用」：
 
 ```c
-/* src/extension/kompat/kompat.c:186 */
+/* src/extension/kompat/kompat.c:184 */
 case PR_dup3:{
     Modif modif = {
         .expected_release = KERNEL_VERSION(2, 6, 27),
