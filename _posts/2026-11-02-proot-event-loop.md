@@ -25,7 +25,7 @@ PRoot 没有线程池，没有 epoll，没有协程。整个 tracer 就是一个
 ## 主循环
 
 ```c
-/* src/tracee/event.c:349 */
+/* src/tracee/event.c:350 */
 while (1) {
     free_terminated_tracees();
 
@@ -106,7 +106,7 @@ PTRACE_O_TRACEEXIT
 PRoot 的做法是装一个 seccomp-BPF，让内核替它做初筛。过滤器结构很朴素：先校验 `arch`，再逐条比较 `nr`，命中就返回 `SECCOMP_RET_TRACE`，否则 `SECCOMP_RET_ALLOW`。
 
 ```c
-/* src/syscall/seccomp.c:116 */
+/* src/syscall/seccomp.c:113 */
 BPF_JUMP(BPF_JMP + BPF_JEQ + BPF_K, syscall, 0, 1),
 BPF_STMT(BPF_RET + BPF_K, SECCOMP_RET_TRACE + flag)
 ```
@@ -130,7 +130,7 @@ if ((flags & FILTER_SYSEXIT) == 0) {
 seccomp 模式下有个麻烦：内核只在**入口**通知你，但你有时又需要**出口**。PRoot 用两个字段解决：
 
 ```c
-/* src/tracee/event.c:424 */
+/* src/tracee/event.c:421 */
 if (tracee->seccomp == ENABLED && !tracee->sysexit_pending)
     tracee->restart_how = PTRACE_CONT;
 else
