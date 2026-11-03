@@ -2,7 +2,7 @@
 layout: post
 slug: multica-engineering
 title: 53% 的代码是测试：这个仓库的工程纪律
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 10:10:00 +0800
 column: multica
 series: multica-code
 tags:
