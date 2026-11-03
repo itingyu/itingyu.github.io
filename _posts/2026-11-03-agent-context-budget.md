@@ -14,7 +14,7 @@ excerpt: 同一任务，4K、32K、1M 的 Agent 表现并不单调。NoLiMa、RU
 pinned: false
 cover: null
 draft: false
-permalink: /notes/model-review/model-review/agent-context-budget/
+permalink: /notes/model-review/agent-context-budget/
 ---
 
 一个编码 Agent 跑到第 30 轮，输入已经 71K token。
