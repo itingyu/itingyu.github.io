@@ -17,8 +17,6 @@ draft: false
 permalink: /notes/model-review/frontier-llm-2026/trillion-moe-stability/
 ---
 
-# 万亿 MoE 先崩在哪
-
 DeepSeek V4 的技术报告里，三项架构升级的第一项不是注意力，是残差连接。
 
 这有点反直觉。大家讨论万亿模型，习惯先问多少专家、多少激活、上下文多长；真正训过的人先看 loss spike。参数堆到 1.6T，残差、优化器、路由、低精度，任何一处数值不稳，都会在几十层之后放大成不可恢复的尖峰。

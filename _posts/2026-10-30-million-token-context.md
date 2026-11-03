@@ -17,8 +17,6 @@ draft: false
 permalink: /notes/model-review/frontier-llm-2026/million-token-context/
 ---
 
-# 1M 上下文：三种做法，三种代价
-
 1M 上下文已经不是卖点，是入场券。真正的差别在于：为了这 1M，你愿意丢多少召回。
 
 DeepSeek V4 在 1M 下把单 token 推理 FLOPs 压到 V3.2 的 27%，KV 缓存压到 10%；Kimi K3 用 3 层线性注意力配 1 层全局注意力；GLM-5 不压 KV，只做 token 级稀疏。三家都支持百万级窗口，但省成本的位置完全不同。默认你知道 attention 的平方复杂度和 KV cache 是什么，下面直接拆账。

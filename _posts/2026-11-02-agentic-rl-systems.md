@@ -17,8 +17,6 @@ draft: false
 permalink: /notes/model-review/frontier-llm-2026/agentic-rl-systems/
 ---
 
-# Agent RL 慢在最慢的那条轨迹
-
 GLM-5 的 Agent RL 里，一条慢轨迹能拖住整个同步点。细节在 [GLM-5 报告](https://arxiv.org/abs/2602.15763)。
 
 这不是比喻。同步 RL 每一轮都要等所有 rollout 跑完才能更新；Agent 任务的轨迹长度差异极大，有的几十步结束，有的一直在调工具、读文件、重试。最慢的那条决定了整批的墙钟时间，其余 GPU 空转。

@@ -17,8 +17,6 @@ draft: false
 permalink: /notes/model-review/frontier-llm-2026/model-harness-economics/
 ---
 
-# 同一道题，换个壳为什么更准
-
 GPT-6 的 ARC-AGI-3 98.6% 不是裸模型跑出来的，是 Responses API 跑出来的。据 [InfoQ 报道](https://www.infoq.cn/article/mKGb7ZiPRlAiFDZCWK0v)，OpenAI 自己说，这些系统选择可以在不改底层模型的情况下把分数拉高。换句话说，榜单上的“模型能力”，有一部分属于 harness：怎么保留回合间推理、怎么压缩上下文、怎么调工具、怎么重试。
 
 这篇不谈参数，谈模型外面那层壳。读者是正在做选型或 Agent 平台的人。

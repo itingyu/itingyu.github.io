@@ -17,8 +17,6 @@ draft: false
 permalink: /notes/model-review/frontier-llm-2026/post-training-distillation/
 ---
 
-# 旗舰模型是拼出来的
-
 DeepSeek V4 的后训练可以压缩成两句话：每个领域先各训一个专家，再把它们蒸回一个模型。细节在 [DeepSeek-V4 技术报告](https://arxiv.org/abs/2606.19348)。
 
 这听起来像工程捷径，其实是当前旗舰的默认做法。Kimi 用多档 effort RL 把不同推理预算的能力压进一套权重；GLM 用异步 Agent RL 加跨阶段蒸馏；OpenAI 也承认 GPT-6 大量借鉴早期模型做监督。区别只在“专家怎么分、蒸馏怎么做”。
