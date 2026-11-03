@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 浏览器
-excerpt: 让它去一个网站查资料。它没有读 HTML，而是先截了张图，然后点了一个坐标——不是 CSS 选择器，是 (412, 738) 。
+excerpt: 网页对 Agent 是一张截图加一个动作空间。选择器与坐标、动作后的确认、URL 变化与不可信输入，决定它是在操作还是在猜。
 pinned: false
 cover: null
 draft: false

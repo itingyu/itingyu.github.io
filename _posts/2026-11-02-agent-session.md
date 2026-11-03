@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 可靠性
-excerpt: 聊到一半切出去接了个电话，回来点开 App，界面还在，最后一条消息停在 正在执行命令 。
+excerpt: 会话不是文件，是一串状态。中断、恢复、孤儿工具调用，顺序错一步，「继续」就变成另一段对话。
 pinned: false
 cover: null
 draft: false

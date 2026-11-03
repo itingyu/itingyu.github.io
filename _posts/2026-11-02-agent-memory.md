@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 记忆
-excerpt: 上周跟它说过，这个项目用 Kotlin，不要写 Java。
+excerpt: 上下文会过期，记忆不会。两层记忆、写入时机、读取方式与预算，决定了它记住的是你要的，还是它以为的。
 pinned: false
 cover: null
 draft: false

@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 上下文
-excerpt: 一段对话聊到第三十轮，它开始忘记你前面说过的要求。你以为是模型变笨了。
+excerpt: 上下文不是记忆，是每一轮都要重新发的预算。四档水位线、外置、摘要、压缩与分叉，都是在同一个窗口里做取舍。
 pinned: false
 cover: null
 draft: false

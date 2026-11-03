@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 沙箱
-excerpt: 在里面执行 ping ，它不会回 权限不足 ，也不会回 网络不可达 。
+excerpt: 工具需要一个真实的地方执行，而手机没有 root、没有命名空间。PRoot 伪造路径、身份与内核版本，也留下了裂缝。
 pinned: false
 cover: null
 draft: false

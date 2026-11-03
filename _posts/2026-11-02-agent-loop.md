@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 原理
-excerpt: 我让它查一下明天的天气。它回了一句话：上海明天小雨，12 到 16 度。
+excerpt: 一次模型调用只是个纯函数；tool_call 是请求，不是执行。循环把「生成」变成「多轮决策」，代价是每一轮都要重发上下文。
 pinned: false
 cover: null
 draft: false

@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 性能
-excerpt: 一次长对话跑到第五轮，账单上的输入是八万 token。
+excerpt: Agent 的请求九成是重复的。前缀复用能压低账单，但缓存与压缩天生冲突，省下的钱常以另一种方式还回去。
 pinned: false
 cover: null
 draft: false

@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 工具
-excerpt: 我问它： 这个文件里还有几处 TODO？
+excerpt: 模型对工具的全部认知，来自一份说明书：name、description、parameters。写得含糊，该用的时候不用；写得准，很多提示词调优根本不需要。
 pinned: false
 cover: null
 draft: false

@@ -9,7 +9,7 @@ tags:
   - Agent
   - LLM
   - 可靠性
-excerpt: 它执行了一条检查命令，看到输出是空的，于是判断 文件里没有遗留的调试代码 ，继续往下走。
+excerpt: 一条命令有三种结局，退出码、stdout、stderr 任何一样丢了，模型就会把失败看成成功。观察怎么传，决定下一步怎么判。
 pinned: false
 cover: null
 draft: false
