@@ -2,7 +2,7 @@
 layout: post
 slug: multica-frontend
 title: 一套业务逻辑，三端运行
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 10:00:00 +0800
 column: multica
 series: multica-code
 tags:
