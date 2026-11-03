@@ -9,7 +9,7 @@ tags:
   - 源码分析
   - 系统调用
   - ptrace
-excerpt: 路径翻译只解决了「算」，还没解决「改」。要改一个正在运行的程序的内存，手段只有两个： process vm writev （或 PTRACE POKEDATA ）和改寄存器。PRoot 两样都用，而且必须在系统调用的两个 stop 点之间完成。
+excerpt: 路径翻译只解决了「算」，还没解决「改」。要改一个正在运行的程序的内存，手段只有两个：process_vm_writev（或 PTRACE_POKEDATA）和改寄存器。PRoot 两样都用，而且必须在系统调用的两个 stop 点之间完成。
 pinned: false
 cover: null
 draft: false
@@ -166,5 +166,11 @@ v5.5.0 的 changelog 里有一条正是这个：*readlink silently truncating an
 **Unix socket 路径**。`bind()`/`connect()` 的 `sockaddr_un.sun_path` 也是路径，也要翻译。但内核会回写 `addrlen`，所以 PRoot 在入口把原始指针和长度暂存到没用到的第 5、6 个参数寄存器里，出口再恢复——这是「参数不够用，借两个寄存器当草稿纸」的典型写法。
 
 **brk 不可靠**。内核默认把堆放在 loader 的 BSS 后面，紧挨着别的映射，堆就长不动了（Bash 会直接 abort）。PRoot 的解法是把第一次 `brk` 换成一次 `mmap`，在 BSS 末尾按页对齐处重新开一块堆，之后自己记账。
+
+## 小结
+
+- 每个 tracee 保留 ORIGINAL 与 MODIFIED 两份寄存器：入口按需改，出口按原始寄存器的指针读回用户缓冲区。
+- 取消一次系统调用不需要内核配合，把系统调用号改成 `PR_void`（`-1`），再用 `SYSARG_RESULT` 伪造返回值即可。
+- 新路径写进 tracee 的栈；一旦这次调用没有出口 stop，PRoot 必须自己把栈指针还回去，否则就是随机崩溃。
 
 下一篇是这套机制里最激进的一处：PRoot 不只改参数，它连「谁来装载程序」都换了。

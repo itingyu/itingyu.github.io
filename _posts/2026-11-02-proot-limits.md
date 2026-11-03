@@ -22,7 +22,7 @@ permalink: /notes/proot/proot-internals/proot-limits/
 
 ## 它不是安全边界
 
-这是最需要说清楚的一条。PRoot 只改写路径和一部分返回值，**每一条系统调用最终都发给宿主内核**，权限检查、LSM、capability 全是真的。
+这是最需要说清楚的一条。PRoot 只改写路径和一部分返回值，**每一条系统调用最终都发给宿主内核**，权限检查、LSM（SELinux、AppArmor 那一层）、capability 全是真的。
 
 几个直接后果：
 

@@ -9,7 +9,7 @@ tags:
   - 源码分析
   - 插件
   - 系统调用
-excerpt: PRoot 的三个招牌功能—— 0 （假装 root）、 l （硬链接转符号链接）、 k （假装旧内核）——都不是核心代码，而是插件。核心只提供一串事件回调，插件决定在这些点上改什么。
+excerpt: PRoot 的三个招牌功能——-0（假装 root）、-l（硬链接转符号链接）、-k（假装旧内核）——都不是核心代码，而是插件。核心只提供一串事件回调，插件决定在这些点上改什么。
 pinned: false
 cover: null
 draft: false
@@ -36,6 +36,8 @@ PRoot 的三个招牌功能——`-0`（假装 root）、`-l`（硬链接转符�
 | `SYSCALL_EXIT_START/END` | 出口前后 | `<0` 改返回值 |
 | `NEW_STATUS` | `waitpid` 拿到事件 | `!=0` 跳过整个处理 |
 | `INHERIT_PARENT/CHILD` | fork/clone 继承 | 决定子进程是否带上插件 |
+| `SYSCALL_CHAINED_ENTER/EXIT` | 链式系统调用（PRoot 自己发起的） | 同 enter/exit |
+| `PRINT_CONFIG` / `PRINT_USAGE` | 插件追加命令行选项与帮助 | — |
 | `INITIALIZATION` / `REMOVED` | 装载/卸载 | — |
 | `ALREADY_OPENED_FD` | 启动时扫已打开的 fd | — |
 
@@ -81,7 +83,7 @@ node->path = talloc_strdup(node, path);
 talloc_set_destructor(node, restore_mode);
 ```
 
-注释解释了为什么这样能work：
+注释解释了为什么这样能成立：
 
 > The mode restoration works because Talloc destructors are called in reverse order.
 
@@ -150,5 +152,11 @@ int translate_ptrace_enter(Tracee *tracee)
 仓库里还有个 `care` 子命令（`src/extension/care/`）。它不改系统调用语义，只是把每个系统调用、每个被打开的文件、每段输出录下来，最后打成一个自包含的包，可以在另一台机器上重放。
 
 它能成立，全靠 `SYSCALL_*` 和 `ALREADY_OPENED_FD` 这几个事件——核心不需要为「录制回放」写一行代码。这是扩展机制设计得最成功的地方：**PRoot 把自己变成了一个进程级插桩引擎**，chroot 只是它的第一个用例。
+
+## 小结
+
+- 扩展机制只有两样东西：17 个事件的回调链表，以及每个插件自己贡献的 seccomp 系统调用名单。核心不写死任何「撒谎」逻辑。
+- fake_id0 靠临时 `chmod` 加 talloc 析构的逆序恢复，link2symlink 靠改数据布局，kompat 靠降级系统调用——三种手法对应三种伪造难度。
+- `ptrace` 不能嵌套，所以连它都要在用户态重造一套 tracer/tracee 关系；代价是一旦有 tracee 当 tracer，seccomp 加速必须关掉。
 
 下一篇是最后一篇：这套机制的代价，以及它不适合做什么。

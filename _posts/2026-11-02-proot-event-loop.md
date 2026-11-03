@@ -9,7 +9,7 @@ tags:
   - 源码分析
   - ptrace
   - seccomp
-excerpt: PRoot 没有线程池，没有 epoll，没有协程。整个 tracer 就是一个 while (1) 加一次 waitpid( 1, ..., WALL) ——所有被追踪的进程、所有系统调用、所有信号，全都从这一个点流进来。
+excerpt: PRoot 没有线程池，没有 epoll，没有协程。整个 tracer 就是一个 while (1) 加一次 waitpid(-1, ..., __WALL)——所有被追踪的进程、所有系统调用、所有信号，全都从这一个点流进来。
 pinned: false
 cover: null
 draft: false
@@ -20,7 +20,7 @@ permalink: /notes/proot/proot-internals/proot-event-loop/
 
 PRoot 没有线程池，没有 epoll，没有协程。整个 tracer 就是一个 `while (1)` 加一次 `waitpid(-1, ..., __WALL)`——所有被追踪的进程、所有系统调用、所有信号，全都从这一个点流进来。
 
-这一篇拆三件事：停在哪里、怎么继续、以及为了少停几次做的 seccomp 加速。
+这一篇拆三件事：停在哪里、怎么继续、以及为了少停几次做的 seccomp 加速。读完你就能解释：为什么 PRoot 只有一个线程，却能同时接管几十个进程，以及它到底在什么时刻「停下」。
 
 ## 主循环
 
@@ -101,7 +101,7 @@ PTRACE_O_TRACEEXIT
 
 ## 加速：只拦 86 个系统调用
 
-默认的 `PTRACE_SYSCALL` 是「每个系统调用停两次」——进入一次、返回一次。一个 `ls` 要走上千次系统调用，这个开销无法接受。
+默认的 `PTRACE_SYSCALL` 是「每个系统调用停两次」——进入一次、返回一次。一次 `ls` 就要停上百次，这个开销无法接受。
 
 PRoot 的做法是装一个 seccomp-BPF，让内核替它做初筛。过滤器结构很朴素：先校验 `arch`，再逐条比较 `nr`，命中就返回 `SECCOMP_RET_TRACE`，否则 `SECCOMP_RET_ALLOW`。
 
@@ -153,5 +153,11 @@ stateDiagram-v2
 ## 代价
 
 到这里可以算一笔账：没有 seccomp 时，每次系统调用两次上下文切换；有了 seccomp，只有 86 类系统调用会停，且大部分只停一次。PRoot 的性能问题从来不是「每个系统调用都停」，而是「路径类系统调用停两次，且每次都要在 tracee 内存里读写字符串」。
+
+## 小结
+
+- 整个 tracer 是一个单线程的 `waitpid(-1, __WALL)` 循环；`__WALL` 是它能同时看到线程和进程的原因。
+- 停点由 ptrace options 决定，`SIGTRAP | 0x80` 把系统调用停和普通信号分开。
+- seccomp-BPF 把 86 类系统调用挑出来上报，其余直接放行；`restart_how` 与 `sysexit_pending` 负责在「只停入口」和「必须看返回值」之间切换。
 
 下一篇就进入这条最贵的路径。

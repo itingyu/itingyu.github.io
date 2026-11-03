@@ -9,7 +9,7 @@ tags:
   - 源码分析
   - ptrace
   - chroot
-excerpt: PRoot 的官方定义只有一句话：chroot、 mount bind 和 binfmt misc 的用户态实现。它不需要 root，不需要内核模块，不需要 user namespace，甚至不需要容器运行时——只要一个 ptrace(2) 。代价同样干脆：被它接管的进程，每走一步都要停下来问它一次。
+excerpt: PRoot 的官方定义只有一句话：chroot、bind mount 和 binfmt_misc 的用户态实现。它不需要 root，不需要内核模块，不需要 user namespace，甚至不需要容器运行时——只要一个 ptrace(2)。代价同样干脆：被它接管的进程，每走一步都要停下来问它一次。
 pinned: false
 cover: null
 draft: false
@@ -20,7 +20,7 @@ permalink: /notes/proot/proot-internals/proot-overview/
 
 PRoot 的官方定义只有一句话：chroot、`mount --bind` 和 binfmt_misc 的用户态实现。它不需要 root，不需要内核模块，不需要 user namespace，甚至不需要容器运行时——只要一个 `ptrace(2)`。代价同样干脆：被它接管的进程，每走一步都要停下来问它一次。
 
-这是「PRoot 解剖」的第一篇，先看它不做什么、做什么，以及一条 `proot -r` 命令背后到底发生了什么。
+这是「PRoot 解剖」的第一篇。它不要求你读过 PRoot 源码，但默认你知道 `chroot(2)` 和 `ptrace(2)` 各自能做什么。读完这一篇，你能判断 PRoot 该放在哪一层：它不是容器，也不该被当成沙箱，而是一个「在系统调用边界上撒谎」的用户态翻译层。
 
 ## 它不做什么
 
@@ -39,7 +39,7 @@ PRoot 的官方定义只有一句话：chroot、`mount --bind` 和 binfmt_misc �
 `main()` 在 `src/cli/cli.c` 里解析完参数，走到 `launch_process()`：
 
 ```c
-/* src/tracee/event.c:59 */
+/* src/tracee/event.c:73 */
 pid = fork();
 switch (pid) {
 case 0:                       /* child */
@@ -60,7 +60,7 @@ case 0:                       /* child */
 
 ## 地形图
 
-源码 99 个 `.c/.h`、约 2.6 万行，其中核心 1.97 万行、内置扩展 5,858 行。
+源码 98 个 `.c/.h`、26,082 行；`src/extension/` 占 6,252 行，其余核心 19,830 行。
 
 | 目录 | 行数 | 职责 |
 |:--|--:|:--|
@@ -82,7 +82,7 @@ flowchart TD
     C --> D["translate_path"]
     D --> E["canonicalize + binding"]
     C --> F["扩展: fake_id0 等"]
-    E --> G["写回参数, PTRACE_SYSCALL 继续"]
+    E --> G["写回参数，PTRACE_SYSCALL 继续"]
 ```
 
 ## 它靠什么成立
@@ -97,6 +97,12 @@ flowchart TD
 
 ## 版本与读法
 
-本专栏基于 `proot-me/proot` v5.5.0（commit `25dc6a3`，2026-10-02）。文中代码都标了文件与行号，便于对照；示例输出来自用同一份源码在本机 aarch64 上编译的 `proot`。
+本专栏基于 [proot-me/proot](https://github.com/proot-me/proot/tree/25dc6a3134891f98a79f57ce1c2c1b23ff15cad1) v5.5.0（commit `25dc6a3`，2026-10-02）。文中代码都标了文件与行号，可直接在该 commit 上对照；示例输出来自用同一份源码在本机 aarch64 上编译的 `proot`。
+
+## 小结
+
+- PRoot 不创建命名空间、不虚拟化内核，也不启用 overlayfs、`pivot_root` 这类内核机制；guest 看到的一切「隔离」都来自系统调用参数的改写。
+- 路径和 uid 是假的，系统调用是真的：PRoot 没有额外的权限检查层，它的边界就是宿主内核的边界。
+- 唯一的介入点是 ptrace 的 stop，所以「能在 stop 点上改什么」既决定了它的能力，也决定了它的性能上限。
 
 下一篇从那个 `waitpid` 开始。

@@ -9,7 +9,7 @@ tags:
   - 源码分析
   - 文件系统
   - 符号链接
-excerpt: 内核只认宿主路径。所以 PRoot 接到 openat(AT FDCWD,  /etc/passwd , ...) 时，必须先把它变成 /home/u/rootfs/etc/passwd ，再把指针换掉——而 guest 里那个 /etc/passwd 可能根本不存在，也可能是三层符号链接套出来的。
+excerpt: 内核只认宿主路径。所以 PRoot 接到 openat(AT_FDCWD, "/etc/passwd", ...) 时，必须先把它变成 /home/u/rootfs/etc/passwd，再把指针换掉——而 guest 里那个 /etc/passwd 可能根本不存在，也可能是三层符号链接套出来的。
 pinned: false
 cover: null
 draft: false
@@ -20,7 +20,7 @@ permalink: /notes/proot/proot-internals/proot-path-translation/
 
 内核只认宿主路径。所以 PRoot 接到 `openat(AT_FDCWD, "/etc/passwd", ...)` 时，必须先把它变成 `/home/u/rootfs/etc/passwd`，再把指针换掉——而 guest 里那个 `/etc/passwd` 可能根本不存在，也可能是三层符号链接套出来的。
 
-`src/path/` 这 3,053 行就干这一件事。它是整个项目最绕、也最容易出 bug 的部分。
+`src/path/` 这 3,053 行就干这一件事。它是整个项目最绕、也最容易出 bug 的部分。读完这一篇，你会知道 `-b` 到底改了什么、`..` 为什么逃不出 guest，以及 PRoot 为什么不能直接用 `realpath(3)`。
 
 ## 六步
 
@@ -185,5 +185,11 @@ proot info: vpid 1:          -> "/bin/echo"
 ```
 
 同一个 `/bin/echo`，一次解析到 `/bin/busybox`（它是指向 busybox 的符号链接），一次原样保留。差别就是 `deref_final`：第一次是「找到要执行的文件」，第二次是 `lstat` 语义。一个参数，两种答案。
+
+## 小结
+
+- `translate_path()` 的契约只有一条：返回 `root + canon(dir_fd + user_path)`，选 base、拼接、规范化、绑定替换都在这一条链上。
+- 规范化必须按 guest 语义逐段做：`..` 在 guest 根处止步，每一段符号链接都要重新过一遍绑定表，所以不能交给 `realpath(3)`。
+- 绑定是两张按包含关系排序的表加前缀替换，`-r /rootfs` 只是 `-b /rootfs:/` 的语法糖；目标不存在时由 glue 目录兜底，不污染 rootfs。
 
 下一篇进入真正动手的一层：把翻译好的字符串写回别人的地址空间。
