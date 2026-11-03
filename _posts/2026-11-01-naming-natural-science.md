@@ -27,7 +27,7 @@ permalink: /notes/naming/naming-all/naming-natural-science/
 
 ### 系统命名法
 
-IUPAC 的取代命名（substitutive nomenclature）本质上是一棵语法树：
+[IUPAC](https://iupac.org/what-we-do/nomenclature/) 的取代命名（substitutive nomenclature）本质上是一棵语法树：
 
 - **母体**：最长碳链或主要官能团所在的骨架
 - **后缀**：决定化合物类别（-ol 醇、-oic acid 酸、-amine 胺）

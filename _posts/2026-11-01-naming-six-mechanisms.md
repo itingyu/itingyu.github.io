@@ -129,14 +129,34 @@ print(isbn13_check("978030640615"))   # 7
 5. **和外部体系怎么映射？** 你的内部编码迟早要和行业标准对接，映射表要提前留。
 6. **废弃号怎么处理？** 正确做法是**永不复用**——作废的号留空，否则历史单据会指向错误对象。
 
+
+
 ## 六、专栏目录
 
 - **（一）总纲与机制**：本篇
-- **（二）自然科学**：IUPAC、双名法、星表、台风命名
-- **（三）医药健康**：INN 词干系统、ATC、ICD、LOINC、UDI
-- **（四）工业制造**：轴承螺纹、材料牌号、电子器件、建筑分部
-- **（五）商贸与金融**：GS1 条码、HS 税则、行业分类、ISIN 与 LEI
-- **（六）交通与地理**：机场三字码、IMO 号、VIN、行政区划代码
-- **（七）知识与文化**：ISBN 与中图法、作品号、色号、食品编码、SemVer
+- **（二）[自然科学](/notes/naming/naming-all/naming-natural-science/)**：IUPAC、双名法、星表、台风命名
+- **（三）[医药健康](/notes/naming/naming-all/naming-medicine-inn/)**：INN 词干系统、ATC、ICD、LOINC、UDI
+- **（四）[工业制造](/notes/naming/naming-all/naming-industry-codes/)**：轴承螺纹、材料牌号、电子器件、建筑分部
+- **（五）[商贸与金融](/notes/naming/naming-all/naming-commerce-gs1/)**：GS1 条码、HS 税则、行业分类、ISIN 与 LEI
+- **（六）[交通与地理](/notes/naming/naming-all/naming-transport-codes/)**：机场三字码、IMO 号、VIN、行政区划代码
+- **（七）[知识与文化](/notes/naming/naming-all/naming-culture-isbn/)**：ISBN 与中图法、作品号、色号、食品编码、SemVer
+
+## 六、专栏目录
+
+- **（一）总纲与机制**：本篇
+- **（二）[自然科学](/notes/naming/naming-all/naming-natural-science/)**：IUPAC、双名法、星表、台风命名
+- **（三）[医药健康](/notes/naming/naming-all/naming-medicine-inn/)**：INN 词干系统、ATC、ICD、LOINC、UDI
+- **（四）[工业制造](/notes/naming/naming-all/naming-industry-codes/)**：轴承螺纹、材料牌号、电子器件、建筑分部
+- **（五）[商贸与金融](/notes/naming/naming-all/naming-commerce-gs1/)**：GS1 条码、HS 税则、行业分类、ISIN 与 LEI
+- **（六）[交通与地理](/notes/naming/naming-all/naming-transport-codes/)**：机场三字码、IMO 号、VIN、行政区划代码
+- **（七）[知识与文化](/notes/naming/naming-all/naming-culture-isbn/)**：ISBN 与中图法、作品号、色号、食品编码、SemVer
+
+## 小结
+
+- 四条硬约束：唯一、稳定、可校验、可扩展；六种生成机制都是它们的组合解。
+- 语义和稳定天生冲突，所以普遍双轨：给人看的名字，给机器用的号。
+- 自己设计编码前先答六个问题：谁发号、锚在什么实物上、会不会变、怎么校验、别名谁管、废弃怎么办。
+
+---
 
 下一篇从化学开始——那是人类把「命名」这件事做得最彻底的地方。

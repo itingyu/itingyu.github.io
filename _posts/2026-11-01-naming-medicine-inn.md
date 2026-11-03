@@ -10,7 +10,7 @@ tags:
   - 医药
   - INN
   - ICD
-excerpt: 医药行业的命名有个别的行业没有的特点： 名字本身就是一张处方信息 。
+excerpt: 把药理写进词干：-olol 是 β 阻滞剂，-mab 是单抗，C10AA05 是阿托伐他汀。医药是少数把分类学直接编码进名字的行业，代价是词干会用完。
 pinned: false
 cover: null
 draft: false
@@ -25,7 +25,7 @@ permalink: /notes/naming/naming-all/naming-medicine-inn/
 
 ## 一、INN：一套人为设计的世界语
 
-国际非专利药名（INN）由 WHO 在 1950 年代启动，目标是给每个活性成分一个全球通用的名字。它的结构是：
+国际非专利药名（[INN](https://www.who.int/teams/health-product-and-policy-standards/inn)）由 WHO 在 1950 年代启动，目标是给每个活性成分一个全球通用的名字。它的结构是：
 
 ```
 前缀（区分同词干药物） + 词干（药理分类） + 盐/酯后缀
@@ -71,7 +71,7 @@ permalink: /notes/naming/naming-all/naming-medicine-inn/
 
 ## 二、ATC：五级分类树
 
-ATC 是 WHO 的药物分类系统，按「解剖-治疗-药理-化学」五级展开：
+ATC 是 [WHO 的药物分类系统](https://atcddd.fhi.no/atc_ddd_index/)，按「解剖-治疗-药理-化学」五级展开：
 
 ```
 C10AA05  atorvastatin
@@ -132,7 +132,7 @@ DRG/DIP 付费直接建立在 ICD + 手术操作编码之上。编码错一位�
 
 ### HGVS
 
-基因变异命名由人类基因组变异学会维护，前缀决定坐标系：
+基因变异命名由[人类基因组变异学会](https://hgvs-nomenclature.org/)维护，前缀决定坐标系：
 
 | 前缀 | 坐标系 |
 |:--|:--|
