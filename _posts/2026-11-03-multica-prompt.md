@@ -2,7 +2,7 @@
 layout: post
 slug: multica-prompt
 title: Prompt 不是模板：上下文如何按层组装
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 09:40:00 +0800
 column: multica
 series: multica-code
 tags:
