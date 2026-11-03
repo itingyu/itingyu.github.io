@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "经典菜谱精讲"
+title: 「经典菜谱精讲」
 date: 2026-10-07 14:00:00 +0800
 tags: [cooking, kitchen, recipes]
-excerpt: "一道菜做\"会\"比做\"多\"重要。这里讲 12 道必学菜,从原理到拆解到变体。"
+excerpt: 「一道菜做\」会\「比做\」多\「重要。这里讲 12 道必学菜,从原理到拆解到变体。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,7 +14,7 @@ permalink: /notes/life/life-kitchen/kitchen-07-classic-recipes/
 
 # 07 · 经典菜谱精讲
 
-> 一道菜做"会"比做"多"重要。这里讲 12 道必学菜,从原理到拆解到变体。
+> 一道菜做「会」比做「多」重要。这里讲 12 道必学菜,从原理到拆解到变体。
 
 ---
 

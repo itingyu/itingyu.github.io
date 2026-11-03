@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: proot-extensions
-title: 扩展机制：把「撒谎」做成插件
+title: 扩展机制：kompat 与插件接口
 date: 2026-11-02 15:00:00 +0800
 column: proot
 series: proot-internals
@@ -16,11 +16,9 @@ draft: false
 permalink: /notes/proot/proot-internals/proot-extensions/
 ---
 
-# 扩展机制：把「撒谎」做成插件
+# 扩展机制：kompat 与插件接口
 
-PRoot 的三个招牌功能——`-0`（假装 root）、`-l`（硬链接转符号链接）、`-k`（假装旧内核）——都不是核心代码，而是插件。核心只提供一串事件回调，插件决定在这些点上改什么。
-
-这一篇看这套事件总线，以及三个最有代表性的插件。最后一个插件会比较特别：PRoot 连 `ptrace` 都要模拟，因为 ptrace 不能嵌套。
+PRoot 的扩展按事件挂载：fake_id0、link2symlink、kompat 等各处理一类系统调用，由 CARE 组合成完整工具。
 
 ## 十七个事件
 
@@ -158,5 +156,3 @@ int translate_ptrace_enter(Tracee *tracee)
 - 扩展机制只有两样东西：17 个事件的回调链表，以及每个插件自己贡献的 seccomp 系统调用名单。核心不写死任何「撒谎」逻辑。
 - fake_id0 靠临时 `chmod` 加 talloc 析构的逆序恢复，link2symlink 靠改数据布局，kompat 靠降级系统调用——三种手法对应三种伪造难度。
 - `ptrace` 不能嵌套，所以连它都要在用户态重造一套 tracer/tracee 关系；代价是一旦有 tracee 当 tracer，seccomp 加速必须关掉。
-
-下一篇是最后一篇：这套机制的代价，以及它不适合做什么。

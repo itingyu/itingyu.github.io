@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "刀工技法"
+title: 「刀工技法」
 date: 2026-10-07 17:00:00 +0800
 tags: [cooking, kitchen, knife-skills]
-excerpt: "刀工是厨师的\"基本功\"。切得好 = 受热均匀 = 口感一致。"
+excerpt: 「刀工是厨师的\」基本功\「。切得好 = 受热均匀 = 口感一致。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 # 04 · 刀工技法
 
-> 刀工是厨师的"基本功"。切得好 = 受热均匀 = 口感一致。
+> 刀工是厨师的「基本功」。切得好 = 受热均匀 = 口感一致。
 
 ---
 
-## 一、刀具认知
+## 刀具认知
 
 ### 家庭必备 3 把刀
 
@@ -46,7 +46,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 二、持刀与姿势
+## 持刀与姿势
 
 ### 持刀(右手为例)
 
@@ -86,12 +86,12 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 三、8 种基本刀法
+## 8 种基本刀法
 
 ### 1. 直切(推切)
 - **动作**:刀垂直向下,顺势推拉
 - **适用**:脆性食材(白萝卜、土豆、笋)
-- **节奏**:匀速,不"砸"
+- **节奏**:匀速,不「砸」
 
 ### 2. 推切
 - **动作**:刀尖先入,刀刃向前推,刀根切断
@@ -123,7 +123,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 四、10 种成形
+## 10 种成形
 
 | 形状 | 大小 | 适用菜 |
 |---|---|---|
@@ -138,7 +138,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 | **茸**(泥) | 完全碎 | 姜茸、肉泥 |
 | **花刀**(麦穗、菊花、荔枝) | 美观 | 鱿鱼、腰花、萝卜 |
 
-### "切丝"流程示范
+### 「切丝」流程示范
 
 ```
 原料(长条形,如土豆、胡萝卜)
@@ -152,7 +152,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 五、不同食材的刀工要点
+## 不同食材的刀工要点
 
 ### 肉类
 
@@ -183,7 +183,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 六、刀工与火候的关系
+## 刀工与火候的关系
 
 **关键认知**:**形状决定受热时间**
 
@@ -202,7 +202,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 七、安全与防护
+## 安全与防护
 
 ### 切手原因
 
@@ -220,7 +220,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 八、刀工练习法
+## 刀工练习法
 
 ### 入门练习(每天 10-15 分钟)
 
@@ -243,7 +243,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 九、刀工工具辅助
+## 刀工工具辅助
 
 - **防滑垫**(湿毛巾也行):防滑
 - **护指器**(不锈钢):新手防切手
@@ -253,11 +253,11 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 十、不同菜系的刀工差异
+## 不同菜系的刀工差异
 
 | 菜系 | 风格 | 特点 |
 |---|---|---|
-| **粤菜** | 精细 | 切丝细如发,讲究"薄、透、匀" |
+| **粤菜** | 精细 | 切丝细如发,讲究「薄、透、匀」 |
 | **鲁菜** | 整齐 | 大方、刀口清楚、规格一致 |
 | **川菜** | 麻利 | 速度快,大小均匀即可 |
 | **淮扬** | 刀工见长 | 文思豆腐:一块豆腐切 5000 丝 |
@@ -266,7 +266,7 @@ permalink: /notes/life/life-kitchen/kitchen-04-knife-skills/
 
 ---
 
-## 十一、刀工"九字诀"
+## 刀工「九字诀」
 
 > **稳、准、匀、快、利、净、薄、整、齐**
 

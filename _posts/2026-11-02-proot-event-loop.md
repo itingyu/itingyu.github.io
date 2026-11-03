@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: proot-event-loop
-title: 事件循环：一个 waitpid 撑起的进程树
+title: 事件循环：waitpid 与进程树管理
 date: 2026-11-02 11:00:00 +0800
 column: proot
 series: proot-internals
@@ -16,11 +16,9 @@ draft: false
 permalink: /notes/proot/proot-internals/proot-event-loop/
 ---
 
-# 事件循环：一个 waitpid 撑起的进程树
+# 事件循环：waitpid 与进程树管理
 
-PRoot 没有线程池，没有 epoll，没有协程。整个 tracer 就是一个 `while (1)` 加一次 `waitpid(-1, ..., __WALL)`——所有被追踪的进程、所有系统调用、所有信号，全都从这一个点流进来。
-
-这一篇拆三件事：停在哪里、怎么继续、以及为了少停几次做的 seccomp 加速。读完你就能解释：为什么 PRoot 只有一个线程，却能同时接管几十个进程，以及它到底在什么时刻「停下」。
+PRoot 的 tracer 是单线程事件循环：waitpid 收取事件，在系统调用入口与出口改写参数，再让 tracee 继续。
 
 ## 主循环
 
@@ -159,5 +157,3 @@ stateDiagram-v2
 - 整个 tracer 是一个单线程的 `waitpid(-1, __WALL)` 循环；`__WALL` 是它能同时看到线程和进程的原因。
 - 停点由 ptrace options 决定，`SIGTRAP | 0x80` 把系统调用停和普通信号分开。
 - seccomp-BPF 把 86 类系统调用挑出来上报，其余直接放行；`restart_how` 与 `sysexit_pending` 负责在「只停入口」和「必须看返回值」之间切换。
-
-下一篇就进入这条最贵的路径。

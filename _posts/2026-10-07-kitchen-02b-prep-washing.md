@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "食材预处理与清洗"
+title: 「食材预处理与清洗」
 date: 2026-10-07 20:00:00 +0800
 tags: [cooking, kitchen, prep]
-excerpt: "\"会洗菜,会腌肉,会焯水\"是家常菜的隐形 80%。"
+excerpt: 「\」会洗菜,会腌肉,会焯水\「是家常菜的隐形 80%。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 # 02b · 食材预处理与清洗
 
-> "会洗菜,会腌肉,会焯水"是家常菜的隐形 80%。
+> 「会洗菜,会腌肉,会焯水」是家常菜的隐形 80%。
 
 ---
 
-## 一、蔬菜清洗
+## 蔬菜清洗
 
 ### 通用流程
 
@@ -110,7 +110,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 二、肉类清洗与处理
+## 肉类清洗与处理
 
 ### 通用原则
 
@@ -171,7 +171,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 1. 流水冲洗
 2. **去腥**:鸭肉腥味重,姜片、料酒、葱腌 30 分钟
-3. **去腺体**:鸭屁股的"鸭骚"(两块白色油脂状物)必须去掉
+3. **去腺体**:鸭屁股的「鸭骚」(两块白色油脂状物)必须去掉
 4. 焯水
 
 ---
@@ -185,7 +185,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 三、海鲜清洗
+## 海鲜清洗
 
 ### 鱼类
 
@@ -255,11 +255,11 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 **清洗**
 1. 流水逐个刷洗外壳
 2. **敲壳判断死活**:活贝壳合拢/敲击活;死活壳张开不闭 = 死贝,**弃用**
-3. 去"沙袋"(黑色的胃)
+3. 去「沙袋」(黑色的胃)
 
 ---
 
-## 四、豆类与干货
+## 豆类与干货
 
 ### 干豆类(红豆、黑豆、黄豆)
 
@@ -277,7 +277,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 五、米面
+## 米面
 
 ### 大米
 
@@ -297,7 +297,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 六、去腥去异味的"七武器"
+## 去腥去异味的「七武器」
 
 | 食材 | 问题 | 解法 |
 |---|---|---|
@@ -317,9 +317,9 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 七、特殊预处理
+## 特殊预处理
 
-### 食材的"苏醒"与"塑形"
+### 食材的「苏醒」与「塑形」
 
 **干贝**
 1. 温水(30-40℃)浸泡 2-4 小时
@@ -347,7 +347,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-### 食材的"塑形"
+### 食材的「塑形」
 
 **整鱼出骨**(双飞鱼片)
 ```
@@ -372,7 +372,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 八、去毛、去皮、去骨
+## 去毛、去皮、去骨
 
 ### 去毛
 
@@ -384,7 +384,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 **鸭绒**(鸭子)
 - 开水烫 + 镊子
-- 鸭子表面有"奶头"(皮肤疙瘩),用剪子剪平
+- 鸭子表面有「奶头」(皮肤疙瘩),用剪子剪平
 
 ---
 
@@ -402,12 +402,12 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 **鸡腿骨**(见上文)
 **鸡翅**:沿两根骨方向拧,可抽出
-**鱼骨**:见"整鱼出骨"
+**鱼骨**:见「整鱼出骨」
 **虾线**:牙签挑
 
 ---
 
-## 九、解冻艺术
+## 解冻艺术
 
 ### 三种解冻法
 
@@ -427,7 +427,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 十、食材保存与"预处理后保存"
+## 食材保存与「预处理后保存」
 
 ### 预处理后保存
 
@@ -446,7 +446,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 十一、"如何不污染"——分清生熟
+## 「如何不污染」——分清生熟
 
 ### 砧板分色制
 
@@ -472,7 +472,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 十二、最常见的"预处理 5 大错"
+## 最常见的「预处理 5 大错」
 
 1. **肉反复冲洗**(USDA 说不用洗)
 2. **菜切完再洗**(营养流失)
@@ -482,7 +482,7 @@ permalink: /notes/life/life-kitchen/kitchen-02b-prep-washing/
 
 ---
 
-## 十三、食物安全 7 条铁律
+## 食物安全 7 条铁律
 
 1. **生熟分开**(砧板、刀、容器)
 2. **彻底加热**(肉、蛋、海鲜)

@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "烹饪方法"
+title: 「烹饪方法」
 date: 2026-10-07 15:00:00 +0800
 tags: [cooking, kitchen, methods]
-excerpt: "烹饪法 = 不同的\"温度场 + 时间 + 处理顺序\"组合。掌握每种方法的核心逻辑,任何菜都能拆解。"
+excerpt: 「烹饪法 = 不同的\」温度场 + 时间 + 处理顺序\「组合。掌握每种方法的核心逻辑,任何菜都能拆解。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 # 06 · 烹饪方法
 
-> 烹饪法 = 不同的"温度场 + 时间 + 处理顺序"组合。掌握每种方法的核心逻辑,任何菜都能拆解。
+> 烹饪法 = 不同的「温度场 + 时间 + 处理顺序」组合。掌握每种方法的核心逻辑,任何菜都能拆解。
 
 ---
 
-## 一、炒(Stir-fry)
+## 炒(Stir-fry)
 
 > **核心**:高温 + 快 + 少油 + 持续翻动
 
@@ -56,7 +56,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 二、煎(Pan-fry)
+## 煎(Pan-fry)
 
 > **核心**:中火 + 油少量 + 单面定型再翻
 
@@ -92,7 +92,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 三、炸(Deep-fry)
+## 炸(Deep-fry)
 
 > **核心**:大量油 + 控温 + 分次炸
 
@@ -143,7 +143,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 四、煮(Boil/Poach/Simmer)
+## 煮(Boil/Poach/Simmer)
 
 > **核心**:水或汤 + 加热 + 调味
 
@@ -184,7 +184,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 五、蒸(Steam)
+## 蒸(Steam)
 
 > **核心**:蒸汽加热,保留原味和营养
 
@@ -236,7 +236,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 六、炖(Braise/Stew)
+## 炖(Braise/Stew)
 
 > **核心**:小火 + 长时间 + 微沸
 
@@ -278,7 +278,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 七、焖(Braise)
+## 焖(Braise)
 
 > 比炖用汤少,介于红烧和干烧之间。
 
@@ -287,9 +287,9 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 八、烧(Braise with Sauce)
+## 烧(Braise with Sauce)
 
-> 与红烧接近,但更讲究"汁"的浓度。
+> 与红烧接近,但更讲究「汁」的浓度。
 
 ### 类型
 
@@ -308,7 +308,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 九、烩、焗、烤
+## 烩、焗、烤
 
 ### 烩
 - **方法**:食材入汤调味,芡汁包裹
@@ -327,7 +327,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 十、凉拌(Cold Dish)
+## 凉拌(Cold Dish)
 
 > **核心**:煮熟食材 + 调味 + 凉食
 
@@ -371,7 +371,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 十一、特殊技法
+## 特殊技法
 
 ### 焯水(Blanching)
 
@@ -403,7 +403,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 十二、烹饪法的现代变体
+## 烹饪法的现代变体
 
 ### 健康版改良
 
@@ -417,13 +417,13 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 ### 工具加持
 
 - **电压力锅**:炖肉 30-40 分钟替代 2 小时
-- **空气炸锅**:无油或少油"炸"
+- **空气炸锅**:无油或少油「炸」
 - **蒸烤箱**:一机多用
 - **料理机**:切碎、绞肉、磨酱
 
 ---
 
-## 十三、烹饪法决策树
+## 烹饪法决策树
 
 ```
 问:这道菜想吃什么口感?
@@ -438,7 +438,7 @@ permalink: /notes/life/life-kitchen/kitchen-06-cooking-methods/
 
 ---
 
-## 十四、组合烹饪(高级)
+## 组合烹饪(高级)
 
 许多菜是**多种烹饪法的组合**:
 - **红烧肉**:煎+焖+收汁

@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "火候掌控"
+title: 「火候掌控」
 date: 2026-10-07 16:00:00 +0800
 tags: [cooking, kitchen, heat-control]
-excerpt: "火候是烹饪的\"灵魂\"。同一种食材,大火中火小火做出完全不同的菜。"
+excerpt: 「火候是烹饪的\」灵魂\「。同一种食材,大火中火小火做出完全不同的菜。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 # 05 · 火候掌控
 
-> 火候是烹饪的"灵魂"。同一种食材,大火中火小火做出完全不同的菜。
+> 火候是烹饪的「灵魂」。同一种食材,大火中火小火做出完全不同的菜。
 
 ---
 
-## 一、火候的两大维度
+## 火候的两大维度
 
 火候 = **火力大小 × 加热时间**
 
@@ -31,7 +31,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 二、火力分级与适用
+## 火力分级与适用
 
 ### 1. 大火(武火、猛火)
 
@@ -72,7 +72,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 三、油温识别(关键!)
+## 油温识别(关键!)
 
 油温无法用温度计精确测时,常用**感官判断**:
 
@@ -89,12 +89,12 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 1. **筷子法**:插入筷子,周围冒泡=温度够(泡越多温度越高)
 2. **姜片法**:姜片边缘密集小泡=150℃ 左右
 3. **葱段法**:葱段周围起泡=170℃ 左右
-4. **水滴法**:水滴入油→ 沉底无声 = 油温低;水珠滚动"啵啵"= 油温中等;水珠翻滚炸裂 = 高油温
+4. **水滴法**:水滴入油→ 沉底无声 = 油温低;水珠滚动「啵啵」= 油温中等;水珠翻滚炸裂 = 高油温
 5. **手心法**(老司机):手心放锅上方感受热度
 
 ---
 
-## 四、水温识别
+## 水温识别
 
 | 状态 | 温度 | 适合 |
 |---|---|---|
@@ -115,7 +115,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 五、加热时间对照表
+## 加热时间对照表
 
 ### 蔬菜
 
@@ -143,7 +143,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 六、火候的判断方法
+## 火候的判断方法
 
 ### 视觉
 
@@ -173,7 +173,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 七、火候与口感的关系
+## 火候与口感的关系
 
 | 火候 | 效果 | 适用 |
 |---|---|---|
@@ -193,7 +193,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 八、不同烹饪法的火候
+## 不同烹饪法的火候
 
 | 烹饪法 | 火力 | 时间 | 关键 |
 |---|---|---|---|
@@ -211,7 +211,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 九、火候的常见问题
+## 火候的常见问题
 
 | 现象 | 原因 | 解法 |
 |---|---|---|
@@ -225,7 +225,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 十、火候与食材的"默契"
+## 火候与食材的「默契」
 
 ### 食材越嫩,火候要轻
 
@@ -234,7 +234,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 - **嫩里脊**:大火快炒
 - **鸡胸**:小火慢煎
 
-### 食材越老越硬,火候越要"软磨"
+### 食材越老越硬,火候越要「软磨」
 
 - **老母鸡**:小火慢炖 2-3 小时
 - **牛腩**:小火慢炖 1.5 小时
@@ -243,13 +243,13 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 十一、厨房工具辅助判断
+## 厨房工具辅助判断
 
 | 工具 | 用途 |
 |---|---|
 | **红外温度枪**(¥50-200) | 测油温、锅温(厨房级最实用) |
 | **插入式温度计**(¥30-100) | 测肉中心温度 |
-| **计时器** | 防止"再看一下就糊了" |
+| **计时器** | 防止「再看一下就糊了」 |
 | **探针温度计**(¥100+) | 牛排专业级 |
 
 ### 肉中心温度参考
@@ -268,12 +268,12 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 十二、练火候的捷径
+## 练火候的捷径
 
 ### 三大练手菜
 
 1. **煎蛋**:小火 → 中火 → 大火,练油温手感
-2. **炒青菜**:大火快炒,练"颠勺 + 出锅"
+2. **炒青菜**:大火快炒,练「颠勺 + 出锅」
 3. **红烧肉**:中→小→中,练节奏切换
 
 ### 进阶练手菜
@@ -284,7 +284,7 @@ permalink: /notes/life/life-kitchen/kitchen-05-heat-control/
 
 ---
 
-## 十三、火候哲学
+## 火候哲学
 
 > **火候不是参数,是节奏。**
 > **好的厨师靠的是耳朵、眼睛、鼻子、手感。**

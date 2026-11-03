@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: proot-limits
-title: 边界：PRoot 拿不走什么，又偷走了什么
+title: 能力边界：隔离、性能与限制
 date: 2026-11-02 16:00:00 +0800
 column: proot
 series: proot-internals
@@ -16,9 +16,9 @@ draft: false
 permalink: /notes/proot/proot-internals/proot-limits/
 ---
 
-# 边界：PRoot 拿不走什么，又偷走了什么
+# 能力边界：隔离、性能与限制
 
-前六篇讲的都是「怎么做到」。最后一篇讲代价：PRoot 给你一个看起来很完整的 guest 系统，但它既不是沙箱，也不是免费午餐。
+PRoot 不是安全边界：不隔离内核资源，性能开销集中在路径翻译，并会破坏 ASLR 与 setuid。
 
 ## 它不是安全边界
 

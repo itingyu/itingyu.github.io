@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: proot-overview
-title: PRoot 是什么：把 chroot 做进 ptrace 里
+title: PRoot 的实现原理：ptrace 与系统调用改写
 date: 2026-11-02 10:00:00 +0800
 column: proot
 series: proot-internals
@@ -16,11 +16,9 @@ draft: false
 permalink: /notes/proot/proot-internals/proot-overview/
 ---
 
-# PRoot 是什么：把 chroot 做进 ptrace 里
+# PRoot 的实现原理：ptrace 与系统调用改写
 
-PRoot 的官方定义只有一句话：chroot、`mount --bind` 和 binfmt_misc 的用户态实现。它不需要 root，不需要内核模块，不需要 user namespace，甚至不需要容器运行时——只要一个 `ptrace(2)`。代价同样干脆：被它接管的进程，每走一步都要停下来问它一次。
-
-这是「PRoot 解剖」的第一篇。它不要求你读过 PRoot 源码，但默认你知道 `chroot(2)` 和 `ptrace(2)` 各自能做什么。读完这一篇，你能判断 PRoot 该放在哪一层：它不是容器，也不该被当成沙箱，而是一个「在系统调用边界上撒谎」的用户态翻译层。
+PRoot 用 ptrace 在用户态实现 chroot、bind mount 与 binfmt_misc。它不创建命名空间，也不虚拟化内核，只在系统调用边界改写参数与返回值。
 
 ## 它不做什么
 
@@ -104,5 +102,3 @@ flowchart TD
 - PRoot 不创建命名空间、不虚拟化内核，也不启用 overlayfs、`pivot_root` 这类内核机制；guest 看到的一切「隔离」都来自系统调用参数的改写。
 - 路径和 uid 是假的，系统调用是真的：PRoot 没有额外的权限检查层，它的边界就是宿主内核的边界。
 - 唯一的介入点是 ptrace 的 stop，所以「能在 stop 点上改什么」既决定了它的能力，也决定了它的性能上限。
-
-下一篇从那个 `waitpid` 开始。

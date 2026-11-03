@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "食材识别与挑选"
+title: 「食材识别与挑选」
 date: 2026-10-07 21:00:00 +0800
 tags: [cooking, kitchen, ingredient]
-excerpt: "食材是烹饪的起点。会选 = 成功一半。"
+excerpt: 「食材是烹饪的起点。会选 = 成功一半。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -18,7 +18,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 一、蔬菜类
+## 蔬菜类
 
 ### 1. 叶菜类
 
@@ -36,7 +36,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 - 摘掉黄叶烂叶
 - 厨房纸包住根部(吸湿)→ 装保鲜袋 → 冷藏
 - 提前洗会加速腐烂:**吃前再洗**
-- **韭菜**单独放(气味会"传染"其他菜)
+- **韭菜**单独放(气味会「传染」其他菜)
 
 **预处理**
 - 流水冲洗 → 浸泡 15 分钟(去农药)→ 再冲洗
@@ -121,7 +121,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 二、肉类
+## 肉类
 
 ### 1. 猪肉(中国家庭最常用)
 
@@ -236,7 +236,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 三、海鲜类
+## 海鲜类
 
 ### 1. 虾
 
@@ -258,7 +258,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 - **活蟹**:腿齐全、吐泡、爬动
 - **公蟹**:肚脐尖(尖脐),膏白
 - **母蟹**:肚脐圆(团脐),黄多(秋季最肥)
-- **大闸蟹**:"九雌十雄"(农历九月母蟹肥,十月公蟹肥)
+- **大闸蟹**:「九雌十雄」(农历九月母蟹肥,十月公蟹肥)
 - **死蟹不能吃**(组氨酸分解毒素)
 
 ### 3. 贝类(蛤蜊、花甲、扇贝、生蚝)
@@ -275,7 +275,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 四、蛋奶
+## 蛋奶
 
 ### 鸡蛋
 
@@ -307,7 +307,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 五、调味料识别
+## 调味料识别
 
 ### 酱油
 
@@ -364,7 +364,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 六、香辛料
+## 香辛料
 
 ### 新手入门必备
 
@@ -392,7 +392,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 七、主食与干货
+## 主食与干货
 
 ### 米饭
 
@@ -419,7 +419,7 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 八、调味品保存全表
+## 调味品保存全表
 
 | 类别 | 室温 | 冷藏 | 冷冻 |
 |---|---|---|---|
@@ -434,19 +434,19 @@ permalink: /notes/life/life-kitchen/kitchen-02-ingredient-selection/
 
 ---
 
-## 九、买菜不踩坑的 7 条经验
+## 买菜不踩坑的 7 条经验
 
 1. **应季的便宜又好吃**(夏天叶菜、秋冬根茎)
-2. **菜市场比超市新鲜**(超市灯光会"美化")
+2. **菜市场比超市新鲜**(超市灯光会「美化」)
 3. **早上去菜场**(清晨最新鲜)
 4. **份量预估**:一人 200-300g 蔬菜 + 100-150g 肉
 5. **冷冻肉性价比高**,买回家分装冷冻
-6. **不熟的食物少买**,先吃"家常十大菜"
+6. **不熟的食物少买**,先吃「家常十大菜」
 7. **少囤货**:蔬菜 1-2 天、肉 3-5 天(冷藏)
 
 ---
 
-## 十、推荐的家庭常备清单
+## 推荐的家庭常备清单
 
 ### 蔬菜(每周采购)
 - **耐放**:土豆、胡萝卜、洋葱、蒜、姜、大白菜

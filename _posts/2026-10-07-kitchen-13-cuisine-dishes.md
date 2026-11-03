@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "八大菜系代表菜家常做法"
+title: 「八大菜系代表菜家常做法」
 date: 2026-10-07 08:00:00 +0800
 tags: [cooking, kitchen, chinese-cuisine]
-excerpt: "上一份讲\"是什么\",这份讲\"怎么做\"。 选取各菜系家庭厨房可复制的代表菜,详细到能下锅。"
+excerpt: 「上一份讲\」是什么\「,这份讲\」怎么做\「。 选取各菜系家庭厨房可复制的代表菜,详细到能下锅。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,7 +14,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 # 13 · 八大菜系代表菜家常做法
 
-> 上一份讲"是什么",这份讲"怎么做"。
+> 上一份讲「是什么」,这份讲「怎么做」。
 > 选取各菜系**家庭厨房可复制**的代表菜,详细到能下锅。
 
 ---
@@ -28,7 +28,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 一、鲁菜(山东菜)
+## 鲁菜(山东菜)
 
 ### 1. 糖醋鲤鱼
 
@@ -131,7 +131,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 二、川菜(四川菜)
+## 川菜(四川菜)
 
 ### 1. 麻婆豆腐
 
@@ -181,7 +181,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 7. 生抽提鲜 → 出锅
 ```
 
-**关键**:肉要煸出"灯盏窝"(卷曲)才有灵魂;蒜苗分两次下
+**关键**:肉要煸出「灯盏窝」(卷曲)才有灵魂;蒜苗分两次下
 
 ---
 
@@ -325,7 +325,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 三、粤菜(广东菜)
+## 粤菜(广东菜)
 
 ### 1. 白切鸡
 
@@ -349,7 +349,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 8. 蘸料:姜葱末+盐+糖 → 烧热油浇上 → 沾鸡吃
 ```
 
-**关键**:**"浸"法**(关火泡熟)让肉嫩多汁
+**关键**:**「浸」法**(关火泡熟)让肉嫩多汁
 
 ---
 
@@ -456,7 +456,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 四、苏菜(淮扬菜)
+## 苏菜(淮扬菜)
 
 ### 1. 红烧狮子头(蟹粉版简版)
 
@@ -558,7 +558,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 五、闽菜(福建菜)
+## 闽菜(福建菜)
 
 ### 1. 佛跳墙(简版)
 
@@ -632,7 +632,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 六、浙菜(浙江菜)
+## 浙菜(浙江菜)
 
 ### 1. 西湖醋鱼
 
@@ -728,7 +728,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 七、湘菜(湖南菜)
+## 湘菜(湖南菜)
 
 ### 1. 剁椒鱼头
 
@@ -837,7 +837,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 八、徽菜(安徽菜)
+## 徽菜(安徽菜)
 
 ### 1. 臭鳜鱼
 
@@ -927,7 +927,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 九、其他重要菜系家常做法
+## 其他重要菜系家常做法
 
 ### 1. 北京:京酱肉丝
 
@@ -1133,7 +1133,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 十、菜谱选购与难度速查
+## 菜谱选购与难度速查
 
 | 难度 | 菜 | 适合 |
 |---|---|---|
@@ -1146,7 +1146,7 @@ permalink: /notes/life/life-kitchen/kitchen-13-cuisine-dishes/
 
 ---
 
-## 十一、做菜的心得
+## 做菜的心得
 
 > **不是学一道菜,是学一类方法**。
 

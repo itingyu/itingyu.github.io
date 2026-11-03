@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "进阶技法"
+title: 「进阶技法」
 date: 2026-10-07 13:00:00 +0800
 tags: [cooking, kitchen, advanced]
-excerpt: "从\"会做菜\"到\"做得精\"的分水岭。掌握这些,你的菜会上一个台阶。"
+excerpt: 「从\」会做菜\「到\」做得精\「的分水岭。掌握这些,你的菜会上一个台阶。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 # 08 · 进阶技法
 
-> 从"会做菜"到"做得精"的分水岭。掌握这些,你的菜会上一个台阶。
+> 从「会做菜」到「做得精」的分水岭。掌握这些,你的菜会上一个台阶。
 
 ---
 
-## 一、上浆(Coating)
+## 上浆(Coating)
 
 > **目的**:用浆液包裹肉,锁住水分,让肉更嫩滑
 
@@ -67,14 +67,14 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 | 现象 | 原因 |
 |---|---|
-| 脱浆 | 油温太低、肉没挤干、没"封油" |
+| 脱浆 | 油温太低、肉没挤干、没「封油」 |
 | 浆过厚 | 淀粉太多、没抓匀 |
 | 口感糊 | 油温太高、没滑散 |
 | 肉老 | 没腌、没封油、火太大 |
 
 ---
 
-## 二、挂糊(Battering)
+## 挂糊(Battering)
 
 > **目的**:在食材外裹糊,炸后外酥脆、内软嫩
 
@@ -130,14 +130,14 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ### 挂糊的关键
 
-- **食材要干**:湿食材挂糊会"花脸"
+- **食材要干**:湿食材挂糊会「花脸」
 - **糊要均匀**:不能有裸露点
 - **现挂现炸**:挂完久放脱糊
 - **油温稳定**:忽冷忽热影响脆度
 
 ---
 
-## 三、勾芡(Thickening)
+## 勾芡(Thickening)
 
 > **目的**:用淀粉使汤汁浓稠,包裹味道
 
@@ -183,9 +183,9 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 四、码味(Preliminary Seasoning)
+## 码味(Preliminary Seasoning)
 
-> **概念**:给食材"打底味",分多次加调料,比一次性腌更入味
+> **概念**:给食材「打底味」,分多次加调料,比一次性腌更入味
 
 ### 三阶段码味
 
@@ -220,7 +220,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 五、熬糖色(Caramelization)
+## 熬糖色(Caramelization)
 
 > **目的**:糖经高温焦糖化,产生红褐色+焦香
 
@@ -263,9 +263,9 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 六、制高汤(Stock)
+## 制高汤(Stock)
 
-> **高汤 = 厨房的"鲜味基石"**
+> **高汤 = 厨房的「鲜味基石」**
 
 ### 1. 毛汤(基础白汤)
 
@@ -338,10 +338,10 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 七、卤水(Braising Liquid)
+## 卤水(Braising Liquid)
 
 > **卤水 = 香料 + 高汤 + 酱油 + 糖色**
-> 用过的卤水越用越香,叫"老卤"
+> 用过的卤水越用越香,叫「老卤」
 
 ### 基础卤水配方(可卤 2-3kg 食材)
 
@@ -412,7 +412,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 八、辣椒油与辣子油
+## 辣椒油与辣子油
 
 ### 自制辣椒油
 
@@ -440,7 +440,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 九、葱油
+## 葱油
 
 ```
 材料:
@@ -460,9 +460,9 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十、麻酱(芝麻酱)的"澥"
+## 麻酱(芝麻酱)的「澥」
 
-> 麻酱直接用会稠,需要"澥"开
+> 麻酱直接用会稠,需要「澥」开
 
 ### 澥法
 
@@ -482,7 +482,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十一、制酱料
+## 制酱料
 
 ### 自制蒜蓉
 
@@ -512,7 +512,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十二、肉类嫩化的"三大方法"
+## 肉类嫩化的「三大方法」
 
 ### 1. 物理嫩化
 
@@ -542,7 +542,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十三、去沫撇油(汤类)
+## 去沫撇油(汤类)
 
 ### 浮沫(血沫)
 
@@ -560,7 +560,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十四、油温控制与判断
+## 油温控制与判断
 
 (详见 [05-火候掌控](05-火候掌控.md))
 
@@ -573,7 +573,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十五、面糊的"脆度决定因素"
+## 面糊的「脆度决定因素」
 
 | 因素 | 影响 |
 |---|---|
@@ -584,11 +584,11 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 | **糖** | 加 → 易上色(微苦) |
 | **油量** | 油多 → 脆 |
 
-**脆的"金字塔"**:脆糊 + 复炸 > 蛋清糊 + 复炸 > 蛋清糊 > 全蛋糊
+**脆的「金字塔」**:脆糊 + 复炸 > 蛋清糊 + 复炸 > 蛋清糊 > 全蛋糊
 
 ---
 
-## 十六、香料的"使用时机"
+## 香料的「使用时机」
 
 | 香料 | 时机 | 原因 |
 |---|---|---|
@@ -602,7 +602,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十七、进阶的"分寸感"
+## 进阶的「分寸感」
 
 ### 香料多了怎么办
 
@@ -628,7 +628,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 十八、留"锅气"与"锅香"
+## 留「锅气」与「锅香」
 
 ### 锅气
 
@@ -637,12 +637,12 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ### 锅香
 
-- 食材在锅里留下的"焦香底"
+- 食材在锅里留下的「焦香底」
 - **专业厨师**:炒完一道菜留锅香再炒下一道(比如有缘的菜用同一锅)
 
 ---
 
-## 十九、家厨 vs 餐厅的差异
+## 家厨 vs 餐厅的差异
 
 | 维度 | 家厨 | 餐厅 |
 |---|---|---|
@@ -650,7 +650,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 | **油** | 少油 | 多油(易操作) |
 | **调味** | 适中 | 重(味浓才能突出) |
 | **糊** | 薄糊 | 厚糊(脆) |
-| **盐** | 适中 | 多(咸度补"过量"残留) |
+| **盐** | 适中 | 多(咸度补「过量」残留) |
 | **速度** | 不快 | 极快(爆炒 1 分钟) |
 | **份量** | 小份 | 大份 |
 
@@ -661,7 +661,7 @@ permalink: /notes/life/life-kitchen/kitchen-08-advanced/
 
 ---
 
-## 二十、推荐进阶菜谱
+## 推荐进阶菜谱
 
 掌握这些技法后,挑战:
 

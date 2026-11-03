@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "调味学基础"
+title: 「调味学基础」
 date: 2026-10-07 18:00:00 +0800
 tags: [cooking, kitchen, seasoning]
-excerpt: "调味是烹饪的\"灵魂\"。理解味,才能调好味。"
+excerpt: 「调味是烹饪的\」灵魂\「。理解味,才能调好味。」
 series: life-kitchen
 pinned: false
 cover: null
@@ -14,11 +14,11 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 # 03 · 调味学基础
 
-> 调味是烹饪的"灵魂"。理解味,才能调好味。
+> 调味是烹饪的「灵魂」。理解味,才能调好味。
 
 ---
 
-## 一、味觉的生理基础
+## 味觉的生理基础
 
 **舌头上的味蕾**能识别 5 种基本味道:
 
@@ -44,17 +44,17 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 二、咸味的"基础地位"
+## 咸味的「基础地位」
 
 **盐是一切调味的地基**。
 
 - 没盐,什么味都出不来
-- 没盐,糖醋都是怪的(糖醋不"亮")
+- 没盐,糖醋都是怪的(糖醋不「亮」)
 - 没盐,鲜味也提不出来(味精+盐才鲜)
 
 ### 盐的用量原则
 
-**"成菜含盐量 0.8-1.5%"** 为宜(健康范围)
+**「成菜含盐量 0.8-1.5%」** 为宜(健康范围)
 
 ### 粗算公式
 
@@ -74,7 +74,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 三、甜味的"提鲜"作用
+## 甜味的「提鲜」作用
 
 糖在烹饪中**不只提供甜**,还有:
 
@@ -94,7 +94,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 四、酸味的"魔法"
+## 酸味的「魔法」
 
 **酸味的厨房作用**:
 
@@ -115,7 +115,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 五、鲜味的"灵魂"
+## 鲜味的「灵魂」
 
 **鲜味的核心:核苷酸 + 谷氨酸**
 
@@ -141,7 +141,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 六、辣味的"层次"
+## 辣味的「层次」
 
 | 辣度 | 来源 | 典型菜 |
 |---|---|---|
@@ -164,7 +164,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 七、五味的组合 — 经典味型
+## 五味的组合 — 经典味型
 
 ### 1. 复合味型
 
@@ -193,7 +193,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 八、四季与味道偏好
+## 四季与味道偏好
 
 - **夏**:清淡、酸味、凉拌(开胃)
 - **冬**:浓厚、辣味、炖煮(暖身)
@@ -202,7 +202,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 九、调味的三阶段
+## 调味的三阶段
 
 每道菜的调味分**三次**:
 
@@ -226,7 +226,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 十、调味失败的常见原因
+## 调味失败的常见原因
 
 | 现象 | 原因 |
 |---|---|
@@ -236,11 +236,11 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 | **糖醋失衡** | 比例错位、醋用错(白醋太冲) |
 | **腥味重** | 没焯水、没加料酒、没放姜 |
 | **菜味寡淡** | 缺复合味,只用了单一调料 |
-| **味道层次单薄** | 没分次调味、缺"回口"(回味) |
+| **味道层次单薄** | 没分次调味、缺「回口」(回味) |
 
 ---
 
-## 十一、调味的"五维平衡"
+## 调味的「五维平衡」
 
 **专业厨师的心法**:
 
@@ -260,7 +260,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 十二、试味的科学
+## 试味的科学
 
 **每一阶段都要试味**!
 
@@ -278,7 +278,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 十三、调味比例速查(经验值,因人而异)
+## 调味比例速查(经验值,因人而异)
 
 > 以下为 1-2 人份,约 300-500g 主料的参考量
 
@@ -298,7 +298,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 十四、调味的"黄金原则"
+## 调味的「黄金原则」
 
 1. **盐是基础** — 没盐什么味都空
 2. **糖是缓冲** — 糖醋平衡、糖提鲜
@@ -310,7 +310,7 @@ permalink: /notes/life/life-kitchen/kitchen-03-seasoning/
 
 ---
 
-## 十五、调味的"地雷区"
+## 调味的「地雷区」
 
 ⚠️ **不要**:
 

@@ -1,7 +1,7 @@
 ---
 layout: post
 slug: proot-syscall-rewrite
-title: 系统调用改写：在别人的地址空间里施工
+title: 系统调用改写：参数与返回值的替换
 date: 2026-11-02 13:00:00 +0800
 column: proot
 series: proot-internals
@@ -16,11 +16,9 @@ draft: false
 permalink: /notes/proot/proot-internals/proot-syscall-rewrite/
 ---
 
-# 系统调用改写：在别人的地址空间里施工
+# 系统调用改写：参数与返回值的替换
 
-路径翻译只解决了「算」，还没解决「改」。要改一个正在运行的程序的内存，手段只有两个：`process_vm_writev`（或 `PTRACE_POKEDATA`）和改寄存器。PRoot 两样都用，而且必须在系统调用的两个 stop 点之间完成。
-
-这一篇拆 `src/syscall/`：寄存器版本、字符串注入、错误注入，以及三个「干脆不进内核」的特例。
+系统调用改写发生在 tracee 的寄存器与内存中：替换参数、写入字符串、伪造返回值，必要时取消整次调用。
 
 ## 两份寄存器
 
@@ -172,5 +170,3 @@ v5.5.0 的 changelog 里有一条正是这个：*readlink silently truncating an
 - 每个 tracee 保留 ORIGINAL 与 MODIFIED 两份寄存器：入口按需改，出口按原始寄存器的指针读回用户缓冲区。
 - 取消一次系统调用不需要内核配合，把系统调用号改成 `PR_void`（`-1`），再用 `SYSARG_RESULT` 伪造返回值即可。
 - 新路径写进 tracee 的栈；一旦这次调用没有出口 stop，PRoot 必须自己把栈指针还回去，否则就是随机崩溃。
-
-下一篇是这套机制里最激进的一处：PRoot 不只改参数，它连「谁来装载程序」都换了。
