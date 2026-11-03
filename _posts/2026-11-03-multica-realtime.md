@@ -2,7 +2,7 @@
 layout: post
 slug: multica-realtime
 title: 事件到达之前：WebSocket 与多副本广播
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 09:50:00 +0800
 column: multica
 series: multica-code
 tags:
