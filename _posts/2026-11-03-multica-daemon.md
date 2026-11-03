@@ -2,7 +2,7 @@
 layout: post
 slug: multica-daemon
 title: Daemon：把二十多种 agent CLI 变成同一支队伍
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 09:30:00 +0800
 column: multica
 series: multica-code
 tags:
