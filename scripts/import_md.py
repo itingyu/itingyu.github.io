@@ -157,7 +157,8 @@ def build(file: str, opts) -> dict:
         "permalink": fm.get("permalink") or f"/notes/{column}/{series or column}/{slug}/",
     }
     text = stringify_frontmatter(meta) + "\n" + body.lstrip()
-    target = os.path.join(POSTS, f"{date}-{slug}.md")
+    # Jekyll 只认 YYYY-MM-DD-slug.md；日期里的时分秒只留在 front matter
+    target = os.path.join(POSTS, f"{date[:10]}-{slug}.md")
     return {"target": target, "text": text, "slug": f"{date}-{slug}", "meta": meta}
 
 
