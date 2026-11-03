@@ -20,7 +20,7 @@ permalink: /notes/proot/proot-internals/proot-overview/
 
 PRoot 用 ptrace 在用户态实现 chroot、bind mount 与 binfmt_misc。它不创建命名空间，也不虚拟化内核，只在系统调用边界改写参数与返回值。
 
-## 它不做什么
+## 不实现的功能
 
 三件事值得先讲清楚，因为它们决定了后面所有设计的形状。
 
@@ -83,7 +83,7 @@ flowchart TD
     E --> G["写回参数，PTRACE_SYSCALL 继续"]
 ```
 
-## 它靠什么成立
+## 成立的前提
 
 三句话：
 

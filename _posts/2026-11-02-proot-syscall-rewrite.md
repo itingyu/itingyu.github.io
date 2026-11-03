@@ -63,7 +63,7 @@ word_t detranslate_sysnum(Abi abi, Sysnum sysnum) {
 
 这招被用在所有「PRoot 自己要接管」的地方：`getcwd`、`chdir`、`ptrace`、以及所有翻译失败的路径。
 
-## 把字符串写进别人的栈
+## 向 tracee 栈写入字符串
 
 `openat` 的第一个参数是个用户态指针。翻译后的新路径得先找块内存放下，再把寄存器指过去。
 

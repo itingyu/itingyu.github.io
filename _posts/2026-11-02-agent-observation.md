@@ -50,7 +50,7 @@ permalink: /notes/agent-eng/agent-eng-anatomy/agent-observation/
 
 这不是假设。早期的 Agent 实现里有个真实的坑，就出在这一层。
 
-## 退出码是怎么丢的
+## 退出码的丢失
 
 沙箱里的命令不是直接跑的。宿主要先拦截 `execve`，把调用转给 App 进程里的处理器，拿到结果之后再「假装」这次系统调用发生过。
 
@@ -103,7 +103,7 @@ permalink: /notes/agent-eng/agent-eng-anatomy/agent-observation/
 
 这和前面的外置是同一个思路：不是简单地少给，而是**让模型知道自己少了什么，以及去哪里补**。
 
-## 静默成功最危险
+## 静默成功
 
 把所有失败形态排个序，最危险的不是报错，是「看起来成功了」。
 

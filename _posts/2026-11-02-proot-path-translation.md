@@ -56,7 +56,7 @@ status = substitute_binding(tracee, GUEST, result);    /* 4. guest -> host */
 5. 通知扩展（`TRANSLATED_PATH`），扩展可以再改。
 6. 返回，由调用方 `set_sysarg_path()` 写回 tracee 内存。
 
-## 为什么不能直接 realpath
+## 直接 realpath 的问题
 
 因为 `realpath()` 在宿主命名空间里解析符号链接，而 PRoot 要的是**在 guest 命名空间里**解析。差别在于：guest 的 `/` 不是宿主的 `/`，符号链接的每一段都可能落在绑定上。
 
@@ -149,7 +149,7 @@ if (S_ISDIR(type))
 
 对 `fd/N` 不做规范化的理由写在注释里：它可能是匿名管道，此时任何「解析」都是错的；如果它确实指向文件，等 `readlink` 返回时再反向翻译。
 
-## detranslate：把答案翻译回去
+## detranslate：反向翻译
 
 `readlink("/bin/echo")` 在内核里返回的是宿主路径 `/bin/busybox`。直接交给用户就穿帮了，所以出口还要反向翻译：
 

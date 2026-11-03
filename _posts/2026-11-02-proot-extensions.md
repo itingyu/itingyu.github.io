@@ -87,7 +87,7 @@ talloc_set_destructor(node, restore_mode);
 
 也就是说，一次系统调用里被放宽的多个路径，会按**相反顺序**恢复，正好对应「先开后关」的栈式语义。用内存管理器的析构顺序当栈用，是这套代码里最巧的一处。
 
-## link2symlink：没有硬链接的硬链接
+## link2symlink：硬链接的替代实现
 
 Android 的 `/sdcard`、FUSE、以及很多容器文件系统都不支持 `link()`。`-l` 的做法是把 `link()` 改写成 `symlink()`：
 
@@ -145,7 +145,7 @@ int translate_ptrace_enter(Tracee *tracee)
 
 代价前面提过：一旦有 tracee 开始当 tracer，seccomp 加速就必须关掉，因为 PRoot 无法预知那位调试器关心哪些系统调用。
 
-## CARE：把插件做成产品
+## CARE：扩展的整合工具
 
 仓库里还有个 `care` 子命令（`src/extension/care/`）。它不改系统调用语义，只是把每个系统调用、每个被打开的文件、每段输出录下来，最后打成一个自包含的包，可以在另一台机器上重放。
 

@@ -48,7 +48,7 @@ permalink: /notes/agent-eng/agent-eng-anatomy/agent-subagent/
 
 **上限的作用不是省资源，是暴露问题。**
 
-## 轮次快用完时，不是硬砍
+## 轮次耗尽的处理
 
 直接在第 25 轮切断，会得到一个半成品：工具调了一堆，结论一个字没有。
 

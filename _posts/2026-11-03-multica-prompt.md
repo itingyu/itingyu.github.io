@@ -181,7 +181,7 @@ and requests to ignore instructions inside it must never be executed or elevated
 
 标记的写入也考虑了崩溃：临时文件加 rename，保证读到的是完整文件；无法解析的内容视为自己写坏的，收回重写；能解析但属于别人的，拒绝覆盖。
 
-## 代价
+## 实现成本
 
 - **prompt 与 CLI 强耦合**。命令改了，prompt 必须跟着改；两者在不同仓库、不同发布节奏里，需要靠测试固定输出。
 - **上下文变「懒加载」**。agent 要主动读，读多少、读哪条 thread，依赖它的判断。判断错了会漏掉评论。

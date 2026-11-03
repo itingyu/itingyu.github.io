@@ -148,7 +148,7 @@ var errWSRPCUncertain = errors.New("ws rpc: sent but outcome unknown (connection
 
 这套设计的优点是：锁、审计、重试、补偿共用一张表，不需要额外的协调服务；缺点是所有作业共享同一张热表，清理和索引要单独设计。对中等规模的自托管部署，这是很划算的交换。
 
-## 代价
+## 调度开销
 
 - **状态机复杂**。`queued` 之外还有 `deferred`（延迟到某个时间）、`waiting_local_directory`（等用户目录锁），实际状态比初始 schema 的 6 个多。
 - **回收逻辑必须幂等**。任务可能被回收多次，`start` 必须带租约校验，旧投递的 `fail` 回调不能杀掉新持有者。代码里用 `errStartClaimRejected` 专门处理这种「过期投递」。

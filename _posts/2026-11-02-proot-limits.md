@@ -20,7 +20,7 @@ permalink: /notes/proot/proot-internals/proot-limits/
 
 PRoot 不是安全边界：不隔离内核资源，性能开销集中在路径翻译，并会破坏 ASLR 与 setuid。
 
-## 它不是安全边界
+## 隔离范围
 
 这是最需要说清楚的一条。PRoot 只改写路径和一部分返回值，**每一条系统调用最终都发给宿主内核**，权限检查、LSM（SELinux、AppArmor 那一层）、capability 全是真的。
 
@@ -43,7 +43,7 @@ PRoot 的开销不是均匀的：
 
 `PROOT_NO_SECCOMP=1` 可以关掉加速做对照，代价是所有系统调用都停两次。
 
-## 它偷走了 ASLR
+## ASLR 与地址布局
 
 第五篇留下的那句话值得单独拎出来：
 
@@ -80,7 +80,7 @@ add_load_base(tracee->load_info, EXEC_PIC_ADDRESS);   /* 固定 0x3000000000 */
 | PRoot | 不需要 | 仅路径改写，**无隔离** | 路径操作显著变慢 | 可以（配 QEMU user） |
 | 虚拟机 | 需要 | 硬件级 | 高 | 可以 |
 
-## 那它为什么还活着
+## 仍在使用的原因
 
 因为它解决的是一个别人不愿碰的角落：
 

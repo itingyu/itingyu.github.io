@@ -148,7 +148,7 @@ stateDiagram-v2
 
 还有一个 `DISABLING` 状态：当 tracee 自己调用 `ptrace`（比如在里面跑 gdb），PRoot 必须让它看到**每一个**系统调用，seccomp 加速会立刻关掉——"we can't assume what are the syscalls its tracer is interested with"。
 
-## 代价
+## 性能开销
 
 到这里可以算一笔账：没有 seccomp 时，每次系统调用两次上下文切换；有了 seccomp，只有 86 类系统调用会停，且大部分只停一次。PRoot 的性能问题从来不是「每个系统调用都停」，而是「路径类系统调用停两次，且每次都要在 tracee 内存里读写字符串」。
 

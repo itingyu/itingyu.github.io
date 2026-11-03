@@ -70,7 +70,7 @@ func TestMigrationFilesHaveMatchingDirections(t *testing.T) {
 
 迁移执行器本身也有防护：条件迁移即使跳过也会记进 `schema_migrations`；并发索引失败会留下 invalid 索引，runner 会检测并清理；`cmd/migrate/README.md` 为每个大表索引写了手工预热和验证步骤。这些都不是「框架自带」，是踩过坑之后补的。
 
-## 把边界写成合同
+## 边界约束
 
 `AGENTS.md` 是一份给 AI coding agent 看的仓库说明，但它的价值不止于此。它实际上是一份**可执行的架构合同**：
 
@@ -130,7 +130,7 @@ CI 不是「所有 job 每次都跑」。`scripts/ci-scope.mjs` 先判断改动�
 
 这些优化不改变代码质量，但决定了「改一行要等多久」。一个 66 万行的仓库，如果 CI 要跑 40 分钟，再好的纪律也会被绕过。
 
-## 代价
+## 维护成本
 
 这套纪律不是白来的：
 
