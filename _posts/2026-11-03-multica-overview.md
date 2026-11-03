@@ -2,7 +2,7 @@
 layout: post
 slug: multica-overview
 title: 把 agent 当同事：Multica 的架构全貌
-date: 2026-11-03 00:00:00 +0800
+date: 2026-11-03 09:00:00 +0800
 column: multica
 series: multica-code
 tags:
